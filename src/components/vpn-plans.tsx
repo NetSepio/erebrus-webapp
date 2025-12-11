@@ -1,14 +1,16 @@
 import { Lock, Zap, Shield, Database, Smartphone } from "lucide-react";
+import AnimatedHeader from "./ui/animated-header";
 
 export default function VPNPlans() {
   return (
     <section className='grid grid-cols-1 md:grid-cols-12 gap-6 max-w-5xl mx-auto my-18 px-4 relative'>
       {/* Grid 1 - Smaller */}
       <div className='md:col-span-2 p-4'>
-        <h2 className='text-2xl md:text-3xl mb-2'>
-          <span className='text-[#2283F6]'>/</span>OUR <br />
-          PLAN
-        </h2>
+        <AnimatedHeader
+          title='OUR PLAN'
+          highlightClassName='text-[#2283F6]'
+          className='text-2xl md:text-3xl mb-2 text-left'
+        />
       </div>
 
       {/* Grid 2 - Larger */}

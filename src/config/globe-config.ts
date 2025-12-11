@@ -1,10 +1,10 @@
 export const globeConfig = {
   pointSize: 4,
-  globeColor: "#062056",
+  globeColor: "#010F36",
   showAtmosphere: true,
-  atmosphereColor: "#FFFFFF",
+  atmosphereColor: "#001852",
   atmosphereAltitude: 0.1,
-  emissive: "#062056",
+  emissive: "#6366f1",
   emissiveIntensity: 0.1,
   shininess: 0.9,
   polygonColor: "rgba(255,255,255,0.7)",

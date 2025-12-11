@@ -1,5 +1,5 @@
 "use client";
-
+import { useRef, useEffect, useState } from "react";
 import HeroSection from "../components/HeroSection";
 import Head from "next/head";
 import PartnersMarquee from "@/components/ui/PartnersMarquee";
@@ -12,7 +12,8 @@ import { ArrowRight } from "lucide-react";
 import Footer from "@/components/footer";
 import dynamic from "next/dynamic";
 import { globeConfig, sampleArcs } from "@/config/globe-config";
-import { ScrollVelocity } from "@/components/ui/scroll-velocity";
+import { Banner } from "@/components/ui/banner";
+import AnimatedHeader from "@/components/ui/animated-header";
 
 const World = dynamic(
   () => import("@/components/ui/globe").then((m) => m.World),
@@ -22,6 +23,31 @@ const World = dynamic(
 );
 
 function Page() {
+  // const [height, setHeight] = useState(0);
+  // const [width, setWidth] = useState(0);
+  const containerRef = useRef(null);
+
+  // useEffect(() => {
+  //   if (containerRef.current) {
+  //     setHeight(window.innerHeight);
+  //     setWidth(window.innerWidth);
+
+  //     const handleResize = () => {
+  //       setHeight(window.innerHeight);
+  //       setWidth(window.innerWidth);
+  //     };
+
+  //     window.addEventListener("resize", handleResize);
+
+  //     return () => {
+  //       window.removeEventListener("resize", handleResize);
+  //     };
+  //   }
+  // }, []);
+
+  // Display dimensions in real-time
+  // console.log(`Height: ${height}px, Width: ${width}px`);
+
   return (
     <>
       <Head>
@@ -32,7 +58,13 @@ function Page() {
         />
         <link rel='canonical' href='https://erebrus.io' />
       </Head>
-      <main className='bg-[#020417] min-h-screen overflow-hidden'>
+      <main
+        ref={containerRef}
+        className='bg-[#020417] min-h-screen overflow-hidden relative'
+      >
+        {/* <div className='absolute text-base'>
+          <div className='absolute top-0 p-8 bg-amber-700/75 z-100'>{`Height: ${height}px, Width: ${width}px`}</div>
+        </div> */}
         <ScrollProgress color='#3b82f6' height={4} />
 
         <section className='pt-8 sm:pt-12 md:pt-16 lg:pt-10 pb-12 sm:pb-16 md:pb-20 lg:pb-16'>
@@ -69,8 +101,8 @@ function Page() {
             </div>
           </div>
         </section>
-        <section className='my-12 sm:my-20 md:my-40 lg:my-80 relative'>
-          <div className='absolute left-0 -top-60'>
+        <section className='my-12 sm:my-20 md:mt-40 lg:mt-60 relative'>
+          <div className='absolute left-0 -top-56'>
             <Image
               src='/mid-background-blur.png'
               alt='background blur'
@@ -82,7 +114,7 @@ function Page() {
           <PartnersMarquee />
         </section>
         <Experience />
-        <div className='relative my-40'>
+        <div className='relative'>
           <Image
             src='/decen.png'
             alt='accent'
@@ -91,31 +123,26 @@ function Page() {
             className='absolute -top-96'
           />
         </div>
-        <section className='my-40'>
-          {/* <h1 className='text-[18rem] py-0 leading-none transition-transform duration-500 ease-out hover:-translate-x-8 cursor-pointer'>
-            DECENTRALIZED
-          </h1> */}
-          <ScrollVelocity
-            texts={["DECENTRALIZED"]}
-            velocity={50}
-            className='custom-scroll-text text-[18rem]'
-          />
+        <section>
+          <Banner />
         </section>
-        <section className='my-40 relative'>
+        <section className='my-30 relative'>
           <Image
             src='/tralized.png'
             alt='accent'
-            height={5000}
-            width={1000}
+            height={1000}
+            width={2000}
             className='absolute -top-20 left-0'
           />
         </section>
         <VPNPlans />
         <Recognition />
         <div className='flex flex-col md:flex-row items-center justify-center gap-4 py-12'>
-          <h3 className='text-xl md:text-2xl text-white text-center'>
-            Join the Movement. Get Started Now
-          </h3>
+          <AnimatedHeader
+            title='Join the Movement. Get Started Now'
+            highlight=''
+            className='text-xl md:text-2xl text-white text-center'
+          />
           <button className='py-4 px-8 text-base bg-linear-to-r from-[#002C8A] to-[#315FC4] flex items-center gap-4'>
             <span>Get Started </span>
             <ArrowRight color='white' />
@@ -123,8 +150,8 @@ function Page() {
         </div>
 
         {/* Globe background container for floating footer effect */}
-        <div className='relative mt-20 md:mt-32 mb-0'>
-          <div className='absolute w-full h-full' style={{ zIndex: 1 }}>
+        <div className='relative'>
+          <div className='absolute w-full h-full top-40' style={{ zIndex: 1 }}>
             <World data={sampleArcs} globeConfig={globeConfig} />
           </div>
           {/* Gradient overlays */}

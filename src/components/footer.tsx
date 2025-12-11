@@ -11,7 +11,7 @@ export default function Footer() {
   return (
     <footer className='w-full flex justify-center py-8 font-sans'>
       <div
-        className='w-[90%] p-8 md:p-12 rounded-3xl bg-linear-to-br from-[#010a27e0] to-[#022d8be1]'
+        className='w-[90%] p-8 md:p-12 rounded-3xl bg-linear-to-br from-[#010a27e0] to-[#022d8be1] backdrop-blur-xs'
         style={{
           clipPath:
             "polygon(0% 0%, calc(100% - 80px) 0%, 100% 80px, 100% 100%, 0% 100%)",
@@ -136,7 +136,7 @@ export default function Footer() {
                     placeholder='your@email.com'
                     className='w-full px-4 py-2 bg-[#070111A6] text-[#99A1AF] rounded-lg  focus:outline-none'
                   />
-                  <Send className='absolute right-3 top-1/2 -translate-y-1/2 size-4 text-white cursor-pointer' />
+                  <Send className='absolute right-3 top-3 size-4 text-white cursor-pointer' />
                 </form>
               </div>
             </div>

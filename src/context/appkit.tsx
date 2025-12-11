@@ -366,9 +366,9 @@ const authenticateSolana = async (
     const flowId = data.payload.flowId;
 
     const encodedMessage = new TextEncoder().encode(message);
-    
+
     const signature = await walletProvider.signMessage(encodedMessage);
-   
+
     const signatureHex = Array.from(new Uint8Array(signature))
       .map((b: number) => b.toString(16).padStart(2, "0"))
       .join("");
@@ -551,10 +551,10 @@ createAppKit({
   defaultNetwork: mainnet,
   themeMode: "dark",
   themeVariables: {
-    "--w3m-font-family": "Inter, sans-serif",
-    "--w3m-accent": "#3B82F6",
-    "--w3m-color-mix": "#3B82F6",
-    "--w3m-color-mix-strength": 40,
+    "--apkt-font-family": "DM Sans, sans-serif",
+    "--apkt-accent": "#ffffff",
+    "--apkt-color-mix": "#ffffff",
+    "--apkt-color-mix-strength": 40,
   },
   chainImages: {
     11155931: "/rise.jpg",

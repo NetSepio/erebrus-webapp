@@ -1,13 +1,16 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import AnimatedHeader from "./ui/animated-header";
 
 export default function Recognition() {
   return (
     <section className='max-w-5xl mx-auto my-12 md:my-18 px-4'>
-      <h2 className='text-2xl md:text-3xl text-white text-center md:text-left'>
-        <span className='text-[#2283F6] '>/</span>WE'VE BEEN <br /> RECOGNIZED
-      </h2>
+      <AnimatedHeader
+        title="WE'VE BEEN RECOGNIZED"
+        highlightClassName='text-[#2283F6]'
+        className='text-2xl md:text-3xl text-white text-center md:text-left'
+      />
 
       <div className='flex flex-col md:flex-row md:items-center md:justify-between my-8 md:my-12'>
         {/* Diamond on top for mobile, right side for desktop */}
@@ -80,7 +83,7 @@ export default function Recognition() {
           >
             <div className='flex gap-12'>
               <Image
-                src='/recognition/aptos_white.webp'
+                src='/recognition/aptos.png'
                 alt='Aptos Hackathon'
                 width={65}
                 height={15}
@@ -98,7 +101,7 @@ export default function Recognition() {
           >
             <div className='flex gap-12'>
               <Image
-                src='/partners/6.soonami.webp'
+                src='/recognition/soonami.png'
                 alt='Soonami'
                 width={65}
                 height={25}
@@ -116,7 +119,7 @@ export default function Recognition() {
           >
             <div className='flex gap-12'>
               <Image
-                src='/partners/7.akindo.webp'
+                src='/recognition/akindo.png'
                 alt='Akindo Wavehack'
                 width={65}
                 height={25}

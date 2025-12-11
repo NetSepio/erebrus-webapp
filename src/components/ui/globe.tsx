@@ -73,7 +73,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
     showAtmosphere: true,
     atmosphereAltitude: 0.1,
     polygonColor: "rgba(255,255,255,0.7)",
-    globeColor: "#1d072e",
+    globeColor: "#59b43b",
     emissive: "#000000",
     emissiveIntensity: 0.1,
     shininess: 0.9,
@@ -277,6 +277,7 @@ export function World(props: WorldProps) {
         autoRotate={true}
         minPolarAngle={Math.PI / 3.5}
         maxPolarAngle={Math.PI - Math.PI / 3}
+        target={[0, 50, 0]}
       />
     </Canvas>
   );

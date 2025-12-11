@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ErebrusNavbar from "@/components/navbar";
 import { cn } from "@/lib/utils";
 import "./globals.css";
-import DarkFooter from "@/components/ui/footer";
 import { AppKit } from "../context/appkit";
 import AppWalletProvider from "@/components/AppWalletProvider";
 

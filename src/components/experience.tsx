@@ -1,18 +1,19 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import AnimatedHeader from "./ui/animated-header";
 
 export function Experience() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   return (
     <section className='relative z-20 md:py-30'>
-      <div className='text-center'>
-        <h2 className='text-2xl md:text-3xl font-bold bg-white bg-clip-text text-transparent px-4'>
-          <span className='text-blue-500'>/</span>Your Content Delivery,
-          Uninterrupted!
-        </h2>
-        <p className='text-sm md:text-base font-sans mt-4 px-4'>
+      <div className='text-center px-4'>
+        <AnimatedHeader
+          title='Your Content Delivery, Uninterrupted!'
+          className='text-2xl md:text-3xl font-bold bg-white bg-clip-text text-transparent'
+        />
+        <p className='text-sm md:text-base font-sans mt-4'>
           Launch your own VPN for sovereign and private experience
         </p>
       </div>
@@ -33,16 +34,7 @@ export function Experience() {
             }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <Image
-              src={
-                hoveredCard === 1
-                  ? "/images/flag-hover.png"
-                  : "/images/flag.png"
-              }
-              alt='Flag'
-              width={180}
-              height={180}
-            />
+            <Image src='/images/flag.png' alt='Flag' width={180} height={180} />
           </motion.div>
 
           {/* Flag shadow positioned inside the card */}
@@ -87,11 +79,7 @@ export function Experience() {
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
             <Image
-              src={
-                hoveredCard === 2
-                  ? "/images/shield-hover.png"
-                  : "/images/shield.png"
-              }
+              src='/images/shield.png'
               alt='Shield'
               width={180}
               height={180}
@@ -140,11 +128,7 @@ export function Experience() {
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
             <Image
-              src={
-                hoveredCard === 3
-                  ? "/images/map-pin-hover.png"
-                  : "/images/map-pin.png"
-              }
+              src='/images/map-pin.png'
               alt='Map pin'
               width={180}
               height={180}
@@ -192,11 +176,7 @@ export function Experience() {
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
             <Image
-              src={
-                hoveredCard === 4
-                  ? "/images/flash-hover.png"
-                  : "/images/flash.png"
-              }
+              src='/images/flash.png'
               alt='Flash'
               width={180}
               height={180}
@@ -244,16 +224,7 @@ export function Experience() {
             }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <Image
-              src={
-                hoveredCard === 5
-                  ? "/images/lock-hover.png"
-                  : "/images/lock.png"
-              }
-              alt='Lock'
-              width={200}
-              height={200}
-            />
+            <Image src='/images/lock.png' alt='Lock' width={200} height={200} />
           </motion.div>
 
           {/* Lock shadow positioned inside the card */}
