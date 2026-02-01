@@ -1,172 +1,168 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
-import HeroSection from "../components/HeroSection";
+
+import { useEffect, useState } from "react";
 import Head from "next/head";
-import PartnersMarquee from "@/components/ui/PartnersMarquee";
-import Image from "next/image";
-import { ScrollProgress } from "@/components/ui/scroll-progress";
-import { Experience } from "@/components/experience";
-import VPNPlans from "@/components/vpn-plans";
-import Recognition from "@/components/recognition";
-import { ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Hero,
+  Features,
+  NetworkStats,
+  HowItWorks,
+  CTA,
+} from "@/components/landing";
 import Footer from "@/components/footer";
-import dynamic from "next/dynamic";
-import { globeConfig, sampleArcs } from "@/config/globe-config";
-import { Banner } from "@/components/ui/banner";
-import AnimatedHeader from "@/components/ui/animated-header";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
 
-const World = dynamic(
-  () => import("@/components/ui/globe").then((m) => m.World),
-  {
-    ssr: false,
+// Loading screen component
+function LoadingScreen({ onComplete }: { onComplete: () => void }) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(onComplete, 500);
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [onComplete]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#020417]"
+    >
+      <div className="w-full max-w-md px-8">
+        {/* Logo Animation */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold erebrus-gradient-text mb-2">
+            EREBRUS
+          </h1>
+          <p className="text-slate-500 text-sm tracking-widest uppercase">
+            Initializing Secure Connection
+          </p>
+        </motion.div>
+
+        {/* Progress Bar */}
+        <div className="relative h-1 bg-white/10 rounded-full overflow-hidden">
+          <motion.div
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-blue-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.1 }}
+          />
+        </div>
+
+        {/* Progress Text */}
+        <motion.div
+          className="mt-4 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <span className="text-cyan-400 font-mono text-sm">{progress}%</span>
+        </motion.div>
+
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-[100px]" />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#020417] flex items-center justify-center">
+        <div className="text-cyan-400 font-mono">Loading...</div>
+      </div>
+    );
   }
-);
-
-function Page() {
-  // const [height, setHeight] = useState(0);
-  // const [width, setWidth] = useState(0);
-  const containerRef = useRef(null);
-
-  // useEffect(() => {
-  //   if (containerRef.current) {
-  //     setHeight(window.innerHeight);
-  //     setWidth(window.innerWidth);
-
-  //     const handleResize = () => {
-  //       setHeight(window.innerHeight);
-  //       setWidth(window.innerWidth);
-  //     };
-
-  //     window.addEventListener("resize", handleResize);
-
-  //     return () => {
-  //       window.removeEventListener("resize", handleResize);
-  //     };
-  //   }
-  // }, []);
-
-  // Display dimensions in real-time
-  // console.log(`Height: ${height}px, Width: ${width}px`);
 
   return (
     <>
       <Head>
-        <title>Erebrus - Decentralized VPN Network</title>
+        <title>Erebrus - Decentralized VPN Network | Web3 Privacy</title>
         <meta
-          name='description'
-          content='Redefining digital connectivity and unleashing the future of internet with globally accessible, secure and private network through the power of DePIN.'
+          name="description"
+          content="Experience the future of internet privacy with Erebrus. Decentralized VPN network powered by DePIN. Connect with your crypto wallet and browse securely."
         />
-        <link rel='canonical' href='https://erebrus.io' />
+        <meta
+          name="keywords"
+          content="VPN, decentralized, Web3, privacy, crypto, blockchain, DePIN, secure browsing"
+        />
+        <link rel="canonical" href="https://erebrus.io" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://erebrus.io" />
+        <meta
+          property="og:title"
+          content="Erebrus - Decentralized VPN Network"
+        />
+        <meta
+          property="og:description"
+          content="Redefining digital connectivity with globally accessible, secure and private network through the power of DePIN."
+        />
+        <meta property="og:image" content="https://erebrus.io/og-image.png" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://erebrus.io" />
+        <meta
+          name="twitter:title"
+          content="Erebrus - Decentralized VPN Network"
+        />
+        <meta
+          name="twitter:description"
+          content="Redefining digital connectivity with globally accessible, secure and private network through the power of DePIN."
+        />
+        <meta name="twitter:image" content="https://erebrus.io/og-image.png" />
       </Head>
-      <main
-        ref={containerRef}
-        className='bg-[#020417] min-h-screen overflow-hidden relative'
-      >
-        {/* <div className='absolute text-base'>
-          <div className='absolute top-0 p-8 bg-amber-700/75 z-100'>{`Height: ${height}px, Width: ${width}px`}</div>
-        </div> */}
-        <ScrollProgress color='#3b82f6' height={4} />
 
-        <section className='pt-8 sm:pt-12 md:pt-16 lg:pt-10 pb-12 sm:pb-16 md:pb-20 lg:pb-16'>
-          <HeroSection />
-          <div className='bg-linear-to-b from-[#080217] to-[#080217] h-auto min-h-32 sm:min-h-36 md:h-24 lg:h-30 flex items-center justify-center relative'>
-            <div
-              className='rounded-3xl relative w-5/6 flex flex-col md:flex-row items-start pt-8 md:pt-16 gap-4 md:gap-16 p-4 pb-8 md:pb-0 md:pr-30 md:top-1.5 bg-linear-to-r from-[#001655] to-[#1f4eb4]'
-              style={{
-                clipPath:
-                  "polygon(0% 0%, 100% 0%, 100% calc(100% - 75px), calc(100% - 75px) 100%, 0% 100%)",
-              }}
-            >
-              <Image
-                src='/images/world.png'
-                alt='World Image'
-                width={300}
-                height={300}
-                className='self-end -mt-8 md:mt-0'
-              />
-              <div className='font-sans space-y-4 pb-4 md:pb-0'>
-                <div className='rounded-full text-white capitalize bg-black/20 w-fit px-4 md:mx-0'>
-                  erebrus
-                </div>
-                <h3 className='text-lg md:text-xl'>
-                  Pioneering Private Digital Freedom
-                </h3>
-                <p className='text-sm text-[#D3DCE8]'>
-                  Erebrus delivers a decentralized VPN designed to put you in
-                  control of your online life. Protect your data, safeguard your
-                  privacy, and connect freely in a network built for security,
-                  transparency, and digital sovereignty.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className='my-12 sm:my-20 md:mt-40 lg:mt-60 relative'>
-          <div className='absolute left-0 -top-56'>
-            <Image
-              src='/mid-background-blur.png'
-              alt='background blur'
-              height={800}
-              width={800}
-              className='blur-sm'
-            />
-          </div>
-          <PartnersMarquee />
-        </section>
-        <Experience />
-        <div className='relative'>
-          <Image
-            src='/decen.png'
-            alt='accent'
-            height={800}
-            width={1500}
-            className='absolute -top-96'
-          />
-        </div>
-        <section>
-          <Banner />
-        </section>
-        <section className='my-30 relative'>
-          <Image
-            src='/tralized.png'
-            alt='accent'
-            height={1000}
-            width={2000}
-            className='absolute -top-20 left-0'
-          />
-        </section>
-        <VPNPlans />
-        <Recognition />
-        <div className='flex flex-col md:flex-row items-center justify-center gap-4 py-12'>
-          <AnimatedHeader
-            title='Join the Movement. Get Started Now'
-            highlight=''
-            className='text-xl md:text-2xl text-white text-center'
-          />
-          <button className='py-4 px-8 text-base bg-linear-to-r from-[#002C8A] to-[#315FC4] flex items-center gap-4'>
-            <span>Get Started </span>
-            <ArrowRight color='white' />
-          </button>
-        </div>
+      <AnimatePresence mode="wait">
+        {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
 
-        {/* Globe background container for floating footer effect */}
-        <div className='relative'>
-          <div className='absolute w-full h-full top-40' style={{ zIndex: 1 }}>
-            <World data={sampleArcs} globeConfig={globeConfig} />
-          </div>
-          {/* Gradient overlays */}
-          <div
-            className='absolute top-0 left-0 w-full h-48 bg-linear-to-b from-[#020417]/90 to-transparent pointer-events-none'
-            style={{ zIndex: 2 }}
-          />
+      <main className="relative min-h-screen bg-[#020417] erebrus-bg">
+        {/* Scroll Progress Indicator */}
+        <ScrollProgress color="#00D4FF" height={3} />
 
-          <div className='relative z-10 flex items-center justify-center min-h-screen'>
-            <Footer />
-          </div>
+        {/* Mesh Background Animation */}
+        <div className="erebrus-mesh" />
+
+        {/* Main Content */}
+        <div className="relative z-10">
+          <Hero />
+          <Features />
+          <NetworkStats />
+          <HowItWorks />
+          <CTA />
+          <Footer />
         </div>
       </main>
     </>
   );
 }
-
-export default Page;

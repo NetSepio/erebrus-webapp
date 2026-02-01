@@ -1,48 +1,33 @@
-"use client"
-import { WagmiProvider } from "wagmi";
-import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
+"use client";
+import { WagmiProvider, createConfig, http } from "wagmi";
+import { mainnet, polygon, arbitrum, optimism } from "wagmi/chains";
 import { metaMask } from "wagmi/connectors";
-import { mainnet, polygon, arbitrum, optimism } from 'wagmi/chains';
-const chains = [mainnet, polygon, arbitrum, optimism] as const;
-const projectId = "193ccae4f2630b59e1e7f10b785e3a0a";
+import { ReactNode } from "react";
 
-const metadata = {
-    name: "Erebrus",
-    description:
-      "Redefining digital connectivity and unleashing the future of internet with globally accessible, secure and private network through the power of DePIN.",
-    url: "https://netsepio.com",
-    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-    openGraph: {
-      type: "website",
-      url: "https://netsepio.com",
-      title: "Erebrus",
-      description:
-        "Redefining digital connectivity and unleashing the future of internet with globally accessible, secure and private network through the power of DePIN.",
-      
-    },
-  };
-  
-const config = defaultWagmiConfig({
+// Type assertion to fix version incompatibility between wagmi and viem
+const chains: any = [mainnet, polygon, arbitrum, optimism];
+
+const config = createConfig({
   chains,
-  projectId,
-  metadata,
   connectors: [
     metaMask({
       dappMetadata: {
-        name: 'Erebrus',
-        url: 'https://netsepio.com',
-        iconUrl: 'https://netsepio.com/favicon.ico',
+        name: "Erebrus",
+        url: "https://erebrus.io",
+        iconUrl: "https://erebrus.io/favicon.ico",
       },
     }),
-  ],});
-import { ReactNode } from "react";
+  ],
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+    [arbitrum.id]: http(),
+    [optimism.id]: http(),
+  },
+});
 
 const CustomWagmiProvider = ({ children }: { children: ReactNode }) => {
-  return (
-   <WagmiProvider config={config}>
-      {children}
-    </WagmiProvider>
-  )
-}
+  return <WagmiProvider config={config}>{children}</WagmiProvider>;
+};
 
-export default CustomWagmiProvider
+export default CustomWagmiProvider;
