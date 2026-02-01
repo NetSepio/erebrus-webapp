@@ -140,10 +140,15 @@ export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
+  // Initialize scroll animations only after mount
+  const { scrollYProgress } = useScroll(
+    mounted && containerRef.current
+      ? {
+          target: containerRef,
+          offset: ["start start", "end start"],
+        }
+      : undefined,
+  );
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.9]);
@@ -153,7 +158,22 @@ export function Hero() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <section
+        ref={containerRef}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      >
+        <div className="absolute inset-0 z-0 bg-[#020417]" />
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="animate-pulse">
+            <div className="h-20 w-3/4 mx-auto bg-white/10 rounded mb-6" />
+            <div className="h-8 w-1/2 mx-auto bg-white/10 rounded" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -222,8 +242,8 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-lg sm:text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed"
         >
-          Experience the future of internet freedom with Erebrus.
-          Connect to a global network of secure, community-operated VPN nodes.
+          Experience the future of internet freedom with Erebrus. Connect to a
+          global network of secure, community-operated VPN nodes.
         </motion.p>
 
         {/* CTA Buttons */}
