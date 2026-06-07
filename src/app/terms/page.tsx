@@ -1,168 +1,285 @@
-"use client";
-import React from "react";
-// import { useEffect } from "react";
-import { useState } from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
 
-const Terms = () => {
-  const topics = [
-    {
-      id: 1,
-      name: "Introduction",
-      description: `Welcome to Erebrus, A decentralized VPN (dVPN) protocol leveraging the Decentralized Physical Infrastructure Network (DePIN). By using Erebrus ("Service"), you agree to comply with and be bound by the following End User License Agreement ("EULA"). Please read this agreement carefully before using our Service.`,
-    },
-    {
-      id: 2,
-      name: "Acceptance of Terms",
-      description: `By accessing or using Erebrus, you agree to be bound by this EULA. If you do 
-not agree to these terms, do not use our Service.
-`,
-    },
-    {
-      id: 3,
-      name: "Service Description",
-      description: `Erebrus is a dVPN protocol designed to enhance user privacy, security, and 
-transparency by decentralizing internet access. Our Service does not 
-guarantee any specific results, performance, or security outcomes, and is 
-provided "as is."`,
-    },
-    {
-      id: 4,
-      name: "Use of Service",
-      description: `You may use Erebrus for lawful purposes only. You agree not to use the 
-Service for any illegal activities or in a manner that could harm the integrity, 
-security, or availability of the Service.`,
-    },
-    {
-      id: 5,
-      name: "User Information",
-      description: `We respect your privacy and are committed to protecting it. The only user 
-information we collect is your email address, which will be handled in 
-accordance with our Privacy Policy. We do not sell, track, or share your data 
-with third parties.`,
-    },
-    {
-      id: 6,
-      name: "Privacy Policy",
-      description: `By using Erebrus, you agree to the collection and use of information in 
-accordance with our Privacy Policy. Our Privacy Policy is available on our 
-website <a href="https://erebrus.io/" target="_blank" rel="noopener noreferrer" style="color: black; text-decoration: underline;"><strong>here</strong></a> and is incorporated into this EULA by reference.`,
-    },
-    {
-      id: 7,
-      name: "No Warranties",
-      description: `Erebrus is provided "as is" without any warranties of any kind, whether 
-express, implied, or statutory. We do not guarantee that the Service will be 
-uninterrupted, error-free, or free from viruses or other harmful components. 
-We disclaim any warranties of merchantability, fitness for a particular 
-purpose, and non-infringement.`,
-    },
-    {
-      id: 8,
-      name: "Limitation of Liability",
-      description: `To the maximum extent permitted by law, Erebrus, its affiliates, and its 
-licensors shall not be liable for any indirect, incidental, special, consequential, 
-or punitive damages, or any loss of profits or revenues, whether incurred 
-directly or indirectly, or any loss of data, use, goodwill, or other intangible 
-losses, resulting from: 
-- Your use of or inability to use the Service
-- Any unauthorized access to or use of our servers
-- Any bugs, viruses, or other harmful code that may be transmitted to or  through our Service`,
-    },
-    {
-      id: 9,
-      name: "Indemnification",
-      description: `You agree to indemnify, defend, and hold harmless Erebrus, its affiliates, and 
-its licensors, and their respective officers, directors, employees, and agents 
-from and against any claims, liabilities, damages, losses, and expenses, 
-including reasonable attorney's fees and costs, arising out of or in any way 
-connected with:
-- Your access to or use of the Service
-- Your violation of any term of this EULA
-- Your violation of any third-party right, including without limitation any 
-intellectual property, property, or privacy right
-`,
-    },
-    {
-      id: 10,
-      name: "Governing Law",
-      description: `This EULA and any dispute arising out of or in connection with it shall be 
-governed by and construed in accordance with the laws of the United States. 
-Any legal action or proceeding related to this EULA shall be brought 
-exclusively in the courts located within the United States.`,
-    },
-    {
-      id: 11,
-      name: "Changes to this EULA",
-      description: `We reserve the right to modify this EULA at any time. Any changes will be 
-posted on our website, and your continued use of the Service after such 
-changes have been posted constitutes your acceptance of the new EULA.`,
-    },
-    {
-      id: 12,
-      name: "Termination",
-      description: `We reserve the right to terminate your access to the Service at our sole 
-discretion, without notice, for conduct that we believe violates this EULA or is 
-harmful to other users of the Service, us, or third parties, or for any other reason.`,
-    },
-    {
-      id: 13,
-      name: "Contact Information",
-      description: `If you have any questions about this EULA or the Service, please contact us at 
-support@netsepio.com.
-
-By using Erebrus, you acknowledge that you have read, understood, and 
-agree to be bound by this EULA.`,
-    },
-  ];
-
-  const [selectedTopic, setSelectedTopic] = useState(topics[0]);
-
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="text-white flex flex-col w-1/3 mx-auto mt-10">
-        <div className="text-3xl font-semibold">Terms and Conditions</div>
-        <div className="mt-4 text-md">
-          End User License Agreement (EULA) for Erebrus dVPN Protocol
-        </div>
-      </div>
-
-      <div className="mt-10 mx-20 flex pb-10">
-        <div className="w-1/3 p-10" style={{ backgroundColor: "#000000" }}>
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {topics.map((topic) => (
-              <li
-                key={topic.id}
-                onClick={() => setSelectedTopic(topic)}
-                style={{
-                  cursor: "pointer",
-                  padding: "10px",
-                  fontSize: "20px",
-                  borderRadius: "5px",
-                  // background: selectedTopic?.id === topic.id ? '#f0f0f0' : '#D9D9D9',
-                  color: selectedTopic?.id === topic.id ? "#0162FF" : "#6D6D6E",
-                }}
-              >
-                {topic.id}. {topic.name}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="w-2/3" style={{ backgroundColor: "#5696FF" }}>
-          {/* {selectedTopic ? ( */}
-          <div>
-            <p
-              className="text-white text-lg p-20"
-              style={{ whiteSpace: "pre-line" }}
-              dangerouslySetInnerHTML={{ __html: selectedTopic?.description }}
-            ></p>
-          </div>
-          {/* ) : (
-          <p>Select a topic to see the description</p>
-        )} */}
-        </div>
-      </div>
-    </div>
-  );
+export const metadata: Metadata = {
+  title: "Terms and Conditions | Erebrus",
+  description:
+    "Terms and Conditions for Erebrus VPN and Erebrus Drop, products of NetSepio.",
 };
 
-export default Terms;
+type LegalSection = {
+  title: string;
+  body?: string[];
+  items?: string[];
+  subsections?: Array<{
+    title: string;
+    body?: string[];
+    items?: string[];
+  }>;
+};
+
+const lastUpdated = "June 7, 2026";
+
+const sections: LegalSection[] = [
+  {
+    title: "1. Agreement to These Terms",
+    body: [
+      'These Terms and Conditions ("Terms") govern your access to and use of Erebrus VPN, Erebrus Drop, the Erebrus web application, mobile applications, websites, dashboards, APIs, network explorer, support channels, and related services (collectively, the "Services"). Erebrus is a product of NetSepio.',
+      "By accessing or using any Service, you agree to these Terms. If you do not agree, do not use the Services.",
+    ],
+  },
+  {
+    title: "2. Service Overview",
+    subsections: [
+      {
+        title: "Erebrus VPN",
+        body: [
+          "Erebrus VPN provides wallet-authenticated access to decentralized VPN and DePIN network features. Depending on availability, you may browse nodes, create VPN clients, generate or download configuration files, manage subscriptions or trials, and access related network tools.",
+        ],
+      },
+      {
+        title: "Erebrus Drop",
+        body: [
+          "Erebrus Drop helps you move files, photos, and text between nearby devices using a local Drop Room over Wi-Fi or hotspot. You can create a Drop Room, join by scanning a QR code or opening a browser Drop link, transfer directly through your local network, and manage received files from the Library.",
+          "Erebrus Drop is designed as a local-first transfer tool. Drop Room file contents are not uploaded to NetSepio servers as part of the local transfer flow.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "3. Eligibility and Account Access",
+    items: [
+      "You must be legally able to enter into these Terms in your jurisdiction.",
+      "You are responsible for your wallet, device, browser, operating system, private keys, seed phrases, and local network security.",
+      "You may not use the Services if you are barred from doing so under applicable law or sanctions rules.",
+      "If you use the Services on behalf of an organization, you represent that you have authority to bind that organization.",
+    ],
+  },
+  {
+    title: "4. Wallets, Signatures, and Authentication",
+    body: [
+      "Some Erebrus VPN features require connecting a supported wallet and signing authentication messages. A signature is used to verify wallet control and does not by itself authorize a token transfer unless the wallet prompt separately says so.",
+      "You are responsible for reviewing wallet prompts, transaction details, network fees, and smart contract interactions before approving them. Blockchain transactions can be irreversible.",
+    ],
+  },
+  {
+    title: "5. VPN Use and Network Conditions",
+    items: [
+      "VPN node availability, speed, uptime, location, routing, and performance may vary.",
+      "Some VPN infrastructure may be operated by independent node operators or third-party providers, not solely by NetSepio.",
+      "VPN access does not guarantee anonymity, immunity from monitoring by all parties, access to every website, or bypass of every technical restriction.",
+      "You are responsible for complying with laws, platform rules, and network policies that apply to your use of VPN connections.",
+      "Do not use Erebrus VPN to attack, disrupt, harass, defraud, spam, scrape unlawfully, infringe rights, distribute malware, or engage in illegal activity.",
+    ],
+  },
+  {
+    title: "6. Drop Use and Local Transfer Responsibilities",
+    items: [
+      "Only create or join Drop Rooms with devices and people you trust.",
+      "A QR code or browser Drop link may allow another nearby device to join the room while the room is active. Protect room codes and links.",
+      "Your local Wi-Fi, hotspot, device firewall, browser permissions, or operating system settings may affect whether Drop works.",
+      "Files, photos, and text you send or receive may contain personal, confidential, copyrighted, malicious, or regulated content. You are responsible for what you choose to transfer.",
+      "Received files may remain on your device or in the app Library until you delete them, export them, or manage them through your device controls.",
+      "If you share a received file through another app, cloud service, operating system share sheet, or third-party tool, that separate service may process the file under its own terms.",
+    ],
+  },
+  {
+    title: "7. Acceptable Use",
+    body: ["You agree not to use the Services to:"],
+    items: [
+      "Violate any law, regulation, sanctions program, court order, or third-party right.",
+      "Transmit malware, exploit code, phishing material, abusive content, non-consensual intimate content, or illegal content.",
+      "Interfere with, overload, reverse engineer, crawl, probe, or attack the Services, nodes, wallets, APIs, or other users.",
+      "Misrepresent your identity, impersonate another person, or bypass access controls.",
+      "Use the Services for high-risk activities where failure could lead to death, personal injury, environmental damage, or critical infrastructure harm.",
+      "Resell, sublicense, or commercially exploit the Services unless NetSepio has authorized that use in writing.",
+    ],
+  },
+  {
+    title: "8. User Content and Transfers",
+    body: [
+      'You retain ownership of files, photos, text, wallet data, names, configuration labels, support messages, and other content you provide or transfer through the Services ("User Content").',
+      "For Erebrus Drop local transfers, NetSepio does not claim ownership of transferred file contents and does not need a license to host those file contents on NetSepio servers for the local transfer flow. If you provide content to NetSepio through support, feedback, bug reports, public channels, or hosted features, you grant NetSepio the limited rights necessary to operate, secure, improve, and support the Services.",
+    ],
+  },
+  {
+    title: "9. Fees, Trials, Subscriptions, NFTs, and Blockchain Features",
+    items: [
+      "Free trials, paid plans, NFT-based access, token-gated access, or promotional offers may be changed, paused, or discontinued.",
+      "Fees, taxes, gas costs, payment processor charges, and blockchain network fees are your responsibility unless stated otherwise.",
+      "NFT minting or token features may be experimental, unavailable, delayed, or non-functional. Ownership of an NFT or token does not guarantee perpetual service access unless NetSepio expressly states that in writing.",
+      "Blockchain assets are volatile and can involve risk. NetSepio does not provide financial, investment, tax, or legal advice.",
+    ],
+  },
+  {
+    title: "10. Privacy",
+    body: [
+      "Your use of the Services is also governed by the Erebrus Privacy Policy. The Privacy Policy explains what NetSepio collects, what it does not collect for Erebrus Drop, how data is used, and how privacy rights requests may be made.",
+    ],
+  },
+  {
+    title: "11. Third-party Services",
+    body: [
+      "The Services may rely on or link to third-party wallets, blockchains, RPC providers, payment processors, app stores, browsers, operating systems, QR scanners, storage locations, node operators, hosting providers, analytics or security providers, and external websites. NetSepio is not responsible for third-party services, and your use of them may be governed by their own terms and privacy policies.",
+    ],
+  },
+  {
+    title: "12. Security",
+    body: [
+      "NetSepio works to protect the Services, but no network, VPN, app, device, browser, blockchain, local transfer, or security measure is perfect. You are responsible for keeping your wallet credentials, devices, local network, operating system, browser, and received files secure.",
+      "Report suspected vulnerabilities or account abuse to support@netsepio.com. Do not publicly disclose a vulnerability before NetSepio has had a reasonable opportunity to investigate and remediate it.",
+    ],
+  },
+  {
+    title: "13. Intellectual Property",
+    body: [
+      "The Services, software, designs, logos, trademarks, text, graphics, interfaces, documentation, and other materials provided by NetSepio are owned by NetSepio or its licensors and are protected by intellectual property laws. These Terms do not transfer ownership of NetSepio intellectual property to you.",
+    ],
+  },
+  {
+    title: "14. Disclaimers",
+    body: [
+      'The Services are provided "as is" and "as available" to the maximum extent permitted by law. NetSepio disclaims all warranties, whether express, implied, statutory, or otherwise, including warranties of merchantability, fitness for a particular purpose, title, non-infringement, availability, reliability, and security.',
+      "NetSepio does not warrant that the Services will be uninterrupted, error-free, secure, compatible with every device or network, free from harmful components, or that any VPN route or Drop transfer will meet your expectations.",
+    ],
+  },
+  {
+    title: "15. Limitation of Liability",
+    body: [
+      "To the maximum extent permitted by law, NetSepio and its affiliates, officers, employees, contractors, licensors, and service providers will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages, or for lost profits, lost data, loss of goodwill, service interruption, device compromise, failed transfers, lost files, wallet compromise, blockchain losses, or unauthorized access arising from or related to the Services.",
+      "To the maximum extent permitted by law, NetSepio's total liability for all claims related to the Services will not exceed the greater of the amount you paid to NetSepio for the Services in the six months before the claim or USD 100.",
+    ],
+  },
+  {
+    title: "16. Indemnification",
+    body: [
+      "You agree to defend, indemnify, and hold harmless NetSepio and its affiliates, officers, employees, contractors, licensors, and service providers from claims, damages, liabilities, losses, and expenses, including reasonable attorneys' fees, arising from your use of the Services, your User Content, your transfers, your violation of these Terms, or your violation of law or third-party rights.",
+    ],
+  },
+  {
+    title: "17. Suspension and Termination",
+    body: [
+      "NetSepio may suspend, limit, or terminate access to the Services if we believe you violated these Terms, created risk for the Services or others, triggered abuse or security concerns, or if continued operation is not commercially, legally, or technically feasible.",
+      "You may stop using the Services at any time. Some provisions, including intellectual property, disclaimers, limitation of liability, indemnification, dispute terms, and payment obligations, survive termination.",
+    ],
+  },
+  {
+    title: "18. Changes to the Services or Terms",
+    body: [
+      "NetSepio may update the Services and these Terms from time to time. If changes are material, we will take reasonable steps to provide notice, such as updating this page or providing in-product notice. Your continued use after the effective date of updated Terms means you accept the updated Terms.",
+    ],
+  },
+  {
+    title: "19. Governing Law and Disputes",
+    body: [
+      "These Terms are governed by the laws of the United States and, where applicable, the laws of the state or jurisdiction in which NetSepio or its operating entity is established, without regard to conflict of law principles. Courts located in the United States will have jurisdiction unless applicable consumer protection law requires otherwise.",
+    ],
+  },
+  {
+    title: "20. Contact",
+    body: [
+      "Questions about these Terms can be sent to support@netsepio.com.",
+      "Postal contact, if required: Lazarus Network Inc., 2209 SW 58th Way, West Park, Florida 33023, United States.",
+    ],
+  },
+];
+
+function SectionBlock({ section }: { section: LegalSection }) {
+  return (
+    <section className="rounded-lg border border-white/10 bg-white/[0.03] p-6">
+      <h2 className="mb-4 text-2xl font-semibold text-white">
+        {section.title}
+      </h2>
+      {section.body?.map((paragraph) => (
+        <p key={paragraph} className="mb-4 leading-8 text-slate-300 last:mb-0">
+          {paragraph}
+        </p>
+      ))}
+      {section.items && (
+        <ul className="space-y-3 pl-5 text-slate-300">
+          {section.items.map((item) => (
+            <li key={item} className="list-disc leading-7">
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
+      {section.subsections?.map((subsection) => (
+        <div key={subsection.title} className="mt-5 rounded-lg bg-black/20 p-5">
+          <h3 className="mb-3 text-lg font-semibold text-cyan-200">
+            {subsection.title}
+          </h3>
+          {subsection.body?.map((paragraph) => (
+            <p
+              key={paragraph}
+              className="mb-4 leading-8 text-slate-300 last:mb-0"
+            >
+              {paragraph}
+            </p>
+          ))}
+          {subsection.items && (
+            <ul className="space-y-3 pl-5 text-slate-300">
+              {subsection.items.map((item) => (
+                <li key={item} className="list-disc leading-7">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+export default function TermsPage() {
+  return (
+    <main className="min-h-screen bg-[#020417] px-4 pt-32 pb-20 text-white sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-10 rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-6">
+          <p className="mb-3 text-sm font-medium uppercase text-cyan-200">
+            Erebrus legal
+          </p>
+          <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
+            Terms and Conditions
+          </h1>
+          <p className="max-w-3xl leading-8 text-slate-300">
+            These Terms cover Erebrus VPN and Erebrus Drop, including wallet
+            access, decentralized VPN usage, local Drop Rooms, QR joins,
+            browser Drop links, file transfers, and Library management.
+          </p>
+          <p className="mt-4 text-sm text-slate-400">
+            Effective date: {lastUpdated}
+          </p>
+        </div>
+
+        <div className="mb-8 flex flex-wrap gap-3 text-sm">
+          <Link
+            href="/privacy"
+            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-cyan-200 transition-colors hover:bg-white/[0.08]"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            href="/#drop"
+            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-emerald-200 transition-colors hover:bg-white/[0.08]"
+          >
+            Erebrus Drop
+          </Link>
+          <Link
+            href="/dashboard"
+            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-blue-200 transition-colors hover:bg-white/[0.08]"
+          >
+            VPN Dashboard
+          </Link>
+        </div>
+
+        <div className="space-y-5">
+          {sections.map((section) => (
+            <SectionBlock key={section.title} section={section} />
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}

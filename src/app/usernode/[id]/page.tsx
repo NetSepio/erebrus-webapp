@@ -134,7 +134,7 @@ export default function NodeDetailPage() {
   }
 
   return (
-    <div className="node-detail-page pt-16 px-4 lg:px-20 bg-[#20253A] min-h-screen">
+    <div className="node-detail-page pt-16 px-4 lg:px-20 bg-[#20253A] min-h-screen font-sans">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">
           {loading ? <Skeleton className="h-10 w-64 bg-gray-800/50" /> : node?.nodename || node?.name || "Node Details"}
@@ -147,7 +147,7 @@ export default function NodeDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
           {/* Node Details Card */}
-          <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50 overflow-hidden">
+          <Card className="bg-linear-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50 overflow-hidden">
             <CardHeader className="border-b border-gray-700/50 bg-gray-800/30">
               <CardTitle className="text-xl text-white flex items-center">
                 <Server className="mr-2 h-5 w-5" /> Node Information
@@ -257,7 +257,7 @@ export default function NodeDetailPage() {
 
         <div>
           {/* Location Card */}
-          <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50 mb-6">
+          <Card className="bg-linear-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50 mb-6">
             <CardHeader className="border-b border-gray-700/50 bg-gray-800/30">
               <CardTitle className="text-xl text-white flex items-center">
                 <MapPin className="mr-2 h-5 w-5" /> Location
@@ -291,7 +291,7 @@ export default function NodeDetailPage() {
           </Card>
 
           {/* Performance Card */}
-          <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50">
+          <Card className="bg-linear-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50">
             <CardHeader className="border-b border-gray-700/50 bg-gray-800/30">
               <CardTitle className="text-xl text-white flex items-center">
                 <Cpu className="mr-2 h-5 w-5" /> Performance
@@ -338,7 +338,7 @@ export default function NodeDetailPage() {
       </div>
 
       {/* Connected Clients */}
-      <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50 mb-8">
+      <Card className="bg-linear-to-br from-gray-900/80 to-gray-800/40 border-gray-700/50 mb-8">
         <CardHeader className="border-b border-gray-700/50 bg-gray-800/30">
           <CardTitle className="text-xl text-white flex items-center">
             <Users className="mr-2 h-5 w-5" /> Connected Clients

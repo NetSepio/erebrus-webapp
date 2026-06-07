@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Home, FileText, LayoutDashboard } from "lucide-react";
-import { FloatingDock } from "@/components/ui/floating-dock";
+import {
+  Menu,
+  X,
+  WalletMinimal,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie";
 import UserDropdown from "@/components/login/UserDropdown";
@@ -13,12 +16,11 @@ import { useWalletAuth } from "@/context/appkit";
 
 const ErebrusNavbar = () => {
   // Use the updated authentication hook
-  const { isConnected, address, isAuthenticated, isVerified } = useWalletAuth();
+  const { isConnected, isAuthenticated, isVerified } = useWalletAuth();
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showDock, setShowDock] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   // Helper function to get the correct authentication token
@@ -49,17 +51,12 @@ const ErebrusNavbar = () => {
       if (currentScrollY > lastScrollY) {
         // Scrolling down
         setScrolled(true);
-        if (currentScrollY > 150) {
-          setShowDock(true);
-        }
       } else {
         // Scrolling up
         if (currentScrollY < 50) {
           setScrolled(false);
-          setShowDock(false);
         } else {
           setScrolled(false);
-          setShowDock(true);
         }
       }
 
@@ -71,6 +68,7 @@ const ErebrusNavbar = () => {
   }, [lastScrollY]);
 
   const navItems = [
+    { name: "Drop", link: "/#drop" },
     { name: "Explorer", link: "/explorer" },
     {
       name: "Docs",
@@ -78,24 +76,6 @@ const ErebrusNavbar = () => {
       external: true,
     },
     { name: "Dashboard", link: "/dashboard" },
-  ];
-
-  const dockItems = [
-    {
-      title: "Home",
-      icon: <Home className="h-full w-full text-blue-500" />,
-      href: "/",
-    },
-    {
-      title: "Explorer",
-      icon: <FileText className="h-full w-full text-blue-500" />,
-      href: "/explorer",
-    },
-    {
-      title: "Dashboard",
-      icon: <LayoutDashboard className="h-full w-full text-blue-500" />,
-      href: "/dashboard",
-    },
   ];
 
   return (
@@ -115,56 +95,62 @@ const ErebrusNavbar = () => {
             : "bg-transparent py-5"
         }`}
       >
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between">
+        <div className='container mx-auto px-8 py-4 bg-black/30 backdrop-blur-md'>
+          <div className='flex items-center justify-between'>
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href='/' className='flex items-center'>
               <Image
-                src="/images/Erebrus_logo_wordmark.webp"
-                alt="Erebrus"
+                src='/images/Erebrus_logo_wordmark.webp'
+                alt='Erebrus'
                 width={150}
                 height={40}
-                className="h-10 w-auto"
-                sizes="100vw"
+                className='block'
+                sizes='100vw'
               />
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {navItems.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.link}
-                  className="text-white hover:text-blue-300 transition-colors duration-300 text-lg font-medium"
-                  target={item.external ? "_blank" : undefined}
-                  rel={item.external ? "noopener noreferrer" : undefined}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* Login & Verify Button Component */}
-            <div className="flex items-center">
-              {isConnected && isAuthenticated && isVerified && token ? (
-                <UserDropdown
-                  avatarUrl={avatarUrl}
-                  handlePasetoClick={handlePasetoClick}
-                  paseto={token}
-                />
-              ) : (
-                <>
-                  <appkit-button />
-                  <AuthButton />
-                </>
-              )}
+            <div className='flex space-x-8'>
+              {/* Desktop Navigation */}
+              <div className='hidden md:flex items-center space-x-8'>
+                {navItems.map((item, index) => (
+                  <Link
+                    key={index}
+                    href={item.link}
+                    className='text-white hover:text-blue-300 transition-colors duration-300 text-sm font-medium'
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+              {/* Login & Verify Button Component */}
+              <div className='flex items-center'>
+                {isConnected && isAuthenticated && isVerified && token ? (
+                  <UserDropdown
+                    avatarUrl={avatarUrl}
+                    handlePasetoClick={handlePasetoClick}
+                    paseto={token}
+                  />
+                ) : (
+                  <div className='hidden md:flex items-center gap-3'>
+                    <div className='appkit-button-wrapper relative'>
+                      <appkit-button />
+                      {!isConnected && (
+                        <WalletMinimal className='absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none z-10' />
+                      )}
+                    </div>
+                    <AuthButton />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            <div className='md:hidden'>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-white focus:outline-none"
+                className='text-white focus:outline-none'
                 aria-label={
                   isOpen
                     ? "Close mobile navigation menu"
@@ -185,14 +171,14 @@ const ErebrusNavbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden absolute w-full bg-black/95 backdrop-blur-md"
+              className='md:hidden absolute w-full bg-black/95 backdrop-blur-md'
             >
-              <div className="container mx-auto px-6 flex flex-col space-y-4 py-6">
+              <div className='container mx-auto px-6 flex flex-col space-y-4 py-6'>
                 {navItems.map((item, index) => (
                   <Link
                     key={index}
                     href={item.link}
-                    className="text-white hover:text-blue-300 transition-colors duration-300 py-2 text-lg"
+                    className='text-white hover:text-blue-300 transition-colors duration-300 py-2 text-lg'
                     onClick={() => setIsOpen(false)}
                     target={item.external ? "_blank" : undefined}
                     rel={item.external ? "noopener noreferrer" : undefined}
@@ -200,7 +186,7 @@ const ErebrusNavbar = () => {
                     {item.name}
                   </Link>
                 ))}
-                <div className="flex flex-col space-y-3 pt-4 border-t border-white/10">
+                <div className='flex flex-col space-y-3 pt-4 border-t border-white/10'>
                   {/* Mobile login buttons could go here if needed */}
                 </div>
               </div>
@@ -208,25 +194,6 @@ const ErebrusNavbar = () => {
           )}
         </AnimatePresence>
       </motion.nav>
-
-      {/* Floating Dock */}
-      <AnimatePresence>
-        {showDock && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50"
-          >
-            <FloatingDock
-              items={dockItems}
-              desktopClassName="shadow-xl shadow-blue-500/10 border border-blue-500/20"
-              mobileClassName="shadow-xl shadow-blue-500/10"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 };

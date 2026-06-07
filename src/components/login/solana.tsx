@@ -27,7 +27,7 @@ export const useSolWallet = (
     return Cookies.get("Chain_symbol");
   };
 
-  const isSendableNetwork = async (connected: boolean) => {
+  const isSendableNetwork = async (connected: boolean): Promise<boolean> => {
     if (!connected) return false;
 
     try {
@@ -41,11 +41,23 @@ export const useSolWallet = (
       // You'll need to determine what value represents devnet for your wallet
       return currentNetwork === network;
     } catch (error) {
+      console.error("Network check error:", error);
       return false;
     }
   };
 
-  let sendable = isSendableNetwork(solconnected); // This remains a Promise
+  // Use state to track network compatibility instead of Promise
+  const [isNetworkCompatible, setIsNetworkCompatible] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    const checkNetworkCompatibility = async () => {
+      const compatible = await isSendableNetwork(solconnected);
+      setIsNetworkCompatible(compatible);
+    };
+
+    checkNetworkCompatibility();
+  }, [solconnected, network]);
 
   // const address = Cookies.get("erebrus_wallet");
   // 👇 Add this before using window.phantom
@@ -63,7 +75,7 @@ export const useSolWallet = (
   };
 
   const OnSignMessageSol = async () => {
-    if (await sendable) {
+    if (isNetworkCompatible) {
       try {
         const checktoken = Cookies.get("erebrus_token");
         const checkwallet = Cookies.get("erebrus_wallet");

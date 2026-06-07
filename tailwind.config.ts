@@ -20,6 +20,10 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: "var(--font-dm-sans)",
+        anotherXanadu: "var(--font-another-xanadu)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

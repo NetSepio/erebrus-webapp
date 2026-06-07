@@ -42,13 +42,13 @@ const Contact = () => {
         />
         <link rel="canonical" href="https://erebrus.io/contact" />
       </Head>
-      <div className="min-h-screen bg-black text-white">
-        <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold text-center mb-12">
+      <div className="min-h-screen bg-black text-white mt-12">
+        <div className="container mx-auto px-4 py-16 ">
+          <h1 className="text-3xl text-center mb-12">
             Support Request Form
           </h1>
 
-          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
+          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto font-sans space-y-6">
             <div>
               <label htmlFor="fullName" className="block text-lg mb-2">
                 Full Name

@@ -82,7 +82,7 @@ export function AuthButton() {
                 {
                   method: "GET",
                   headers: {
-                    Authorization: `Bearer ${pasetoToken}`,
+                    "Authorization": `Bearer ${pasetoToken}`,
                     "Content-Type": "application/json",
                   },
                 }
@@ -193,7 +193,7 @@ export function AuthButton() {
                 {
                   method: "GET",
                   headers: {
-                    Authorization: `Bearer ${pasetoToken}`,
+                    "Authorization": `Bearer ${pasetoToken}`,
                     "Content-Type": "application/json",
                   },
                 }
@@ -272,9 +272,9 @@ export function AuthButton() {
     if (isAuthenticating || userStatus === "signing") {
       return {
         content: (
-          <div className="flex items-center gap-2 px-2">
-            <Loader2 size={18} className="animate-spin" />
-            <span className="text-sm">Signing...</span>
+          <div className='flex items-center gap-2 px-2'>
+            <Loader2 size={18} className='animate-spin' />
+            <span className='text-sm'>Signing...</span>
           </div>
         ),
         className:
@@ -287,7 +287,7 @@ export function AuthButton() {
     switch (userStatus) {
       case "checking":
         return {
-          content: <Loader2 size={20} className="animate-spin mx-auto" />,
+          content: <Loader2 size={20} className='animate-spin mx-auto' />,
           className: "p-2 w-12 bg-blue-500 text-white",
           disabled: true,
           onClick: () => {},
@@ -296,9 +296,9 @@ export function AuthButton() {
       case "new":
         return {
           content: (
-            <div className="flex items-center gap-2 px-2">
+            <div className='flex items-center gap-2 px-2'>
               <Lock size={18} />
-              <span className="text-sm">Verify</span>
+              <span className='text-sm'>Verify</span>
             </div>
           ),
           className: "bg-orange-500 hover:bg-orange-600 text-white",
@@ -309,9 +309,9 @@ export function AuthButton() {
       case "existing":
         return {
           content: (
-            <div className="flex items-center gap-2 px-2">
+            <div className='flex items-center gap-2 px-2'>
               <Pen size={18} />
-              <span className="text-sm">Sign In</span>
+              <span className='text-sm'>Sign In</span>
             </div>
           ),
           className: "bg-green-500 hover:bg-green-600 text-white",
@@ -322,9 +322,9 @@ export function AuthButton() {
       case "verified":
         return {
           content: (
-            <div className="flex items-center gap-2 px-2">
-              <ShieldCheck size={18} className="animate-pulse" />
-              <span className="text-sm">Verified!</span>
+            <div className='flex items-center gap-2 px-2'>
+              <ShieldCheck size={18} className='animate-pulse' />
+              <span className='text-sm'>Verified!</span>
             </div>
           ),
           className: "bg-green-500 text-white",
@@ -334,7 +334,7 @@ export function AuthButton() {
 
       default:
         return {
-          content: <span className="text-sm">Error</span>,
+          content: <span className='text-sm'>Error</span>,
           className: "bg-red-500 text-white",
           disabled: true,
           onClick: () => {},
@@ -349,9 +349,9 @@ export function AuthButton() {
       <Button
         onClick={onClick}
         disabled={disabled}
-        size="sm"
+        size='sm'
         className={cn(
-          "ml-2 transition-all duration-200 font-medium",
+          "ml-2 transition-all duration-200 font-medium rounded-none",
           className
         )}
       >

@@ -220,6 +220,7 @@ export const NavbarButton = ({
   }
 
   return (
+    // @ts-ignore
     <Tag href={href || undefined} className={cn(baseStyles, variantStyles[variant], className)} {...props}>
       {children}
     </Tag>

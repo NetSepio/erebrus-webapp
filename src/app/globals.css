@@ -3,403 +3,400 @@
 
 @custom-variant dark (&:is(.dark *));
 
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --animate-marquee: marquee var(--duration) infinite linear;
-  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
- 
-}
+/* ========================================
+   EREBRUS - FUTURISTIC DESIGN SYSTEM
+   ======================================== */
 
 :root {
-  --radius: 0.625rem;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+    /* Primary Brand Colors */
+    --erebrus-primary: #0066ff;
+    --erebrus-secondary: #00d4ff;
+    --erebrus-accent: #7b61ff;
+    --erebrus-success: #00e676;
+    --erebrus-warning: #ffb800;
+    --erebrus-danger: #ff4757;
+
+    /* Background Colors */
+    --erebrus-bg-primary: #020417;
+    --erebrus-bg-secondary: #0a0f2e;
+    --erebrus-bg-card: rgba(15, 23, 66, 0.6);
+    --erebrus-bg-glass: rgba(255, 255, 255, 0.05);
+
+    /* Text Colors */
+    --erebrus-text-primary: #ffffff;
+    --erebrus-text-secondary: #94a3b8;
+    --erebrus-text-muted: #64748b;
+
+    /* Gradients */
+    --erebrus-gradient-primary: linear-gradient(
+        135deg,
+        #0066ff 0%,
+        #00d4ff 100%
+    );
+    --erebrus-gradient-accent: linear-gradient(
+        135deg,
+        #7b61ff 0%,
+        #00d4ff 100%
+    );
+    --erebrus-gradient-glow: linear-gradient(
+        180deg,
+        rgba(0, 102, 255, 0.3) 0%,
+        transparent 100%
+    );
+
+    /* shadcn/ui overrides */
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 100% 50%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 100% 50%;
+    --radius: 0.75rem;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+    border-color: hsl(var(--border));
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background: var(--erebrus-bg-primary);
+    color: var(--erebrus-text-primary);
+    font-feature-settings:
+        "rlig" 1,
+        "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========================================
+   ANIMATED BACKGROUND
+   ======================================== */
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.erebrus-bg {
+    background:
+        radial-gradient(
+            ellipse 80% 50% at 50% -20%,
+            rgba(0, 102, 255, 0.15),
+            transparent
+        ),
+        radial-gradient(
+            ellipse 60% 40% at 80% 50%,
+            rgba(123, 97, 255, 0.1),
+            transparent
+        ),
+        radial-gradient(
+            ellipse 50% 30% at 20% 80%,
+            rgba(0, 212, 255, 0.08),
+            transparent
+        ),
+        var(--erebrus-bg-primary);
+    min-height: 100vh;
 }
 
-
-
-/* Custom animations for partner marquee */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+/* Animated gradient mesh */
+.erebrus-mesh {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(at 0% 0%, rgba(0, 102, 255, 0.15) 0px, transparent 50%),
+        radial-gradient(
+            at 100% 0%,
+            rgba(123, 97, 255, 0.1) 0px,
+            transparent 50%
+        ),
+        radial-gradient(
+            at 100% 100%,
+            rgba(0, 212, 255, 0.08) 0px,
+            transparent 50%
+        ),
+        radial-gradient(
+            at 0% 100%,
+            rgba(0, 102, 255, 0.05) 0px,
+            transparent 50%
+        );
+    animation: meshMove 20s ease-in-out infinite;
 }
 
-@keyframes marquee-reverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+@keyframes meshMove {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
 }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
+/* ========================================
+   GLASSMORPHISM
+   ======================================== */
+
+.erebrus-glass {
+    background: rgba(15, 23, 66, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.animate-marquee-reverse {
-  animation: marquee-reverse 30s linear infinite;
+.erebrus-glass-light {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Custom styles for the floating dock */
-.custom-animated-icon {
-  animation: pulse 1.5s infinite;
+/* ========================================
+   GLOW EFFECTS
+   ======================================== */
+
+.erebrus-glow {
+    box-shadow:
+        0 0 20px rgba(0, 102, 255, 0.3),
+        0 0 40px rgba(0, 102, 255, 0.2),
+        0 0 60px rgba(0, 102, 255, 0.1);
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
+.erebrus-glow-text {
+    text-shadow:
+        0 0 10px rgba(0, 102, 255, 0.5),
+        0 0 20px rgba(0, 102, 255, 0.3),
+        0 0 30px rgba(0, 102, 255, 0.2);
 }
 
-
-/* Custom styles for the floating dock */
-.custom-animated-icon {
-  animation: pulse 1.5s infinite;
+.erebrus-glow-border {
+    position: relative;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
+.erebrus-glow-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 102, 255, 0.5),
+        rgba(0, 212, 255, 0.3)
+    );
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
 }
 
-/* Custom styles for the DVPN map */
-.leaflet-container {
-  background-color: #0f172a !important; /* slate-900 */
+/* ========================================
+   BUTTON STYLES
+   ======================================== */
+
+.erebrus-button {
+    position: relative;
+    background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+    border: none;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Node marker animations */
-@keyframes map-pulse {
-  0% {
-    transform: scale(0.5);
+.erebrus-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        transparent 50%
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.erebrus-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 102, 255, 0.4);
+}
+
+.erebrus-button:hover::before {
     opacity: 1;
-  }
-  70% {
-    transform: scale(1.5);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(0.5);
+}
+
+.erebrus-button-outline {
+    background: transparent;
+    border: 1px solid rgba(0, 102, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.erebrus-button-outline::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 102, 255, 0.1) 0%,
+        transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.erebrus-button-outline:hover {
+    border-color: rgba(0, 102, 255, 0.8);
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.2);
+}
+
+.erebrus-button-outline:hover::before {
     opacity: 1;
-  }
 }
 
-.node-pulse {
-  animation: map-pulse 2s infinite;
+/* ========================================
+   CARD STYLES
+   ======================================== */
+
+.erebrus-card {
+    background: rgba(15, 23, 66, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Custom tooltip styles */
-.country-tooltip {
-  background-color: #1e293b !important; /* slate-800 */
-  color: #e2e8f0 !important; /* slate-200 */
-  border: 1px solid #334155 !important; /* slate-700 */
-  border-radius: 4px !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+.erebrus-card:hover {
+    border-color: rgba(0, 102, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px);
 }
 
-/* AppKit Connect Wallet Button Styles - compact rectangular blue button */
-appkit-button {
-  border-radius: 20px !important;
-  width: auto !important;
-  height: 40px !important;
-  min-width: 140px !important;
-  min-height: 40px !important;
-  padding: 8px 20px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: #3b82f6 !important;
-  border: none !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-  pointer-events: auto !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  color: white !important;
+/* ========================================
+   TEXT GRADIENTS
+   ======================================== */
+
+.erebrus-gradient-text {
+    background: linear-gradient(135deg, #ffffff 0%, #00d4ff 50%, #7b61ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Hover/active apply to the full custom element */
-appkit-button:hover,
-appkit-button:active {
-  background: #2563eb !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+.erebrus-gradient-text-blue {
+    background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Ensure inner native button follows parent size and is interactive */
-appkit-button button,
-appkit-button > * {
-  border-radius: 20px !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: transparent !important; /* inherit parent's background */
-  border: none !important;
-  color: inherit !important;
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  pointer-events: auto !important;
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-/* Remove pseudo content if any */
-appkit-button::before {
-  content: none !important;
+::-webkit-scrollbar-track {
+    background: var(--erebrus-bg-secondary);
 }
 
-/* AppKit Modal Overlay */
-w3m-modal {
-  z-index: 9999 !important;
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 102, 255, 0.3);
+    border-radius: 4px;
 }
 
-/* AppKit Modal Content - Dark Theme */
-
-w3m-modal .w3m-modal {
-  border-radius: 16px !important;
-  background: #1a1a1a !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-  border: 1px solid #333333 !important;
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 102, 255, 0.5);
 }
 
-/* Modal backdrop: keep page visible (no large black overlay) */
-w3m-modal::part(backdrop) {
-  background: transparent !important;
+/* ========================================
+   UTILITY ANIMATIONS
+   ======================================== */
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
 }
 
-/* Modal container - dark theme but do not force entire modal subtree to that color */
-w3m-modal::part(container) {
-  border-radius: 16px !important;
-  background: #1a1a1a !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-  max-width: 400px !important;
-  width: 90vw !important;
-  border: 1px solid #333333 !important;
+@keyframes pulse-glow {
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
-/* Limit dark styling to modal container and its known parts only so the page behind remains visible */
-w3m-modal::part(container),
-w3m-modal .w3m-modal {
-  color: #ffffff !important;
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
-/* Wallet option buttons - Dark theme */
-w3m-modal ::part(wallet-button) {
-  background: #2a2a2a !important;
-  border: 1px solid #404040 !important;
-  border-radius: 12px !important;
-  transition: all 0.2s ease !important;
-  color: #ffffff !important;
+.animate-float {
+    animation: float 6s ease-in-out infinite;
 }
 
-w3m-modal ::part(wallet-button):hover {
-  background: #333333 !important;
-  border-color: #3b82f6 !important;
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Override any light theme styles */
-w3m-modal .w3m-header,
-w3m-modal .w3m-content,
-w3m-modal .w3m-footer {
-  background: #1a1a1a !important;
-  color: #ffffff !important;
+.animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
 }
 
-/* Search input styling */
-w3m-modal input {
-  background: #2a2a2a !important;
-  border: 1px solid #404040 !important;
-  color: #ffffff !important;
+/* ========================================
+   SELECTION
+   ======================================== */
+
+::selection {
+    background: rgba(0, 102, 255, 0.3);
+    color: white;
 }
 
-/* Close button */
-w3m-modal .w3m-close-button {
-  color: #ffffff !important;
-}
+/* ========================================
+   FOCUS STYLES
+   ======================================== */
 
-/* Ensure AppKit buttons work properly */
-appkit-button, w3m-button, w3m-connect-button {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-}
-
-appkit-button *, w3m-button *, w3m-connect-button * {
-  pointer-events: none !important;
-}
-
-/* Additional AppKit modal fixes */
-w3m-modal, w3m-modal * {
-  z-index: 9999 !important;
-}
-
-/* Override AppKit CSS variables for dark theme */
-w3m-modal {
-  --w3m-color-bg-1: #1a1a1a !important;
-  --w3m-color-bg-2: #2a2a2a !important;
-  --w3m-color-bg-3: #333333 !important;
-  --w3m-color-fg-1: #ffffff !important;
-  --w3m-color-fg-2: #e5e5e5 !important;
-  --w3m-color-fg-3: #cccccc !important;
-  --w3m-accent-color: #3b82f6 !important;
-  --w3m-accent-fill-color: #ffffff !important;
-  --w3m-border-radius-master: 16px !important;
-  --w3m-border-radius-xs: 8px !important;
-  --w3m-border-radius-sm: 12px !important;
+*:focus-visible {
+    outline: 2px solid var(--erebrus-primary);
+    outline-offset: 2px;
 }

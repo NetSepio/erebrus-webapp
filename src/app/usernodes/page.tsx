@@ -11,7 +11,7 @@ const Dwifi = () => {
 
   if (!canView) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#040819] via-[#092187] to-[#20253A] px-4">
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-[#040819] via-[#092187] to-[#20253A] px-4 font-sans">
         <div className="text-center text-gray-300">
           <h2 className="text-2xl font-semibold">
             {isAuthenticating ? "Signing message…" : "Connect Your Wallet"}
@@ -27,7 +27,7 @@ const Dwifi = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-[#040819] via-[#092187] to-[#20253A]">
+    <div className="bg-linear-to-b from-[#040819] via-[#092187] to-[#20253A] font-sans">
       <div
         className="flex flex-col items-center justify-center lg:h-[40vw] mb-36 lg:mb-0 w-full h-full"
         style={{
@@ -40,7 +40,7 @@ const Dwifi = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1 }}
-          className="text-6xl font-semibold text-gray-300 mb-8 text-center w-full lg:w-3/5"
+          className="text-4xl font-another-xanadu text-gray-300 mb-8 text-center w-full lg:w-3/5"
         >
           Manage Your ÐVPN & ÐWi-Fi Nodes
         </motion.h1>

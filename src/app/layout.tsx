@@ -1,14 +1,23 @@
 import type React from "react";
 import "@/app/globals.css";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
 import ErebrusNavbar from "@/components/navbar";
 import { cn } from "@/lib/utils";
-const inter = Inter({ subsets: ["latin"] });
 import "./globals.css";
-import DarkFooter from "@/components/ui/footer";
 import { AppKit } from "../context/appkit";
 import AppWalletProvider from "@/components/AppWalletProvider";
+
+const dmSans = DM_Sans({ subsets: ["latin"], 
+  variable: "--font-dm-sans",
+ });
+
+const myFont = localFont({
+  src: "../../public/fonts/Another-Xanadu.ttf",
+  variable: "--font-another-xanadu",
+});
+
 export const metadata = {
   name: "Erebrus",
   description:
@@ -33,19 +42,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel='icon' href='/favicon.ico' />
       </head>
-      <body className={cn("min-h-screen flex flex-col", inter.className)}>
+      <body className={cn("min-h-screen flex flex-col", myFont.variable, dmSans.variable)}>
         <AppWalletProvider>
           <AppKit>
-            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-              <div className="flex flex-col min-h-screen">
+            <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
+              <div className='flex flex-col'>
                 <ErebrusNavbar />
-                <main>{children}</main>
-
-                <DarkFooter />
+                <>{children}</>
+                {/* <DarkFooter /> */}
               </div>
             </ThemeProvider>
           </AppKit>

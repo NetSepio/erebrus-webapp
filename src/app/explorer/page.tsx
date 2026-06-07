@@ -118,7 +118,7 @@ export default function Explorer() {
         />
         <link rel="canonical" href="https://erebrus.io/explorer" />
       </Head>
-      <div className="explorer-page">
+      <div className="explorer-page font-sans">
         {/* Hero Section */} 
         <div
           className="relative flex flex-col items-center justify-center min-h-[60vh] w-full bg-cover bg-center bg-no-repeat"
@@ -128,7 +128,7 @@ export default function Explorer() {
           }}
         >
           {/* Dark overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-slate-900/90"></div>
+          <div className="absolute inset-0 bg-linear-to-b from-black/70 to-slate-900/90"></div>
 
           <div className="container relative z-10 px-4 py-20 md:py-32">
             <motion.div
@@ -137,10 +137,10 @@ export default function Explorer() {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto text-center"
             >
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              <h1 className="text-4xl font-another-xanadu text-white mb-6">
                 Decentralized Access with
                 <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-blue-500">
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-blue-500">
                   Erebrus ÐVPN
                 </span>
               </h1>
@@ -239,7 +239,7 @@ export default function Explorer() {
         </div>
 
         {/* Map Section */}
-        <div className="bg-gradient-to-b from-slate-900 to-[#20253A] py-16 px-4 lg:px-20">
+        <div className="bg-linear-to-b from-slate-900 to-[#20253A] py-16 px-4 lg:px-20">
           <div className="container mx-auto">
             <div className="mb-8">
               <h2

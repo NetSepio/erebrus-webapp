@@ -38,30 +38,41 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 // Blockchain client imports
-import { createPublicClient, http } from 'viem';
-import { mainnet, arbitrum, base } from 'viem/chains';
-import { PublicKey, Connection } from '@solana/web3.js';
-import { Metaplex } from '@metaplex-foundation/js';
+import { createPublicClient, http } from "viem";
+import { mainnet, arbitrum, base } from "viem/chains";
+import { PublicKey, Connection } from "@solana/web3.js";
+import { Metaplex } from "@metaplex-foundation/js";
 import { Alchemy, Network } from "alchemy-sdk";
+import { ethers } from "ethers";
+import { monadNftAbi } from "@/contracts/monadNftAbi";
 
 // Create clients for each chain
 const ethClient = createPublicClient({
   chain: mainnet,
-  transport: http(`https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+  transport: http(
+    `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+  ),
 });
 
 const arbClient = createPublicClient({
   chain: arbitrum,
-  transport: http(`https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+  transport: http(
+    `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+  ),
 });
 
 const baseClient = createPublicClient({
   chain: base,
-  transport: http(`https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+  transport: http(
+    `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+  ),
 });
 
 // Solana connection
-const solanaConnection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com');
+const solanaConnection = new Connection(
+  process.env.NEXT_PUBLIC_SOLANA_RPC_URL ||
+    "https://api.mainnet-beta.solana.com"
+);
 const metaplex = Metaplex.make(solanaConnection);
 
 // Alchemy configuration
@@ -70,7 +81,7 @@ const alchemyConfig = {
   network: Network.ETH_MAINNET, // Default network
 };
 
-const REACT_APP_GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL
+const REACT_APP_GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL;
 
 interface FormData {
   name: string;
@@ -130,8 +141,15 @@ interface TokenBalance {
   symbol?: string;
   decimals?: number;
   logo?: string;
-  type: 'ERC-20' | 'ERC-721' | 'ERC-1155' | 'other' | 'SOL-NFT';
-  chain: 'ethereum' | 'arbitrum' | 'base' | 'solana';
+  type: "ERC-20" | "ERC-721" | "ERC-1155" | "other" | "SOL-NFT" | "MONAD-NFT";
+  chain?: "ethereum" | "arbitrum" | "base" | "solana" | "monad";
+  // Additional properties for NFTs
+  tokenId?: string;
+  description?: string;
+  attributes?: Array<{
+    trait_type: string;
+    value: string | number;
+  }>;
 }
 
 interface TokenMetadataResponse {
@@ -188,7 +206,9 @@ const Profile = () => {
   // Use the updated authentication hook
   const { isConnected, address, isAuthenticated, isVerified } = useWalletAuth();
 
-  const [tempFormData, setTempFormData] = useState<FormData & {manualAddress?: string}>({
+  const [tempFormData, setTempFormData] = useState<
+    FormData & { manualAddress?: string }
+  >({
     name: "",
     country: "",
     emailId: "",
@@ -227,12 +247,14 @@ const Profile = () => {
   const [userNFTs, setUserNFTs] = useState<SolanaNFT[]>([]);
   const [isLoadingNFTs, setIsLoadingNFTs] = useState(false);
   const [nftError, setNftError] = useState<string | null>(null);
-  
+
   // New token states
   const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
   const [tokenError, setTokenError] = useState<string | null>(null);
-  const [activeChain, setActiveChain] = useState<'ethereum' | 'arbitrum' | 'base' | 'solana'>('ethereum');
+  const [activeChain, setActiveChain] = useState<
+    "ethereum" | "arbitrum" | "base" | "solana" | "monad"
+  >("monad");
 
   // Helper function to get the correct authentication token
   const getAuthToken = () => {
@@ -254,17 +276,20 @@ const Profile = () => {
   };
 
   // Fetch token metadata (name, symbol, decimals)
-  const getTokenMetadata = async (contractAddress: string, chain: string): Promise<Partial<TokenBalance>> => {
+  const getTokenMetadata = async (
+    contractAddress: string,
+    chain: string
+  ): Promise<Partial<TokenBalance>> => {
     try {
-      let url = '';
+      let url = "";
       switch (chain) {
-        case 'ethereum':
+        case "ethereum":
           url = `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`;
           break;
-        case 'arbitrum':
+        case "arbitrum":
           url = `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`;
           break;
-        case 'base':
+        case "base":
           url = `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`;
           break;
         default:
@@ -272,14 +297,14 @@ const Profile = () => {
       }
 
       const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jsonrpc: '2.0',
+          jsonrpc: "2.0",
           id: 1,
-          method: 'alchemy_getTokenMetadata',
-          params: [contractAddress]
-        })
+          method: "alchemy_getTokenMetadata",
+          params: [contractAddress],
+        }),
       });
 
       if (!response.ok) return {};
@@ -287,23 +312,26 @@ const Profile = () => {
       const data = await response.json();
       return data.result || {};
     } catch (error) {
-      console.error('Error fetching token metadata:', error);
+      console.error("Error fetching token metadata:", error);
       return {};
     }
   };
 
   // Fetch NFTs using Alchemy SDK
-  const fetchNFTs = async (address: string, chain: 'ethereum' | 'arbitrum' | 'base'): Promise<TokenBalance[]> => {
+  const fetchNFTs = async (
+    address: string,
+    chain: "ethereum" | "arbitrum" | "base"
+  ): Promise<TokenBalance[]> => {
     try {
       let network: Network;
       switch (chain) {
-        case 'ethereum':
+        case "ethereum":
           network = Network.ETH_MAINNET;
           break;
-        case 'arbitrum':
+        case "arbitrum":
           network = Network.ARB_MAINNET;
           break;
-        case 'base':
+        case "base":
           network = Network.BASE_MAINNET;
           break;
         default:
@@ -312,31 +340,37 @@ const Profile = () => {
 
       const chainAlchemy = new Alchemy({
         apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-        network
+        network,
       });
 
       const response = await chainAlchemy.nft.getNftsForOwner(address, {
         omitMetadata: false,
-        pageSize: 100
+        pageSize: 100,
       });
 
       return response.ownedNfts.map((nft: NftToken) => {
-        const contractAddress = nft.contract?.address || '';
-        const name = nft.name || nft.contract?.name || 'Unnamed NFT';
-        const symbol = nft.contract?.symbol || '';
-        const imageUrl = nft.image?.cachedUrl || 
-                        nft.rawMetadata?.image || 
-                        nft.contract?.openSea?.imageUrl;
-        const tokenType = (nft.contract?.tokenType as 'ERC-20' | 'ERC-721' | 'ERC-1155' | 'other') || 'other';
+        const contractAddress = nft.contract?.address || "";
+        const name = nft.name || nft.contract?.name || "Unnamed NFT";
+        const symbol = nft.contract?.symbol || "";
+        const imageUrl =
+          nft.image?.cachedUrl ||
+          nft.rawMetadata?.image ||
+          nft.contract?.openSea?.imageUrl;
+        const tokenType =
+          (nft.contract?.tokenType as
+            | "ERC-20"
+            | "ERC-721"
+            | "ERC-1155"
+            | "other") || "other";
 
         return {
           contractAddress,
-          tokenBalance: nft.balance || '1',
+          tokenBalance: nft.balance || "1",
           name,
           symbol,
           logo: imageUrl,
           type: tokenType,
-          chain: chain
+          chain: chain,
         };
       });
     } catch (error) {
@@ -347,25 +381,35 @@ const Profile = () => {
 
   // Format token balance with proper decimals
   const formatBalance = (balance: string, decimals: number = 18) => {
-    if (!balance) return '0';
+    if (!balance) return "0";
     const divisor = Math.pow(10, decimals);
     const formatted = (parseInt(balance) / divisor).toFixed(4);
-    return formatted.replace(/\.?0+$/, ''); // Remove trailing zeros
+    return formatted.replace(/\.?0+$/, ""); // Remove trailing zeros
   };
 
   // Main function to fetch tokens based on chain
-  const fetchTokensForChain = async (address: string, chain: 'ethereum' | 'arbitrum' | 'base' | 'solana'): Promise<TokenBalance[]> => {
+  const fetchTokensForChain = async (
+    address: string,
+    chain: "ethereum" | "arbitrum" | "base" | "solana"
+  ): Promise<TokenBalance[]> => {
     switch (chain) {
-      case 'ethereum': return fetchEthereumTokens(address);
-      case 'arbitrum': return fetchArbitrumTokens(address);
-      case 'base': return fetchBaseTokens(address);
-      case 'solana': return fetchSolanaTokens(address);
-      default: return [];
+      case "ethereum":
+        return fetchEthereumTokens(address);
+      case "arbitrum":
+        return fetchArbitrumTokens(address);
+      case "base":
+        return fetchBaseTokens(address);
+      case "solana":
+        return fetchSolanaTokens(address);
+      default:
+        return [];
     }
   };
 
   // 1. Fetch Solana tokens
-  const fetchSolanaTokens = async (address: string): Promise<TokenBalance[]> => {
+  const fetchSolanaTokens = async (
+    address: string
+  ): Promise<TokenBalance[]> => {
     try {
       // First try Helius v0 public endpoint (preferred)
       const heliusApiKey = process.env.NEXT_PUBLIC_HELIUS_API_KEY;
@@ -374,8 +418,8 @@ const Profile = () => {
           const response = await fetch(
             `https://api.helius.xyz/v0/addresses/${address}/nfts?api-key=${heliusApiKey}`,
             {
-              method: 'GET',
-              headers: { Accept: 'application/json' },
+              method: "GET",
+              headers: { Accept: "application/json" },
             }
           );
 
@@ -384,19 +428,26 @@ const Profile = () => {
             if (Array.isArray(nftData) && nftData.length > 0) {
               return nftData.map((nft: any) => ({
                 contractAddress: nft.id,
-                tokenBalance: '1',
-                name: nft.content?.metadata?.name || 'Unnamed NFT',
-                symbol: '',
-                logo: nft.content?.links?.image || nft.content?.files?.[0]?.uri || '/NFT_Icon.png',
-                type: 'SOL-NFT' as const,
-                chain: 'solana' as const,
+                tokenBalance: "1",
+                name: nft.content?.metadata?.name || "Unnamed NFT",
+                symbol: "",
+                logo:
+                  nft.content?.links?.image ||
+                  nft.content?.files?.[0]?.uri ||
+                  "/NFT_Icon.png",
+                type: "SOL-NFT" as const,
+                chain: "solana" as const,
               }));
             }
           } else {
-            console.warn('Helius v0 response not OK:', response.status, response.statusText);
+            console.warn(
+              "Helius v0 response not OK:",
+              response.status,
+              response.statusText
+            );
           }
         } catch (heliusErr) {
-          console.warn('Helius v0 fetch failed:', heliusErr);
+          console.warn("Helius v0 fetch failed:", heliusErr);
         }
       }
 
@@ -406,102 +457,126 @@ const Profile = () => {
         if (magicEdenNfts && magicEdenNfts.length > 0) {
           return magicEdenNfts.map((nft) => ({
             contractAddress: nft.mintAddress,
-            tokenBalance: '1',
-            name: nft.name || 'Unnamed NFT',
-            symbol: '',
-            logo: nft.image || '/NFT_Icon.png',
-            type: 'SOL-NFT' as const,
-            chain: 'solana' as const,
+            tokenBalance: "1",
+            name: nft.name || "Unnamed NFT",
+            symbol: "",
+            logo: nft.image || "/NFT_Icon.png",
+            type: "SOL-NFT" as const,
+            chain: "solana" as const,
           }));
         }
       } catch (meErr) {
-        console.warn('Magic Eden fallback failed:', meErr);
+        console.warn("Magic Eden fallback failed:", meErr);
       }
 
       // As a last resort, return empty array (don't throw — let caller handle UI)
       return [];
     } catch (error) {
-      console.error('Error fetching Solana NFTs (final):', error);
+      console.error("Error fetching Solana NFTs (final):", error);
       return [];
     }
   };
 
   // 2. Fetch Ethereum tokens (ERC-20 and NFTs)
-  const fetchEthereumTokens = async (address: string): Promise<TokenBalance[]> => {
+  const fetchEthereumTokens = async (
+    address: string
+  ): Promise<TokenBalance[]> => {
     try {
       // Fetch ERC-20 tokens
-      const response = await fetch(`https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'alchemy_getTokenBalances',
-          params: [address, 'erc20']
-        })
-      });
+      const response = await fetch(
+        `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "alchemy_getTokenBalances",
+            params: [address, "erc20"],
+          }),
+        }
+      );
 
-      if (!response.ok) throw new Error('Failed to fetch Ethereum tokens');
+      if (!response.ok) throw new Error("Failed to fetch Ethereum tokens");
 
       const data = await response.json();
       const balances = data.result?.tokenBalances || [];
 
       // Filter out zero balances and add metadata
-      const nonZeroBalances = balances.filter((token: { tokenBalance: string }) => token.tokenBalance !== '0');
-      const tokensWithMetadata = await Promise.all(nonZeroBalances.map(async (token: { contractAddress: string }) => {
-        const metadata = await getTokenMetadata(token.contractAddress, 'ethereum');
-        return {
-          ...token,
-          ...metadata,
-          type: 'ERC-20',
-          chain: 'ethereum'
-        };
-      }));
+      const nonZeroBalances = balances.filter(
+        (token: { tokenBalance: string }) => token.tokenBalance !== "0"
+      );
+      const tokensWithMetadata = await Promise.all(
+        nonZeroBalances.map(async (token: { contractAddress: string }) => {
+          const metadata = await getTokenMetadata(
+            token.contractAddress,
+            "ethereum"
+          );
+          return {
+            ...token,
+            ...metadata,
+            type: "ERC-20",
+            chain: "ethereum",
+          };
+        })
+      );
 
       // Fetch NFTs using Alchemy SDK
-      const nfts = await fetchNFTs(address, 'ethereum');
+      const nfts = await fetchNFTs(address, "ethereum");
       return [...tokensWithMetadata, ...nfts];
     } catch (error) {
-      console.error('Error fetching Ethereum tokens:', error);
+      console.error("Error fetching Ethereum tokens:", error);
       return [];
     }
   };
 
   // 3. Fetch Arbitrum tokens
-  const fetchArbitrumTokens = async (address: string): Promise<TokenBalance[]> => {
+  const fetchArbitrumTokens = async (
+    address: string
+  ): Promise<TokenBalance[]> => {
     try {
-      const response = await fetch(`https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'alchemy_getTokenBalances',
-          params: [address, 'erc20']
-        })
-      });
+      const response = await fetch(
+        `https://arb-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "alchemy_getTokenBalances",
+            params: [address, "erc20"],
+          }),
+        }
+      );
 
-      if (!response.ok) throw new Error('Failed to fetch Arbitrum tokens');
+      if (!response.ok) throw new Error("Failed to fetch Arbitrum tokens");
 
       const data = await response.json();
       const balances = data.result?.tokenBalances || [];
 
-      const nonZeroBalances = balances.filter((token: { tokenBalance: string }) => token.tokenBalance !== '0');
-      const tokensWithMetadata = await Promise.all(nonZeroBalances.map(async (token: { contractAddress: string }) => {
-        const metadata = await getTokenMetadata(token.contractAddress, 'arbitrum');
-        return {
-          ...token,
-          ...metadata,
-          type: 'ERC-20',
-          chain: 'arbitrum'
-        };
-      }));
+      const nonZeroBalances = balances.filter(
+        (token: { tokenBalance: string }) => token.tokenBalance !== "0"
+      );
+      const tokensWithMetadata = await Promise.all(
+        nonZeroBalances.map(async (token: { contractAddress: string }) => {
+          const metadata = await getTokenMetadata(
+            token.contractAddress,
+            "arbitrum"
+          );
+          return {
+            ...token,
+            ...metadata,
+            type: "ERC-20",
+            chain: "arbitrum",
+          };
+        })
+      );
 
       // Fetch NFTs
-      const nfts = await fetchNFTs(address, 'arbitrum');
+      const nfts = await fetchNFTs(address, "arbitrum");
       return [...tokensWithMetadata, ...nfts];
     } catch (error) {
-      console.error('Error fetching Arbitrum tokens:', error);
+      console.error("Error fetching Arbitrum tokens:", error);
       return [];
     }
   };
@@ -509,55 +584,70 @@ const Profile = () => {
   // 4. Fetch Base tokens
   const fetchBaseTokens = async (address: string): Promise<TokenBalance[]> => {
     try {
-      const response = await fetch(`https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'alchemy_getTokenBalances',
-          params: [address, 'erc20']
-        })
-      });
+      const response = await fetch(
+        `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "alchemy_getTokenBalances",
+            params: [address, "erc20"],
+          }),
+        }
+      );
 
-      if (!response.ok) throw new Error('Failed to fetch Base tokens');
+      if (!response.ok) throw new Error("Failed to fetch Base tokens");
 
       const data = await response.json();
       const balances = data.result?.tokenBalances || [];
 
-      const nonZeroBalances = balances.filter((token: { tokenBalance: string }) => token.tokenBalance !== '0');
-      const tokensWithMetadata = await Promise.all(nonZeroBalances.map(async (token: { contractAddress: string }) => {
-        const metadata = await getTokenMetadata(token.contractAddress, 'base');
-        return {
-          ...token,
-          ...metadata,
-          type: 'ERC-20',
-          chain: 'base'
-        };
-      }));
+      const nonZeroBalances = balances.filter(
+        (token: { tokenBalance: string }) => token.tokenBalance !== "0"
+      );
+      const tokensWithMetadata = await Promise.all(
+        nonZeroBalances.map(async (token: { contractAddress: string }) => {
+          const metadata = await getTokenMetadata(
+            token.contractAddress,
+            "base"
+          );
+          return {
+            ...token,
+            ...metadata,
+            type: "ERC-20",
+            chain: "base",
+          };
+        })
+      );
 
       // Fetch NFTs
-      const nfts = await fetchNFTs(address, 'base');
+      const nfts = await fetchNFTs(address, "base");
       return [...tokensWithMetadata, ...nfts];
     } catch (error) {
-      console.error('Error fetching Base tokens:', error);
+      console.error("Error fetching Base tokens:", error);
       return [];
     }
   };
 
   // Function to load tokens with UI state management
-  const fetchTokenBalances = async (walletAddress: string, chain: 'ethereum' | 'arbitrum' | 'base' | 'solana') => {
+  const fetchTokenBalances = async (
+    walletAddress: string,
+    chain: "ethereum" | "arbitrum" | "base" | "solana"
+  ) => {
     if (!walletAddress) return;
-    
+
     setIsLoadingTokens(true);
     setTokenError(null);
-    
+
     try {
       const tokens = await fetchTokensForChain(walletAddress, chain);
       setTokenBalances(tokens);
     } catch (error) {
       console.error(`Error fetching ${chain} tokens:`, error);
-      setTokenError(`Failed to load tokens from ${chain}. Please try again later.`);
+      setTokenError(
+        `Failed to load tokens from ${chain}. Please try again later.`
+      );
     } finally {
       setIsLoadingTokens(false);
     }
@@ -594,14 +684,14 @@ const Profile = () => {
       const transformedNFTs: SolanaNFT[] = nftData.map((nft) => {
         // Make sure we have an image URL
         let imageUrl = nft.image || "";
-        
+
         // Debug image URLs
         if (imageUrl) {
           console.log(`NFT ${nft.name} has image: ${imageUrl}`);
         } else {
           console.log(`NFT ${nft.name} is missing image URL`);
         }
-        
+
         return {
           mintAddress: nft.tokenMint,
           name: nft.name || "Unnamed NFT",
@@ -655,46 +745,48 @@ const Profile = () => {
       const transformedNFTs: SolanaNFT[] = nftData.map((nft: any) => {
         // Try to get the best image URL available from all possible locations
         let imageUrl = "";
-        
+
         // Check all possible image locations in order of preference
         const imageLocations = [
           // Direct image links
           nft.content?.links?.image,
           nft.content?.metadata?.image,
-          
+
           // File arrays
-          ...(nft.content?.files?.map((f: any) => f.uri || f.url || null) || []),
-          
+          ...(nft.content?.files?.map((f: any) => f.uri || f.url || null) ||
+            []),
+
           // Properties files
           ...(nft.content?.metadata?.properties?.files?.map((f: any) => {
-            if (typeof f === 'string') return f;
+            if (typeof f === "string") return f;
             return f.uri || f.url || null;
           }) || []),
-          
+
           // Animation URL as fallback (some NFTs store image here)
           nft.content?.metadata?.animation_url,
-          nft.content?.links?.animation
+          nft.content?.links?.animation,
         ];
-        
+
         // Find first non-empty image URL
         for (const potentialUrl of imageLocations) {
-          if (potentialUrl && typeof potentialUrl === 'string') {
+          if (potentialUrl && typeof potentialUrl === "string") {
             imageUrl = potentialUrl;
             break;
           }
         }
-        
+
         // Debug image URLs
         if (imageUrl) {
           console.log(`NFT ${nft.id} has image: ${imageUrl}`);
         } else {
           console.log(`NFT ${nft.id} is missing image URL`);
         }
-        
+
         return {
           mintAddress: nft.id,
           name: nft.content?.metadata?.name || "Unnamed NFT",
-          collectionName: nft.grouping?.[0]?.group_value || "Unknown Collection",
+          collectionName:
+            nft.grouping?.[0]?.group_value || "Unknown Collection",
           image: imageUrl,
           description: nft.content?.metadata?.description || "",
           attributes: nft.content?.metadata?.attributes || [],
@@ -714,7 +806,7 @@ const Profile = () => {
   // Main function to fetch user's NFTs (tries multiple sources)
   const fetchUserNFTs = async (walletAddress: string): Promise<void> => {
     if (!walletAddress) return;
-    
+
     setIsLoadingNFTs(true);
     setNftError(null);
 
@@ -730,7 +822,9 @@ const Profile = () => {
         const magicNfts = await fetchUserNFTsFromMagicEden(walletAddress);
         if (magicNfts && magicNfts.length > 0) {
           // If some MagicEden NFTs lack images, try Helius to fill missing data
-          const missingCount = magicNfts.filter((it) => !it.image || it.image === '').length;
+          const missingCount = magicNfts.filter(
+            (it) => !it.image || it.image === ""
+          ).length;
           if (missingCount > 0) {
             try {
               const heliusNfts = await fetchUserNFTsFromHelius(walletAddress);
@@ -740,9 +834,12 @@ const Profile = () => {
                 heliusNfts.forEach((h) => heliusByMint.set(h.mintAddress, h));
 
                 const merged: SolanaNFT[] = magicNfts.map((me) => {
-                  if ((!me.image || me.image === '') && heliusByMint.has(me.mintAddress)) {
+                  if (
+                    (!me.image || me.image === "") &&
+                    heliusByMint.has(me.mintAddress)
+                  ) {
                     const h = heliusByMint.get(me.mintAddress)!;
-                    return { ...me, image: h.image || '' };
+                    return { ...me, image: h.image || "" };
                   }
                   return me;
                 });
@@ -757,8 +854,10 @@ const Profile = () => {
                 if (nfts && nfts.length > 0) return nfts;
               }
             } catch (heliusErrInner: any) {
-              console.warn('Helius fetch (merge) failed:', heliusErrInner);
-              providerErrors.push(`Helius: ${heliusErrInner?.message || heliusErrInner}`);
+              console.warn("Helius fetch (merge) failed:", heliusErrInner);
+              providerErrors.push(
+                `Helius: ${heliusErrInner?.message || heliusErrInner}`
+              );
             }
           }
 
@@ -767,8 +866,10 @@ const Profile = () => {
           if (nfts && nfts.length > 0) return nfts;
         }
       } catch (magicEdenError: any) {
-        console.warn('Magic Eden fetch failed:', magicEdenError);
-        providerErrors.push(`MagicEden: ${magicEdenError?.message || magicEdenError}`);
+        console.warn("Magic Eden fetch failed:", magicEdenError);
+        providerErrors.push(
+          `MagicEden: ${magicEdenError?.message || magicEdenError}`
+        );
       }
 
       // Then try Helius as a final attempt
@@ -776,7 +877,7 @@ const Profile = () => {
         nfts = await fetchUserNFTsFromHelius(walletAddress);
         if (nfts && nfts.length > 0) return nfts;
       } catch (heliusError: any) {
-        console.warn('Helius fetch failed:', heliusError);
+        console.warn("Helius fetch failed:", heliusError);
         providerErrors.push(`Helius: ${heliusError?.message || heliusError}`);
       }
 
@@ -785,12 +886,13 @@ const Profile = () => {
 
     try {
       let nfts: SolanaNFT[] = [];
-      
+
       while (retryCount < maxRetries) {
         nfts = await tryFetchNFTs();
         if (nfts && nfts.length > 0) break;
         retryCount++;
-        if (retryCount < maxRetries) await new Promise(r => setTimeout(r, 1000)); // Wait 1s between retries
+        if (retryCount < maxRetries)
+          await new Promise((r) => setTimeout(r, 1000)); // Wait 1s between retries
       }
 
       if (nfts && nfts.length > 0) {
@@ -800,12 +902,12 @@ const Profile = () => {
         // Only show error if we have no NFTs after all retries
         setUserNFTs([]);
         if (providerErrors.length > 0) {
-          setNftError('No NFTs found for this address');
+          setNftError("No NFTs found for this address");
         }
       }
     } catch (error: any) {
-      console.error('Unexpected error fetching NFTs:', error);
-      setNftError('Failed to load NFTs. Please try again.');
+      console.error("Unexpected error fetching NFTs:", error);
+      setNftError("Failed to load NFTs. Please try again.");
       setUserNFTs([]);
     } finally {
       setIsLoadingNFTs(false);
@@ -849,9 +951,9 @@ const Profile = () => {
         {
           method: "POST",
           headers: {
-            Accept: "application/json, text/plain, */*",
+            "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth}`,
+            "Authorization": `Bearer ${auth}`,
           },
           body: JSON.stringify({
             email: email,
@@ -901,9 +1003,9 @@ const Profile = () => {
         {
           method: "POST",
           headers: {
-            Accept: "application/json, text/plain, */*",
+            "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth}`,
+            "Authorization": `Bearer ${auth}`,
           },
           body: JSON.stringify({
             email: newEmail,
@@ -981,9 +1083,9 @@ const Profile = () => {
         {
           method: "POST",
           headers: {
-            Accept: "application/json, text/plain, */*",
+            "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth}`,
+            "Authorization": `Bearer ${auth}`,
           },
           body: JSON.stringify({
             email: otpSentEmail,
@@ -1114,18 +1216,15 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch(
-        `${REACT_APP_GATEWAY_URL}api/v1.0/profile`,
-        {
-          method: "PATCH",
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth}`,
-          },
-          body: JSON.stringify(tempFormData),
-        }
-      );
+      const response = await fetch(`${REACT_APP_GATEWAY_URL}api/v1.0/profile`, {
+        method: "PATCH",
+        headers: {
+          "Accept": "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${auth}`,
+        },
+        body: JSON.stringify(tempFormData),
+      });
 
       if (response.ok) {
         setFormData(tempFormData);
@@ -1189,9 +1288,9 @@ const Profile = () => {
           `${REACT_APP_GATEWAY_URL}api/v1.0/profile`,
           {
             headers: {
-              Accept: "application/json, text/plain, */*",
+              "Accept": "application/json, text/plain, */*",
               "Content-Type": "application/json",
-              Authorization: `Bearer ${auth}`,
+              "Authorization": `Bearer ${auth}`,
             },
           }
         );
@@ -1383,9 +1482,9 @@ const Profile = () => {
         `${REACT_APP_GATEWAY_URL}api/v1.0/account/remove-mail`,
         {
           headers: {
-            Accept: "application/json, text/plain, */*",
+            "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth}`,
+            "Authorization": `Bearer ${auth}`,
           },
         }
       );
@@ -1428,7 +1527,7 @@ const Profile = () => {
     // We will attempt to fetch NFTs when we have a Solana address available.
     // Use connected `address` if present, otherwise fall back to the wallet cookie (read-only view).
     const cookieAddr = Cookies.get("erebrus_wallet");
-    const fetchAddress = (address && address !== "") ? address : cookieAddr;
+    const fetchAddress = address && address !== "" ? address : cookieAddr;
     const chainSymbol = Cookies.get("Chain_symbol")?.toLowerCase();
     const isSolanaWallet = chainSymbol === "sol";
 
@@ -1438,15 +1537,19 @@ const Profile = () => {
           // First try loading NFTs
           await fetchUserNFTs(fetchAddress);
           // Then try loading token balances
-          await fetchTokenBalancesForUser(fetchAddress, 'solana');
+          await fetchTokenBalancesForUser(fetchAddress, "solana");
         } catch (err) {
-          console.warn('Failed to load NFTs or tokens:', err);
+          console.warn("Failed to load NFTs or tokens:", err);
         }
       } else {
         // No Solana address available or wrong chain — clear UI lists
         setUserNFTs([]);
         setTokenBalances([]);
-        setNftError(chainSymbol && !isSolanaWallet ? 'Please switch to Solana network to view NFTs' : null);
+        setNftError(
+          chainSymbol && !isSolanaWallet
+            ? "Please switch to Solana network to view NFTs"
+            : null
+        );
         setTokenError(null);
       }
     };
@@ -1459,39 +1562,100 @@ const Profile = () => {
   // Effect to load tokens when active chain changes
   useEffect(() => {
     const cookieAddr = Cookies.get("erebrus_wallet");
-    const fetchAddress = (isConnected && address) ? address : cookieAddr;
+    const fetchAddress = isConnected && address ? address : cookieAddr;
     if (fetchAddress) {
-      fetchTokenBalancesForUser(fetchAddress, activeChain).catch((err) => console.warn('fetchTokenBalancesForUser failed on chain change:', err));
+      fetchTokenBalancesForUser(fetchAddress, activeChain).catch((err) =>
+        console.warn("fetchTokenBalancesForUser failed on chain change:", err)
+      );
     }
   }, [activeChain]);
 
   // Main function to fetch token balances for the current user
-  const fetchTokenBalancesForUser = async (walletAddress: string, chain: 'ethereum' | 'arbitrum' | 'base' | 'solana') => {
+  const fetchTokenBalancesForUser = async (
+    walletAddress: string,
+    chain: "ethereum" | "arbitrum" | "base" | "solana" | "monad"
+  ) => {
     if (!walletAddress) return;
-    
-    // For now, only allow Solana as requested
-    if (chain !== 'solana') {
+
+    // Support both Solana and Monad chains
+    if (chain !== "solana" && chain !== "monad") {
       setTokenBalances([]);
-      setTokenError("Only Solana NFT collection is currently supported");
+      setTokenError(
+        "Only Solana and Monad NFT collections are currently supported"
+      );
       return;
     }
-    
+
     setIsLoadingTokens(true);
     setTokenError(null);
-    
+
     try {
-      const tokens = await fetchSolanaTokens(walletAddress);
+      let tokens: TokenBalance[] = [];
+
+      if (chain === "solana") {
+        tokens = await fetchSolanaTokens(walletAddress);
+      } else if (chain === "monad") {
+        tokens = await fetchUserNFTsFromMonad(walletAddress);
+      }
+
       setTokenBalances(tokens);
-      
+
       if (tokens.length === 0) {
-        setTokenError("No NFTs found in this wallet");
+        setTokenError(
+          `No NFTs found in this ${
+            chain === "monad" ? "Monad" : "Solana"
+          } wallet`
+        );
       }
     } catch (error) {
-      console.error(`Error fetching tokens:`, error);
-      setTokenError(`Failed to load Solana NFTs. Please try again later.`);
+      console.error(`Error fetching ${chain} tokens:`, error);
+      setTokenError(
+        `Failed to load ${
+          chain === "monad" ? "Monad" : "Solana"
+        } NFTs. Please try again later.`
+      );
       setTokenBalances([]);
     } finally {
       setIsLoadingTokens(false);
+    }
+  };
+
+  // Fetch NFTs from Monad network
+  const fetchUserNFTsFromMonad = async (
+    walletAddress: string
+  ): Promise<TokenBalance[]> => {
+    try {
+      const response = await fetch(`/api/monad-nfts?address=${walletAddress}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Transform Monad NFTs to match TokenBalance interface
+      return data.nfts.map(
+        (nft: any): TokenBalance => ({
+          name: nft.name || "Unknown NFT",
+          symbol: "MONAD-NFT",
+          contractAddress: nft.contractAddress,
+          tokenBalance: "1", // NFTs have balance of 1
+          decimals: 0, // NFTs don't have decimals
+          logo: nft.image || "/NFT_Icon.png",
+          type: "MONAD-NFT",
+          // Additional NFT-specific data
+          tokenId: nft.tokenId,
+          description: nft.description,
+          attributes: nft.attributes,
+        })
+      );
+    } catch (error) {
+      console.error("Error fetching Monad NFTs:", error);
+      throw error;
     }
   };
 
@@ -1499,7 +1663,7 @@ const Profile = () => {
   const refreshNFTs = async () => {
     if (address && isUserAuthenticated()) {
       await fetchUserNFTs(address);
-      await fetchTokenBalancesForUser(address, 'solana');
+      await fetchTokenBalancesForUser(address, activeChain);
     }
   };
 
@@ -1532,12 +1696,18 @@ const Profile = () => {
       name: "Solana",
       icon: "/solanaicon.webp",
     },
+    monad: {
+      name: "Monad Testnet",
+      icon: "/ethicon.webp",
+    },
   };
 
   const chainSymbol = Cookies.get("Chain_symbol");
-  const chainDetails = chainInfo[chainSymbol?.toLowerCase() || ""] || {
-    name: "Unknown Chain",
-    icon: "",
+  // Default to 'monad' if no chain is set, otherwise use detected chain
+  const effectiveChainSymbol = chainSymbol?.toLowerCase() || "monad";
+  const chainDetails = chainInfo[effectiveChainSymbol] || {
+    name: "Monad Testnet", // Default to Monad instead of Unknown
+    icon: "/ethicon.webp",
   };
 
   const openEditDialog = () => {
@@ -1577,58 +1747,62 @@ const Profile = () => {
     // Fallback: treat as CID or CID/path
     return `https://ipfs.erebrus.io/ipfs/${v}`;
   };
-  
+
   // Utility function to normalize NFT image URLs
   const getIpfsGatewayUrl = (imageUrl: string): string => {
     if (!imageUrl) return "/NFT_Icon.png"; // Default fallback
-    
+
     try {
       // Trim and clean the URL
       const cleanUrl = imageUrl.trim();
-      
+
       // Handle data URLs (base64) directly
-      if (cleanUrl.startsWith('data:')) {
+      if (cleanUrl.startsWith("data:")) {
         return cleanUrl;
       }
-      
+
       // Handle HTTP(S) URLs with common image extensions
       if (/^https?:\/\/.*\.(jpg|jpeg|png|gif|webp|svg)/i.test(cleanUrl)) {
         return cleanUrl;
       }
 
       // Already processed with a proper gateway
-      if (cleanUrl.includes("ipfs.erebrus.io") || 
-          cleanUrl.includes("ipfs.io") || 
-          cleanUrl.includes("dweb.link") ||
-          cleanUrl.includes("cloudflare-ipfs.com")) {
+      if (
+        cleanUrl.includes("ipfs.erebrus.io") ||
+        cleanUrl.includes("ipfs.io") ||
+        cleanUrl.includes("dweb.link") ||
+        cleanUrl.includes("cloudflare-ipfs.com")
+      ) {
         return cleanUrl;
       }
-      
+
       // Handle common IPFS prefixes
       if (cleanUrl.startsWith("ipfs://")) {
         return `https://cloudflare-ipfs.com/ipfs/${cleanUrl.slice(7)}`;
       }
-      
+
       // Handle arweave URLs
       if (cleanUrl.startsWith("ar://")) {
         return `https://arweave.net/${cleanUrl.slice(5)}`;
       }
-      
+
       // Handle relative IPFS paths
       if (cleanUrl.startsWith("/ipfs/")) {
         return `https://cloudflare-ipfs.com${cleanUrl}`;
       }
-      
+
       // If it's just a CID (common pattern)
       if (/^[a-zA-Z0-9]{46,59}$/.test(cleanUrl)) {
         return `https://cloudflare-ipfs.com/ipfs/${cleanUrl}`;
       }
-      
+
       // Handle common problematic URLs
-      if (cleanUrl.includes("digitaleyes") || 
-          cleanUrl.includes("solsea") ||
-          cleanUrl.includes("solanart") ||
-          cleanUrl.includes("nftstorage")) {
+      if (
+        cleanUrl.includes("digitaleyes") ||
+        cleanUrl.includes("solsea") ||
+        cleanUrl.includes("solanart") ||
+        cleanUrl.includes("nftstorage")
+      ) {
         // Try to extract IPFS path if present
         const ipfsMatch = cleanUrl.match(/\/ipfs\/([a-zA-Z0-9]+)/);
         if (ipfsMatch && ipfsMatch[1]) {
@@ -1636,23 +1810,25 @@ const Profile = () => {
         }
         return cleanUrl;
       }
-      
+
       // Try to fix Solana URIs
-      if (cleanUrl.startsWith("https://solana-cdn.com/") ||
-          cleanUrl.startsWith("https://arweave.net/")) {
+      if (
+        cleanUrl.startsWith("https://solana-cdn.com/") ||
+        cleanUrl.startsWith("https://arweave.net/")
+      ) {
         return cleanUrl;
       }
 
       // Handle generic HTTP URLs without specific image extensions
-      if (cleanUrl.startsWith('http')) {
+      if (cleanUrl.startsWith("http")) {
         return cleanUrl;
       }
-      
+
       // Last resort - treat as potential IPFS CID
       if (cleanUrl.length > 20 && /^[a-zA-Z0-9]+$/.test(cleanUrl)) {
         return `https://cloudflare-ipfs.com/ipfs/${cleanUrl}`;
       }
-      
+
       // Return original URL if none of the above conditions match
       return cleanUrl;
     } catch (error) {
@@ -1662,18 +1838,18 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white">
+    <div className='min-h-screen bg-linear-to-b font-sans from-black to-gray-900 text-white'>
       {/* Authentication Check */}
       {!isConnected && (
-        <div className="container mx-auto px-4 py-36">
-          <div className="max-w-md mx-auto text-center">
-            <div className="bg-gray-800 rounded-lg p-8 shadow-xl border border-gray-700">
-              <User className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-              <h2 className="text-2xl font-bold mb-4">Wallet Not Connected</h2>
-              <p className="text-gray-400 mb-6">
+        <div className='container mx-auto px-4 py-36'>
+          <div className='max-w-md mx-auto text-center'>
+            <div className='bg-gray-800 rounded-lg p-8 shadow-xl border border-gray-700'>
+              <User className='h-16 w-16 mx-auto mb-4 text-gray-400' />
+              <h2 className='text-2xl font-bold mb-4'>Wallet Not Connected</h2>
+              <p className='text-gray-400 mb-6'>
                 Please connect your wallet to view your profile.
               </p>
-              <div className="flex justify-center">
+              <div className='flex justify-center'>
                 <w3m-button />
               </div>
             </div>
@@ -1682,19 +1858,19 @@ const Profile = () => {
       )}
 
       {isConnected && !isUserAuthenticated() && (
-        <div className="container mx-auto px-4 py-36">
-          <div className="max-w-md mx-auto text-center">
-            <div className="bg-gray-800 rounded-lg p-8 shadow-xl border border-gray-700">
-              <User className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-              <h2 className="text-2xl font-bold mb-4">
+        <div className='container mx-auto px-4 py-36'>
+          <div className='max-w-md mx-auto text-center'>
+            <div className='bg-gray-800 rounded-lg p-8 shadow-xl border border-gray-700'>
+              <User className='h-16 w-16 mx-auto mb-4 text-gray-400' />
+              <h2 className='text-2xl font-bold mb-4'>
                 Authentication Required
               </h2>
-              <p className="text-gray-400 mb-6">
+              <p className='text-gray-400 mb-6'>
                 Please sign the message with your wallet to access your profile.
               </p>
               <Button
                 onClick={handleRefreshPage}
-                className="bg-blue-600 hover:bg-blue-700"
+                className='bg-blue-600 hover:bg-blue-700'
               >
                 Refresh Page
               </Button>
@@ -1708,36 +1884,36 @@ const Profile = () => {
         <>
           {/* Success/Error Messages */}
           {msg === "success" && (
-            <div className="fixed top-4 right-4 z-50 bg-green-500/90 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-5 duration-300">
-              <Check className="h-5 w-5" />
+            <div className='fixed top-4 right-4 z-50 bg-green-500/90 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-5 duration-300'>
+              <Check className='h-5 w-5' />
               <span>Changes saved successfully!</span>
             </div>
           )}
 
           {msg === "error" && (
-            <div className="fixed top-4 right-4 z-50 bg-red-500/90 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-5 duration-300">
-              <X className="h-5 w-5" />
+            <div className='fixed top-4 right-4 z-50 bg-red-500/90 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-5 duration-300'>
+              <X className='h-5 w-5' />
               <span>Error saving changes. Please try again.</span>
             </div>
           )}
 
-          <div className="container mx-auto px-4 py-36">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex flex-col md:flex-row justify-between items-center md:items-center mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent text-center md:text-left">
+          <div className='container mx-auto px-4 py-36'>
+            <div className='max-w-4xl mx-auto'>
+              <div className='flex flex-col md:flex-row justify-between items-center md:items-center mb-8'>
+                <h1 className='text-2xl font-another-xanadu font-bold bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent text-center md:text-left'>
                   Profile Information
                 </h1>
-                <div className="flex items-center space-x-3 mt-4 md:mt-0">
+                <div className='flex items-center space-x-3 mt-4 md:mt-0'>
                   <Badge
-                    variant="outline"
-                    className="bg-blue-900/30 text-blue-300 border-blue-800 px-4 py-2 text-base"
+                    variant='outline'
+                    className='bg-blue-900/30 text-blue-300 border-blue-800 px-4 py-2 text-base'
                   >
-                    <span className="mr-2 h-3 w-3 rounded-full bg-blue-400"></span>
+                    <span className='mr-2 h-3 w-3 rounded-full bg-blue-400'></span>
                     {chainDetails.name}
                   </Badge>
                   <Badge
-                    variant="outline"
-                    className="bg-gray-800 text-gray-300 border-gray-700 font-mono px-4 py-2 text-base"
+                    variant='outline'
+                    className='bg-gray-800 text-gray-300 border-gray-700 font-mono px-4 py-2 text-base'
                   >
                     {walletaddr
                       ? `${walletaddr.slice(0, 6)}...${walletaddr.slice(-6)}`
@@ -1746,36 +1922,36 @@ const Profile = () => {
                 </div>
               </div>
 
-              <Tabs defaultValue="profile" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-800/50 border border-gray-700">
+              <Tabs defaultValue='profile' className='w-full'>
+                <TabsList className='grid w-full grid-cols-2 mb-8 bg-gray-800/50 border border-gray-700'>
                   <TabsTrigger
-                    value="profile"
-                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 hover:text-white transition-all duration-200"
+                    value='profile'
+                    className='data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 hover:text-white transition-all duration-200'
                   >
                     Profile Details
                   </TabsTrigger>
                   <TabsTrigger
-                    value="nfts"
-                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 hover:text-white transition-all duration-200"
+                    value='nfts'
+                    className='data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400 hover:text-white transition-all duration-200'
                   >
                     My NFTs
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="profile">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <TabsContent value='profile'>
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
                     {/* Profile Image Section */}
-                    <Card className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
-                      <CardContent className="p-6 flex flex-col items-center">
-                        <div className="relative mb-6 mt-4">
-                          <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-800 border-4 border-gray-700 flex items-center justify-center">
+                    <Card className='bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden shadow-xl'>
+                      <CardContent className='p-6 flex flex-col items-center'>
+                        <div className='relative mb-6 mt-4'>
+                          <div className='w-40 h-40 rounded-full overflow-hidden bg-gray-800 border-4 border-gray-700 flex items-center justify-center'>
                             {formData.profilePictureUrl ? (
                               <img
-                                alt="Profile"
+                                alt='Profile'
                                 src={getProfileImageUrl(
                                   formData.profilePictureUrl
                                 )}
-                                className="w-full h-full object-cover"
+                                className='w-full h-full object-cover'
                                 onError={(
                                   e: React.SyntheticEvent<HTMLImageElement>
                                 ) => {
@@ -1786,191 +1962,191 @@ const Profile = () => {
                                 }}
                               />
                             ) : formData.name ? (
-                              <div className="flex items-center justify-center w-full h-full text-5xl font-bold text-white">
+                              <div className='flex items-center justify-center w-full h-full text-5xl font-bold text-white'>
                                 {formData.name.charAt(0)}
                               </div>
                             ) : (
-                              <User size={64} className="text-gray-400" />
+                              <User size={64} className='text-gray-400' />
                             )}
                           </div>
                         </div>
 
-                        <h2 className="text-xl font-bold mb-1">
+                        <h2 className='text-xl font-bold mb-1'>
                           {formData.name || "Your Name"}
                         </h2>
-                        <p className="text-gray-400 text-sm mb-4">
+                        <p className='text-gray-400 text-sm mb-4'>
                           {formData.country || "Your Location"}
                         </p>
 
-                        <div className="w-full mt-4">
+                        <div className='w-full mt-4'>
                           <Button
                             onClick={openEditDialog}
-                            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400"
+                            className='w-full bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400'
                           >
-                            <Edit size={16} className="mr-2" /> Edit Profile
+                            <Edit size={16} className='mr-2' /> Edit Profile
                           </Button>
                         </div>
                       </CardContent>
                     </Card>
 
                     {/* Profile Form Section */}
-                    <Card className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden shadow-xl md:col-span-2">
-                      <CardContent className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className='bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden shadow-xl md:col-span-2'>
+                      <CardContent className='p-6'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                           {/* Basic Information */}
-                          <div className="space-y-4">
+                          <div className='space-y-4'>
                             <div>
                               <Label
-                                htmlFor="name"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='name'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <User
                                   size={16}
-                                  className="mr-2 text-blue-400"
+                                  className='mr-2 text-blue-400'
                                 />{" "}
                                 Name
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.name || "Not set"}
                               </p>
                             </div>
 
                             <div>
                               <Label
-                                htmlFor="country"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='country'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <MapPin
                                   size={16}
-                                  className="mr-2 text-blue-400"
+                                  className='mr-2 text-blue-400'
                                 />{" "}
                                 Country
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.country || "Not set"}
                               </p>
                             </div>
 
                             <div>
                               <Label
-                                htmlFor="email"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='email'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <Mail
                                   size={16}
-                                  className="mr-2 text-blue-400"
+                                  className='mr-2 text-blue-400'
                                 />{" "}
                                 Email
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.emailId || "Not set"}
                               </p>
                             </div>
 
                             <div>
                               <Label
-                                htmlFor="discord"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='discord'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <MessageSquare
                                   size={16}
-                                  className="mr-2 text-blue-400"
+                                  className='mr-2 text-blue-400'
                                 />{" "}
                                 Discord
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.discord || "Not set"}
                               </p>
                             </div>
                           </div>
 
                           {/* Social Media */}
-                          <div className="space-y-4">
+                          <div className='space-y-4'>
                             <div>
                               <Label
-                                htmlFor="twitter"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='twitter'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <AtSign
                                   size={16}
-                                  className="mr-2 text-blue-400"
+                                  className='mr-2 text-blue-400'
                                 />{" "}
                                 Twitter
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.twitter || "Not set"}
                               </p>
                             </div>
 
                             <div>
                               <Label
-                                htmlFor="telegram"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='telegram'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="mr-2 text-blue-400"
+                                  xmlns='http://www.w3.org/2000/svg'
+                                  width='16'
+                                  height='16'
+                                  viewBox='0 0 24 24'
+                                  fill='none'
+                                  stroke='currentColor'
+                                  strokeWidth='2'
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  className='mr-2 text-blue-400'
                                 >
-                                  <path d="m22 3-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 3"></path>
-                                  <path d="M2 3v18h20V3"></path>
-                                  <path d="M12 11v5"></path>
-                                  <path d="m10 13 2 2 2-2"></path>
+                                  <path d='m22 3-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 3'></path>
+                                  <path d='M2 3v18h20V3'></path>
+                                  <path d='M12 11v5'></path>
+                                  <path d='m10 13 2 2 2-2'></path>
                                 </svg>
                                 Telegram
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.telegram || "Not set"}
                               </p>
                             </div>
 
                             <div>
                               <Label
-                                htmlFor="farcaster"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='farcaster'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <Globe
                                   size={16}
-                                  className="mr-2 text-blue-400"
+                                  className='mr-2 text-blue-400'
                                 />{" "}
                                 Farcaster
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.farcaster || "Not set"}
                               </p>
                             </div>
 
                             <div>
                               <Label
-                                htmlFor="google"
-                                className="flex items-center text-gray-300 mb-2"
+                                htmlFor='google'
+                                className='flex items-center text-gray-300 mb-2'
                               >
                                 <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="mr-2 text-blue-400"
+                                  xmlns='http://www.w3.org/2000/svg'
+                                  width='16'
+                                  height='16'
+                                  viewBox='0 0 24 24'
+                                  fill='none'
+                                  stroke='currentColor'
+                                  strokeWidth='2'
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  className='mr-2 text-blue-400'
                                 >
-                                  <circle cx="12" cy="12" r="10"></circle>
-                                  <path d="M12 8v8"></path>
-                                  <path d="M8 12h8"></path>
+                                  <circle cx='12' cy='12' r='10'></circle>
+                                  <path d='M12 8v8'></path>
+                                  <path d='M8 12h8'></path>
                                 </svg>
                                 Google
                               </Label>
-                              <p className="text-white pl-6">
+                              <p className='text-white pl-6'>
                                 {formData.google || "Not set"}
                               </p>
                             </div>
@@ -1978,15 +2154,15 @@ const Profile = () => {
                         </div>
 
                         {/* Apple Account */}
-                        <div className="mt-6">
+                        <div className='mt-6'>
                           <Label
-                            htmlFor="apple"
-                            className="flex items-center text-gray-300 mb-2"
+                            htmlFor='apple'
+                            className='flex items-center text-gray-300 mb-2'
                           >
-                            <Apple size={16} className="mr-2 text-blue-400" />{" "}
+                            <Apple size={16} className='mr-2 text-blue-400' />{" "}
                             Apple
                           </Label>
-                          <p className="text-white pl-6">
+                          <p className='text-white pl-6'>
                             {formData.apple || "Not set"}
                           </p>
                         </div>
@@ -1995,20 +2171,40 @@ const Profile = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="nfts">
-                  <Card className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
-                    <CardContent className="p-8">
-                      <div className="text-center">
-                        <h2 className="text-2xl font-bold text-purple-400 mb-4">
+                <TabsContent value='nfts'>
+                  <Card className='bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden shadow-xl'>
+                    <CardContent className='p-8'>
+                      <div className='text-center'>
+                        <h2 className='text-2xl font-bold text-purple-400 mb-4'>
                           Your NFT Collection
                         </h2>
-                        
-                        {/* Blockchain Selection - Only showing Solana for now */}
-                        <div className="flex justify-center space-x-2 mb-6">
+
+                        {/* Blockchain Selection - Monad and Solana */}
+                        <div className='flex justify-center space-x-2 mb-6'>
                           <Button
-                            variant={activeChain === 'solana' ? 'default' : 'outline'}
-                            className={activeChain === 'solana' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 border-gray-700'}
-                            onClick={() => setActiveChain('solana')}
+                            variant={
+                              activeChain === "monad" ? "default" : "outline"
+                            }
+                            className={
+                              activeChain === "monad"
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-800 text-gray-300 border-gray-700"
+                            }
+                            onClick={() => setActiveChain("monad")}
+                            disabled={isLoadingTokens}
+                          >
+                            Monad
+                          </Button>
+                          <Button
+                            variant={
+                              activeChain === "solana" ? "default" : "outline"
+                            }
+                            className={
+                              activeChain === "solana"
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-800 text-gray-300 border-gray-700"
+                            }
+                            onClick={() => setActiveChain("solana")}
                             disabled={isLoadingTokens}
                           >
                             Solana
@@ -2016,293 +2212,347 @@ const Profile = () => {
                         </div>
 
                         {/* Manual Address Search */}
-                        <div className="max-w-md mx-auto mb-8 mt-4">
-                          <div className="flex space-x-2">
+                        <div className='max-w-md mx-auto mb-8 mt-4'>
+                          <div className='flex space-x-2'>
                             <Input
-                              placeholder="Enter wallet address"
-                              className="bg-gray-800/50 border-gray-700 text-white"
-                              value={tempFormData.manualAddress || ''}
-                              onChange={(e) => setTempFormData({...tempFormData, manualAddress: e.target.value})}
+                              placeholder='Enter wallet address'
+                              className='bg-gray-800/50 border-gray-700 text-white'
+                              value={tempFormData.manualAddress || ""}
+                              onChange={(e) =>
+                                setTempFormData({
+                                  ...tempFormData,
+                                  manualAddress: e.target.value,
+                                })
+                              }
                               disabled={isLoadingTokens}
                             />
-                            <Button 
+                            <Button
                               onClick={() => {
                                 if (tempFormData.manualAddress) {
-                                  fetchTokenBalancesForUser(tempFormData.manualAddress, 'solana');
+                                  fetchTokenBalancesForUser(
+                                    tempFormData.manualAddress,
+                                    activeChain
+                                  );
                                 } else {
-                                  toast.error('Please enter a wallet address');
+                                  toast.error("Please enter a wallet address");
                                 }
                               }}
-                              disabled={isLoadingTokens || !tempFormData.manualAddress}
-                              className="whitespace-nowrap"
+                              disabled={
+                                isLoadingTokens || !tempFormData.manualAddress
+                              }
+                              className='whitespace-nowrap'
                             >
                               Search
                             </Button>
                           </div>
-                          <p className="text-xs text-gray-400 mt-1">
-                            Enter a Solana wallet address to view NFTs
+                          <p className='text-xs text-gray-400 mt-1'>
+                            Enter a{" "}
+                            {activeChain === "monad" ? "Monad" : "Solana"}{" "}
+                            wallet address to view NFTs
                           </p>
                         </div>
 
                         {/* Chain indicator */}
-                        <div className="mb-6">
+                        <div className='mb-6'>
                           <Badge
-                            variant="outline"
-                            className="bg-blue-900/30 text-blue-300 border-blue-800"
+                            variant='outline'
+                            className='bg-blue-900/30 text-blue-300 border-blue-800'
                           >
-                            {activeChain === 'solana' ? 'Solana' : 
-                             (Cookies.get("Chain_symbol")?.toUpperCase() || "Unknown")}{" "}
+                            {activeChain === "monad"
+                              ? "Monad"
+                              : activeChain === "solana"
+                              ? "Solana"
+                              : chainDetails.name || "Unknown"}{" "}
                             Network
                           </Badge>
                         </div>
 
                         {/* Loading state - combined for both NFTs and tokens */}
                         {(isLoadingNFTs || isLoadingTokens) && (
-                          <div className="text-center py-12">
-                            <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4" />
-                            <p className="text-gray-400">
+                          <div className='text-center py-12'>
+                            <div className='animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4' />
+                            <p className='text-gray-400'>
                               Loading your NFTs...
                             </p>
                           </div>
                         )}
 
                         {/* Error state */}
-                        {(nftError || tokenError) && !isLoadingNFTs && !isLoadingTokens && (
-                          <div className="text-center py-12">
-                            <X className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                            <p className="text-red-400 mb-2">
-                              Failed to load NFTs
-                            </p>
-                            <p className="text-gray-500 text-sm">{nftError || tokenError}</p>
-                            <Button
-                              onClick={refreshNFTs}
-                              variant="outline"
-                              className="mt-4 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
-                            >
-                              Try Again
-                            </Button>
-                          </div>
-                        )}
+                        {(nftError || tokenError) &&
+                          !isLoadingNFTs &&
+                          !isLoadingTokens && (
+                            <div className='text-center py-12'>
+                              <X className='h-12 w-12 text-red-500 mx-auto mb-4' />
+                              <p className='text-red-400 mb-2'>
+                                Failed to load NFTs
+                              </p>
+                              <p className='text-gray-500 text-sm'>
+                                {nftError || tokenError}
+                              </p>
+                              <Button
+                                onClick={refreshNFTs}
+                                variant='outline'
+                                className='mt-4 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white'
+                              >
+                                Try Again
+                              </Button>
+                            </div>
+                          )}
 
                         {/* NFT and Token Display */}
-                        {!isLoadingNFTs && !isLoadingTokens && !nftError && !tokenError && (
-                          <>
-                            {/* Switch between userNFTs and tokenBalances */}
-                            {activeChain === 'solana' && tokenBalances.length > 0 ? (
-                              <>
-                                <p className="text-gray-400 mb-8">
-                                  Found {tokenBalances.length} Token
-                                  {tokenBalances.length !== 1 ? "s" : ""} in this
-                                  wallet
-                                </p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                  {tokenBalances.map((token, index) => (
-                                    <div
-                                      key={token.contractAddress || index}
-                                      className="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden hover:border-blue-500 transition-all duration-300 transform hover:scale-105"
-                                    >
-                                      {/* NFT Image */}
-                                      <div className="aspect-square w-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center relative">
-                                        {token.logo ? (
-                                          <img
-                                            src={token.logo}
-                                            alt={token.name}
-                                            loading="lazy"
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                              const img = e.currentTarget as HTMLImageElement;
-                                              img.onerror = null;
-                                              img.src = token.type === 'SOL-NFT' ? '/NFT_Icon.png' : '/default_token.png';
-                                            }}
-                                          />
-                                        ) : null}
-                                        {/* Fallback for missing images */}
-                                        <div
-                                          className="absolute inset-0 flex items-center justify-center text-center px-4"
-                                          style={{
-                                            display: token.logo
-                                              ? "none"
-                                              : "flex",
-                                          }}
-                                        >
-                                          <div>
-                                            <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                            <p className="text-sm text-gray-400">
-                                              {token.name || "Unknown Token"}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      {/* Token Details */}
-                                      <div className="p-4">
-                                        <h3 className="font-bold text-white mb-1 truncate">
-                                          {token.name || "Unknown Token"}
-                                        </h3>
-                                        <p className="text-xs text-gray-400 mb-2">
-                                          {token.type}
-                                        </p>
-                                        {token.type === 'ERC-20' && (
-                                          <p className="text-sm text-blue-400 font-medium">
-                                            Balance: {formatBalance(token.tokenBalance, token.decimals)}
-                                            {token.symbol ? ` ${token.symbol}` : ''}
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </>
-                            ) : userNFTs.length > 0 ? (
-                              <>
-                                <p className="text-gray-400 mb-8">
-                                  Found {userNFTs.length} NFT
-                                  {userNFTs.length !== 1 ? "s" : ""} in your
-                                  wallet
-                                </p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                  {userNFTs.map((nft, index) => (
-                                    <motion.div
-                                      key={nft.mintAddress || index}
-                                      initial={{ opacity: 0 }}
-                                      animate={{ opacity: 1 }}
-                                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                                      className="group relative"
-                                    >
-                                      {/* Card background with subtle gradient border */}
-                                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-purple-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-                                      
-                                      <div className="h-full bg-gray-900/80 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-800 group-hover:border-blue-500/30 transition-all duration-300">
-                                        {/* NFT Image with hover overlay */}
-                                        <div className="relative aspect-square overflow-hidden">
-                                          {nft.image ? (
+                        {!isLoadingNFTs &&
+                          !isLoadingTokens &&
+                          !nftError &&
+                          !tokenError && (
+                            <>
+                              {/* Switch between userNFTs and tokenBalances */}
+                              {(activeChain === "solana" ||
+                                activeChain === "monad") &&
+                              tokenBalances.length > 0 ? (
+                                <>
+                                  <p className='text-gray-400 mb-8'>
+                                    Found {tokenBalances.length} Token
+                                    {tokenBalances.length !== 1 ? "s" : ""} in
+                                    this wallet
+                                  </p>
+                                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                                    {tokenBalances.map((token, index) => (
+                                      <div
+                                        key={token.contractAddress || index}
+                                        className='bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden hover:border-blue-500 transition-all duration-300 transform hover:scale-105'
+                                      >
+                                        {/* NFT Image */}
+                                        <div className='aspect-square w-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center relative'>
+                                          {token.logo ? (
                                             <img
-                                              src={getIpfsGatewayUrl(nft.image)}
-                                              alt={nft.name || 'NFT'}
-                                              loading="lazy"
-                                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                              src={token.logo}
+                                              alt={token.name}
+                                              loading='lazy'
+                                              className='w-full h-full object-cover'
                                               onError={(e) => {
-                                                const img = e.currentTarget as HTMLImageElement;
-                                                // Prevent infinite loop if fallback also fails
+                                                const img =
+                                                  e.currentTarget as HTMLImageElement;
                                                 img.onerror = null;
-                                                img.src = '/NFT_Icon.png';
+                                                img.src =
+                                                  token.type === "SOL-NFT"
+                                                    ? "/NFT_Icon.png"
+                                                    : "/default_token.png";
                                               }}
                                             />
-                                          ) : (
-                                            <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                                              <span className="text-2xl text-gray-500">{nft.name?.substring(0, 3) || 'NFT'}</span>
+                                          ) : null}
+                                          {/* Fallback for missing images */}
+                                          <div
+                                            className='absolute inset-0 flex items-center justify-center text-center px-4'
+                                            style={{
+                                              display: token.logo
+                                                ? "none"
+                                                : "flex",
+                                            }}
+                                          >
+                                            <div>
+                                              <Upload className='h-8 w-8 text-gray-400 mx-auto mb-2' />
+                                              <p className='text-sm text-gray-400'>
+                                                {token.name || "Unknown Token"}
+                                              </p>
                                             </div>
-                                          )}
-                                          {/* Fallback for missing images - removed as we now have better fallbacks */}
+                                          </div>
                                         </div>
 
-                                      {/* NFT Details */}
-                                      <div className="p-4">
-                                        <h3
-                                          className="font-bold text-white truncate"
-                                          title={nft.name}
-                                        >
-                                          {nft.name}
-                                        </h3>
-                                        {nft.collectionName && (
-                                          <p
-                                            className="text-sm text-blue-400 truncate"
-                                            title={nft.collectionName}
-                                          >
-                                            {nft.collectionName}
+                                        {/* Token Details */}
+                                        <div className='p-4'>
+                                          <h3 className='font-bold text-white mb-1 truncate'>
+                                            {token.name || "Unknown Token"}
+                                          </h3>
+                                          <p className='text-xs text-gray-400 mb-2'>
+                                            {token.type}
                                           </p>
-                                        )}
-                                        {nft.description && (
-                                          <p className="text-xs text-gray-400 mt-2 max-h-8 overflow-hidden">
-                                            {nft.description.length > 80
-                                              ? `${nft.description.substring(
-                                                  0,
-                                                  80
-                                                )}...`
-                                              : nft.description}
-                                          </p>
-                                        )}
+                                          {token.type === "ERC-20" && (
+                                            <p className='text-sm text-blue-400 font-medium'>
+                                              Balance:{" "}
+                                              {formatBalance(
+                                                token.tokenBalance,
+                                                token.decimals
+                                              )}
+                                              {token.symbol
+                                                ? ` ${token.symbol}`
+                                                : ""}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : userNFTs.length > 0 ? (
+                                <>
+                                  <p className='text-gray-400 mb-8'>
+                                    Found {userNFTs.length} NFT
+                                    {userNFTs.length !== 1 ? "s" : ""} in your
+                                    wallet
+                                  </p>
+                                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                                    {userNFTs.map((nft, index) => (
+                                      <motion.div
+                                        key={nft.mintAddress || index}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{
+                                          duration: 0.3,
+                                          delay: index * 0.1,
+                                        }}
+                                        className='group relative'
+                                      >
+                                        {/* Card background with subtle gradient border */}
+                                        <div className='absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-purple-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10' />
 
-                                        {/* Attributes preview */}
-                                        {nft.attributes &&
-                                          nft.attributes.length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-1">
-                                              {nft.attributes
-                                                .slice(0, 2)
-                                                .map((attr, attrIndex) => (
-                                                  <span
-                                                    key={attrIndex}
-                                                    className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded"
-                                                    title={`${attr.trait_type}: ${attr.value}`}
-                                                  >
-                                                    {attr.trait_type}:{" "}
-                                                    {attr.value}
-                                                  </span>
-                                                ))}
-                                              {nft.attributes.length > 2 && (
-                                                <span className="text-xs text-gray-500">
-                                                  +{nft.attributes.length - 2}{" "}
-                                                  more
+                                        <div className='h-full bg-gray-900/80 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-800 group-hover:border-blue-500/30 transition-all duration-300'>
+                                          {/* NFT Image with hover overlay */}
+                                          <div className='relative aspect-square overflow-hidden'>
+                                            {nft.image ? (
+                                              <img
+                                                src={getIpfsGatewayUrl(
+                                                  nft.image
+                                                )}
+                                                alt={nft.name || "NFT"}
+                                                loading='lazy'
+                                                className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                                                onError={(e) => {
+                                                  const img =
+                                                    e.currentTarget as HTMLImageElement;
+                                                  // Prevent infinite loop if fallback also fails
+                                                  img.onerror = null;
+                                                  img.src = "/NFT_Icon.png";
+                                                }}
+                                              />
+                                            ) : (
+                                              <div className='w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center'>
+                                                <span className='text-2xl text-gray-500'>
+                                                  {nft.name?.substring(0, 3) ||
+                                                    "NFT"}
+                                                </span>
+                                              </div>
+                                            )}
+                                            {/* Fallback for missing images - removed as we now have better fallbacks */}
+                                          </div>
+
+                                          {/* NFT Details */}
+                                          <div className='p-4'>
+                                            <h3
+                                              className='font-bold text-white truncate'
+                                              title={nft.name}
+                                            >
+                                              {nft.name}
+                                            </h3>
+                                            {nft.collectionName && (
+                                              <p
+                                                className='text-sm text-blue-400 truncate'
+                                                title={nft.collectionName}
+                                              >
+                                                {nft.collectionName}
+                                              </p>
+                                            )}
+                                            {nft.description && (
+                                              <p className='text-xs text-gray-400 mt-2 max-h-8 overflow-hidden'>
+                                                {nft.description.length > 80
+                                                  ? `${nft.description.substring(
+                                                      0,
+                                                      80
+                                                    )}...`
+                                                  : nft.description}
+                                              </p>
+                                            )}
+
+                                            {/* Attributes preview */}
+                                            {nft.attributes &&
+                                              nft.attributes.length > 0 && (
+                                                <div className='mt-3 flex flex-wrap gap-1'>
+                                                  {nft.attributes
+                                                    .slice(0, 2)
+                                                    .map((attr, attrIndex) => (
+                                                      <span
+                                                        key={attrIndex}
+                                                        className='text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded'
+                                                        title={`${attr.trait_type}: ${attr.value}`}
+                                                      >
+                                                        {attr.trait_type}:{" "}
+                                                        {attr.value}
+                                                      </span>
+                                                    ))}
+                                                  {nft.attributes.length >
+                                                    2 && (
+                                                    <span className='text-xs text-gray-500'>
+                                                      +
+                                                      {nft.attributes.length -
+                                                        2}{" "}
+                                                      more
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              )}
+
+                                            {/* Token details */}
+                                            <div className='mt-3 text-xs text-gray-500'>
+                                              <p
+                                                title={nft.mintAddress || "N/A"}
+                                              >
+                                                Mint:{" "}
+                                                {nft.mintAddress
+                                                  ? `${nft.mintAddress.slice(
+                                                      0,
+                                                      8
+                                                    )}...${nft.mintAddress.slice(
+                                                      -4
+                                                    )}`
+                                                  : "N/A"}
+                                              </p>
+                                              {nft.isCompressed && (
+                                                <span className='text-yellow-400'>
+                                                  Compressed NFT
                                                 </span>
                                               )}
                                             </div>
-                                          )}
-
-                                        {/* Token details */}
-                                        <div className="mt-3 text-xs text-gray-500">
-                                          <p title={nft.mintAddress || 'N/A'}>
-                                            Mint: {nft.mintAddress
-                                              ? `${nft.mintAddress.slice(0, 8)}...${nft.mintAddress.slice(-4)}`
-                                              : 'N/A'}
-                                          </p>
-                                          {nft.isCompressed && (
-                                            <span className="text-yellow-400">
-                                              Compressed NFT
-                                            </span>
-                                          )}
+                                          </div>
                                         </div>
-                                      </div>
-                                      </div>
-                                    </motion.div>
-                                  ))}
+                                      </motion.div>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : (
+                                // Empty state
+                                <div className='text-center py-12'>
+                                  <Upload className='h-16 w-16 text-gray-600 mx-auto mb-4' />
+                                  <h3 className='text-xl font-semibold text-gray-300 mb-2'>
+                                    No NFTs Found
+                                  </h3>
+                                  <p className='text-gray-500 mb-6'>
+                                    {activeChain === "monad"
+                                      ? "You don't have any NFTs in your Monad wallet yet."
+                                      : activeChain === "solana"
+                                      ? "You don't have any NFTs in your Solana wallet yet."
+                                      : "Connect a wallet to view your NFTs."}
+                                  </p>
+                                  <div className='flex flex-col sm:flex-row gap-3 justify-center'>
+                                    <Button
+                                      onClick={() =>
+                                        window.open("/mint", "_blank")
+                                      }
+                                      variant='outline'
+                                      className='border-gray-700 text-black-300 hover:bg-gray-800 hover:text-white'
+                                    >
+                                      Go to Mint Page
+                                    </Button>
+                                    <Button
+                                      onClick={refreshNFTs}
+                                      variant='outline'
+                                      className='border-gray-700 text-black-300 hover:bg-gray-800 hover:text-white'
+                                    >
+                                      Refresh Collection
+                                    </Button>
+                                  </div>
                                 </div>
-                              </>
-                            ) : (
-                              // Empty state
-                              <div className="text-center py-12">
-                                <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                                <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                                  No NFTs Found
-                                </h3>
-                                <p className="text-gray-500 mb-6">
-                                  {Cookies.get(
-                                    "Chain_symbol"
-                                  )?.toLowerCase() === "sol"
-                                    ? "You don't have any NFTs in your Solana wallet yet."
-                                    : "Connect a Solana wallet to view your NFTs."}
-                                </p>
-                                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                                  <Button
-                                    onClick={() =>
-                                      window.open("/mint", "_blank")
-                                    }
-                                    variant="outline"
-                                    className="border-gray-700 text-black-300 hover:bg-gray-800 hover:text-white"
-                                  >
-                                    Go to Mint Page
-                                  </Button>
-                                  <Button
-                                    onClick={refreshNFTs}
-                                    variant="outline"
-                                    className="border-gray-700 text-black-300 hover:bg-gray-800 hover:text-white"
-                                  >
-                                    Refresh Collection
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </>
-                        )}
+                              )}
+                            </>
+                          )}
                       </div>
                     </CardContent>
                   </Card>
@@ -2313,26 +2563,26 @@ const Profile = () => {
 
           {/* Edit Profile Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="bg-gray-900 border border-gray-800 text-white max-w-2xl">
+            <DialogContent className='bg-gray-900 border border-gray-800 text-white max-w-2xl'>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                <DialogTitle className='text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent'>
                   Edit Profile
                 </DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className='text-gray-400'>
                   Update your profile information below
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-4'>
                 {/* Profile Picture */}
-                <div className="md:col-span-2 flex justify-center">
-                  <div className="relative group">
-                    <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-800/80 to-purple-800/80 border-4 border-gray-700 flex items-center justify-center">
+                <div className='md:col-span-2 flex justify-center'>
+                  <div className='relative group'>
+                    <div className='w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-800/80 to-purple-800/80 border-4 border-gray-700 flex items-center justify-center'>
                       {tempFormData.profilePictureUrl ? (
                         <img
-                          alt="Profile"
+                          alt='Profile'
                           src={`https://ipfs.myriadflow.com/ipfs/${tempFormData.profilePictureUrl}`}
-                          className="w-full h-full object-cover"
+                          className='w-full h-full object-cover'
                           onError={(
                             e: React.SyntheticEvent<HTMLImageElement>
                           ) => {
@@ -2343,227 +2593,227 @@ const Profile = () => {
                           }}
                         />
                       ) : tempFormData.name ? (
-                        <div className="flex items-center justify-center w-full h-full text-3xl font-bold text-white">
+                        <div className='flex items-center justify-center w-full h-full text-3xl font-bold text-white'>
                           {tempFormData.name.charAt(0)}
                         </div>
                       ) : (
-                        <User size={48} className="text-gray-400" />
+                        <User size={48} className='text-gray-400' />
                       )}
                     </div>
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center transition-opacity">
+                    <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center transition-opacity'>
                       <label
-                        htmlFor="profile-upload"
-                        className="cursor-pointer"
+                        htmlFor='profile-upload'
+                        className='cursor-pointer'
                       >
                         {/* Profile Upload Input */}
                         <input
-                          id="profile-upload"
-                          type="file"
-                          className="hidden"
+                          id='profile-upload'
+                          type='file'
+                          className='hidden'
                           onChange={uploadImage}
-                          accept="image/*"
-                          aria-label="Upload profile picture"
+                          accept='image/*'
+                          aria-label='Upload profile picture'
                         />
-                        <Camera className="h-8 w-8 text-white" />
+                        <Camera className='h-8 w-8 text-white' />
                       </label>
                     </div>
                   </div>
                 </div>
 
                 {/* Basic Information */}
-                <div className="space-y-4">
+                <div className='space-y-4'>
                   {/* Name */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="name"
-                      className="flex items-center text-gray-300"
+                      htmlFor='name'
+                      className='flex items-center text-gray-300'
                     >
-                      <User size={16} className="mr-2 text-blue-400" /> Name
+                      <User size={16} className='mr-2 text-blue-400' /> Name
                     </Label>
                     <Input
-                      id="name"
+                      id='name'
                       value={tempFormData.name}
                       onChange={handleInputChange}
-                      placeholder="Your name"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your name"
+                      placeholder='Your name'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your name'
                     />
                   </div>
                   {/* Country */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="country"
-                      className="flex items-center text-gray-300"
+                      htmlFor='country'
+                      className='flex items-center text-gray-300'
                     >
-                      <MapPin size={16} className="mr-2 text-blue-400" />{" "}
+                      <MapPin size={16} className='mr-2 text-blue-400' />{" "}
                       Country
                     </Label>
                     <Input
-                      id="country"
+                      id='country'
                       value={tempFormData.country}
                       onChange={handleInputChange}
-                      placeholder="Your country"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your country"
+                      placeholder='Your country'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your country'
                     />
                   </div>
                   {/* Email */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="emailId"
-                      className="flex items-center text-gray-300"
+                      htmlFor='emailId'
+                      className='flex items-center text-gray-300'
                     >
-                      <Mail size={16} className="mr-2 text-blue-400" /> Email
+                      <Mail size={16} className='mr-2 text-blue-400' /> Email
                     </Label>
                     <Input
-                      id="emailId"
-                      type="email"
+                      id='emailId'
+                      type='email'
                       value={tempFormData.emailId}
                       onChange={handleInputChange}
-                      placeholder="Your email"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your email address"
+                      placeholder='Your email'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your email address'
                     />
                     {formData.emailId && formData.emailId.trim() !== "" && (
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className='text-xs text-gray-400 mt-1'>
                         💡 Changing your email will require OTP verification
                         sent to your new email address
                       </p>
                     )}
                     {(!formData.emailId || formData.emailId.trim() === "") && (
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className='text-xs text-gray-400 mt-1'>
                         📧 Adding your email will require verification via OTP
                       </p>
                     )}
                   </div>
                   {/* Discord */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="discord"
-                      className="flex items-center text-gray-300"
+                      htmlFor='discord'
+                      className='flex items-center text-gray-300'
                     >
-                      <MessageSquare size={16} className="mr-2 text-blue-400" />{" "}
+                      <MessageSquare size={16} className='mr-2 text-blue-400' />{" "}
                       Discord
                     </Label>
                     <Input
-                      id="discord"
+                      id='discord'
                       value={tempFormData.discord}
                       onChange={handleInputChange}
-                      placeholder="Your Discord username"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your Discord username"
+                      placeholder='Your Discord username'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your Discord username'
                     />
                   </div>
                 </div>
 
                 {/* Social Media */}
-                <div className="space-y-4">
+                <div className='space-y-4'>
                   {/* Twitter */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="twitter"
-                      className="flex items-center text-gray-300"
+                      htmlFor='twitter'
+                      className='flex items-center text-gray-300'
                     >
-                      <AtSign size={16} className="mr-2 text-blue-400" />{" "}
+                      <AtSign size={16} className='mr-2 text-blue-400' />{" "}
                       Twitter
                     </Label>
                     <Input
-                      id="twitter"
+                      id='twitter'
                       value={tempFormData.twitter}
                       onChange={handleInputChange}
-                      placeholder="Your Twitter handle"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your Twitter handle"
+                      placeholder='Your Twitter handle'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your Twitter handle'
                     />
                   </div>
                   {/* Telegram */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="telegram"
-                      className="flex items-center text-gray-300"
+                      htmlFor='telegram'
+                      className='flex items-center text-gray-300'
                     >
                       {/* ...existing svg... */} Telegram
                     </Label>
                     <Input
-                      id="telegram"
+                      id='telegram'
                       value={tempFormData.telegram}
                       onChange={handleInputChange}
-                      placeholder="Your Telegram username"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your Telegram username"
+                      placeholder='Your Telegram username'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your Telegram username'
                     />
                   </div>
                   {/* Farcaster */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="farcaster"
-                      className="flex items-center text-gray-300"
+                      htmlFor='farcaster'
+                      className='flex items-center text-gray-300'
                     >
-                      <Globe size={16} className="mr-2 text-blue-400" />{" "}
+                      <Globe size={16} className='mr-2 text-blue-400' />{" "}
                       Farcaster
                     </Label>
                     <Input
-                      id="farcaster"
+                      id='farcaster'
                       value={tempFormData.farcaster}
                       onChange={handleInputChange}
-                      placeholder="Your Farcaster handle"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your Farcaster handle"
+                      placeholder='Your Farcaster handle'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your Farcaster handle'
                     />
                   </div>
                   {/* Google */}
-                  <div className="flex flex-col space-y-1.5">
+                  <div className='flex flex-col space-y-1.5'>
                     <Label
-                      htmlFor="google"
-                      className="flex items-center text-gray-300"
+                      htmlFor='google'
+                      className='flex items-center text-gray-300'
                     >
                       {/* ...existing svg... */} Google
                     </Label>
                     <Input
-                      id="google"
+                      id='google'
                       value={tempFormData.google}
                       onChange={handleInputChange}
-                      placeholder="Your Google account"
-                      className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                      aria-label="Enter your Google account"
+                      placeholder='Your Google account'
+                      className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                      aria-label='Enter your Google account'
                     />
                   </div>
                 </div>
               </div>
 
               {/* Apple Account */}
-              <div className="mt-2">
+              <div className='mt-2'>
                 <Label
-                  htmlFor="apple"
-                  className="flex items-center text-gray-300"
+                  htmlFor='apple'
+                  className='flex items-center text-gray-300'
                 >
-                  <Apple size={16} className="mr-2 text-blue-400" /> Apple
+                  <Apple size={16} className='mr-2 text-blue-400' /> Apple
                 </Label>
                 <Input
-                  id="apple"
+                  id='apple'
                   value={tempFormData.apple}
                   onChange={handleInputChange}
-                  placeholder="Your Apple ID"
-                  className="bg-gray-800/50 border-gray-700 focus:border-blue-500"
-                  aria-label="Enter your Apple ID"
+                  placeholder='Your Apple ID'
+                  className='bg-gray-800/50 border-gray-700 focus:border-blue-500'
+                  aria-label='Enter your Apple ID'
                 />
               </div>
 
-              <div className="flex justify-end space-x-4 mt-6">
+              <div className='flex justify-end space-x-4 mt-6'>
                 {/* Dialog Close Button */}
                 <Button
-                  variant="outline"
+                  variant='outline'
                   onClick={() => setIsEditDialogOpen(false)}
-                  className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+                  className='border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white'
                   disabled={loading}
-                  aria-label="Cancel profile changes"
+                  aria-label='Cancel profile changes'
                 >
-                  <X size={16} className="mr-2" /> Cancel
+                  <X size={16} className='mr-2' /> Cancel
                 </Button>
                 {/* Save Changes Button */}
                 <Button
                   onClick={handleSubmit}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500"
+                  className='bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500'
                   disabled={loading}
                   aria-label={
                     loading
@@ -2572,34 +2822,34 @@ const Profile = () => {
                   }
                 >
                   {loading ? (
-                    <div className="flex items-center">
+                    <div className='flex items-center'>
                       <svg
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        role="status"
+                        className='animate-spin -ml-1 mr-2 h-4 w-4 text-white'
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        aria-hidden='true'
+                        role='status'
                       >
                         <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
+                          className='opacity-25'
+                          cx='12'
+                          cy='12'
+                          r='10'
+                          stroke='currentColor'
+                          strokeWidth='4'
                         ></circle>
                         <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          className='opacity-75'
+                          fill='currentColor'
+                          d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
                         ></path>
                       </svg>
                       Saving...
                     </div>
                   ) : (
                     <>
-                      <Save size={16} className="mr-2" /> Save Changes
+                      <Save size={16} className='mr-2' /> Save Changes
                     </>
                   )}
                 </Button>
@@ -2611,46 +2861,46 @@ const Profile = () => {
 
       {/* OTP Verification Dialog */}
       <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+        <DialogContent className='bg-gray-900 border-gray-800 text-white max-w-md'>
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-center">
+            <DialogTitle className='text-xl font-bold text-center'>
               Verify New Email Address
             </DialogTitle>
-            <DialogDescription className="text-gray-400 text-center">
+            <DialogDescription className='text-gray-400 text-center'>
               {formData.emailId ? (
                 <>
                   To change your email from{" "}
-                  <span className="text-blue-400">{formData.emailId}</span> to{" "}
-                  <span className="text-blue-400">{pendingEmailUpdate}</span>,
+                  <span className='text-blue-400'>{formData.emailId}</span> to{" "}
+                  <span className='text-blue-400'>{pendingEmailUpdate}</span>,
                   please verify the new email address.
                 </>
               ) : (
                 <>
                   Please verify your new email address:{" "}
-                  <span className="text-blue-400">{pendingEmailUpdate}</span>
+                  <span className='text-blue-400'>{pendingEmailUpdate}</span>
                 </>
               )}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 p-4">
+          <div className='space-y-6 p-4'>
             {/* Error display section */}
             {emailValidationError && (
-              <div className="bg-red-900/30 border border-red-800 rounded-lg p-3 mb-4">
-                <div className="flex items-center space-x-2">
-                  <X className="h-5 w-5 text-red-400 flex-shrink-0" />
-                  <p className="text-red-400 text-sm">{emailValidationError}</p>
+              <div className='bg-red-900/30 border border-red-800 rounded-lg p-3 mb-4'>
+                <div className='flex items-center space-x-2'>
+                  <X className='h-5 w-5 text-red-400 flex-shrink-0' />
+                  <p className='text-red-400 text-sm'>{emailValidationError}</p>
                 </div>
               </div>
             )}
 
             {!otpSentEmail ? (
               // Step 1: Send OTP to new email
-              <div className="text-center space-y-4">
-                <p className="text-gray-300">
+              <div className='text-center space-y-4'>
+                <p className='text-gray-300'>
                   We'll send a verification code to your new email:
                 </p>
-                <p className="font-semibold text-blue-400">
+                <p className='font-semibold text-blue-400'>
                   {pendingEmailUpdate}
                 </p>
                 <Button
@@ -2663,11 +2913,11 @@ const Profile = () => {
                     }
                   }}
                   disabled={isOtpSending}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className='w-full bg-blue-600 hover:bg-blue-700'
                 >
                   {isOtpSending ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    <div className='flex items-center gap-2'>
+                      <div className='animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full'></div>
                       Checking email and sending OTP...
                     </div>
                   ) : (
@@ -2677,14 +2927,14 @@ const Profile = () => {
               </div>
             ) : (
               // Step 2: Enter OTP
-              <div className="space-y-4">
+              <div className='space-y-4'>
                 <div>
-                  <Label htmlFor="otpCode" className="text-gray-300">
+                  <Label htmlFor='otpCode' className='text-gray-300'>
                     Enter 6-digit verification code
                   </Label>
                   <Input
-                    id="otpCode"
-                    type="text"
+                    id='otpCode'
+                    type='text'
                     value={otpCode}
                     onChange={(e) => {
                       const value = e.target.value
@@ -2692,16 +2942,16 @@ const Profile = () => {
                         .slice(0, 6);
                       setOtpCode(value);
                     }}
-                    placeholder="000000"
-                    className="bg-gray-800/50 border-gray-700 focus:border-blue-500 text-center text-lg tracking-widest"
+                    placeholder='000000'
+                    className='bg-gray-800/50 border-gray-700 focus:border-blue-500 text-center text-lg tracking-widest'
                     maxLength={6}
                   />
-                  <p className="text-sm text-gray-400 mt-1">
+                  <p className='text-sm text-gray-400 mt-1'>
                     Code sent to: {otpSentEmail}
                   </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className='flex gap-3'>
                   <Button
                     onClick={async () => {
                       const success = await verifyOtp();
@@ -2721,11 +2971,11 @@ const Profile = () => {
                       }
                     }}
                     disabled={isOtpVerifying || otpCode.length !== 6}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    className='flex-1 bg-green-600 hover:bg-green-700'
                   >
                     {isOtpVerifying ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      <div className='flex items-center gap-2'>
+                        <div className='animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full'></div>
                         Verifying...
                       </div>
                     ) : (
@@ -2743,8 +2993,8 @@ const Profile = () => {
                       }
                     }}
                     disabled={isOtpSending}
-                    variant="outline"
-                    className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                    variant='outline'
+                    className='border-gray-700 text-gray-300 hover:bg-gray-800'
                   >
                     {isOtpSending ? "Sending..." : "Resend"}
                   </Button>
@@ -2752,7 +3002,7 @@ const Profile = () => {
               </div>
             )}
 
-            <div className="flex justify-center">
+            <div className='flex justify-center'>
               <Button
                 onClick={() => {
                   setShowOtpDialog(false);
@@ -2766,8 +3016,8 @@ const Profile = () => {
                     emailId: formData.emailId,
                   }));
                 }}
-                variant="outline"
-                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                variant='outline'
+                className='border-gray-700 text-gray-300 hover:bg-gray-800'
               >
                 Cancel Email Change
               </Button>

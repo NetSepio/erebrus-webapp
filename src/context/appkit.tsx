@@ -123,14 +123,17 @@ const riseTestnet = defineChain({
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 if (!projectId) {
-  throw new Error('Project ID is not defined. Please set NEXT_PUBLIC_PROJECT_ID in your environment variables.');
+  throw new Error(
+    "Project ID is not defined. Please set NEXT_PUBLIC_PROJECT_ID in your environment variables."
+  );
 }
 
 const metadata = {
-  name: 'CyreneAI',
-  description: "Powering the future of AI interaction through multi-agent collaboration.",
-  url: 'https://cyreneai.com/',
-  icons: ['https://cyreneai.com/Cyrene_mobile_logo.webp'],
+  name: "CyreneAI",
+  description:
+    "Powering the future of AI interaction through multi-agent collaboration.",
+  url: "https://cyreneai.com/",
+  icons: ["https://cyreneai.com/Cyrene_mobile_logo.webp"],
 };
 
 const wallets: BaseWalletAdapter[] = [
@@ -171,22 +174,31 @@ const getChainCookieKey = (key: string, chainType: string) => {
 
 // Client-side token lifetime (adjust to server TTL if known)
 const TOKEN_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
-const EXPIRY_KEY = 'erebrus_token_exp';
+const EXPIRY_KEY = "erebrus_token_exp";
 
 // Cookie management utilities
-const setAuthCookies = (chainType: 'solana' | 'evm', token: string, walletAddress: string, userId: string) => {
-  const options = { 
+const setAuthCookies = (
+  chainType: "solana" | "evm",
+  token: string,
+  walletAddress: string,
+  userId: string
+) => {
+  const options = {
     expires: 7,
-    path: '/',
-    sameSite: 'Strict' as const,
-    secure: process.env.NODE_ENV === 'production'
+    path: "/",
+    sameSite: "Strict" as const,
+    secure: process.env.NODE_ENV === "production",
   };
 
   const lowerWallet = walletAddress.toLowerCase();
   const expiryTs = (Date.now() + TOKEN_TTL_MS).toString();
-  
+
   Cookies.set(getChainCookieKey("erebrus_token", chainType), token, options);
-  Cookies.set(getChainCookieKey("erebrus_wallet", chainType), lowerWallet, options);
+  Cookies.set(
+    getChainCookieKey("erebrus_wallet", chainType),
+    lowerWallet,
+    options
+  );
   Cookies.set(getChainCookieKey("erebrus_userid", chainType), userId, options);
   Cookies.set(getChainCookieKey(EXPIRY_KEY, chainType), expiryTs, options);
 
@@ -197,54 +209,86 @@ const setAuthCookies = (chainType: 'solana' | 'evm', token: string, walletAddres
   Cookies.set(EXPIRY_KEY, expiryTs, options);
 };
 
-const clearAuthCookies = (chainType: 'solana' | 'evm') => {
-  const options = { path: '/' };
+const clearAuthCookies = (chainType: "solana" | "evm") => {
+  const options = { path: "/" };
   Cookies.remove(getChainCookieKey("erebrus_token", chainType), options);
   Cookies.remove(getChainCookieKey("erebrus_wallet", chainType), options);
   Cookies.remove(getChainCookieKey("erebrus_userid", chainType), options);
   Cookies.remove(getChainCookieKey(EXPIRY_KEY, chainType), options);
 };
 
-const getAuthFromCookies = (chainType: 'solana' | 'evm') => {
+const getAuthFromCookies = (chainType: "solana" | "evm") => {
   const token = Cookies.get(getChainCookieKey("erebrus_token", chainType));
   const wallet = Cookies.get(getChainCookieKey("erebrus_wallet", chainType));
   const userId = Cookies.get(getChainCookieKey("erebrus_userid", chainType));
   const expiry = Cookies.get(getChainCookieKey(EXPIRY_KEY, chainType));
 
-  
-
-  if (!token || !wallet || !userId) {
-    return { token: undefined, wallet: undefined, userId: undefined, expired: true };
+  // Enhanced validation: check for empty strings and null values
+  if (
+    !token ||
+    !wallet ||
+    !userId ||
+    token.trim() === "" ||
+    wallet.trim() === "" ||
+    userId.trim() === ""
+  ) {
+    return {
+      token: undefined,
+      wallet: undefined,
+      userId: undefined,
+      expired: true,
+    };
   }
 
-  let expired = false;
-    if (expiry) {
+  // Improved expiry logic with better error handling
+  let expired = true; // Default to expired for safety
+
+  if (expiry && expiry.trim() !== "") {
     const ts = parseInt(expiry, 10);
-    if (!isNaN(ts)) {
+    if (!isNaN(ts) && ts > 0) {
       expired = Date.now() > ts;
+    } else {
+      // If expiry timestamp is invalid, consider it expired
+      console.warn(`Invalid expiry timestamp for ${chainType}: ${expiry}`);
+      expired = true;
     }
   }
+
   return { token, wallet, userId, expired } as const;
 };
 
 // Helper function to get current authentication token
 export const getCurrentAuthToken = () => {
-  const solanaAuth = getAuthFromCookies('solana');
-  const evmAuth = getAuthFromCookies('evm');
-  
+  const solanaAuth = getAuthFromCookies("solana");
+  const evmAuth = getAuthFromCookies("evm");
+
   // Return the token that's not expired
   if (solanaAuth.token && !solanaAuth.expired) return solanaAuth.token;
   if (evmAuth.token && !evmAuth.expired) return evmAuth.token;
-  
+
   // Fallback to legacy token
   return Cookies.get("erebrus_token") || null;
 };
 
 // EVM Authentication
-import type { Eip1193Provider } from 'ethers';
+import type { Eip1193Provider } from "ethers";
 
-const authenticateEVM = async (walletAddress: string, walletProvider: Eip1193Provider) => {
+const authenticateEVM = async (
+  walletAddress: string,
+  walletProvider: Eip1193Provider
+) => {
   try {
+    // Enhanced wallet address validation
+    if (!walletAddress || walletAddress.trim() === "") {
+      throw new Error("Wallet address is required");
+    }
+
+    // Validate Ethereum address format
+    const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
+    if (!isValidEthAddress) {
+      throw new Error("Invalid Ethereum wallet address format");
+    }
+
     const GATEWAY_URL = "https://gateway.netsepio.com/";
     const chainName = "evm";
 
@@ -252,15 +296,16 @@ const authenticateEVM = async (walletAddress: string, walletProvider: Eip1193Pro
       `${GATEWAY_URL}api/v1.0/flowid?walletAddress=${walletAddress}&chain=evm`
     );
 
+    // Validate API response
+    if (!data?.payload?.eula || !data?.payload?.flowId) {
+      throw new Error("Invalid response from authentication server");
+    }
+
     const message = data.payload.eula;
     const flowId = data.payload.flowId;
-
     const combinedMessage = `${message}${flowId}`;
 
     const provider = new BrowserProvider(walletProvider);
-    if (!walletAddress) {
-      throw new Error("Wallet address is undefined");
-    }
     const signer = await provider.getSigner();
     const signerAddress = await signer.getAddress();
 
@@ -282,7 +327,7 @@ const authenticateEVM = async (walletAddress: string, walletProvider: Eip1193Pro
         chainName,
         flowId,
         signature,
-        walletAddress
+        walletAddress,
       },
       {
         headers: {
@@ -292,11 +337,11 @@ const authenticateEVM = async (walletAddress: string, walletProvider: Eip1193Pro
     );
 
     const { token, userId } = authResponse.data.payload;
-    setAuthCookies('evm', token, walletAddress, userId);
+    setAuthCookies("evm", token, walletAddress, userId);
     return true;
   } catch (error) {
     console.error("EVM Authentication error:", error);
-    clearAuthCookies('evm');
+    clearAuthCookies("evm");
     return false;
   }
 };
@@ -321,11 +366,12 @@ const authenticateSolana = async (
     const flowId = data.payload.flowId;
 
     const encodedMessage = new TextEncoder().encode(message);
+
     const signature = await walletProvider.signMessage(encodedMessage);
-    
+
     const signatureHex = Array.from(new Uint8Array(signature))
-      .map((b: number) => b.toString(16).padStart(2, '0'))
-      .join('');
+      .map((b: number) => b.toString(16).padStart(2, "0"))
+      .join("");
 
     const authResponse = await axios.post(
       `${GATEWAY_URL}api/v1.0/authenticate?walletAddress=${walletAddress}&chain=sol`,
@@ -345,11 +391,11 @@ const authenticateSolana = async (
     );
 
     const { token, userId } = authResponse.data.payload;
-    setAuthCookies('solana', token, walletAddress, userId);
+    setAuthCookies("solana", token, walletAddress, userId);
     return true;
   } catch (error) {
     console.error("Solana Authentication error:", error);
-    clearAuthCookies('solana');
+    clearAuthCookies("solana");
     return false;
   }
 };
@@ -357,8 +403,10 @@ const authenticateSolana = async (
 // Wallet auth hook
 export function useWalletAuth() {
   const { isConnected, address } = useAppKitAccount();
-  const { walletProvider: evmWalletProvider } = useAppKitProvider<Provider>("eip155");
-  const { walletProvider: solanaWalletProvider } = useAppKitProvider<Provider>("solana");
+  const { walletProvider: evmWalletProvider } =
+    useAppKitProvider<Provider>("eip155");
+  const { walletProvider: solanaWalletProvider } =
+    useAppKitProvider<Provider>("solana");
   const { chainId, caipNetworkId } = useAppKitNetworkCore();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -367,7 +415,7 @@ export function useWalletAuth() {
   // Get current auth status
   const getCurrentAuthStatus = () => {
     if (!isConnected || !address) return false;
-    const chainType = caipNetworkId?.startsWith('solana:') ? 'solana' : 'evm';
+    const chainType = caipNetworkId?.startsWith("solana:") ? "solana" : "evm";
     const { token, wallet, expired } = getAuthFromCookies(chainType);
     if (expired && token) {
       clearAuthCookies(chainType);
@@ -391,7 +439,7 @@ export function useWalletAuth() {
   // Authentication function
   const authenticate = async () => {
     if (!isConnected || !address) {
-      setAuthError('Wallet not connected');
+      setAuthError("Wallet not connected");
       return false;
     }
 
@@ -399,15 +447,20 @@ export function useWalletAuth() {
     setAuthError(null);
 
     try {
-      const isSolanaChain = caipNetworkId?.startsWith('solana:') || 
-                           chainId === NETWORK_IDS.SOLANA || 
-                           chainId === Number(solanaDevnet.id) || 
-                           chainId === Number(solanaTestnet.id);
+      const isSolanaChain =
+        caipNetworkId?.startsWith("solana:") ||
+        chainId === NETWORK_IDS.SOLANA ||
+        chainId === Number(solanaDevnet.id) ||
+        chainId === Number(solanaTestnet.id);
 
-      const chainType = isSolanaChain ? 'solana' : 'evm';
+      const chainType = isSolanaChain ? "solana" : "evm";
       const { token, wallet, expired } = getAuthFromCookies(chainType);
-      
-      if (token && !expired && wallet?.toLowerCase() === address.toLowerCase()) {
+
+      if (
+        token &&
+        !expired &&
+        wallet?.toLowerCase() === address.toLowerCase()
+      ) {
         setAuthSuccess(true);
         return true;
       }
@@ -417,33 +470,34 @@ export function useWalletAuth() {
       }
 
       let authResult = false;
-      
+
       if (isSolanaChain) {
         if (!solanaWalletProvider) {
-          throw new Error('Solana wallet provider not available');
+          throw new Error("Solana wallet provider not available");
         }
         authResult = await authenticateSolana(address, solanaWalletProvider);
       } else {
         if (!evmWalletProvider) {
-          throw new Error('EVM wallet provider not available');
+          throw new Error("EVM wallet provider not available");
         }
         authResult = await authenticateEVM(address, evmWalletProvider);
       }
 
       if (authResult) {
         setAuthSuccess(true);
-        toast.success('Authentication successful');
+        toast.success("Authentication successful");
         // Force a small delay to ensure state is updated before return
         setTimeout(() => {
           // This will trigger the useEffect above to update states
         }, 100);
         return true;
       } else {
-        throw new Error('Authentication failed');
+        throw new Error("Authentication failed");
       }
     } catch (error) {
-      console.error('Authentication error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      console.error("Authentication error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Authentication failed";
       setAuthError(errorMessage);
       toast.error(errorMessage);
       return false;
@@ -457,12 +511,12 @@ export function useWalletAuth() {
     if (!isConnected) {
       // Add a small delay to avoid clearing on page refresh
       const timeoutId = setTimeout(() => {
-        ['solana', 'evm'].forEach(chainType => {
-          clearAuthCookies(chainType as 'solana' | 'evm');
+        ["solana", "evm"].forEach((chainType) => {
+          clearAuthCookies(chainType as "solana" | "evm");
         });
         setAuthSuccess(false);
       }, 1000); // 1 second delay
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [isConnected]);
@@ -489,22 +543,22 @@ export function AppKit({ children }: { children: React.ReactNode }) {
 createAppKit({
   adapters: [new EthersAdapter(), solanaWeb3JsAdapter],
   metadata,
-  networks: [solana  ],
+  networks: [solana, monadTestnet],
   projectId,
   features: {
     analytics: true,
   },
-  defaultNetwork: solana,
-  themeMode: 'dark',
+  defaultNetwork: mainnet,
+  themeMode: "dark",
   themeVariables: {
-    '--w3m-font-family': 'Inter, sans-serif',
-    '--w3m-accent': '#3B82F6',
-    '--w3m-color-mix': '#3B82F6',
-    '--w3m-color-mix-strength': 40
+    "--apkt-font-family": "DM Sans, sans-serif",
+    "--apkt-accent": "#ffffff",
+    "--apkt-color-mix": "#ffffff",
+    "--apkt-color-mix-strength": 40,
   },
   chainImages: {
-    11155931: '/rise.jpg',
-    3338: '/peaq.jpg', 
-    6969: '/monad-logo.png',
-  }
+    11155931: "/rise.jpg",
+    3338: "/peaq.jpg",
+    6969: "/monad-logo.png",
+  },
 });
