@@ -1,5 +1,5 @@
 # -------- Build Stage --------
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 RUN apk add --no-cache \
@@ -11,16 +11,18 @@ RUN apk add --no-cache \
     eudev-dev \
     pkgconfig
 
-COPY package*.json ./
-RUN npm install --force
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm build
 
 # -------- Production Stage --------
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
