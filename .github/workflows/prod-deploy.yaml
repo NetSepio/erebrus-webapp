@@ -51,8 +51,8 @@ jobs:
           port: ${{ secrets.PROD_SSH_PORT }}
           script: |
             pwd
-            docker stop erebrus-frontend && docker rm erebrus-frontend
-            docker rmi ghcr.io/netsepio/erebrus-frontend:prod
+            docker rm -f erebrus-frontend || true
+            docker rmi ghcr.io/netsepio/erebrus-webapp:prod || true
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-            docker pull netSepio/erebrus-frontend:prod
-            docker run --name="erebrus-frontend" --restart=always -p 4040:3000 --net=bridge -d ghcr.io/netsepio/erebrus-frontend:prod
+            docker pull ghcr.io/netsepio/erebrus-webapp:prod
+            docker run --name="erebrus-frontend" --restart=always -p 4040:3000 --net=bridge -d ghcr.io/netsepio/erebrus-webapp:prod
