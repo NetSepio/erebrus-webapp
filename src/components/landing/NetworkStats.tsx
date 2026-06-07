@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Globe, Users, Server, Activity } from "lucide-react";
+import { CloudOff, Fingerprint, Network, Shield } from "lucide-react";
 
 interface StatItemProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -93,10 +93,10 @@ export function NetworkStats() {
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
   const stats = [
-    { icon: Globe, value: 50, suffix: "+", label: "Countries Covered" },
-    { icon: Server, value: 120, suffix: "+", label: "Active Nodes" },
-    { icon: Users, value: 25000, suffix: "+", label: "Users Protected" },
-    { icon: Activity, value: 99, suffix: "%", label: "Uptime SLA" },
+    { icon: Shield, value: 2, suffix: "", label: "Privacy Products" },
+    { icon: CloudOff, value: 0, suffix: "", label: "Drop Cloud Uploads" },
+    { icon: Network, value: 3, suffix: "", label: "Wallet Rails" },
+    { icon: Fingerprint, value: 1, suffix: "", label: "Sovereignty Ethos" },
   ];
 
   return (
@@ -122,12 +122,12 @@ export function NetworkStats() {
               className="text-center mb-12"
             >
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-                Network at a{" "}
+                Privacy model at a{" "}
                 <span className="erebrus-gradient-text">Glance</span>
               </h2>
               <p className="text-slate-400 max-w-2xl mx-auto">
-                Join thousands of users already protecting their privacy on our
-                decentralized network
+                Erebrus VPN and Erebrus Drop share the same design principle:
+                give people practical control over how their data moves.
               </p>
             </motion.div>
 

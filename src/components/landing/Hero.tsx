@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Shield, Globe, Zap, ChevronRight } from "lucide-react";
+import {
+  ChevronRight,
+  CloudOff,
+  QrCode,
+  Shield,
+  Wifi,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Animated particle background
 function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -34,15 +40,16 @@ function ParticleField() {
 
     const createParticles = () => {
       particles = [];
-      const count = Math.floor((canvas.width * canvas.height) / 15000);
+      const count = Math.floor((canvas.width * canvas.height) / 18000);
+
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: Math.random() * 2 + 1,
-          opacity: Math.random() * 0.5 + 0.2,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          size: Math.random() * 1.8 + 0.8,
+          opacity: Math.random() * 0.45 + 0.15,
         });
       }
     };
@@ -50,7 +57,6 @@ function ParticleField() {
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw particles
       particles.forEach((p, i) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -63,17 +69,16 @@ function ParticleField() {
         ctx.fillStyle = `rgba(0, 212, 255, ${p.opacity})`;
         ctx.fill();
 
-        // Draw connections
         particles.slice(i + 1).forEach((p2) => {
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 150) {
+          if (dist < 130) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(0, 102, 255, ${0.15 * (1 - dist / 150)})`;
+            ctx.strokeStyle = `rgba(0, 102, 255, ${0.14 * (1 - dist / 130)})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -83,18 +88,20 @@ function ParticleField() {
       animationId = requestAnimationFrame(draw);
     };
 
+    const handleResize = () => {
+      resize();
+      createParticles();
+    };
+
     resize();
     createParticles();
     draw();
 
-    window.addEventListener("resize", () => {
-      resize();
-      createParticles();
-    });
+    window.addEventListener("resize", handleResize);
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -102,45 +109,33 @@ function ParticleField() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 z-0"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.55 }}
     />
   );
 }
 
-// Floating elements
-function FloatingElement({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  return (
-    <motion.div
-      animate={{
-        y: [0, -20, 0],
-        rotate: [0, 2, 0, -2, 0],
-      }}
-      transition={{
-        duration: 6,
-        delay,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
+const productSignals = [
+  {
+    icon: Shield,
+    title: "Erebrus VPN",
+    description: "Wallet-authenticated access to decentralized VPN nodes.",
+  },
+  {
+    icon: QrCode,
+    title: "Erebrus Drop",
+    description: "Local Drop Rooms for nearby file, photo, and text transfer.",
+  },
+  {
+    icon: CloudOff,
+    title: "Local-first",
+    description: "Drop transfers do not upload files to NetSepio servers.",
+  },
+];
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Initialize scroll animations only after mount
   const { scrollYProgress } = useScroll(
     mounted && containerRef.current
       ? {
@@ -150,9 +145,9 @@ export function Hero() {
       : undefined,
   );
 
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.9]);
-  const y = useTransform(scrollYProgress, [0, 0.5], [0, 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.55], [1, 0.94]);
+  const y = useTransform(scrollYProgress, [0, 0.55], [0, 80]);
 
   useEffect(() => {
     setMounted(true);
@@ -162,14 +157,11 @@ export function Hero() {
     return (
       <section
         ref={containerRef}
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative flex min-h-[92svh] items-center justify-center overflow-hidden bg-[#020417] px-4 pt-28 pb-16"
       >
-        <div className="absolute inset-0 z-0 bg-[#020417]" />
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-pulse">
-            <div className="h-20 w-3/4 mx-auto bg-white/10 rounded mb-6" />
-            <div className="h-8 w-1/2 mx-auto bg-white/10 rounded" />
-          </div>
+        <div className="relative z-10 w-full max-w-4xl text-center">
+          <div className="mx-auto mb-6 h-20 w-3/4 animate-pulse rounded-lg bg-white/10" />
+          <div className="mx-auto h-8 w-1/2 animate-pulse rounded-lg bg-white/10" />
         </div>
       </section>
     );
@@ -178,156 +170,124 @@ export function Hero() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative flex min-h-[92svh] items-center justify-center overflow-hidden px-4 pt-28 pb-16 sm:px-6 lg:px-8"
     >
-      {/* Background Effects */}
+      <Image
+        src="/background.jpeg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="z-0 object-cover opacity-25"
+      />
+      <div className="absolute inset-0 z-0 bg-[#020417]/75" />
       <ParticleField />
 
-      {/* Gradient Overlays */}
-      <div className="absolute inset-0 z-[1]">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[128px]" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[128px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[150px]" />
-      </div>
-
-      {/* Grid Pattern */}
       <div
-        className="absolute inset-0 z-[2] opacity-[0.03]"
+        className="absolute inset-0 z-[1] opacity-[0.04]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(0, 212, 255, 0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 212, 255, 0.5) 1px, transparent 1px)
+            linear-gradient(rgba(0, 212, 255, 0.6) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 212, 255, 0.6) 1px, transparent 1px)
           `,
-          backgroundSize: "60px 60px",
+          backgroundSize: "56px 56px",
         }}
       />
 
-      {/* Content */}
       <motion.div
         style={{ opacity, scale, y }}
-        className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        className="relative z-10 mx-auto w-full max-w-6xl text-center"
       >
-        {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8"
+          className="mb-8 inline-flex flex-wrap items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm"
         >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+          <span className="flex items-center gap-2 rounded-md bg-cyan-500/10 px-3 py-1 text-sm font-medium text-cyan-200">
+            <Shield className="h-4 w-4" />
+            VPN
           </span>
-          <span className="text-sm text-cyan-300 font-medium">
-            DePIN Network Live
+          <span className="flex items-center gap-2 rounded-md bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-200">
+            <Wifi className="h-4 w-4" />
+            Drop
+          </span>
+          <span className="text-sm text-slate-300">
+            Sovereign tools for private access and local transfer
           </span>
         </motion.div>
 
-        {/* Main Title */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+          className="mx-auto mb-6 max-w-5xl text-6xl font-bold tracking-normal text-white sm:text-7xl md:text-8xl lg:text-9xl"
         >
-          <span className="erebrus-gradient-text">Decentralized</span>
-          <br />
-          <span className="text-white">Privacy Network</span>
+          <span className="erebrus-gradient-text">Erebrus</span>
         </motion.h1>
 
-        {/* Subtitle */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-lg sm:text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed"
+          className="mx-auto mb-10 max-w-3xl text-lg leading-relaxed text-slate-300 sm:text-xl md:text-2xl"
         >
-          Experience the future of internet freedom with Erebrus. Connect to a
-          global network of secure, community-operated VPN nodes.
+          A privacy stack from NetSepio for decentralized VPN access and
+          local-first sharing between nearby devices over Wi-Fi or hotspot.
         </motion.p>
 
-        {/* CTA Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+          className="mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Link href="/dashboard">
             <Button
               size="lg"
-              className="erebrus-button px-8 py-6 text-lg rounded-xl group"
+              className="erebrus-button rounded-lg px-7 py-6 text-base sm:text-lg"
             >
-              <Shield className="w-5 h-5 mr-2" />
-              Get Protected
-              <ChevronRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
+              <Shield className="mr-2 h-5 w-5" />
+              Open VPN Dashboard
+              <ChevronRight className="ml-1 h-5 w-5" />
             </Button>
           </Link>
-          <Link href="/explorer">
+          <Link href="#drop">
             <Button
               size="lg"
               variant="outline"
-              className="erebrus-button-outline px-8 py-6 text-lg rounded-xl text-white border-white/20 hover:bg-white/5"
+              className="rounded-lg border-white/20 px-7 py-6 text-base text-white hover:bg-white/5 sm:text-lg"
             >
-              <Globe className="w-5 h-5 mr-2" />
-              Explore Network
+              <QrCode className="mr-2 h-5 w-5" />
+              Explore Erebrus Drop
             </Button>
           </Link>
         </motion.div>
 
-        {/* Feature Pills */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-4"
+          className="mx-auto grid max-w-5xl grid-cols-1 gap-3 sm:grid-cols-3"
         >
-          {[
-            { icon: Shield, label: "Military-Grade Encryption" },
-            { icon: Zap, label: "Zero Logs Policy" },
-            { icon: Globe, label: "50+ Countries" },
-          ].map((feature, index) => (
+          {productSignals.map((signal) => (
             <div
-              key={index}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm"
+              key={signal.title}
+              className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-left backdrop-blur-sm"
             >
-              <feature.icon className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-slate-300">{feature.label}</span>
+              <signal.icon className="mb-4 h-6 w-6 text-cyan-300" />
+              <h2 className="mb-2 text-base font-semibold text-white">
+                {signal.title}
+              </h2>
+              <p className="text-sm leading-6 text-slate-400">
+                {signal.description}
+              </p>
             </div>
           ))}
         </motion.div>
-
-        {/* Floating Stats Cards */}
-        <div className="absolute top-1/4 left-8 lg:left-16 hidden lg:block">
-          <FloatingElement delay={0}>
-            <div className="erebrus-glass rounded-2xl p-4 border border-cyan-500/20">
-              <div className="text-2xl font-bold text-cyan-400">50+</div>
-              <div className="text-xs text-slate-400">Active Nodes</div>
-            </div>
-          </FloatingElement>
-        </div>
-
-        <div className="absolute top-1/3 right-8 lg:right-16 hidden lg:block">
-          <FloatingElement delay={1}>
-            <div className="erebrus-glass rounded-2xl p-4 border border-purple-500/20">
-              <div className="text-2xl font-bold text-purple-400">10K+</div>
-              <div className="text-xs text-slate-400">Daily Connections</div>
-            </div>
-          </FloatingElement>
-        </div>
-
-        <div className="absolute bottom-1/4 left-16 xl:left-32 hidden xl:block">
-          <FloatingElement delay={2}>
-            <div className="erebrus-glass rounded-2xl p-4 border border-blue-500/20">
-              <div className="text-2xl font-bold text-blue-400">99.9%</div>
-              <div className="text-xs text-slate-400">Uptime</div>
-            </div>
-          </FloatingElement>
-        </div>
       </motion.div>
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#020417] to-transparent z-10" />
+      <div className="absolute bottom-0 left-0 right-0 z-10 h-24 bg-gradient-to-t from-[#020417] to-transparent" />
     </section>
   );
 }

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Hero,
   Features,
+  DropSection,
   NetworkStats,
   HowItWorks,
   CTA,
@@ -104,14 +105,14 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Erebrus - Decentralized VPN Network | Web3 Privacy</title>
+        <title>Erebrus - Decentralized VPN and Local-first Drop</title>
         <meta
           name="description"
-          content="Experience the future of internet privacy with Erebrus. Decentralized VPN network powered by DePIN. Connect with your crypto wallet and browse securely."
+          content="Erebrus by NetSepio combines decentralized VPN access with Erebrus Drop, a local-first way to move files, photos, and text between nearby devices."
         />
         <meta
           name="keywords"
-          content="VPN, decentralized, Web3, privacy, crypto, blockchain, DePIN, secure browsing"
+          content="VPN, decentralized VPN, Erebrus Drop, local file transfer, QR transfer, Web3 privacy, DePIN, NetSepio"
         />
         <link rel="canonical" href="https://erebrus.io" />
 
@@ -120,11 +121,11 @@ export default function Home() {
         <meta property="og:url" content="https://erebrus.io" />
         <meta
           property="og:title"
-          content="Erebrus - Decentralized VPN Network"
+          content="Erebrus - Decentralized VPN and Local-first Drop"
         />
         <meta
           property="og:description"
-          content="Redefining digital connectivity with globally accessible, secure and private network through the power of DePIN."
+          content="Private network access and local-first nearby transfers from NetSepio."
         />
         <meta property="og:image" content="https://erebrus.io/og-image.png" />
 
@@ -133,11 +134,11 @@ export default function Home() {
         <meta name="twitter:url" content="https://erebrus.io" />
         <meta
           name="twitter:title"
-          content="Erebrus - Decentralized VPN Network"
+          content="Erebrus - Decentralized VPN and Local-first Drop"
         />
         <meta
           name="twitter:description"
-          content="Redefining digital connectivity with globally accessible, secure and private network through the power of DePIN."
+          content="Private network access and local-first nearby transfers from NetSepio."
         />
         <meta name="twitter:image" content="https://erebrus.io/og-image.png" />
       </Head>
@@ -157,6 +158,7 @@ export default function Home() {
         <div className="relative z-10">
           <Hero />
           <Features />
+          <DropSection />
           <NetworkStats />
           <HowItWorks />
           <CTA />

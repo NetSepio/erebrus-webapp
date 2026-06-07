@@ -6,12 +6,8 @@ import Image from "next/image";
 import {
   Menu,
   X,
-  Home,
-  FileText,
-  LayoutDashboard,
   WalletMinimal,
 } from "lucide-react";
-import { FloatingDock } from "@/components/ui/floating-dock";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie";
 import UserDropdown from "@/components/login/UserDropdown";
@@ -20,12 +16,11 @@ import { useWalletAuth } from "@/context/appkit";
 
 const ErebrusNavbar = () => {
   // Use the updated authentication hook
-  const { isConnected, address, isAuthenticated, isVerified } = useWalletAuth();
+  const { isConnected, isAuthenticated, isVerified } = useWalletAuth();
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showDock, setShowDock] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   // Helper function to get the correct authentication token
@@ -56,17 +51,12 @@ const ErebrusNavbar = () => {
       if (currentScrollY > lastScrollY) {
         // Scrolling down
         setScrolled(true);
-        if (currentScrollY > 150) {
-          setShowDock(true);
-        }
       } else {
         // Scrolling up
         if (currentScrollY < 50) {
           setScrolled(false);
-          setShowDock(false);
         } else {
           setScrolled(false);
-          setShowDock(true);
         }
       }
 
@@ -78,6 +68,7 @@ const ErebrusNavbar = () => {
   }, [lastScrollY]);
 
   const navItems = [
+    { name: "Drop", link: "/#drop" },
     { name: "Explorer", link: "/explorer" },
     {
       name: "Docs",
@@ -85,24 +76,6 @@ const ErebrusNavbar = () => {
       external: true,
     },
     { name: "Dashboard", link: "/dashboard" },
-  ];
-
-  const dockItems = [
-    {
-      title: "Home",
-      icon: <Home className='h-full w-full text-blue-500' />,
-      href: "/",
-    },
-    {
-      title: "Explorer",
-      icon: <FileText className='h-full w-full text-blue-500' />,
-      href: "/explorer",
-    },
-    {
-      title: "Dashboard",
-      icon: <LayoutDashboard className='h-full w-full text-blue-500' />,
-      href: "/dashboard",
-    },
   ];
 
   return (
@@ -131,7 +104,7 @@ const ErebrusNavbar = () => {
                 alt='Erebrus'
                 width={150}
                 height={40}
-                className='h-10 w-auto'
+                className='block'
                 sizes='100vw'
               />
             </Link>
@@ -221,25 +194,6 @@ const ErebrusNavbar = () => {
           )}
         </AnimatePresence>
       </motion.nav>
-
-      {/* Floating Dock */}
-      {/* <AnimatePresence>
-        {showDock && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50"
-          >
-            <FloatingDock
-              items={dockItems}
-              desktopClassName="shadow-xl shadow-blue-500/10 border border-blue-500/20"
-              mobileClassName="shadow-xl shadow-blue-500/10"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence> */}
     </>
   );
 };

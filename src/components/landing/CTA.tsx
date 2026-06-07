@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, QrCode, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CTA() {
@@ -45,7 +45,7 @@ export function CTA() {
               >
                 <Sparkles className="w-4 h-4 text-yellow-400" />
                 <span className="text-sm text-white font-medium">
-                  Free Trial Available
+                  VPN trial and local Drop workflow
                 </span>
               </motion.div>
 
@@ -56,9 +56,9 @@ export function CTA() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
               >
-                Ready to Take Back
+                Choose the privacy tool
                 <br />
-                <span className="erebrus-gradient-text">Your Privacy?</span>
+                <span className="erebrus-gradient-text">for the moment</span>
               </motion.h2>
 
               {/* Description */}
@@ -68,8 +68,8 @@ export function CTA() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10"
               >
-                Join the decentralized revolution. Experience unrestricted,
-                private internet access with the power of Web3.
+                Use Erebrus VPN for private network access, and Erebrus Drop
+                when you need to move data between trusted nearby devices.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -84,17 +84,18 @@ export function CTA() {
                     size="lg"
                     className="erebrus-button px-8 py-6 text-lg rounded-xl group"
                   >
-                    Get Started Free
+                    Open VPN Dashboard
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link href="/explorer">
+                <Link href="#drop">
                   <Button
                     size="lg"
                     variant="outline"
                     className="px-8 py-6 text-lg rounded-xl text-white border-white/20 hover:bg-white/5"
                   >
-                    Explore Network
+                    <QrCode className="w-5 h-5 mr-2" />
+                    Review Drop
                   </Button>
                 </Link>
               </motion.div>
@@ -108,15 +109,15 @@ export function CTA() {
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>No credit card required</span>
+                  <span>No credit card required for trial</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>Cancel anytime</span>
+                  <span>Drop keeps transfers local-first</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span>24/7 Support</span>
+                  <span>No Drop analytics identifiers</span>
                 </div>
               </motion.div>
             </div>

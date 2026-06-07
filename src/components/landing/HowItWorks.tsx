@@ -2,35 +2,35 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Wallet, Globe, Shield, Download } from "lucide-react";
+import { Globe, QrCode, Shield, Wallet, Wifi } from "lucide-react";
 
 const steps = [
   {
     icon: Wallet,
-    title: "Connect Wallet",
+    title: "Connect Wallet for VPN",
     description:
-      "Link your crypto wallet in seconds. We support MetaMask, Phantom, Petra, and 100+ other wallets.",
+      "Link a supported wallet to authenticate, claim trial access, and manage VPN clients from the dashboard.",
     color: "cyan",
   },
   {
     icon: Globe,
-    title: "Choose Location",
+    title: "Choose a VPN Node",
     description:
-      "Select from our global network of nodes. Pick the optimal location for speed or specific geo-access.",
+      "Select an available node based on location and connection needs, then generate a WireGuard-compatible config.",
     color: "purple",
   },
   {
-    icon: Shield,
-    title: "Get Protected",
+    icon: QrCode,
+    title: "Create a Drop Room",
     description:
-      "Generate your unique VPN configuration with one click. Military-grade encryption activated instantly.",
+      "Open Erebrus Drop, create a local room, and show the QR code to a trusted nearby device.",
     color: "green",
   },
   {
-    icon: Download,
-    title: "Connect & Browse",
+    icon: Wifi,
+    title: "Transfer Locally",
     description:
-      "Download your config file, import to WireGuard, and enjoy unrestricted, private internet access.",
+      "Move files, photos, or text over Wi-Fi or hotspot, then manage received items from the Library.",
     color: "blue",
   },
 ];
@@ -116,17 +116,17 @@ export function HowItWorks() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
             <Shield className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm text-slate-300">Simple & Fast</span>
+            <span className="text-sm text-slate-300">Two simple flows</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-            Get Started in{" "}
-            <span className="erebrus-gradient-text">4 Easy Steps</span>
+            VPN when you need reach,{" "}
+            <span className="erebrus-gradient-text">Drop when you are nearby</span>
           </h2>
 
           <p className="text-lg text-slate-400">
-            No complicated setup. Connect your wallet and start browsing securely
-            within minutes.
+            Erebrus is meant to be practical: route network access through the
+            VPN, or keep nearby transfers on the local network.
           </p>
         </motion.div>
 

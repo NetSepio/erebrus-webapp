@@ -27,7 +27,8 @@ const footerLinks = {
       href: "https://play.google.com/store/apps/details?id=com.erebrus.app",
       external: true,
     },
-    { label: "Web App", href: "/dashboard", external: false },
+    { label: "VPN Dashboard", href: "/dashboard", external: false },
+    { label: "Erebrus Drop", href: "/#drop", external: false },
     { label: "Explorer", href: "/explorer", external: false },
     { label: "Documentation", href: "https://docs.erebrus.io", external: true },
   ],
@@ -72,9 +73,8 @@ export default function Footer() {
             </Link>
 
             <p className="text-slate-400 leading-relaxed max-w-sm">
-              Redefining digital connectivity by unlocking a secure, private,
-              and globally accessible internet through the power of DePIN and
-              Web3.
+              Privacy tools from NetSepio for decentralized VPN access and
+              local-first nearby sharing with Erebrus Drop.
             </p>
 
             {/* Social Links */}
