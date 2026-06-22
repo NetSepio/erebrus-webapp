@@ -3,7 +3,7 @@ import "@/app/globals.css";
 import { DM_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
-import ErebrusNavbar from "@/components/navbar";
+import AppChrome from "@/components/layout/AppChrome";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import { AppKit } from "../context/appkit";
@@ -50,11 +50,7 @@ export default function RootLayout({
         <AppWalletProvider>
           <AppKit>
             <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
-              <div className='flex flex-col'>
-                <ErebrusNavbar />
-                <>{children}</>
-                {/* <DarkFooter /> */}
-              </div>
+              <AppChrome>{children}</AppChrome>
             </ThemeProvider>
           </AppKit>
         </AppWalletProvider>
