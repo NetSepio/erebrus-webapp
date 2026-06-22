@@ -129,11 +129,11 @@ if (!projectId) {
 }
 
 const metadata = {
-  name: "CyreneAI",
+  name: "Erebrus",
   description:
-    "Powering the future of AI interaction through multi-agent collaboration.",
-  url: "https://cyreneai.com/",
-  icons: ["https://cyreneai.com/Cyrene_mobile_logo.webp"],
+    "Redefining digital connectivity with globally accessible, secure and private network through DePIN.",
+  url: "https://erebrus.io/",
+  icons: ["https://erebrus.io/favicon.ico"],
 };
 
 const wallets: BaseWalletAdapter[] = [
