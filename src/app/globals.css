@@ -8,24 +8,44 @@
    ======================================== */
 
 :root {
-    /* Primary Brand Colors */
-    --erebrus-primary: #0066ff;
-    --erebrus-secondary: #00d4ff;
-    --erebrus-accent: #7b61ff;
-    --erebrus-success: #00e676;
-    --erebrus-warning: #ffb800;
-    --erebrus-danger: #ff4757;
+    /* v3 Aurora design tokens (HANDOVER.md) */
+    --bg: #0A0A0C;
+    --bg-deep: #050507;
+    --surface: #131318;
+    --surface-2: #16161B;
+    --elevated: #0D0D11;
+    --stroke: rgba(255, 255, 255, 0.07);
+    --text: #F4F3F0;
+    --text-2: #9A9AA2;
+    --text-3: #6A6A72;
+    --accent: #FF6B35;
+    --accent-hi: #FF7E44;
+    --accent-deep: #E0531F;
+    --on-accent: #0A0A0C;
+    --success: #36D399;
+    --warn: #E6A13C;
+    --danger: #E35D5D;
+    --solana: #9945FF;
+    --ethereum: #627EEA;
+
+    /* Legacy aliases */
+    --erebrus-primary: #FF6B35;
+    --erebrus-secondary: #FF7E44;
+    --erebrus-accent: #FF6B35;
+    --erebrus-success: #36D399;
+    --erebrus-warning: #E6A13C;
+    --erebrus-danger: #E35D5D;
 
     /* Background Colors */
-    --erebrus-bg-primary: #020417;
-    --erebrus-bg-secondary: #0a0f2e;
-    --erebrus-bg-card: rgba(15, 23, 66, 0.6);
+    --erebrus-bg-primary: #0A0A0C;
+    --erebrus-bg-secondary: #131318;
+    --erebrus-bg-card: rgba(19, 19, 24, 0.6);
     --erebrus-bg-glass: rgba(255, 255, 255, 0.05);
 
     /* Text Colors */
-    --erebrus-text-primary: #ffffff;
-    --erebrus-text-secondary: #94a3b8;
-    --erebrus-text-muted: #64748b;
+    --erebrus-text-primary: #F4F3F0;
+    --erebrus-text-secondary: #9A9AA2;
+    --erebrus-text-muted: #6A6A72;
 
     /* Gradients */
     --erebrus-gradient-primary: linear-gradient(
@@ -80,13 +100,23 @@ html {
 }
 
 body {
-    background: var(--erebrus-bg-primary);
-    color: var(--erebrus-text-primary);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
     font-feature-settings:
         "rlig" 1,
         "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+    font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+}
+
+::selection {
+    background: rgba(255, 107, 53, 0.3);
+    color: #fff;
 }
 
 /* ========================================

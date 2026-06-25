@@ -21,8 +21,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: "var(--font-dm-sans)",
-        anotherXanadu: "var(--font-another-xanadu)",
+        sans: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
+        mono: ["var(--font-ibm-plex-mono)", "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",

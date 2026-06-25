@@ -2,17 +2,18 @@ import axios from "axios";
 import { BrowserProvider, type Eip1193Provider } from "ethers";
 import type { Provider } from "@reown/appkit-adapter-solana/react";
 
-const VPN_GATEWAY_BASE =
-  process.env.NEXT_PUBLIC_EREBRUS_BASE_URL ||
-  process.env.NEXT_PUBLIC_VPN_GATEWAY_URL ||
-  "http://212.147.232.36:8080";
-
-function normalizeBase(url: string): string {
-  return url.endsWith("/") ? url : `${url}/`;
+/** Browser → `/api/v2/auth` proxy. Server → gateway from `.env`. */
+function authBase(): string {
+  if (typeof window !== "undefined") return "/";
+  const raw =
+    process.env.NEXT_PUBLIC_EREBRUS_BASE_URL ||
+    process.env.NEXT_PUBLIC_GATEWAY_URL ||
+    "http://212.147.232.36:8080";
+  return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
 export type VpnAuthChallenge = {
-  flowId: string;
+  challengeId: string;
   message: string;
 };
 
@@ -23,38 +24,47 @@ export type VpnAuthSession = {
   walletAddress: string;
 };
 
+function parseChallengeResponse(body: unknown): VpnAuthChallenge {
+  const record = (body ?? {}) as Record<string, unknown>;
+  const challengeId = (record.flow_id ?? "").toString();
+  const message = (record.message ?? "").toString();
+  if (!challengeId || !message) {
+    throw new Error("Gateway did not return a login challenge");
+  }
+  return { challengeId, message };
+}
+
+function buildCompleteBody(
+  challengeId: string,
+  signature: string,
+  publicKey: string
+): Record<string, string> {
+  return {
+    flow_id: challengeId,
+    signature,
+    public_key: publicKey,
+  };
+}
+
 export async function fetchVpnAuthChallenge(
   walletAddress: string,
   chain: "sol" | "evm" = "sol"
 ): Promise<VpnAuthChallenge> {
-  const base = normalizeBase(VPN_GATEWAY_BASE);
-  const { data } = await axios.get(`${base}api/v2/auth`, {
-    params: {
-      wallet_address: walletAddress,
-      chain,
-    },
+  const { data } = await axios.get(`${authBase()}api/v2/auth`, {
+    params: { wallet_address: walletAddress, chain },
   });
-
-  const flowId = (data?.flow_id ?? "").toString();
-  const message = (data?.message ?? "").toString();
-  if (!flowId || !message) {
-    throw new Error("Gateway did not return a login challenge");
-  }
-
-  return { flowId, message };
+  return parseChallengeResponse(data);
 }
 
 export async function completeVpnAuth(
-  flowId: string,
+  challengeId: string,
   signature: string,
   publicKey: string
 ): Promise<VpnAuthSession> {
-  const base = normalizeBase(VPN_GATEWAY_BASE);
-  const { data } = await axios.post(`${base}api/v2/auth`, {
-    flow_id: flowId,
-    signature,
-    public_key: publicKey,
-  });
+  const { data } = await axios.post(
+    `${authBase()}api/v2/auth`,
+    buildCompleteBody(challengeId, signature, publicKey)
+  );
 
   const token = (data?.token ?? "").toString();
   const userId = (data?.user_id ?? "").toString();
@@ -63,12 +73,7 @@ export async function completeVpnAuth(
     throw new Error("Gateway did not return a session token");
   }
 
-  return {
-    token,
-    userId,
-    role,
-    walletAddress: publicKey,
-  };
+  return { token, userId, role, walletAddress: publicKey };
 }
 
 function signatureBytesToHex(signature: ArrayLike<number>): string {
@@ -81,18 +86,27 @@ export async function authenticateSolanaVpn(
   walletAddress: string,
   walletProvider: Provider
 ): Promise<VpnAuthSession> {
-  const { flowId, message } = await fetchVpnAuthChallenge(walletAddress, "sol");
+  const { challengeId, message } = await fetchVpnAuthChallenge(
+    walletAddress,
+    "sol"
+  );
   const encodedMessage = new TextEncoder().encode(message);
   const signature = await walletProvider.signMessage(encodedMessage);
-  const signatureHex = signatureBytesToHex(signature);
-  return completeVpnAuth(flowId, signatureHex, walletAddress);
+  return completeVpnAuth(
+    challengeId,
+    signatureBytesToHex(signature),
+    walletAddress
+  );
 }
 
 export async function authenticateEvmVpn(
   walletAddress: string,
   walletProvider: Eip1193Provider
 ): Promise<VpnAuthSession> {
-  const { flowId, message } = await fetchVpnAuthChallenge(walletAddress, "evm");
+  const { challengeId, message } = await fetchVpnAuthChallenge(
+    walletAddress,
+    "evm"
+  );
   const provider = new BrowserProvider(walletProvider);
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
@@ -102,11 +116,9 @@ export async function authenticateEvmVpn(
   }
 
   let signature = await signer.signMessage(message);
-  if (signature.startsWith("0x")) {
-    signature = signature.slice(2);
-  }
+  if (signature.startsWith("0x")) signature = signature.slice(2);
 
-  return completeVpnAuth(flowId, signature, walletAddress);
+  return completeVpnAuth(challengeId, signature, walletAddress);
 }
 
 export const ALLOWED_VPN_REDIRECT_URI = "erebrusvpn://auth";
