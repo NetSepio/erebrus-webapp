@@ -4,11 +4,11 @@ const nextConfig: NextConfig = {
   output: "standalone",
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "assets.aceternity.com",
-        pathname: "/**",
-      },
+      { protocol: "https", hostname: "assets.aceternity.com", pathname: "/**" },
+      { protocol: "https", hostname: "**.ipfs.nftstorage.link", pathname: "/**" },
+      { protocol: "https", hostname: "arweave.net", pathname: "/**" },
+      { protocol: "https", hostname: "ipfs.io", pathname: "/**" },
+      { protocol: "https", hostname: "cdn.helius-rpc.com", pathname: "/**" },
     ],
   },
   // Turbopack configuration (dev only)
@@ -23,9 +23,6 @@ const nextConfig: NextConfig = {
     config.externals = config.externals || [];
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 

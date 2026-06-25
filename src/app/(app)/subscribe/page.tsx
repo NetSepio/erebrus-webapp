@@ -8,7 +8,8 @@ import {
   refreshNftEntitlement,
 } from "@/lib/gateway/client";
 import type { GatewayPlan, GatewaySubscription } from "@/lib/gateway/types";
-import { daysRemaining, planProgress } from "@/lib/design";
+import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
+import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import { AccentButton, Card, Eyebrow } from "@/components/v3/ui";
 import { toast } from "sonner";
 
@@ -38,8 +39,9 @@ export default function SubscribePage() {
     refresh();
   }, []);
 
-  const days = daysRemaining(sub?.expires_at);
-  const pct = planProgress(sub?.expires_at, sub?.source === "nft" ? 30 : 7);
+  const end = subscriptionEndDate(sub ?? undefined);
+  const days = daysRemaining(end);
+  const pct = planProgress(end, trialTotalDays(sub?.source));
 
   const startFreeTrial = async () => {
     try {
@@ -96,7 +98,7 @@ export default function SubscribePage() {
           </div>
           <div className="mt-3 flex items-center justify-between">
             <span className="text-lg font-semibold capitalize">
-              {sub?.entitled ? (sub.source ?? sub.plan ?? "Active") : "None"}
+              {sub?.entitled ? (sub.source ?? sub.plan_id ?? "Active") : "None"}
             </span>
             {days !== null && (
               <span className="font-mono text-xs text-[var(--accent-hi)]">{days} days left</span>
@@ -148,10 +150,15 @@ export default function SubscribePage() {
               <div key={plan.id} className="flex justify-between py-2 text-sm">
                 <span className="capitalize">{plan.name}</span>
                 <span className="font-mono text-[var(--text-3)]">
-                  {plan.device_limit} devices
+                  {plan.max_clients} devices · {plan.period_days}d
                 </span>
               </div>
             ))}
+            {sub?.entitled && (
+              <p className="mt-2 text-xs text-[var(--text-3)]">
+                Your limit: {subscriptionDeviceLimit(sub, plans)} devices
+              </p>
+            )}
           </Card>
         )}
       </div>

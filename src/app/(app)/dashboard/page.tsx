@@ -8,7 +8,7 @@ import {
   fetchSubscription,
   fetchVpnClients,
 } from "@/lib/gateway/client";
-import { daysRemaining, planProgress } from "@/lib/design";
+import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
 import { AccentButton, Card, StatCard, StatusDot } from "@/components/v3/ui";
 import type { GatewayNode, GatewayOrg, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 
@@ -35,8 +35,9 @@ export default function DashboardPage() {
   }, []);
 
   const onlineCount = nodes.filter((n) => n.status === "online").length;
-  const days = daysRemaining(sub?.expires_at);
-  const pct = planProgress(sub?.expires_at, sub?.source === "nft" ? 30 : 7);
+  const end = subscriptionEndDate(sub ?? undefined);
+  const days = daysRemaining(end);
+  const pct = planProgress(end, trialTotalDays(sub?.source));
 
   if (loading) {
     return (
@@ -65,7 +66,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <div className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--accent-hi)]">
-              Current plan · {sub?.plan ?? (sub?.entitled ? sub.source : "None")}
+              Current plan · {sub?.plan_id ?? sub?.plan ?? (sub?.entitled ? sub.source : "None")}
             </div>
             <div className="mt-1.5 text-xl font-bold tracking-tight md:text-[22px]">
               {sub?.entitled

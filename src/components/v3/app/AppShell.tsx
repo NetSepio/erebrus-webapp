@@ -12,7 +12,7 @@ import { AccentButton } from "@/components/v3/ui";
 import { useWalletAuth } from "@/context/appkit";
 import { AuthModalProvider } from "@/components/v3/AuthModal";
 import { fetchSubscription } from "@/lib/gateway/client";
-import { daysRemaining, planProgress } from "@/lib/design";
+import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
 import type { GatewaySubscription } from "@/lib/gateway/types";
 
 const NAV = [
@@ -28,6 +28,7 @@ const SCREEN_META: Record<string, { title: string; subtitle: string }> = {
   "/profile": { title: "Profile", subtitle: "Account and activity" },
   "/rewards": { title: "Rewards & XP", subtitle: "Earn, claim, and climb tiers" },
   "/subscribe": { title: "Subscribe", subtitle: "Access pass and entitlements" },
+  "/admin": { title: "Admin Console", subtitle: "Platform administration" },
 };
 
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
@@ -59,8 +60,9 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function TrialCard({ sub }: { sub: GatewaySubscription | null }) {
-  const days = daysRemaining(sub?.expires_at);
-  const pct = planProgress(sub?.expires_at, sub?.source === "nft" ? 30 : 7);
+  const end = subscriptionEndDate(sub ?? undefined);
+  const days = daysRemaining(end);
+  const pct = planProgress(end, trialTotalDays(sub?.source));
 
   return (
     <div className="mt-auto rounded-[14px] border border-white/[0.07] bg-white/[0.02] p-3.5">

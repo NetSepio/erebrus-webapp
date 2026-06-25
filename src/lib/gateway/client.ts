@@ -1,6 +1,19 @@
 import { getCurrentAuthToken } from "@/context/appkit";
+import {
+  normalizeClient,
+  normalizeLeaderboardEntry,
+  normalizeNode,
+  normalizeOrg,
+  normalizePlan,
+  normalizeProfile,
+  normalizeSubscription,
+} from "./normalize";
 import type {
   GatewayActivity,
+  GatewayAdminNode,
+  GatewayAdminOrg,
+  GatewayAdminStats,
+  GatewayAdminUser,
   GatewayApiKey,
   GatewayLeaderboardEntry,
   GatewayNode,
@@ -8,11 +21,14 @@ import type {
   GatewayOperatorNode,
   GatewayOrg,
   GatewayOrgMember,
+  GatewayOrgUsage,
   GatewayPerk,
   GatewayPlan,
+  GatewayPlatformSetting,
   GatewayProfile,
   GatewayRank,
   GatewayReferral,
+  GatewaySocialAccount,
   GatewaySubscription,
   GatewayVpnClient,
 } from "./types";
@@ -21,33 +37,37 @@ const CLIENT_HEADER = "webapp";
 
 function gatewayBase(): string {
   if (typeof window !== "undefined") return "/api/gateway/";
-  const raw =
-    process.env.NEXT_PUBLIC_EREBRUS_BASE_URL ||
-    process.env.NEXT_PUBLIC_GATEWAY_URL ||
-    "https://gateway.erebrus.io";
+  const raw = process.env.NEXT_PUBLIC_GATEWAY_URL?.trim() ?? "https://gateway.erebrus.io/";
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
 function buildUrl(path: string, params?: Record<string, string | number | undefined>): string {
-  const base = gatewayBase();
-  const normalized = path.startsWith("api/") ? path : `api/v2/${path}`;
-  const url = new URL(normalized, base);
+  // Browser calls `/api/gateway/*`; the Next proxy prepends `api/v2/` upstream.
+  const routePath = path.replace(/^api\/v2\//, "");
+
+  const url =
+    typeof window !== "undefined"
+      ? new URL(routePath, `${window.location.origin}/api/gateway/`)
+      : new URL(
+          path.startsWith("api/") ? path : `api/v2/${path}`,
+          gatewayBase()
+        );
+
   if (params) {
     for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== "") {
-        url.searchParams.set(key, String(value));
-      }
+      if (value !== undefined && value !== "") url.searchParams.set(key, String(value));
     }
   }
   return url.toString();
 }
 
+function asArray<T>(data: unknown, mapper: (r: Record<string, unknown>) => T): T[] {
+  if (Array.isArray(data)) return data.map((item) => mapper(item as Record<string, unknown>));
+  return [];
+}
+
 export class GatewayApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public body?: unknown
-  ) {
+  constructor(message: string, public status: number, public body?: unknown) {
     super(message);
     this.name = "GatewayApiError";
   }
@@ -66,7 +86,6 @@ async function gatewayFetch<T>(
     const token = getCurrentAuthToken();
     if (token) headers.set("Authorization", `Bearer ${token}`);
   }
-
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
@@ -93,24 +112,16 @@ async function gatewayFetch<T>(
 
 // ── Nodes ──────────────────────────────────────────────────────────────────
 
-export async function fetchNodes(params?: {
-  region?: string;
-  status?: string;
-}): Promise<GatewayNode[]> {
-  const data = await gatewayFetch<{ nodes?: GatewayNode[] } | GatewayNode[]>("nodes", {
-    params,
-    auth: false,
-  });
-  return Array.isArray(data) ? data : (data.nodes ?? []);
+export async function fetchNodes(params?: { region?: string; status?: string }): Promise<GatewayNode[]> {
+  const data = await gatewayFetch<unknown>("nodes", { params, auth: false });
+  return asArray(data, normalizeNode);
 }
 
 // ── VPN Clients ────────────────────────────────────────────────────────────
 
 export async function fetchVpnClients(): Promise<GatewayVpnClient[]> {
-  const data = await gatewayFetch<{ clients?: GatewayVpnClient[] } | GatewayVpnClient[]>(
-    "vpn/clients"
-  );
-  return Array.isArray(data) ? data : (data.clients ?? []);
+  const data = await gatewayFetch<unknown>("vpn/clients");
+  return asArray(data, normalizeClient);
 }
 
 export async function provisionVpnClient(body: {
@@ -119,8 +130,12 @@ export async function provisionVpnClient(body: {
   wg_public_key: string;
   wg_preshared_key?: string;
   idempotency_key?: string;
-}): Promise<GatewayVpnClient & { config?: string }> {
-  return gatewayFetch("vpn/clients", { method: "POST", body: JSON.stringify(body) });
+}): Promise<GatewayVpnClient> {
+  const data = await gatewayFetch<Record<string, unknown>>("vpn/clients", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return normalizeClient(data);
 }
 
 export async function deleteVpnClient(id: string): Promise<void> {
@@ -128,48 +143,65 @@ export async function deleteVpnClient(id: string): Promise<void> {
 }
 
 export async function fetchVpnClientConfig(id: string): Promise<{ config: string }> {
-  return gatewayFetch(`vpn/clients/${id}/config`);
+  const data = await gatewayFetch<Record<string, unknown>>(`vpn/clients/${id}/config`);
+  const config = (data.config ?? data.bundle ?? "") as string;
+  if (typeof config === "string" && config.length > 0) return { config };
+  return { config: JSON.stringify(data, null, 2) };
 }
 
 // ── Subscriptions ──────────────────────────────────────────────────────────
 
 export async function fetchSubscription(): Promise<GatewaySubscription> {
-  return gatewayFetch("subscriptions");
+  const data = await gatewayFetch<Record<string, unknown>>("subscriptions");
+  return normalizeSubscription(data);
 }
 
 export async function fetchPlans(): Promise<GatewayPlan[]> {
-  const data = await gatewayFetch<{ plans?: GatewayPlan[] } | GatewayPlan[]>("subscriptions/plans", {
-    auth: false,
-  });
-  return Array.isArray(data) ? data : (data.plans ?? []);
+  const data = await gatewayFetch<unknown>("subscriptions/plans", { auth: false });
+  return asArray(data, normalizePlan);
 }
 
 export async function startTrial(): Promise<GatewaySubscription> {
-  return gatewayFetch("subscriptions/trial", { method: "POST" });
+  const data = await gatewayFetch<Record<string, unknown>>("subscriptions/trial", { method: "POST" });
+  return normalizeSubscription(data);
 }
 
 export async function refreshNftEntitlement(): Promise<GatewaySubscription> {
-  return gatewayFetch("subscriptions/nft/refresh", { method: "POST" });
+  const data = await gatewayFetch<Record<string, unknown>>("subscriptions/nft/refresh", { method: "POST" });
+  return normalizeSubscription(data);
 }
 
 // ── Account ────────────────────────────────────────────────────────────────
 
 export async function fetchProfile(): Promise<GatewayProfile> {
-  return gatewayFetch("account/profile");
+  const data = await gatewayFetch<Record<string, unknown>>("account/profile");
+  return normalizeProfile(data);
 }
 
 export async function updateProfile(body: { name: string }): Promise<GatewayProfile> {
-  return gatewayFetch("account/profile", { method: "PATCH", body: JSON.stringify(body) });
+  const data = await gatewayFetch<Record<string, unknown>>("account/profile", {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+  return normalizeProfile(data);
 }
 
 export async function fetchActivity(params?: {
   limit?: number;
-  offset?: number;
-}): Promise<{ items: GatewayActivity[]; total?: number }> {
-  return gatewayFetch("account/activity", { params });
+  cursor?: string;
+}): Promise<{ items: GatewayActivity[]; next_cursor?: string }> {
+  const data = await gatewayFetch<{
+    activity?: GatewayActivity[];
+    items?: GatewayActivity[];
+    next_cursor?: string;
+  }>("account/activity", { params });
+  return {
+    items: data.activity ?? data.items ?? [],
+    next_cursor: data.next_cursor,
+  };
 }
 
-// ── Email verification ─────────────────────────────────────────────────────
+// ── Email ──────────────────────────────────────────────────────────────────
 
 export async function sendEmailOtp(email: string): Promise<void> {
   await gatewayFetch("auth/email", { method: "POST", body: JSON.stringify({ email }) });
@@ -185,36 +217,43 @@ export async function verifyEmailOtp(email: string, code: string): Promise<void>
 // ── Organizations ──────────────────────────────────────────────────────────
 
 export async function fetchOrgs(): Promise<GatewayOrg[]> {
-  const data = await gatewayFetch<{ orgs?: GatewayOrg[] } | GatewayOrg[]>("orgs");
-  return Array.isArray(data) ? data : (data.orgs ?? []);
+  const data = await gatewayFetch<unknown>("orgs");
+  return asArray(data, normalizeOrg);
 }
 
 export async function fetchOrg(id: string): Promise<GatewayOrg> {
-  return gatewayFetch(`orgs/${id}`);
+  const data = await gatewayFetch<Record<string, unknown>>(`orgs/${id}`);
+  return normalizeOrg(data);
 }
 
 export async function createOrg(body: {
   name: string;
-  kind: GatewayOrg["kind"];
+  kind: string;
   slug: string;
   description?: string;
   website?: string;
 }): Promise<GatewayOrg> {
-  return gatewayFetch("orgs", { method: "POST", body: JSON.stringify(body) });
+  const data = await gatewayFetch<Record<string, unknown>>("orgs", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return normalizeOrg(data);
 }
 
 export async function updateOrg(
   id: string,
   body: Partial<Pick<GatewayOrg, "name" | "description" | "website">>
 ): Promise<GatewayOrg> {
-  return gatewayFetch(`orgs/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+  const data = await gatewayFetch<Record<string, unknown>>(`orgs/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+  return normalizeOrg(data);
 }
 
 export async function fetchOrgMembers(id: string): Promise<GatewayOrgMember[]> {
-  const data = await gatewayFetch<{ members?: GatewayOrgMember[] } | GatewayOrgMember[]>(
-    `orgs/${id}/members`
-  );
-  return Array.isArray(data) ? data : (data.members ?? []);
+  const data = await gatewayFetch<unknown>(`orgs/${id}/members`);
+  return Array.isArray(data) ? (data as GatewayOrgMember[]) : [];
 }
 
 export async function addOrgMember(
@@ -224,16 +263,45 @@ export async function addOrgMember(
   await gatewayFetch(`orgs/${orgId}/members`, { method: "POST", body: JSON.stringify(body) });
 }
 
+export async function removeOrgMember(orgId: string, userId: string): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/members/${userId}`, { method: "DELETE" });
+}
+
+export async function patchOrgMember(
+  orgId: string,
+  userId: string,
+  role: "admin" | "member"
+): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/members/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ role }),
+  });
+}
+
+export async function transferOrgOwnership(orgId: string, userId: string): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/transfer-ownership`, {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId }),
+  });
+}
+
+export async function fetchOrgClients(orgId: string): Promise<GatewayVpnClient[]> {
+  const data = await gatewayFetch<unknown>(`orgs/${orgId}/clients`);
+  return asArray(data, normalizeClient);
+}
+
 export async function fetchOrgNodes(id: string): Promise<GatewayNode[]> {
-  const data = await gatewayFetch<{ nodes?: GatewayNode[] } | GatewayNode[]>(`orgs/${id}/nodes`);
-  return Array.isArray(data) ? data : (data.nodes ?? []);
+  const data = await gatewayFetch<unknown>(`orgs/${id}/nodes`);
+  return asArray(data, normalizeNode);
+}
+
+export async function fetchOrgUsage(id: string, days = 30): Promise<GatewayOrgUsage> {
+  return gatewayFetch(`orgs/${id}/usage`, { params: { days } });
 }
 
 export async function fetchOrgApiKeys(id: string): Promise<GatewayApiKey[]> {
-  const data = await gatewayFetch<{ keys?: GatewayApiKey[] } | GatewayApiKey[]>(
-    `orgs/${id}/apikeys`
-  );
-  return Array.isArray(data) ? data : (data.keys ?? []);
+  const data = await gatewayFetch<unknown>(`orgs/${id}/apikeys`);
+  return Array.isArray(data) ? (data as GatewayApiKey[]) : [];
 }
 
 export async function createOrgApiKey(
@@ -253,17 +321,33 @@ export async function revokeOrgApiKey(orgId: string, keyId: string): Promise<voi
 // ── Operator ───────────────────────────────────────────────────────────────
 
 export async function fetchOperatorNodes(): Promise<GatewayOperatorNode[]> {
-  const data = await gatewayFetch<{ nodes?: GatewayOperatorNode[] } | GatewayOperatorNode[]>(
-    "operator/nodes"
-  );
-  return Array.isArray(data) ? data : (data.nodes ?? []);
+  const data = await gatewayFetch<unknown>("operator/nodes");
+  if (!Array.isArray(data)) return [];
+  return data.map((n) => {
+    const raw = n as Record<string, unknown>;
+    return {
+      id: String(raw.id ?? raw.node_id ?? ""),
+      did: String(raw.did ?? ""),
+      region: String(raw.region ?? ""),
+      name: raw.name as string | undefined,
+      status: String(raw.status ?? "offline"),
+      access_mode: String(raw.access_mode ?? "public"),
+      org_id: raw.org_id as string | undefined,
+      uptime_pct: Number(raw.uptime_pct ?? 0),
+      wg_peers: Number(raw.wg_peers ?? 0),
+    };
+  });
 }
 
 export async function fetchOperatorNodeMetrics(
   id: string,
   params?: { range?: string; step?: string }
 ): Promise<GatewayNodeMetrics> {
-  return gatewayFetch(`operator/nodes/${id}/metrics`, { params });
+  const data = await gatewayFetch<Record<string, unknown>>(`operator/nodes/${id}/metrics`, {
+    params,
+  });
+  const points = (data.points ?? data.buckets) as GatewayNodeMetrics["buckets"] | undefined;
+  return { buckets: points ?? [] };
 }
 
 export async function updateOperatorNode(
@@ -283,8 +367,11 @@ export async function fetchRank(): Promise<GatewayRank> {
   return gatewayFetch("rank/me");
 }
 
-export async function claimRankReward(): Promise<GatewaySubscription> {
-  return gatewayFetch("rank/claim", { method: "POST" });
+export async function claimRankReward(): Promise<void> {
+  await gatewayFetch("rank/claim", {
+    method: "POST",
+    body: JSON.stringify({ reward: "free_days" }),
+  });
 }
 
 export async function fetchLeaderboard(params?: {
@@ -292,22 +379,145 @@ export async function fetchLeaderboard(params?: {
   period?: string;
   limit?: number;
   offset?: number;
-}): Promise<GatewayLeaderboardEntry[]> {
-  const data = await gatewayFetch<{ entries?: GatewayLeaderboardEntry[] } | GatewayLeaderboardEntry[]>(
-    "leaderboard",
-    { params }
-  );
-  return Array.isArray(data) ? data : (data.entries ?? []);
+}): Promise<{ entries: GatewayLeaderboardEntry[]; my_rank?: number; my_value?: number }> {
+  const data = await gatewayFetch<{
+    entries?: Record<string, unknown>[];
+    my_rank?: number;
+    my_value?: number;
+  }>("leaderboard", { params });
+  return {
+    entries: (data.entries ?? []).map(normalizeLeaderboardEntry),
+    my_rank: data.my_rank,
+    my_value: data.my_value,
+  };
 }
 
-// ── Social & Perks ─────────────────────────────────────────────────────────
+// ── Perks & Social ─────────────────────────────────────────────────────────
 
 export async function fetchPerks(): Promise<GatewayPerk[]> {
-  const data = await gatewayFetch<{ perks?: GatewayPerk[] } | GatewayPerk[]>("perks");
-  return Array.isArray(data) ? data : (data.perks ?? []);
+  const data = await gatewayFetch<unknown>("perks");
+  return Array.isArray(data) ? (data as GatewayPerk[]) : [];
 }
 
 export async function fetchMyPerks(): Promise<GatewayPerk[]> {
-  const data = await gatewayFetch<{ perks?: GatewayPerk[] } | GatewayPerk[]>("perks/me");
-  return Array.isArray(data) ? data : (data.perks ?? []);
+  const data = await gatewayFetch<unknown>("perks/me");
+  return Array.isArray(data) ? (data as GatewayPerk[]) : [];
+}
+
+export async function fetchSocialAccounts(): Promise<GatewaySocialAccount[]> {
+  const data = await gatewayFetch<unknown>("social/accounts");
+  return Array.isArray(data) ? (data as GatewaySocialAccount[]) : [];
+}
+
+export async function verifyTelegramAccount(
+  payload: Record<string, string>
+): Promise<GatewaySocialAccount> {
+  return gatewayFetch("social/telegram", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function verifyXAccount(accessToken: string): Promise<GatewaySocialAccount> {
+  return gatewayFetch("social/x", {
+    method: "POST",
+    body: JSON.stringify({ access_token: accessToken }),
+  });
+}
+
+// ── Platform admin ─────────────────────────────────────────────────────────
+
+export async function fetchAdminStats(): Promise<GatewayAdminStats> {
+  return gatewayFetch("admin/stats");
+}
+
+export async function fetchAdminActivity(params?: {
+  cursor?: string;
+  limit?: number;
+}): Promise<{ activity: GatewayActivity[]; next_cursor?: string }> {
+  return gatewayFetch("admin/activity", { params });
+}
+
+export async function fetchAdminUsers(params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<{ users: GatewayAdminUser[]; limit: number; offset: number }> {
+  return gatewayFetch("admin/users", { params });
+}
+
+export async function fetchAdminSubscriptions(): Promise<{
+  active_by_plan: Record<string, number>;
+}> {
+  return gatewayFetch("admin/subscriptions");
+}
+
+export async function fetchAdminNodes(params?: {
+  status?: string;
+  region?: string;
+}): Promise<{ online_connected: number; nodes: GatewayAdminNode[] }> {
+  return gatewayFetch("admin/nodes", { params });
+}
+
+export async function fetchAdminNodeMetrics(
+  id: string,
+  params?: { range?: string; step?: string }
+): Promise<GatewayNodeMetrics & { node_id?: string; range?: string; step?: string; points?: GatewayNodeMetrics["buckets"] }> {
+  const data = await gatewayFetch<Record<string, unknown>>(`admin/nodes/${id}/metrics`, { params });
+  const points = (data.points ?? data.buckets) as GatewayNodeMetrics["buckets"] | undefined;
+  return { ...data, buckets: points ?? [], points };
+}
+
+export async function fetchAdminOrgs(params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<{ orgs: GatewayAdminOrg[]; limit: number; offset: number }> {
+  return gatewayFetch("admin/orgs", { params });
+}
+
+export async function patchAdminOrg(id: string, verified: boolean): Promise<void> {
+  await gatewayFetch(`admin/orgs/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ verified }),
+  });
+}
+
+export async function fetchAdminOrgUsage(
+  orgId: string,
+  days = 30
+): Promise<GatewayOrgUsage> {
+  return gatewayFetch(`admin/orgs/${orgId}/usage`, { params: { days } });
+}
+
+export async function fetchAdminSettings(): Promise<{ settings: GatewayPlatformSetting[] }> {
+  return gatewayFetch("admin/settings");
+}
+
+export async function patchAdminSettings(
+  settings: Record<string, string>
+): Promise<void> {
+  await gatewayFetch("admin/settings", {
+    method: "PATCH",
+    body: JSON.stringify({ settings }),
+  });
+}
+
+export async function upsertAdminPerk(body: {
+  id: string;
+  name: string;
+  type: "nft" | "xp" | "free_days" | "node_pool";
+  min_tier?: number;
+  meta?: Record<string, unknown>;
+  is_active?: boolean;
+}): Promise<void> {
+  await gatewayFetch("admin/perks", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function grantAdminPerk(
+  perkId: string,
+  target: { user_id?: string; wallet?: string }
+): Promise<void> {
+  await gatewayFetch(`admin/perks/${perkId}/grant`, {
+    method: "POST",
+    body: JSON.stringify(target),
+  });
 }
