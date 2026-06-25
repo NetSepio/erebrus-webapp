@@ -8,6 +8,11 @@ import React, { useEffect, useState } from "react";
 import { UserVerificationDialog } from "./common/UserVerificationDialog";
 import { toast } from "sonner";
 
+function gatewayUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "";
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
 export function AuthButton() {
   const {
     isConnected,
@@ -34,7 +39,7 @@ export function AuthButton() {
       for (const chain of chains) {
         try {
           const response = await fetch(
-            `https://gateway.netsepio.com/api/v1.0/flowid?walletAddress=${walletAddress}&chain=${chain}`,
+            `/api/v2/auth?wallet_address=${walletAddress}&chain=${chain}`,
             {
               method: "GET",
               headers: {
@@ -46,8 +51,7 @@ export function AuthButton() {
           if (response.ok) {
             const result = await response.json();
 
-            // If we can get a flowId, the user exists in the system
-            if (result.payload?.flowId) {
+            if (result.message) {
               return true;
             }
           }
@@ -78,7 +82,7 @@ export function AuthButton() {
           if (pasetoToken) {
             try {
               const response = await fetch(
-                `https://gateway.netsepio.com/api/v1.0/profile`,
+                `${gatewayUrl()}api/v1.0/profile`,
                 {
                   method: "GET",
                   headers: {
@@ -189,7 +193,7 @@ export function AuthButton() {
           if (pasetoToken) {
             try {
               const response = await fetch(
-                `https://gateway.netsepio.com/api/v1.0/profile`,
+                `${gatewayUrl()}api/v1.0/profile`,
                 {
                   method: "GET",
                   headers: {

@@ -23,10 +23,12 @@ import {
 import { defineChain } from "@reown/appkit/networks";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import axios from "axios";
-import { BrowserProvider } from "ethers";
 import { toast } from "sonner";
 import type { Provider } from "@reown/appkit-adapter-solana/react";
+import {
+  authenticateEvmVpn,
+  authenticateSolanaVpn,
+} from "@/lib/vpn-gateway-auth";
 
 declare global {
   interface Window {
@@ -278,66 +280,17 @@ const authenticateEVM = async (
   walletProvider: Eip1193Provider
 ) => {
   try {
-    // Enhanced wallet address validation
     if (!walletAddress || walletAddress.trim() === "") {
       throw new Error("Wallet address is required");
     }
 
-    // Validate Ethereum address format
     const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
     if (!isValidEthAddress) {
       throw new Error("Invalid Ethereum wallet address format");
     }
 
-    const GATEWAY_URL = "https://gateway.netsepio.com/";
-    const chainName = "evm";
-
-    const { data } = await axios.get(
-      `${GATEWAY_URL}api/v1.0/flowid?walletAddress=${walletAddress}&chain=evm`
-    );
-
-    // Validate API response
-    if (!data?.payload?.eula || !data?.payload?.flowId) {
-      throw new Error("Invalid response from authentication server");
-    }
-
-    const message = data.payload.eula;
-    const flowId = data.payload.flowId;
-    const combinedMessage = `${message}${flowId}`;
-
-    const provider = new BrowserProvider(walletProvider);
-    const signer = await provider.getSigner();
-    const signerAddress = await signer.getAddress();
-
-    if (signerAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
-      throw new Error(
-        `Mismatch: Signer address (${signerAddress}) !== Connected address (${walletAddress})`
-      );
-    }
-
-    let signature = await signer.signMessage(combinedMessage);
-
-    if (signature.startsWith("0x")) {
-      signature = signature.slice(2);
-    }
-
-    const authResponse = await axios.post(
-      `${GATEWAY_URL}api/v1.0/authenticate`,
-      {
-        chainName,
-        flowId,
-        signature,
-        walletAddress,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const { token, userId } = authResponse.data.payload;
-    setAuthCookies("evm", token, walletAddress, userId);
+    const session = await authenticateEvmVpn(walletAddress, walletProvider);
+    setAuthCookies("evm", session.token, walletAddress, session.userId);
     return true;
   } catch (error) {
     console.error("EVM Authentication error:", error);
@@ -352,46 +305,8 @@ const authenticateSolana = async (
   walletProvider: Provider
 ) => {
   try {
-    const GATEWAY_URL = "https://gateway.netsepio.com/";
-    const chainName = "sol";
-
-    const { data } = await axios.get(`${GATEWAY_URL}api/v1.0/flowid`, {
-      params: {
-        walletAddress,
-        chain: chainName,
-      },
-    });
-
-    const message = data.payload.eula;
-    const flowId = data.payload.flowId;
-
-    const encodedMessage = new TextEncoder().encode(message);
-
-    const signature = await walletProvider.signMessage(encodedMessage);
-
-    const signatureHex = Array.from(new Uint8Array(signature))
-      .map((b: number) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    const authResponse = await axios.post(
-      `${GATEWAY_URL}api/v1.0/authenticate?walletAddress=${walletAddress}&chain=sol`,
-      {
-        flowId,
-        signature: signatureHex,
-        pubKey: walletAddress,
-        walletAddress,
-        message,
-        chainName,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const { token, userId } = authResponse.data.payload;
-    setAuthCookies("solana", token, walletAddress, userId);
+    const session = await authenticateSolanaVpn(walletAddress, walletProvider);
+    setAuthCookies("solana", session.token, walletAddress, session.userId);
     return true;
   } catch (error) {
     console.error("Solana Authentication error:", error);
@@ -551,8 +466,8 @@ createAppKit({
   defaultNetwork: mainnet,
   themeMode: "dark",
   themeVariables: {
-    "--apkt-font-family": "DM Sans, sans-serif",
-    "--apkt-accent": "#ffffff",
+    "--apkt-font-family": "Space Grotesk, sans-serif",
+    "--apkt-accent": "#FF6B35",
     "--apkt-color-mix": "#ffffff",
     "--apkt-color-mix-strength": 40,
   },

@@ -1,0 +1,131 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { AccentButton } from "@/components/v3/ui";
+import { AuthModalTrigger } from "@/components/v3/AuthModal";
+
+type NavVariant = "platform" | "vpn" | "drop";
+
+const navLinks: Record<NavVariant, Array<{ label: string; href: string; external?: boolean }>> = {
+  platform: [
+    { label: "Products", href: "/#products" },
+    { label: "VPN", href: "/vpn" },
+    { label: "Drop", href: "/drop" },
+    { label: "Run a node", href: "/#operators" },
+  ],
+  vpn: [
+    { label: "Features", href: "/vpn#features" },
+    { label: "How it works", href: "/vpn#how" },
+    { label: "Drop", href: "/drop" },
+  ],
+  drop: [
+    { label: "Features", href: "/drop#features" },
+    { label: "How it works", href: "/drop#how" },
+    { label: "VPN", href: "/vpn" },
+  ],
+};
+
+const brand: Record<NavVariant, { icon: string; title: string; subtitle?: string; back?: string }> = {
+  platform: { icon: "/brand/erebrus-icon.png", title: "Erebrus" },
+  vpn: { icon: "/brand/erebrus-vpn.png", title: "Erebrus", subtitle: "VPN", back: "/" },
+  drop: { icon: "/brand/erebrus-drop.png", title: "Erebrus", subtitle: "Drop", back: "/" },
+};
+
+export function MarketingNav({ variant = "platform" }: { variant?: NavVariant }) {
+  const [open, setOpen] = useState(false);
+  const links = navLinks[variant];
+  const b = brand[variant];
+
+  return (
+    <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[var(--bg)]/60 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1180px] items-center justify-between px-4 py-4 md:px-8">
+        <div className="flex items-center gap-3">
+          {b.back && (
+            <Link href={b.back} className="text-[var(--text-2)] hover:text-[var(--text)] text-sm">
+              ←
+            </Link>
+          )}
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image
+              src={b.icon}
+              alt="Erebrus"
+              width={30}
+              height={30}
+              className="rounded-[9px] shadow-[0_4px_16px_rgba(255,107,53,0.35)]"
+            />
+            <span className="text-lg font-bold tracking-tight">
+              {b.title}
+              {b.subtitle && (
+                <span className="ml-1.5 font-medium text-[var(--text-2)]">{b.subtitle}</span>
+              )}
+            </span>
+            {variant === "platform" && (
+              <span className="ml-1 hidden rounded border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-3)] sm:inline">
+                DePIN
+              </span>
+            )}
+          </Link>
+        </div>
+
+        <nav className="hidden items-center gap-7 md:flex">
+          {links.map((link) =>
+            link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-[var(--text-2)] hover:text-[var(--text)]"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-[var(--text-2)] hover:text-[var(--text)]"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
+          <AuthModalTrigger>
+            <AccentButton className="!px-4 !py-2.5 !text-sm">Launch app</AccentButton>
+          </AuthModalTrigger>
+        </nav>
+
+        <button
+          type="button"
+          className="rounded-lg p-2 text-[var(--text-2)] md:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {open && (
+        <div className="border-t border-white/[0.06] px-4 py-4 md:hidden">
+          <nav className="flex flex-col gap-3">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="py-2 text-sm font-medium text-[var(--text-2)]"
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <AuthModalTrigger>
+              <AccentButton className="w-full">Launch app</AccentButton>
+            </AuthModalTrigger>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+}
