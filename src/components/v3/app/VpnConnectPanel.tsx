@@ -7,14 +7,18 @@ import {
   fetchNodes,
   fetchSubscription,
   fetchVpnClients,
+  fetchPlans,
   provisionVpnClient,
   deleteVpnClient,
   fetchVpnClientConfig,
   startTrial,
   GatewayApiError,
 } from "@/lib/gateway/client";
-import type { GatewayNode, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
-import { AccentButton, Card, MonoLabel, StatusDot } from "@/components/v3/ui";
+import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
+import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import { AccentButton, Card, MonoLabel } from "@/components/v3/ui";
+import { NodeGlobe } from "@/components/v3/NodeGlobe";
+import { uniqueCountries } from "@/lib/regions";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -23,6 +27,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Download } from "lucide-react";
 import Link from "next/link";
 
@@ -36,51 +48,71 @@ export function VpnConnectPanel() {
   const [nodes, setNodes] = useState<GatewayNode[]>([]);
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [sub, setSub] = useState<GatewaySubscription | null>(null);
+  const [plans, setPlans] = useState<GatewayPlan[]>([]);
   const [selected, setSelected] = useState<GatewayNode | null>(null);
   const [state, setState] = useState<VpnState>("disconnected");
   const [loading, setLoading] = useState(true);
   const [provisioning, setProvisioning] = useState(false);
+  const [nameDialog, setNameDialog] = useState(false);
+  const [deviceName, setDeviceName] = useState("");
 
   const refresh = useCallback(async () => {
-    const [n, c, s] = await Promise.all([
+    const [n, c, s, p] = await Promise.all([
       fetchNodes({ status: "online" }).catch(() => []),
       fetchVpnClients().catch(() => []),
       fetchSubscription().catch(() => null),
+      fetchPlans().catch(() => []),
     ]);
-    setNodes(n.sort((a, b) => (a.latency_ms ?? 999) - (b.latency_ms ?? 999)));
+    setNodes(n.sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99)));
     setClients(c);
     setSub(s);
-    if (!selected && n.length) setSelected(n[0]);
+    setPlans(p);
+    setSelected((prev) => prev ?? n[0] ?? null);
+    setState(c.length > 0 ? "connected" : "disconnected");
     setLoading(false);
-  }, [selected]);
+  }, []);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const deviceLimit = sub?.device_limit ?? 3;
+  const deviceLimit = subscriptionDeviceLimit(sub, plans);
   const atLimit = clients.length >= deviceLimit;
   const entitled = sub?.entitled ?? false;
 
   const statusUi = useMemo(() => {
     if (state === "connecting")
       return { label: "CONNECTING", color: "var(--accent-hi)", border: "rgba(255,107,53,0.3)" };
-    if (clients.length > 0)
+    if (state === "connected" || clients.length > 0)
       return { label: "PROTECTED", color: "var(--success)", border: "rgba(54,211,153,0.3)" };
     return { label: "DISCONNECTED", color: "var(--text-3)", border: "rgba(255,255,255,0.08)" };
   }, [state, clients.length]);
 
-  const provision = async () => {
-    if (!selected) return;
-    if (!entitled) {
-      toast.error("No active entitlement. Start a trial or get an access pass.");
-      return;
-    }
-    if (atLimit) {
-      toast.error(`Device limit reached (${deviceLimit}). Upgrade your plan.`);
-      return;
-    }
+  const sessionStats = useMemo(() => {
+    const active = clients[0];
+    return [
+      {
+        label: "Session time",
+        value: active?.last_handshake
+          ? new Date(active.last_handshake).toLocaleString()
+          : "—",
+        color: "var(--text-2)",
+      },
+      {
+        label: "Egress node",
+        value: selected?.region ?? "—",
+        color: "var(--text)",
+      },
+      {
+        label: "Node load",
+        value: selected?.load_pct != null ? `${selected.load_pct.toFixed(0)}%` : "—",
+        color: "var(--success)",
+      },
+    ];
+  }, [clients, selected]);
 
+  const runProvision = async (name: string) => {
+    if (!selected) return;
     setProvisioning(true);
     setState("connecting");
     try {
@@ -90,15 +122,14 @@ export function VpnConnectPanel() {
       const wgPublicKey = bytesToBase64(wgPublicKeyBytes);
 
       const client = await provisionVpnClient({
-        name: `Device ${clients.length + 1}`,
+        name,
         node_id: selected.id,
         wg_public_key: wgPublicKey,
         idempotency_key: `${selected.id}-${Date.now()}`,
       });
 
       const configRes = await fetchVpnClientConfig(client.id);
-      const blob = new Blob([configRes.config], { type: "text/plain" });
-      saveAs(blob, `erebrus-${selected.region ?? "vpn"}.conf`);
+      saveAs(new Blob([configRes.config], { type: "text/plain" }), `erebrus-${selected.region}.conf`);
 
       setState("connected");
       toast.success("VPN client provisioned — config downloaded");
@@ -106,26 +137,31 @@ export function VpnConnectPanel() {
     } catch (err) {
       setState("disconnected");
       if (err instanceof GatewayApiError) {
-        if (err.status === 402) toast.error("No entitlement — subscribe or start trial");
+        if (err.status === 402) toast.error("No entitlement — start trial or refresh NFT");
         else if (err.status === 409) toast.error("Device limit reached");
+        else if (err.status === 403) toast.error(err.message);
         else toast.error(err.message);
       } else {
         toast.error("Failed to provision VPN client");
       }
     } finally {
       setProvisioning(false);
+      setNameDialog(false);
     }
   };
 
-  const removeClient = async (id: string) => {
-    try {
-      await deleteVpnClient(id);
-      toast.success("Device removed");
-      await refresh();
-      if (clients.length <= 1) setState("disconnected");
-    } catch {
-      toast.error("Failed to remove device");
+  const provision = () => {
+    if (!selected) return;
+    if (!entitled) {
+      toast.error("No active entitlement. Start a trial or get an access pass.");
+      return;
     }
+    if (atLimit) {
+      toast.error(`Device limit reached (${deviceLimit}).`);
+      return;
+    }
+    setDeviceName(`Device ${clients.length + 1}`);
+    setNameDialog(true);
   };
 
   const startFreeTrial = async () => {
@@ -134,11 +170,8 @@ export function VpnConnectPanel() {
       toast.success("7-day trial activated");
       await refresh();
     } catch (err) {
-      if (err instanceof GatewayApiError && err.status === 409) {
-        toast.error("Trial already used");
-      } else {
-        toast.error("Could not start trial");
-      }
+      if (err instanceof GatewayApiError && err.status === 409) toast.error("Trial already used");
+      else toast.error("Could not start trial");
     }
   };
 
@@ -155,84 +188,93 @@ export function VpnConnectPanel() {
       {!entitled && (
         <Card className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <p className="text-sm text-[var(--text-2)]">
-            Start your free 7-day trial to provision VPN clients.
+            Start your free 7-day trial to provision WireGuard clients on the network.
           </p>
-          <AccentButton onClick={startFreeTrial}>Start trial</AccentButton>
+          <AccentButton onClick={startFreeTrial} disabled={sub?.trial_consumed}>
+            {sub?.trial_consumed ? "Trial used" : "Start trial"}
+          </AccentButton>
         </Card>
       )}
 
       <div className="grid gap-5 xl:grid-cols-[1fr_372px]">
         <Card className="overflow-hidden">
-          <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-            <div className="flex items-center gap-2.5">
-              <MonoLabel>Global Network</MonoLabel>
-              <span className="font-mono text-[11px] text-[var(--success)]">
-                ● {nodes.length} online
+          <div className="relative min-h-[360px] md:min-h-[480px]">
+            <NodeGlobe
+              nodes={nodes}
+              selectedId={selected?.id}
+              className="absolute inset-0 h-full min-h-[360px] md:min-h-[480px]"
+            />
+            <div className="pointer-events-none absolute left-0 right-0 top-0 z-[3] flex items-center justify-between border-b border-white/[0.06] bg-gradient-to-b from-black/50 to-transparent px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <MonoLabel className="text-[var(--text)]">Global Network</MonoLabel>
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--success)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
+                  {nodes.length} online
+                </span>
+              </div>
+              <span className="font-mono text-[10px] uppercase tracking-wide text-[var(--text-3)]">
+                Live · rotating
               </span>
             </div>
-          </div>
-          <div className="relative flex h-[280px] items-center justify-center bg-[var(--bg-deep)] md:h-[470px]">
-            <div
-              className="h-48 w-48 rounded-full border border-white/10 md:h-64 md:w-64"
-              style={{
-                background:
-                  "radial-gradient(circle at 40% 35%, rgba(255,107,53,0.15), transparent 65%)",
-              }}
-            />
-            {selected && (
-              <div className="absolute bottom-5 left-5 font-mono text-[11px] text-[var(--text-3)]">
-                <div>LAT {selected.latitude?.toFixed(2) ?? "—"}</div>
-                <div>LON {selected.longitude?.toFixed(2) ?? "—"}</div>
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-[3] flex flex-wrap items-end justify-between gap-4 border-t border-white/[0.06] bg-gradient-to-t from-black/70 to-transparent px-5 py-4">
+              <div className="flex gap-6">
+                <GlobeStat value={nodes.length} label="Nodes" />
+                <GlobeStat value={uniqueCountries(nodes) || "—"} label="Regions" />
+                <GlobeStat
+                  value={nodes.reduce((s, n) => s + (n.load_pct ?? 0), 0) / (nodes.length || 1)}
+                  label="Avg load"
+                  suffix="%"
+                />
               </div>
-            )}
-            {selected && (
-              <div className="absolute bottom-5 right-5 text-right">
-                <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
-                <div className="text-lg font-semibold">{selected.city ?? selected.region}</div>
-              </div>
-            )}
+              {selected && (
+                <div className="text-right">
+                  <div className="font-mono text-[10px] uppercase tracking-wide text-[var(--accent-hi)]">
+                    Selected node
+                  </div>
+                  <div className="text-base font-semibold">{selected.name || selected.region}</div>
+                  <div className="font-mono text-[10px] text-[var(--text-3)]">
+                    {selected.latitude?.toFixed(2)}°, {selected.longitude?.toFixed(2)}°
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </Card>
 
         <div className="flex flex-col gap-4">
-          <Card
-            className="p-6 text-center"
-            style={{ borderColor: statusUi.border }}
-          >
-            <div
-              className="relative mx-auto mb-5 h-[148px] w-[148px]"
-            >
+          <Card className="p-6 text-center" style={{ borderColor: statusUi.border }}>
+            <div className="relative mx-auto mb-5 h-[148px] w-[148px]">
               {state === "connecting" && (
                 <div className="absolute inset-0 animate-spin rounded-full border-2 border-[var(--accent)]/20 border-t-[var(--accent)]" />
+              )}
+              {state === "connected" && (
+                <>
+                  <div className="absolute inset-0 animate-ping rounded-full border border-[var(--success)]/40 opacity-40" />
+                  <div className="absolute inset-2 animate-ping rounded-full border border-[var(--success)]/30 opacity-30 [animation-delay:600ms]" />
+                </>
               )}
               <button
                 type="button"
                 onClick={provision}
-                disabled={provisioning || !selected}
+                disabled={provisioning || !selected || nodes.length === 0}
                 className="absolute inset-7 flex items-center justify-center rounded-full border-0 transition-transform hover:scale-105 disabled:opacity-60"
                 style={{
-                  background: clients.length ? "var(--success)" : "var(--accent)",
-                  boxShadow: clients.length
-                    ? "0 0 40px rgba(54,211,153,0.4)"
-                    : "0 0 40px rgba(255,107,53,0.4)",
+                  background: state === "connected" ? "var(--success)" : "var(--accent)",
+                  boxShadow:
+                    state === "connected"
+                      ? "0 0 40px rgba(54,211,153,0.4)"
+                      : "0 0 40px rgba(255,107,53,0.4)",
                 }}
               >
                 <div className="h-7 w-7 rotate-[-45deg] rounded-[9px] border-[3.5px] border-[var(--on-accent)] border-r-transparent" />
               </button>
             </div>
-            <div
-              className="mb-1.5 font-mono text-xs tracking-[0.2em]"
-              style={{ color: statusUi.color }}
-            >
+            <div className="mb-1.5 font-mono text-xs tracking-[0.2em]" style={{ color: statusUi.color }}>
               {statusUi.label}
             </div>
-            <div className="text-2xl font-semibold">{selected?.city ?? selected?.region ?? "—"}</div>
-            <div className="text-sm text-[var(--text-2)]">{selected?.country ?? ""}</div>
-            <AccentButton
-              className="mt-5 w-full"
-              onClick={provision}
-              disabled={provisioning || !selected}
-            >
+            <div className="text-2xl font-semibold">{selected?.name ?? selected?.region ?? "—"}</div>
+            <div className="text-sm text-[var(--text-2)]">{selected?.country ?? selected?.region}</div>
+            <AccentButton className="mt-5 w-full" onClick={provision} disabled={provisioning || !selected}>
               {provisioning ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
@@ -241,6 +283,20 @@ export function VpnConnectPanel() {
                 "Download config"
               )}
             </AccentButton>
+          </Card>
+
+          <Card className="p-1">
+            {sessionStats.map((s) => (
+              <div
+                key={s.label}
+                className="flex items-center justify-between border-b border-white/[0.04] px-4 py-3 last:border-0"
+              >
+                <span className="text-sm text-[var(--text-2)]">{s.label}</span>
+                <span className="font-mono text-xs" style={{ color: s.color }}>
+                  {s.value}
+                </span>
+              </div>
+            ))}
           </Card>
 
           <Sheet>
@@ -256,7 +312,7 @@ export function VpnConnectPanel() {
                 <span className="text-[var(--text-3)]">→</span>
               </button>
             </SheetTrigger>
-            <SheetContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
+            <SheetContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)] w-full sm:max-w-md">
               <SheetHeader>
                 <SheetTitle>Select node</SheetTitle>
               </SheetHeader>
@@ -265,15 +321,21 @@ export function VpnConnectPanel() {
                   <button
                     key={node.id}
                     type="button"
-                    onClick={() => setSelected(node)}
-                    className="flex w-full items-center justify-between rounded-xl border border-white/[0.06] px-4 py-3 text-left hover:bg-white/[0.04]"
+                    onClick={() => {
+                      setSelected(node);
+                    }}
+                    className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left ${
+                      selected?.id === node.id
+                        ? "border-[var(--accent)]/40 bg-[var(--accent)]/10"
+                        : "border-white/[0.06] hover:bg-white/[0.04]"
+                    }`}
                   >
                     <div>
-                      <div className="font-medium">{node.city ?? node.region}</div>
+                      <div className="font-medium">{node.name || node.region}</div>
                       <div className="font-mono text-[11px] text-[var(--text-3)]">{node.did}</div>
                     </div>
                     <span className="font-mono text-sm text-[var(--success)]">
-                      {node.latency_ms ?? "—"}ms
+                      {node.load_pct?.toFixed(0) ?? 0}%
                     </span>
                   </button>
                 ))}
@@ -292,15 +354,8 @@ export function VpnConnectPanel() {
             </span>
           </div>
           <span className="rounded-md bg-[var(--accent)]/12 px-2.5 py-1 font-mono text-[11px] text-[var(--accent-hi)]">
-            {sub?.plan ?? "trial"} plan
+            {sub?.plan_id ?? sub?.plan ?? "free"} plan
           </span>
-        </div>
-
-        <div className="hidden grid-cols-[1.4fr_1fr_1fr_auto] gap-4 border-b border-white/[0.05] px-5 py-3 font-mono text-[10.5px] uppercase tracking-wide text-[var(--text-3)] md:grid">
-          <div>Device</div>
-          <div>Node</div>
-          <div>Created</div>
-          <div />
         </div>
 
         {clients.length === 0 ? (
@@ -322,7 +377,7 @@ export function VpnConnectPanel() {
                   <div className="font-mono text-[11px] text-[var(--text-3)]">{client.id.slice(0, 8)}…</div>
                 </div>
               </div>
-              <div className="text-sm">{client.node_region ?? "—"}</div>
+              <div className="text-sm capitalize">{client.status ?? "active"}</div>
               <div className="font-mono text-xs text-[var(--text-3)]">
                 {new Date(client.created_at).toLocaleDateString()}
               </div>
@@ -334,15 +389,17 @@ export function VpnConnectPanel() {
                     const { config } = await fetchVpnClientConfig(client.id);
                     saveAs(new Blob([config]), `${client.name}.conf`);
                   }}
-                  aria-label="Download"
                 >
                   <Download size={16} />
                 </button>
                 <button
                   type="button"
                   className="rounded-lg p-2 text-[var(--danger)] hover:bg-[var(--danger)]/10"
-                  onClick={() => removeClient(client.id)}
-                  aria-label="Delete"
+                  onClick={async () => {
+                    await deleteVpnClient(client.id);
+                    toast.success("Device removed");
+                    await refresh();
+                  }}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -353,15 +410,59 @@ export function VpnConnectPanel() {
 
         {atLimit && (
           <div className="flex flex-col items-start justify-between gap-3 bg-[var(--accent)]/[0.04] px-5 py-4 sm:flex-row sm:items-center">
-            <span className="text-sm text-[var(--text-2)]">
-              Device limit reached on your current plan.
-            </span>
+            <span className="text-sm text-[var(--text-2)]">Device limit reached on your current plan.</span>
             <Link href="/subscribe">
               <AccentButton className="!py-2 !text-[13px]">Upgrade</AccentButton>
             </Link>
           </div>
         )}
       </Card>
+
+      <Dialog open={nameDialog} onOpenChange={setNameDialog}>
+        <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
+          <DialogHeader>
+            <DialogTitle>Name this device</DialogTitle>
+          </DialogHeader>
+          <Label htmlFor="device-name">Device name</Label>
+          <Input
+            id="device-name"
+            value={deviceName}
+            onChange={(e) => setDeviceName(e.target.value)}
+            className="mt-1 border-white/10 bg-[var(--surface-2)]"
+          />
+          <AccentButton
+            className="mt-4 w-full"
+            onClick={() => runProvision(deviceName.trim() || "My device")}
+            disabled={provisioning}
+          >
+            Provision & download
+          </AccentButton>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function GlobeStat({
+  value,
+  label,
+  suffix = "",
+}: {
+  value: string | number;
+  label: string;
+  suffix?: string;
+}) {
+  const display =
+    typeof value === "number" && !Number.isInteger(value) ? value.toFixed(0) : value;
+  return (
+    <div>
+      <div className="text-xl font-bold tracking-tight md:text-2xl">
+        {display}
+        {suffix}
+      </div>
+      <div className="font-mono text-[10px] uppercase tracking-wide text-[var(--text-3)]">
+        {label}
+      </div>
     </div>
   );
 }

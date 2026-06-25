@@ -4,19 +4,15 @@ import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
 import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
+import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
+import { LandingNetworkPreview } from "@/components/v3/marketing/LandingNetworkPreview";
+import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
 
 export const metadata = {
   title: "Erebrus — The sovereign internet",
   description:
     "Privacy infrastructure owned by the people who run it. Decentralized VPN and local-first Drop — no clouds, no accounts, no middlemen.",
 };
-
-const stats = [
-  { value: "142+", label: "Nodes online" },
-  { value: "31", label: "Countries" },
-  { value: "0", label: "Logs kept" },
-  { value: "2", label: "Products live" },
-];
 
 const features = [
   {
@@ -80,7 +76,7 @@ export default function LandingPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
             DePIN
           </span>
-          <span className="text-[13px] text-[var(--text-2)]">Community-run infrastructure</span>
+          <LiveNetworkBadge />
         </div>
 
         <h1 className="mx-auto max-w-[900px] text-4xl font-bold leading-[0.98] tracking-[-0.04em] sm:text-6xl md:text-[78px]">
@@ -116,6 +112,8 @@ export default function LandingPage() {
         <p className="mt-6 font-mono text-xs text-[var(--text-3)]">
           Two products live today · VPN + Drop · more on the way
         </p>
+
+        <LandingNetworkPreview />
       </section>
 
       <section id="products" className="mx-auto max-w-[1180px] px-4 py-16 md:px-8">
@@ -183,16 +181,7 @@ export default function LandingPage() {
       </section>
 
       <section className="mx-auto max-w-[1180px] px-4 py-8 md:px-8">
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] md:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="bg-[var(--elevated)] px-6 py-7 text-center">
-              <div className="text-2xl font-bold tracking-tight md:text-[32px]">{s.value}</div>
-              <div className="mt-1.5 font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
+        <LiveNetworkStats />
       </section>
 
       <section id="features" className="mx-auto max-w-[1180px] px-4 py-20 md:px-8">

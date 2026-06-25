@@ -16,10 +16,8 @@ import {
   solanaTestnet,
   solanaDevnet,
 } from "@reown/appkit/networks";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { defineChain } from "@reown/appkit/networks";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
@@ -458,12 +456,12 @@ export function AppKit({ children }: { children: React.ReactNode }) {
 createAppKit({
   adapters: [new EthersAdapter(), solanaWeb3JsAdapter],
   metadata,
-  networks: [solana, monadTestnet],
+  networks: [mainnet, solana],
   projectId,
   features: {
     analytics: true,
   },
-  defaultNetwork: mainnet,
+  defaultNetwork: solana,
   themeMode: "dark",
   themeVariables: {
     "--apkt-font-family": "Space Grotesk, sans-serif",

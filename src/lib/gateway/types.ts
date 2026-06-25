@@ -2,21 +2,23 @@ export type GatewayChain = "evm" | "sol";
 
 export interface GatewayNode {
   id: string;
-  peer_id: string;
+  node_id?: string;
+  name: string;
+  peer_id?: string;
   did: string;
   region: string;
   city?: string;
   country?: string;
-  country_code?: string;
   latitude?: number;
   longitude?: number;
-  status: "online" | "offline" | "draining";
-  access_mode: "public" | "private";
+  status: "online" | "offline" | "draining" | string;
+  access_mode: string;
   min_tier?: number;
   load_pct?: number;
   latency_ms?: number;
   uptime_pct?: number;
   ip_hash?: string;
+  protocols?: string[];
 }
 
 export interface GatewayVpnClient {
@@ -24,40 +26,49 @@ export interface GatewayVpnClient {
   name: string;
   node_id: string;
   node_region?: string;
-  created_at: string;
   status?: string;
+  created_at: string;
+  rx_bytes?: number;
+  tx_bytes?: number;
+  last_handshake?: string;
 }
 
 export interface GatewaySubscription {
-  status: string;
+  status?: string;
   entitled: boolean;
   source?: string;
   trial_consumed?: boolean;
+  plan_id?: string;
   plan?: string;
+  current_period_end?: string;
   expires_at?: string;
   device_limit?: number;
+  max_clients?: number;
   nft_gating?: boolean;
 }
 
 export interface GatewayPlan {
   id: string;
   name: string;
-  device_limit: number;
-  duration_days?: number;
+  period_days?: number;
+  max_clients: number;
+  device_limit?: number;
 }
 
 export interface GatewayOrg {
   id: string;
   name: string;
-  kind: "team" | "company" | "individual" | "family";
-  slug: string;
+  kind: string;
+  slug?: string;
   description?: string;
   website?: string;
-  role?: "owner" | "admin" | "member";
+  role?: string;
+  verified?: boolean;
   member_count?: number;
   node_count?: number;
   online_nodes?: number;
   enrollment_secret?: string;
+  created_at?: string;
 }
 
 export interface GatewayOrgMember {
@@ -69,7 +80,8 @@ export interface GatewayOrgMember {
 }
 
 export interface GatewayProfile {
-  user_id: string;
+  id: string;
+  user_id?: string;
   wallet_address: string;
   chain: GatewayChain;
   name?: string;
@@ -82,9 +94,11 @@ export interface GatewayProfile {
 export interface GatewayActivity {
   id: string;
   action: string;
+  target?: string;
   ip?: string;
   device?: string;
   app?: string;
+  user_agent?: string;
   created_at: string;
 }
 
@@ -94,6 +108,8 @@ export interface GatewayRank {
   xp_claimable: number;
   tier: number;
   tier_name: string;
+  next_tier_at?: number;
+  breakdown_by_kind?: Record<string, number>;
 }
 
 export interface GatewayReferral {
@@ -104,7 +120,8 @@ export interface GatewayReferral {
 
 export interface GatewayLeaderboardEntry {
   rank: number;
-  wallet_address: string;
+  wallet: string;
+  wallet_address?: string;
   name?: string;
   value: number;
 }
@@ -120,15 +137,24 @@ export interface GatewayPerk {
 
 export interface GatewayOperatorNode {
   id: string;
-  peer_id: string;
+  node_id?: string;
+  peer_id?: string;
   did: string;
   region: string;
+  name?: string;
   city?: string;
   status: string;
   access_mode: string;
   uptime_pct?: number;
   wg_peers?: number;
   org_id?: string;
+}
+
+export interface GatewayApiKey {
+  id: string;
+  prefix: string;
+  name?: string;
+  created_at: string;
 }
 
 export interface GatewayNodeMetrics {
@@ -142,14 +168,77 @@ export interface GatewayNodeMetrics {
   }>;
 }
 
-export interface GatewayApiKey {
-  id: string;
-  prefix: string;
-  name?: string;
-  created_at: string;
+export interface GatewayOrgUsage {
+  days?: number;
+  window_days?: number;
+  api_calls?: number;
+  vpn_clients?: number;
+  clients?: number;
+  bytes_rx?: number;
+  bytes_tx?: number;
+  bandwidth_rx?: number;
+  bandwidth_tx?: number;
+  bandwidth_total?: number;
+  org_id?: string;
 }
 
-export interface GatewayError {
-  error: string;
-  message?: string;
+export interface GatewaySocialAccount {
+  provider: string;
+  handle: string;
+}
+
+export interface GatewayAdminStats {
+  nodes: { by_status: Record<string, number>; connected: number };
+  users: { total: number };
+  orgs: { total: number };
+  subscriptions: { by_plan: Record<string, number> };
+  traffic_30d: { rx_bytes: number; tx_bytes: number };
+}
+
+export interface GatewayAdminUser {
+  id: string;
+  wallet_address?: string;
+  chain?: GatewayChain;
+  role: string;
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  created_at?: string;
+}
+
+export interface GatewayAdminNode {
+  id: string;
+  peer_id?: string;
+  did: string;
+  name?: string;
+  region: string;
+  status: string;
+  access_mode?: string;
+  min_tier?: number;
+  org_id?: string;
+  wallet_address?: string;
+  load?: number;
+  rx_bytes?: number;
+  tx_bytes?: number;
+  version?: string;
+  last_heartbeat?: string;
+  created_at?: string;
+}
+
+export interface GatewayAdminOrg {
+  id?: string;
+  name: string;
+  kind: string;
+  verified?: boolean;
+  slug?: string;
+  description?: string;
+  website?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GatewayPlatformSetting {
+  key: string;
+  value: string;
+  description?: string;
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createOrg, fetchOrgs } from "@/lib/gateway/client";
+import { createOrg, fetchOrgs, GatewayApiError } from "@/lib/gateway/client";
 import type { GatewayOrg } from "@/lib/gateway/types";
 import { AccentButton, Card } from "@/components/v3/ui";
 import {
@@ -30,10 +30,20 @@ export default function WorkspacePage() {
   const [name, setName] = useState("");
   const [kind, setKind] = useState<GatewayOrg["kind"]>("team");
   const [creating, setCreating] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = () => {
+    setLoadError(null);
     fetchOrgs()
       .then(setOrgs)
+      .catch((err) => {
+        setOrgs([]);
+        const message =
+          err instanceof GatewayApiError
+            ? err.message
+            : "Could not load workspaces";
+        setLoadError(message);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -42,20 +52,28 @@ export default function WorkspacePage() {
   }, []);
 
   const handleCreate = async () => {
-    if (!name.trim()) return;
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.error("Enter a workspace name");
+      return;
+    }
     setCreating(true);
     try {
-      const slug = name
+      const slug = trimmed
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
-      await createOrg({ name: name.trim(), kind, slug });
+      await createOrg({ name: trimmed, kind, slug });
       toast.success("Workspace created");
       setOpen(false);
       setName("");
       load();
-    } catch {
-      toast.error("Failed to create workspace");
+    } catch (err) {
+      const message =
+        err instanceof GatewayApiError
+          ? err.message
+          : "Failed to create workspace";
+      toast.error(message);
     } finally {
       setCreating(false);
     }
@@ -104,13 +122,24 @@ export default function WorkspacePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <AccentButton className="w-full" onClick={handleCreate} disabled={creating}>
+              <AccentButton
+                type="button"
+                className="w-full"
+                onClick={handleCreate}
+                disabled={creating || !name.trim()}
+              >
                 {creating ? "Creating…" : "Create"}
               </AccentButton>
             </div>
           </DialogContent>
         </Dialog>
       </div>
+
+      {loadError && (
+        <Card className="mb-4 border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4 text-sm text-[var(--danger)]">
+          {loadError}
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {orgs.map((org) => (

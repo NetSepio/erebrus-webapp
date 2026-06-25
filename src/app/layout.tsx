@@ -6,6 +6,7 @@ import AppChrome from "@/components/layout/AppChrome";
 import { cn } from "@/lib/utils";
 import { AppKit } from "../context/appkit";
 import AppWalletProvider from "@/components/AppWalletProvider";
+import { Toaster } from "sonner";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
           <AppKit>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
               <AppChrome>{children}</AppChrome>
+              <Toaster theme="dark" position="top-center" richColors />
             </ThemeProvider>
           </AppKit>
         </AppWalletProvider>

@@ -5,40 +5,73 @@ import {
   fetchProfile,
   fetchActivity,
   fetchReferrals,
+  fetchSocialAccounts,
   sendEmailOtp,
   verifyEmailOtp,
   updateProfile,
 } from "@/lib/gateway/client";
-import type { GatewayActivity, GatewayProfile, GatewayReferral } from "@/lib/gateway/types";
+import type {
+  GatewayActivity,
+  GatewayProfile,
+  GatewayReferral,
+  GatewaySocialAccount,
+} from "@/lib/gateway/types";
 import { truncateAddress } from "@/lib/design";
 import { AccentButton, Card } from "@/components/v3/ui";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useAppKitAccount } from "@reown/appkit/react";
+import { useAppKitAccount, useAppKitNetworkCore } from "@reown/appkit/react";
+import Image from "next/image";
+import type { HeliusNft } from "@/lib/helius";
 
 export default function ProfilePage() {
   const { address } = useAppKitAccount();
+  const { caipNetworkId } = useAppKitNetworkCore();
   const [profile, setProfile] = useState<GatewayProfile | null>(null);
   const [activity, setActivity] = useState<GatewayActivity[]>([]);
   const [referral, setReferral] = useState<GatewayReferral | null>(null);
+  const [nfts, setNfts] = useState<HeliusNft[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [refCopied, setRefCopied] = useState(false);
+  const [socials, setSocials] = useState<GatewaySocialAccount[]>([]);
+  const [activityCursor, setActivityCursor] = useState<string | undefined>();
 
   useEffect(() => {
     Promise.all([
       fetchProfile(),
       fetchActivity({ limit: 20 }),
       fetchReferrals().catch(() => null),
-    ]).then(([p, a, r]) => {
+      fetchSocialAccounts().catch(() => []),
+    ]).then(([p, a, r, s]) => {
       setProfile(p);
       setName(p.name ?? "");
       setActivity(a.items ?? []);
+      setActivityCursor(a.next_cursor);
       setReferral(r);
+      setSocials(s);
     });
   }, []);
+
+  const loadMoreActivity = async () => {
+    if (!activityCursor) return;
+    const a = await fetchActivity({ limit: 20, cursor: activityCursor });
+    setActivity((prev) => [...prev, ...(a.items ?? [])]);
+    setActivityCursor(a.next_cursor);
+  };
+
+  useEffect(() => {
+    if (!address || !caipNetworkId?.startsWith("solana:")) {
+      setNfts([]);
+      return;
+    }
+    fetch(`/api/nfts?wallet=${encodeURIComponent(address)}`)
+      .then((r) => r.json())
+      .then((data) => setNfts(Array.isArray(data) ? data : []))
+      .catch(() => setNfts([]));
+  }, [address, caipNetworkId]);
 
   const saveName = async () => {
     try {
@@ -106,6 +139,22 @@ export default function ProfilePage() {
 
           <div className="mt-5 space-y-2.5">
             <Row label="Wallet" value="Connected" ok />
+            {profile?.role === "admin" && <Row label="Platform role" value="Admin" ok />}
+            {socials.length > 0 && (
+              <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
+                <span className="text-sm text-[var(--text-2)]">Linked accounts</span>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {socials.map((s) => (
+                    <span
+                      key={s.provider}
+                      className="rounded-md bg-white/[0.06] px-2 py-1 font-mono text-[11px] capitalize"
+                    >
+                      {s.provider}: @{s.handle}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="flex items-center justify-between rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
               <span className="text-sm text-[var(--text-2)]">Display name</span>
               <div className="flex gap-2">
@@ -165,6 +214,39 @@ export default function ProfilePage() {
           </div>
         </Card>
 
+        {nfts.length > 0 && (
+          <Card className="p-6">
+            <div className="font-semibold">Solana NFTs</div>
+            <p className="mt-1 text-xs text-[var(--text-2)]">
+              Holding a gating NFT? Refresh entitlement on Subscribe.
+            </p>
+            <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {nfts.slice(0, 8).map((nft) => (
+                <div
+                  key={nft.id}
+                  className="overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.02]"
+                >
+                  {nft.image ? (
+                    <Image
+                      src={nft.image}
+                      alt={nft.name}
+                      width={120}
+                      height={120}
+                      className="aspect-square w-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex aspect-square items-center justify-center font-mono text-[10px] text-[var(--text-3)]">
+                      NFT
+                    </div>
+                  )}
+                  <p className="truncate px-2 py-1 text-[10px]">{nft.name}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {referral?.code && (
           <Card
             className="p-6"
@@ -223,6 +305,13 @@ export default function ProfilePage() {
               </span>
             </div>
           ))
+        )}
+        {activityCursor && (
+          <div className="border-t border-white/[0.06] px-5 py-3">
+            <AccentButton type="button" variant="ghost" className="w-full !py-2 !text-xs" onClick={loadMoreActivity}>
+              Load more activity
+            </AccentButton>
+          </div>
         )}
       </Card>
     </div>

@@ -4,6 +4,8 @@ import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
 import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
+import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
+import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
 
 export const metadata = {
   title: "Erebrus VPN — Decentralized, no-logs VPN",
@@ -11,13 +13,6 @@ export const metadata = {
     "A decentralized VPN run by a global community, not a company. Wallet login, WireGuard tunnels, and a network with no central operator.",
   icons: { icon: "/brand/erebrus-vpn.png" },
 };
-
-const stats = [
-  { value: "142", label: "Nodes live" },
-  { value: "31", label: "Countries" },
-  { value: "0", label: "Logs kept" },
-  { value: "7d", label: "Free trial" },
-];
 
 const features = [
   { glyph: "◎", title: "No central operator", desc: "Traffic routes through community nodes. No company to subpoena or breach." },
@@ -36,10 +31,8 @@ export default function VpnMarketingPage() {
       <section className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:grid-cols-2 md:px-8 md:py-20">
         <div>
           <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5">
-            <span className="font-mono text-[11px] text-[var(--success)]">
-              ● 142 NODES LIVE
-            </span>
-            <span className="text-[13px] text-[var(--text-2)]">31 countries · 0 logs</span>
+            <span className="font-mono text-[11px] text-[var(--success)]">● LIVE</span>
+            <LiveNetworkBadge />
           </div>
           <h1 className="text-4xl font-bold leading-none tracking-tight md:text-[64px]">
             Privacy you can&apos;t be{" "}
@@ -92,16 +85,7 @@ export default function VpnMarketingPage() {
       </section>
 
       <section className="mx-auto max-w-[1180px] px-4 md:px-8">
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] md:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="bg-[var(--elevated)] px-6 py-7 text-center">
-              <div className="text-2xl font-bold md:text-[32px]">{s.value}</div>
-              <div className="mt-1.5 font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
+        <LiveNetworkStats />
       </section>
 
       <section id="features" className="mx-auto max-w-[1180px] px-4 py-20 md:px-8">

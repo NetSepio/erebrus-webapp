@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 function gatewayBase(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_EREBRUS_BASE_URL ||
-    process.env.NEXT_PUBLIC_GATEWAY_URL ||
-    "https://gateway.erebrus.io";
+  const raw = process.env.NEXT_PUBLIC_GATEWAY_URL?.trim() ?? "https://gateway.erebrus.io/";
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 

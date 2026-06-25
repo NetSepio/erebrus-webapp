@@ -11,6 +11,7 @@ const APP_PREFIXES = [
   "/profile",
   "/rewards",
   "/subscribe",
+  "/admin",
 ];
 
 const MARKETING_PATHS = new Set(["/", "/vpn", "/drop", "/terms", "/privacy", "/contact"]);

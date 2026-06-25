@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDisconnect, useAppKitAccount, useAppKitNetworkCore } from "@reown/appkit/react";
-import { truncateAddress, daysRemaining } from "@/lib/design";
+import { truncateAddress, daysRemaining, subscriptionEndDate } from "@/lib/design";
 import type { GatewaySubscription } from "@/lib/gateway/types";
 import Cookies from "js-cookie";
+import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 
 export function WalletMenu({ subscription }: { subscription: GatewaySubscription | null }) {
+  const { isAdmin } = usePlatformAdmin();
   const [open, setOpen] = useState(false);
   const { address } = useAppKitAccount();
   const { caipNetworkId } = useAppKitNetworkCore();
@@ -16,7 +18,7 @@ export function WalletMenu({ subscription }: { subscription: GatewaySubscription
   const router = useRouter();
 
   const chainLabel = caipNetworkId?.startsWith("solana:") ? "Solana" : "EVM";
-  const days = daysRemaining(subscription?.expires_at);
+  const days = daysRemaining(subscriptionEndDate(subscription ?? undefined));
   const display = address ? truncateAddress(address) : "Not connected";
 
   const logout = async () => {
@@ -69,6 +71,11 @@ export function WalletMenu({ subscription }: { subscription: GatewaySubscription
             <MenuLink href="/rewards" glyph="✦" onClick={() => setOpen(false)}>
               Rewards & XP
             </MenuLink>
+            {isAdmin && (
+              <MenuLink href="/admin" glyph="⬢" onClick={() => setOpen(false)}>
+                Admin Console
+              </MenuLink>
+            )}
             <button
               type="button"
               onClick={logout}
