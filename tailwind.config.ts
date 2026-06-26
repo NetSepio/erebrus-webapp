@@ -21,8 +21,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: "var(--font-dm-sans)",
-        anotherXanadu: "var(--font-another-xanadu)",
+        sans: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
+        mono: ["var(--font-ibm-plex-mono)", "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -47,8 +47,11 @@ const config = {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          // shadcn "accent" (component hover/focus states). Uses its own token so
+          // it doesn't collide with the design-system `--accent` orange (a bare
+          // hex consumed directly as var(--accent), not via hsl()).
+          DEFAULT: "hsl(var(--ui-accent))",
+          foreground: "hsl(var(--ui-accent-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
