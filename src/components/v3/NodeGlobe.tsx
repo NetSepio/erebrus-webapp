@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { createNodeGlobe } from "@/lib/erebrus-globe";
 import type { GatewayNode } from "@/lib/gateway/types";
 import { toGlobeNodes } from "@/lib/globe-nodes";
+import landDots from "@/data/land-dots.json";
 
 export function NodeGlobe({
   nodes,
@@ -44,6 +45,7 @@ export function NodeGlobe({
       getSelectedId: () => selectedRef.current,
       onSelect: (id) => onSelectRef.current?.(id),
       onHover: (id) => onHoverRef.current?.(id),
+      landDots: landDots as Array<[number, number]>,
     });
     controllerRef.current = globe;
 

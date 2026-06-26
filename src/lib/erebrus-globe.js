@@ -44,6 +44,8 @@ export function createNodeGlobe(canvas, opts = {}) {
   const getSelectedId = opts.getSelectedId || (() => selectedId);
   const onSelect = typeof opts.onSelect === 'function' ? opts.onSelect : null;
   const onHover = typeof opts.onHover === 'function' ? opts.onHover : null;
+  // Optional dot-matrix world map: array of [lat, lng] points on land.
+  const landDots = Array.isArray(opts.landDots) && opts.landDots.length ? opts.landDots : null;
   const aurora = opts.aurora !== false;
   let rot = 0, raf = 0, alive = true;
   let autoRotate = true;
@@ -95,16 +97,44 @@ export function createNodeGlobe(canvas, opts = {}) {
     ctx.clearRect(0, 0, W, H);
     const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.38;
 
-    for (let la = -80; la <= 80; la += 20) {
-      for (let lo = 0; lo < 360; lo += 12) {
-        const p = project(la, lo, R, rot);
-        if (p.z <= -R * 0.15) continue;
+    // Subtle sphere body so the land dots read as sitting on a globe.
+    const sphere = ctx.createRadialGradient(
+      cx - R * 0.3, cy - R * 0.3, R * 0.1,
+      cx, cy, R
+    );
+    sphere.addColorStop(0, 'rgba(255,255,255,0.025)');
+    sphere.addColorStop(1, 'rgba(255,255,255,0.004)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = sphere;
+    ctx.fill();
+
+    if (landDots) {
+      // Dot-matrix world map — only front-facing land points.
+      for (let i = 0; i < landDots.length; i++) {
+        const d = landDots[i];
+        const p = project(d[0], d[1], R, rot);
+        if (p.z <= -R * 0.12) continue;
         const sx = cx + p.x, sy = cy - p.y;
         const depth = (p.z + R) / (2 * R);
         ctx.beginPath();
-        ctx.arc(sx, sy, 1.1 * dpr, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.04 + depth * 0.10})`;
+        ctx.arc(sx, sy, 1.3 * dpr, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,206,176,${0.42 + depth * 0.5})`;
         ctx.fill();
+      }
+    } else {
+      // Fallback: uniform graticule dot grid.
+      for (let la = -80; la <= 80; la += 20) {
+        for (let lo = 0; lo < 360; lo += 12) {
+          const p = project(la, lo, R, rot);
+          if (p.z <= -R * 0.15) continue;
+          const sx = cx + p.x, sy = cy - p.y;
+          const depth = (p.z + R) / (2 * R);
+          ctx.beginPath();
+          ctx.arc(sx, sy, 1.1 * dpr, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${0.04 + depth * 0.10})`;
+          ctx.fill();
+        }
       }
     }
 
