@@ -5,10 +5,6 @@ export const hexToRGB = (hex: string): [number, number, number] => {
   const r = parseInt(c.slice(0, 2), 16) / 255;
   const g = parseInt(c.slice(2, 4), 16) / 255;
   const b = parseInt(c.slice(4, 6), 16) / 255;
-  console.log("C", c);
-  console.log("R", r);
-  console.log("G", g);
-  console.log("B", b);
   return [r, g, b];
 };
 

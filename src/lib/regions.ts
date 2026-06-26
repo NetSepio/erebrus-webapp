@@ -44,6 +44,17 @@ export function regionCoords(
   return { lat, lng, label: regionZoneLabel(region, zone) };
 }
 
+// Macro/continent codes that look like ISO-2 but have no national flag.
+const NON_COUNTRY = new Set(["AP", "AF", "SA", "NA", "OC", "AS", "ME", "AN"]);
+
+/** Emoji flag for a 2-letter country region code (e.g. "US" → 🇺🇸); null otherwise. */
+export function regionFlag(region?: string): string | null {
+  if (!region) return null;
+  const code = region.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code) || NON_COUNTRY.has(code)) return null;
+  return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
+
 /** Compact human label for a region/zone pair, e.g. "US · East". */
 export function regionZoneLabel(region: string, zone?: string): string {
   const z = zone?.trim();

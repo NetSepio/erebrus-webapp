@@ -1,5 +1,91 @@
 export type GatewayChain = "evm" | "sol";
 
+/** Org projection on public node discovery (`GET /api/v2/nodes`). */
+export interface GatewayNodeOrgSummary {
+  name: string;
+  kind?: string;
+  /** Always present when `org` is set; `false` is meaningful for dashboards. */
+  verified: boolean;
+  slug?: string;
+  description?: string;
+  website?: string;
+}
+
+/** Node-reported speedtest block on discovery responses. */
+export interface GatewayNodeSpeedtest {
+  download_mbps?: number;
+  upload_mbps?: number;
+  latency_ms?: number;
+  measured_at?: number;
+}
+
+/** Capability flags advertised by a node. */
+export interface GatewayNodeCapabilities {
+  access_mode?: string;
+  app_hosting?: boolean;
+  wildcard_domain?: string;
+}
+
+/** WireGuard endpoint on a discovery node (dial host for client RTT probes). */
+export interface GatewayNodeWireguardEndpoint {
+  host?: string;
+  port?: number;
+  public_key?: string;
+}
+
+/** VLESS REALITY endpoint parameters (public dial metadata). */
+export interface GatewayNodeVlessRealityEndpoint {
+  port?: number;
+  public_key?: string;
+  short_ids?: string[];
+  sni?: string;
+}
+
+/** Hysteria2 endpoint parameters. */
+export interface GatewayNodeHysteria2Endpoint {
+  port?: number;
+  obfs?: string;
+}
+
+export interface GatewayNodeEndpoints {
+  wireguard?: GatewayNodeWireguardEndpoint;
+  vless_reality?: GatewayNodeVlessRealityEndpoint;
+  hysteria2?: GatewayNodeHysteria2Endpoint;
+}
+
+/**
+ * Raw gateway `NodePublic` from `GET /api/v2/nodes`.
+ * Excludes raw IP, org_id, enrollment secrets, and full spec blobs.
+ */
+export interface GatewayNodePublic {
+  node_id: string;
+  name: string;
+  did: string;
+  peer_id?: string;
+  wallet_address?: string;
+  region: string;
+  zone?: string;
+  status: "online" | "offline" | "draining" | string;
+  access_mode: string;
+  min_tier: number;
+  protocols: string[];
+  capabilities?: GatewayNodeCapabilities;
+  endpoints?: GatewayNodeEndpoints;
+  speedtest?: GatewayNodeSpeedtest;
+  load_pct: number;
+  ip_hash?: string;
+  version?: string;
+  rx_bytes?: number;
+  tx_bytes?: number;
+  /** Last node WS heartbeat — control-plane ping (~30s when online). */
+  last_heartbeat?: string;
+  /** Latest WireGuard handshake across any client on this node. */
+  last_peer_handshake?: string;
+  created_at?: string;
+  org?: GatewayNodeOrgSummary;
+}
+
+/** Normalized node for app UI (see `normalizeNode`). */
 export interface GatewayNode {
   id: string;
   node_id?: string;
@@ -19,13 +105,26 @@ export interface GatewayNode {
   latency_ms?: number;
   uptime_pct?: number;
   ip_hash?: string;
+  version?: string;
+  rx_bytes?: number;
+  tx_bytes?: number;
   protocols?: string[];
+  capabilities?: GatewayNodeCapabilities;
   /** Node speedtest capacity (from the gateway `speedtest` block). */
   download_mbps?: number;
   upload_mbps?: number;
   speedtest_at?: number;
-  /** Operating org, when the node belongs to a workspace. */
-  org_name?: string;
+  /** Control-plane heartbeat timestamp (legacy alias for UI). */
+  last_seen?: number | string;
+  /** Raw gateway heartbeat timestamp when mapped 1:1 from discovery. */
+  last_heartbeat?: string;
+  /** Latest WireGuard handshake across any VPN client on this node. */
+  last_peer_handshake?: string;
+  created_at?: string;
+  /** Operator wallet address, when exposed by the gateway. */
+  wallet_address?: string;
+  /** Operating org workspace (from gateway `org` block). */
+  org?: GatewayNodeOrgSummary;
 }
 
 export interface GatewayVpnClient {
@@ -70,7 +169,8 @@ export interface GatewayOrg {
   description?: string;
   website?: string;
   role?: string;
-  verified?: boolean;
+  /** Always present on org API responses; `false` is meaningful. */
+  verified: boolean;
   member_count?: number;
   node_count?: number;
   online_nodes?: number;
@@ -142,16 +242,28 @@ export interface GatewayPerk {
   unlocked: boolean;
 }
 
+/** Operator org node view (`GET /api/v2/operator/nodes`). */
 export interface GatewayOperatorNode {
   id: string;
   node_id?: string;
   peer_id?: string;
   did: string;
-  region: string;
+  wallet_address?: string;
   name?: string;
+  region: string;
+  zone?: string;
   city?: string;
   status: string;
   access_mode: string;
+  min_tier?: number;
+  load_pct?: number;
+  rx_bytes?: number;
+  tx_bytes?: number;
+  speedtest?: GatewayNodeSpeedtest;
+  last_heartbeat?: string;
+  created_at?: string;
+  org?: GatewayNodeOrgSummary;
+  /** Legacy / derived fields used by older client mappers. */
   uptime_pct?: number;
   wg_peers?: number;
   org_id?: string;
@@ -213,6 +325,15 @@ export interface GatewayAdminUser {
   created_at?: string;
 }
 
+export interface GatewayNodeLoad {
+  cpu_pct?: number;
+  mem_pct?: number;
+  wg_peers?: number;
+  proxy_sessions?: number;
+  rx_bytes?: number;
+  tx_bytes?: number;
+}
+
 export interface GatewayAdminNode {
   id: string;
   peer_id?: string;
@@ -225,7 +346,8 @@ export interface GatewayAdminNode {
   min_tier?: number;
   org_id?: string;
   wallet_address?: string;
-  load?: number;
+  load?: GatewayNodeLoad;
+  speedtest?: GatewayNodeSpeedtest;
   rx_bytes?: number;
   tx_bytes?: number;
   version?: string;
@@ -237,7 +359,7 @@ export interface GatewayAdminOrg {
   id?: string;
   name: string;
   kind: string;
-  verified?: boolean;
+  verified: boolean;
   slug?: string;
   description?: string;
   website?: string;
