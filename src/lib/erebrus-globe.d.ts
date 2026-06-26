@@ -16,6 +16,8 @@ export function createNodeGlobe(
     nodes?: ErebrusGlobeNode[];
     selectedId?: string;
     getSelectedId?: () => string | undefined;
+    onSelect?: (id: string) => void;
+    onHover?: (id: string | null) => void;
     aurora?: boolean;
   }
 ): GlobeController;

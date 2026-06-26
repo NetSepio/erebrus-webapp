@@ -8,15 +8,21 @@ import { toGlobeNodes } from "@/lib/globe-nodes";
 export function NodeGlobe({
   nodes,
   selectedId,
+  onSelect,
+  onHover,
   className = "h-[470px]",
 }: {
   nodes: GatewayNode[];
   selectedId?: string;
+  onSelect?: (id: string) => void;
+  onHover?: (id: string | null) => void;
   className?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controllerRef = useRef<ReturnType<typeof createNodeGlobe> | null>(null);
   const selectedRef = useRef(selectedId);
+  const onSelectRef = useRef(onSelect);
+  const onHoverRef = useRef(onHover);
 
   const globeNodes = useMemo(() => toGlobeNodes(nodes), [nodes]);
   const nodesKey = useMemo(
@@ -25,6 +31,8 @@ export function NodeGlobe({
   );
 
   selectedRef.current = selectedId;
+  onSelectRef.current = onSelect;
+  onHoverRef.current = onHover;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,6 +42,8 @@ export function NodeGlobe({
       nodes: globeNodes,
       selectedId,
       getSelectedId: () => selectedRef.current,
+      onSelect: (id) => onSelectRef.current?.(id),
+      onHover: (id) => onHoverRef.current?.(id),
     });
     controllerRef.current = globe;
 

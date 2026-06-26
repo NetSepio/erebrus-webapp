@@ -18,6 +18,8 @@ import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
+import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
+import { formatBytes, formatRelativeTime, clientActivity } from "@/lib/format";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -34,7 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2, Download } from "lucide-react";
+import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp } from "lucide-react";
 import Link from "next/link";
 
 type VpnState = "disconnected" | "connecting" | "connected";
@@ -49,6 +51,7 @@ export function VpnConnectPanel() {
   const [sub, setSub] = useState<GatewaySubscription | null>(null);
   const [plans, setPlans] = useState<GatewayPlan[]>([]);
   const [selected, setSelected] = useState<GatewayNode | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [state, setState] = useState<VpnState>("disconnected");
   const [loading, setLoading] = useState(true);
   const [provisioning, setProvisioning] = useState(false);
@@ -78,6 +81,31 @@ export function VpnConnectPanel() {
   const deviceLimit = subscriptionDeviceLimit(sub, plans);
   const atLimit = clients.length >= deviceLimit;
   const entitled = sub?.entitled ?? false;
+  const canProvision = entitled && !atLimit;
+
+  const detailNode = useMemo(
+    () => (detailId ? nodes.find((n) => n.id === detailId) ?? null : null),
+    [detailId, nodes]
+  );
+
+  const totals = useMemo(
+    () =>
+      clients.reduce(
+        (acc, c) => ({ rx: acc.rx + (c.rx_bytes ?? 0), tx: acc.tx + (c.tx_bytes ?? 0) }),
+        { rx: 0, tx: 0 }
+      ),
+    [clients]
+  );
+  const hasBandwidth = totals.rx > 0 || totals.tx > 0;
+
+  const handleNodeSelect = useCallback(
+    (id: string) => {
+      const node = nodes.find((n) => n.id === id);
+      if (node) setSelected(node);
+      setDetailId(id);
+    },
+    [nodes]
+  );
 
   const statusUi = useMemo(() => {
     if (state === "connecting")
@@ -91,24 +119,22 @@ export function VpnConnectPanel() {
     const active = clients[0];
     return [
       {
-        label: "Session time",
-        value: active?.last_handshake
-          ? new Date(active.last_handshake).toLocaleString()
-          : "—",
+        label: "Last handshake",
+        value: active?.last_handshake ? formatRelativeTime(active.last_handshake) : "—",
         color: "var(--text-2)",
       },
       {
-        label: "Egress node",
-        value: selected?.region ?? "—",
+        label: "Total transfer",
+        value: hasBandwidth ? `↓${formatBytes(totals.rx)} · ↑${formatBytes(totals.tx)}` : "—",
         color: "var(--text)",
       },
       {
         label: "Node load",
         value: selected?.load_pct != null ? `${selected.load_pct.toFixed(0)}%` : "—",
-        color: "var(--success)",
+        color: (selected?.load_pct ?? 0) > 80 ? "var(--warn)" : "var(--success)",
       },
     ];
-  }, [clients, selected]);
+  }, [clients, selected, hasBandwidth, totals]);
 
   const runProvision = async (name: string) => {
     if (!selected) return;
@@ -216,6 +242,7 @@ export function VpnConnectPanel() {
             <NodeGlobe
               nodes={nodes}
               selectedId={selected?.id}
+              onSelect={handleNodeSelect}
               className="absolute inset-0 h-full"
             />
             <div className="pointer-events-none absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4 md:left-[22px] md:right-[22px]">
@@ -223,13 +250,31 @@ export function VpnConnectPanel() {
                 <div>LAT {selected?.latitude?.toFixed(1) ?? "—"}</div>
                 <div>LON {selected?.longitude?.toFixed(1) ?? "—"}</div>
               </div>
-              {selected && (
+              {selected && !detailNode && (
                 <div className="text-right">
                   <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
                   <div className="text-lg font-semibold">{selected.name || selected.region}</div>
                 </div>
               )}
             </div>
+            {!detailNode && (
+              <div className="pointer-events-none absolute left-5 top-4 font-mono text-[11px] text-[var(--text-3)] md:left-[22px]">
+                Tap a node for details
+              </div>
+            )}
+            {detailNode && (
+              <NodeDetailPanel
+                node={detailNode}
+                isSelectedEgress={selected?.id === detailNode.id}
+                provisioning={provisioning}
+                canProvision={canProvision}
+                onUse={() => {
+                  if (selected?.id !== detailNode.id) setSelected(detailNode);
+                  provision();
+                }}
+                onClose={() => setDetailId(null)}
+              />
+            )}
           </div>
         </Card>
 
@@ -315,18 +360,37 @@ export function VpnConnectPanel() {
                     type="button"
                     onClick={() => {
                       setSelected(node);
+                      setDetailId(node.id);
                     }}
-                    className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left ${
+                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left ${
                       selected?.id === node.id
                         ? "border-[var(--accent)]/40 bg-[var(--accent)]/10"
                         : "border-white/[0.06] hover:bg-white/[0.04]"
                     }`}
                   >
-                    <div>
-                      <div className="font-medium">{node.name || node.region}</div>
-                      <div className="font-mono text-[11px] text-[var(--text-3)]">{node.did}</div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{
+                            background: node.status === "online" ? "var(--success)" : "var(--text-3)",
+                            boxShadow: node.status === "online" ? "0 0 8px var(--success)" : "none",
+                          }}
+                        />
+                        <span className="truncate font-medium">{node.name || node.region}</span>
+                        {node.access_mode === "private" && (
+                          <span className="rounded bg-[var(--warn)]/15 px-1.5 font-mono text-[10px] text-[var(--warn)]">
+                            private
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-0.5 truncate font-mono text-[11px] text-[var(--text-3)]">
+                        {[node.country, node.latency_ms != null ? `${node.latency_ms}ms` : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
                     </div>
-                    <span className="font-mono text-sm text-[var(--success)]">
+                    <span className="shrink-0 font-mono text-sm text-[var(--success)]">
                       {node.load_pct?.toFixed(0) ?? 0}%
                     </span>
                   </button>
@@ -340,66 +404,139 @@ export function VpnConnectPanel() {
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="font-semibold">Connected devices</span>
+            <span className="font-semibold">VPN clients</span>
             <span className="font-mono text-[11px] text-[var(--text-3)]">
               {clients.length}/{deviceLimit}
             </span>
+            <span className="rounded-md bg-[var(--accent)]/12 px-2.5 py-1 font-mono text-[11px] text-[var(--accent-hi)]">
+              {sub?.plan_id ?? sub?.plan ?? "free"} plan
+            </span>
           </div>
-          <span className="rounded-md bg-[var(--accent)]/12 px-2.5 py-1 font-mono text-[11px] text-[var(--accent-hi)]">
-            {sub?.plan_id ?? sub?.plan ?? "free"} plan
-          </span>
+          <ActionButton
+            variant="accent"
+            onClick={provision}
+            disabled={provisioning || !selected || atLimit || !entitled}
+          >
+            <Plus size={14} />
+            Add device
+          </ActionButton>
         </div>
 
+        {hasBandwidth && (
+          <div className="flex items-center gap-6 border-b border-white/[0.04] bg-white/[0.015] px-5 py-2.5">
+            <span className="font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">
+              Total transfer
+            </span>
+            <span className="font-mono text-xs text-[var(--text-2)]">
+              <ArrowDown className="mr-1 inline h-3 w-3 text-[var(--success)]" />
+              {formatBytes(totals.rx)}
+            </span>
+            <span className="font-mono text-xs text-[var(--text-2)]">
+              <ArrowUp className="mr-1 inline h-3 w-3 text-[var(--accent-hi)]" />
+              {formatBytes(totals.tx)}
+            </span>
+          </div>
+        )}
+
         {clients.length === 0 ? (
-          <p className="px-5 py-8 text-sm text-[var(--text-2)]">
-            No devices yet. Download a config to add one.
-          </p>
-        ) : (
-          clients.map((client) => (
-            <div
-              key={client.id}
-              className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-4 md:grid md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center"
+          <div className="px-5 py-8 text-center">
+            <p className="text-sm text-[var(--text-2)]">
+              No VPN clients yet. Add one to generate a WireGuard config you can import into
+              the WireGuard app.
+            </p>
+            <AccentButton
+              className="mx-auto mt-4 !py-2.5 !text-[13px]"
+              onClick={provision}
+              disabled={provisioning || !selected || !entitled}
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] font-mono text-sm">
-                  ◎
-                </span>
+              <Plus size={14} /> Create your first client
+            </AccentButton>
+          </div>
+        ) : (
+          clients.map((client) => {
+            const activity = clientActivity(client.last_handshake);
+            const nodeRegion =
+              nodes.find((n) => n.id === client.node_id)?.name ?? client.node_region;
+            return (
+              <div
+                key={client.id}
+                className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-4 md:grid md:grid-cols-[1.5fr_1.1fr_1.2fr_auto] md:items-center"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] font-mono text-sm">
+                    ◎
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">{client.name}</div>
+                    <div className="font-mono text-[11px] text-[var(--text-3)]">
+                      {nodeRegion ? `${nodeRegion} · ` : ""}
+                      {client.id.slice(0, 8)}…
+                    </div>
+                  </div>
+                </div>
                 <div>
-                  <div className="font-semibold">{client.name}</div>
-                  <div className="font-mono text-[11px] text-[var(--text-3)]">{client.id.slice(0, 8)}…</div>
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{
+                        background: activity.color,
+                        boxShadow: activity.online ? `0 0 8px ${activity.color}` : "none",
+                      }}
+                    />
+                    <span style={{ color: activity.color }}>{activity.label}</span>
+                  </div>
+                  <div className="mt-0.5 font-mono text-[11px] text-[var(--text-3)]">
+                    {client.last_handshake
+                      ? `handshake ${formatRelativeTime(client.last_handshake)}`
+                      : `added ${new Date(client.created_at).toLocaleDateString()}`}
+                  </div>
+                </div>
+                <div className="flex gap-4 font-mono text-xs text-[var(--text-2)]">
+                  <span title="Downloaded">
+                    <ArrowDown className="mr-1 inline h-3 w-3 text-[var(--success)]" />
+                    {formatBytes(client.rx_bytes)}
+                  </span>
+                  <span title="Uploaded">
+                    <ArrowUp className="mr-1 inline h-3 w-3 text-[var(--accent-hi)]" />
+                    {formatBytes(client.tx_bytes)}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <ActionButton
+                    variant="neutral"
+                    className="!px-2.5"
+                    onClick={async () => {
+                      try {
+                        const { config } = await fetchVpnClientConfig(client.id);
+                        saveAs(new Blob([config]), `${client.name}.conf`);
+                      } catch {
+                        toast.error("Could not fetch config");
+                      }
+                    }}
+                  >
+                    <Download size={14} />
+                    Config
+                  </ActionButton>
+                  <ActionButton
+                    variant="danger"
+                    className="!px-2.5"
+                    onClick={async () => {
+                      try {
+                        await deleteVpnClient(client.id);
+                        toast.success("Device removed");
+                        await refresh();
+                      } catch {
+                        toast.error("Could not remove device");
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} />
+                    Remove
+                  </ActionButton>
                 </div>
               </div>
-              <div className="text-sm capitalize">{client.status ?? "active"}</div>
-              <div className="font-mono text-xs text-[var(--text-3)]">
-                {new Date(client.created_at).toLocaleDateString()}
-              </div>
-              <div className="flex gap-2">
-                <ActionButton
-                  variant="neutral"
-                  className="!px-2.5"
-                  onClick={async () => {
-                    const { config } = await fetchVpnClientConfig(client.id);
-                    saveAs(new Blob([config]), `${client.name}.conf`);
-                  }}
-                >
-                  <Download size={14} />
-                  Config
-                </ActionButton>
-                <ActionButton
-                  variant="danger"
-                  className="!px-2.5"
-                  onClick={async () => {
-                    await deleteVpnClient(client.id);
-                    toast.success("Device removed");
-                    await refresh();
-                  }}
-                >
-                  <Trash2 size={14} />
-                  Remove
-                </ActionButton>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
 
         {atLimit && (

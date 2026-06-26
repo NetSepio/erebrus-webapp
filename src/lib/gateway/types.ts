@@ -19,6 +19,12 @@ export interface GatewayNode {
   uptime_pct?: number;
   ip_hash?: string;
   protocols?: string[];
+  /** Node speedtest capacity (from the gateway `speedtest` block). */
+  download_mbps?: number;
+  upload_mbps?: number;
+  speedtest_at?: number;
+  /** Operating org, when the node belongs to a workspace. */
+  org_name?: string;
 }
 
 export interface GatewayVpnClient {

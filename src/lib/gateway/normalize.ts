@@ -12,6 +12,10 @@ import type {
 export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
   const region = String(raw.region ?? "unknown");
   const coords = regionCoords(region);
+  const speedtest = (raw.speedtest ?? {}) as Record<string, unknown>;
+  const org = (raw.org ?? {}) as Record<string, unknown>;
+  const num = (v: unknown): number | undefined =>
+    v == null || v === "" || Number.isNaN(Number(v)) ? undefined : Number(v);
   return {
     id: String(raw.node_id ?? raw.id ?? ""),
     node_id: String(raw.node_id ?? raw.id ?? ""),
@@ -25,7 +29,12 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     status: String(raw.status ?? "offline"),
     access_mode: String(raw.access_mode ?? "public"),
     min_tier: Number(raw.min_tier ?? 0),
-    load_pct: Number(raw.load_pct ?? 0),
+    load_pct: num(raw.load_pct) ?? 0,
+    latency_ms: num(speedtest.latency_ms),
+    download_mbps: num(speedtest.download_mbps),
+    upload_mbps: num(speedtest.upload_mbps),
+    speedtest_at: num(speedtest.measured_at),
+    org_name: org.name ? String(org.name) : undefined,
     protocols: Array.isArray(raw.protocols) ? (raw.protocols as string[]) : [],
   };
 }
