@@ -3,6 +3,7 @@
 import type { GatewayNode } from "@/lib/gateway/types";
 import { AccentButton, MonoLabel } from "@/components/v3/ui";
 import { formatRelativeTime } from "@/lib/format";
+import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
 import { X, Download, Loader2, Check } from "lucide-react";
 
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
@@ -21,24 +22,27 @@ function Stat({ label, value, color }: { label: string; value: string; color?: s
  */
 export function NodeDetailPanel({
   node,
-  isSelectedEgress,
-  provisioning,
-  canProvision,
+  isSelectedEgress = false,
+  provisioning = false,
+  canProvision = false,
   onUse,
   onClose,
+  showAction = true,
 }: {
   node: GatewayNode;
-  isSelectedEgress: boolean;
-  provisioning: boolean;
-  canProvision: boolean;
-  onUse: () => void;
+  isSelectedEgress?: boolean;
+  provisioning?: boolean;
+  canProvision?: boolean;
+  onUse?: () => void;
   onClose: () => void;
+  /** Hide the provision/download action (e.g. on the public landing map). */
+  showAction?: boolean;
 }) {
   const online = node.status === "online";
   const mbps = (v?: number) => (v != null ? `${v >= 100 ? v.toFixed(0) : v.toFixed(1)} Mbps` : "—");
 
   return (
-    <div className="pointer-events-auto absolute right-4 top-4 z-10 w-[270px] max-w-[calc(100%-2rem)] rounded-2xl border border-white/[0.1] bg-[var(--elevated)]/95 p-4 shadow-2xl backdrop-blur-xl md:right-[22px] md:top-[22px]">
+    <div className="pointer-events-auto absolute right-3 top-3 z-10 flex max-h-[calc(100%-1.5rem)] w-[270px] max-w-[calc(100%-1.5rem)] flex-col overflow-y-auto overscroll-contain rounded-2xl border border-white/[0.1] bg-[var(--elevated)]/95 p-4 shadow-2xl backdrop-blur-xl md:right-[18px] md:top-[18px]">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -52,7 +56,7 @@ export function NodeDetailPanel({
             <span className="truncate text-[15px] font-semibold">{node.name || node.region}</span>
           </div>
           <div className="mt-0.5 text-xs text-[var(--text-3)]">
-            {[node.country, node.region].filter(Boolean).join(" · ")}
+            {nodeGeoLabel(node)}
             {node.org_name ? ` · ${node.org_name}` : ""}
           </div>
         </div>
@@ -105,6 +109,10 @@ export function NodeDetailPanel({
 
       <div className="mt-3 border-t border-white/[0.06] pt-2.5">
         <div className="flex items-center justify-between text-[11px]">
+          <span className="font-mono text-[var(--text-3)]">Region</span>
+          <span className="font-mono text-[var(--text-2)]">{regionZoneLabel(node.region, node.zone)}</span>
+        </div>
+        <div className="mt-1 flex items-center justify-between text-[11px]">
           <span className="font-mono text-[var(--text-3)]">DID</span>
           <span className="ml-2 truncate font-mono text-[var(--text-2)]" title={node.did}>
             {node.did ? `…${node.did.slice(-12)}` : "—"}
@@ -118,26 +126,28 @@ export function NodeDetailPanel({
         )}
       </div>
 
-      <AccentButton
-        className="mt-3.5 w-full !py-2.5 !text-[13px]"
-        variant={isSelectedEgress ? "ghost" : "primary"}
-        onClick={onUse}
-        disabled={provisioning || !canProvision || !online}
-      >
-        {provisioning ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
-          </>
-        ) : isSelectedEgress ? (
-          <>
-            <Download size={14} /> Download config
-          </>
-        ) : (
-          <>
-            <Check size={14} /> Use this node
-          </>
-        )}
-      </AccentButton>
+      {showAction && onUse && (
+        <AccentButton
+          className="mt-3.5 w-full !py-2.5 !text-[13px]"
+          variant={isSelectedEgress ? "ghost" : "primary"}
+          onClick={onUse}
+          disabled={provisioning || !canProvision || !online}
+        >
+          {provisioning ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
+            </>
+          ) : isSelectedEgress ? (
+            <>
+              <Download size={14} /> Download config
+            </>
+          ) : (
+            <>
+              <Check size={14} /> Use this node
+            </>
+          )}
+        </AccentButton>
+      )}
     </div>
   );
 }

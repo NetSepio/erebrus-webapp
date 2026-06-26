@@ -18,6 +18,7 @@ export function createNodeGlobe(
     getSelectedId?: () => string | undefined;
     onSelect?: (id: string) => void;
     onHover?: (id: string | null) => void;
+    landDots?: Array<[number, number]>;
     aurora?: boolean;
   }
 ): GlobeController;

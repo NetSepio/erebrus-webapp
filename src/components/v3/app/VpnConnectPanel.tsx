@@ -15,6 +15,7 @@ import {
   GatewayApiError,
 } from "@/lib/gateway/client";
 import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
+import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
 import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
@@ -310,7 +311,7 @@ export function VpnConnectPanel() {
               {statusUi.label}
             </div>
             <div className="text-2xl font-semibold">{selected?.name ?? selected?.region ?? "—"}</div>
-            <div className="text-sm text-[var(--text-2)]">{selected?.country ?? selected?.region}</div>
+            <div className="text-sm text-[var(--text-2)]">{selected ? nodeGeoLabel(selected) : "—"}</div>
             <AccentButton className="mt-5 w-full" onClick={provision} disabled={provisioning || !selected}>
               {provisioning ? (
                 <>
@@ -385,7 +386,7 @@ export function VpnConnectPanel() {
                         )}
                       </div>
                       <div className="mt-0.5 truncate font-mono text-[11px] text-[var(--text-3)]">
-                        {[node.country, node.latency_ms != null ? `${node.latency_ms}ms` : null]
+                        {[regionZoneLabel(node.region, node.zone), node.latency_ms != null ? `${node.latency_ms}ms` : null]
                           .filter(Boolean)
                           .join(" · ")}
                       </div>

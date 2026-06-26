@@ -26,12 +26,42 @@ function hashRegion(region: string): { lat: number; lng: number } {
   return { lat, lng };
 }
 
-export function regionCoords(region: string): { lat: number; lng: number; label: string } {
-  const key = region.toLowerCase().replace(/\s+/g, "-");
-  const hit = REGION_COORDS[key];
+function slug(s: string): string {
+  return s.toLowerCase().trim().replace(/\s+/g, "-");
+}
+
+export function regionCoords(
+  region: string,
+  zone?: string
+): { lat: number; lng: number; label: string } {
+  const base = slug(region);
+  // Prefer the precise region+zone coordinate (e.g. "us-east" → New York),
+  // then fall back to the region centroid, then a stable hash.
+  const combined = zone ? `${base}-${slug(zone)}` : base;
+  const hit = REGION_COORDS[combined] ?? REGION_COORDS[base];
   if (hit) return hit;
-  const { lat, lng } = hashRegion(region);
-  return { lat, lng, label: region };
+  const { lat, lng } = hashRegion(combined);
+  return { lat, lng, label: regionZoneLabel(region, zone) };
+}
+
+/** Compact human label for a region/zone pair, e.g. "US · East". */
+export function regionZoneLabel(region: string, zone?: string): string {
+  const z = zone?.trim();
+  if (!z) return region;
+  const cap = z.charAt(0).toUpperCase() + z.slice(1);
+  return `${region} · ${cap}`;
+}
+
+/** Best human location for a node: prefers a mapped city, else region/zone. */
+export function nodeGeoLabel(n: {
+  city?: string;
+  country?: string;
+  region: string;
+  zone?: string;
+}): string {
+  if (n.city && n.country && n.city !== n.country) return `${n.city}, ${n.country}`;
+  if (n.city && n.city !== n.region) return n.city;
+  return regionZoneLabel(n.region, n.zone);
 }
 
 export function uniqueCountries(nodes: Array<{ region: string }>): number {

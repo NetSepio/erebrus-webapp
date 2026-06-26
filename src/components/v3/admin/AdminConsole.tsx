@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { truncateAddress } from "@/lib/design";
+import { regionZoneLabel } from "@/lib/regions";
 
 function formatBytes(n: number): string {
   if (!n || n < 1) return "0 B";
@@ -332,7 +333,7 @@ export function AdminConsole() {
                     <div className="font-semibold">{n.name || n.region}</div>
                     <div className="font-mono text-[11px] text-[var(--text-3)]">{n.did}</div>
                     <div className="mt-1 text-xs text-[var(--text-2)]">
-                      {n.region} · tier {n.min_tier ?? 0} · {n.access_mode ?? "public"}
+                      {regionZoneLabel(n.region, n.zone)} · tier {n.min_tier ?? 0} · {n.access_mode ?? "public"}
                     </div>
                   </div>
                   <span

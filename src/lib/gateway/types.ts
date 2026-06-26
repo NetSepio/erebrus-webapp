@@ -7,6 +7,7 @@ export interface GatewayNode {
   peer_id?: string;
   did: string;
   region: string;
+  zone?: string;
   city?: string;
   country?: string;
   latitude?: number;
@@ -218,6 +219,7 @@ export interface GatewayAdminNode {
   did: string;
   name?: string;
   region: string;
+  zone?: string;
   status: string;
   access_mode?: string;
   min_tier?: number;

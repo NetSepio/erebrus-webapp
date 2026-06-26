@@ -11,7 +11,8 @@ import type {
 
 export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
   const region = String(raw.region ?? "unknown");
-  const coords = regionCoords(region);
+  const zone = raw.zone ? String(raw.zone) : undefined;
+  const coords = regionCoords(region, zone);
   const speedtest = (raw.speedtest ?? {}) as Record<string, unknown>;
   const org = (raw.org ?? {}) as Record<string, unknown>;
   const num = (v: unknown): number | undefined =>
@@ -22,6 +23,7 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     name: String(raw.name ?? region),
     did: String(raw.did ?? ""),
     region,
+    zone,
     city: coords.label.split(",")[0],
     country: coords.label.split(",")[1]?.trim(),
     latitude: coords.lat,

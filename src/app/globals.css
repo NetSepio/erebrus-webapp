@@ -77,8 +77,10 @@
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    /* shadcn component "accent" — renamed so it does NOT clobber the design
+       system `--accent: #FF6B35` above (consumed bare as var(--accent)). */
+    --ui-accent: 217 33% 17%;
+    --ui-accent-foreground: 210 40% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 17%;
