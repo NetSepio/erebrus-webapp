@@ -8,7 +8,11 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
+    "predev": "node scripts/sync-brand-assets.mjs",
     "dev": "next dev",
+    "dev:stop": "node -e \"const fs=require('fs');const p='.next/dev/lock';try{const l=JSON.parse(fs.readFileSync(p,'utf8'));process.kill(l.pid,9)}catch(e){}try{fs.unlinkSync(p)}catch(e){}\" && (lsof -ti :3000 | xargs kill -9 2>/dev/null || true)",
+    "dev:fresh": "pnpm dev:stop && pnpm dev",
+    "sync:brand": "node scripts/sync-brand-assets.mjs",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",

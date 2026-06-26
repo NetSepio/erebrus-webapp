@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { AccentButton } from "@/components/v3/ui";
+import { AccentButton, iconButtonClass } from "@/components/v3/ui";
+import { cn } from "@/lib/utils";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
 
 type NavVariant = "platform" | "vpn" | "drop";
@@ -28,8 +29,11 @@ const navLinks: Record<NavVariant, Array<{ label: string; href: string; external
   ],
 };
 
-const brand: Record<NavVariant, { icon: string; title: string; subtitle?: string; back?: string }> = {
-  platform: { icon: "/brand/erebrus-icon.png", title: "Erebrus" },
+const brand: Record<
+  NavVariant,
+  { icon: string; title: string; subtitle?: string; back?: string }
+> = {
+  platform: { icon: "/brand/erebrus-mark.png", title: "Erebrus" },
   vpn: { icon: "/brand/erebrus-vpn.png", title: "Erebrus", subtitle: "VPN", back: "/" },
   drop: { icon: "/brand/erebrus-drop.png", title: "Erebrus", subtitle: "Drop", back: "/" },
 };
@@ -51,22 +55,18 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src={b.icon}
-              alt="Erebrus"
-              width={30}
-              height={30}
-              className="rounded-[9px] shadow-[0_4px_16px_rgba(255,107,53,0.35)]"
+              alt=""
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0 rounded-[10px] shadow-[0_4px_16px_rgba(255,107,53,0.35)]"
+              priority
             />
-            <span className="text-lg font-bold tracking-tight">
+            <span className="text-xl font-bold tracking-tight md:text-[22px]">
               {b.title}
               {b.subtitle && (
                 <span className="ml-1.5 font-medium text-[var(--text-2)]">{b.subtitle}</span>
               )}
             </span>
-            {variant === "platform" && (
-              <span className="ml-1 hidden rounded border border-white/10 px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-3)] sm:inline">
-                DePIN
-              </span>
-            )}
           </Link>
         </div>
 
@@ -78,7 +78,7 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-[var(--text-2)] hover:text-[var(--text)]"
+                className="text-sm font-medium text-[var(--text)]/80 hover:text-[var(--text)]"
               >
                 {link.label}
               </a>
@@ -86,7 +86,7 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-[var(--text-2)] hover:text-[var(--text)]"
+                className="text-sm font-medium text-[var(--text)]/80 hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>
@@ -99,7 +99,7 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
 
         <button
           type="button"
-          className="rounded-lg p-2 text-[var(--text-2)] md:hidden"
+          className={cn(iconButtonClass, "md:hidden")}
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   fetchProfile,
-  fetchActivity,
   fetchReferrals,
   fetchSocialAccounts,
   sendEmailOtp,
@@ -11,7 +10,6 @@ import {
   updateProfile,
 } from "@/lib/gateway/client";
 import type {
-  GatewayActivity,
   GatewayProfile,
   GatewayReferral,
   GatewaySocialAccount,
@@ -28,7 +26,6 @@ export default function ProfilePage() {
   const { address } = useAppKitAccount();
   const { caipNetworkId } = useAppKitNetworkCore();
   const [profile, setProfile] = useState<GatewayProfile | null>(null);
-  const [activity, setActivity] = useState<GatewayActivity[]>([]);
   const [referral, setReferral] = useState<GatewayReferral | null>(null);
   const [nfts, setNfts] = useState<HeliusNft[]>([]);
   const [name, setName] = useState("");
@@ -37,30 +34,18 @@ export default function ProfilePage() {
   const [otpSent, setOtpSent] = useState(false);
   const [refCopied, setRefCopied] = useState(false);
   const [socials, setSocials] = useState<GatewaySocialAccount[]>([]);
-  const [activityCursor, setActivityCursor] = useState<string | undefined>();
-
   useEffect(() => {
     Promise.all([
       fetchProfile(),
-      fetchActivity({ limit: 20 }),
       fetchReferrals().catch(() => null),
       fetchSocialAccounts().catch(() => []),
-    ]).then(([p, a, r, s]) => {
+    ]).then(([p, r, s]) => {
       setProfile(p);
       setName(p.name ?? "");
-      setActivity(a.items ?? []);
-      setActivityCursor(a.next_cursor);
       setReferral(r);
       setSocials(s);
     });
   }, []);
-
-  const loadMoreActivity = async () => {
-    if (!activityCursor) return;
-    const a = await fetchActivity({ limit: 20, cursor: activityCursor });
-    setActivity((prev) => [...prev, ...(a.items ?? [])]);
-    setActivityCursor(a.next_cursor);
-  };
 
   useEffect(() => {
     if (!address || !caipNetworkId?.startsWith("solana:")) {
@@ -113,8 +98,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_1.3fr]">
-      <div className="space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
         <Card className="p-6">
           <div className="flex items-center gap-3.5">
             <div
@@ -276,44 +260,6 @@ export default function ProfilePage() {
             </div>
           </Card>
         )}
-      </div>
-
-      <Card className="overflow-hidden">
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-          <span className="font-semibold">Activity log</span>
-          <span className="font-mono text-[11px] text-[var(--text-3)]">IP + device recorded</span>
-        </div>
-        {activity.length === 0 ? (
-          <p className="px-5 py-8 text-sm text-[var(--text-2)]">No activity yet.</p>
-        ) : (
-          activity.map((a) => (
-            <div
-              key={a.id}
-              className="flex items-center gap-3.5 border-b border-white/[0.04] px-5 py-3.5"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] font-mono text-sm">
-                ◎
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium">{a.action}</div>
-                <div className="font-mono text-[11px] text-[var(--text-3)]">
-                  {[a.ip, a.device, a.app].filter(Boolean).join(" · ")}
-                </div>
-              </div>
-              <span className="shrink-0 font-mono text-[11px] text-[var(--text-3)]">
-                {new Date(a.created_at).toLocaleDateString()}
-              </span>
-            </div>
-          ))
-        )}
-        {activityCursor && (
-          <div className="border-t border-white/[0.06] px-5 py-3">
-            <AccentButton type="button" variant="ghost" className="w-full !py-2 !text-xs" onClick={loadMoreActivity}>
-              Load more activity
-            </AccentButton>
-          </div>
-        )}
-      </Card>
     </div>
   );
 }

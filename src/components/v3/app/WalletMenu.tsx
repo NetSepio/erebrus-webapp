@@ -68,6 +68,9 @@ export function WalletMenu({ subscription }: { subscription: GatewaySubscription
             <MenuLink href="/profile" glyph="◆" onClick={() => setOpen(false)}>
               Profile
             </MenuLink>
+            <MenuLink href="/profile/activity" glyph="◎" onClick={() => setOpen(false)}>
+              Activity
+            </MenuLink>
             <MenuLink href="/rewards" glyph="✦" onClick={() => setOpen(false)}>
               Rewards & XP
             </MenuLink>

@@ -8,11 +8,12 @@ import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
 import { LandingNetworkPreview } from "@/components/v3/marketing/LandingNetworkPreview";
 import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
 
-export const metadata = {
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
   title: "Erebrus — The sovereign internet",
-  description:
-    "Privacy infrastructure owned by the people who run it. Decentralized VPN and local-first Drop — no clouds, no accounts, no middlemen.",
-};
+  path: "/",
+});
 
 const features = [
   {
@@ -71,11 +72,7 @@ export default function LandingPage() {
       <MarketingNav variant="platform" />
 
       <section className="mx-auto max-w-[1180px] px-4 py-16 text-center md:px-8 md:py-24">
-        <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)]/12 px-2 py-1 font-mono text-[11px] text-[var(--accent-hi)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
-            DePIN
-          </span>
+        <div className="mb-8 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5">
           <LiveNetworkBadge />
         </div>
 

@@ -4,13 +4,6 @@ import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
 
-export const metadata = {
-  title: "Erebrus Drop — Local-first file sharing",
-  description:
-    "Turn any phone into a temporary, secure file server on local Wi-Fi. Share files between nearby devices — nothing touches the cloud.",
-  icons: { icon: "/brand/erebrus-drop.png" },
-};
-
 const features = [
   { glyph: "◎", title: "Local-first", desc: "Files move over your Wi-Fi or hotspot. No upload queues, no cloud storage." },
   { glyph: "◇", title: "QR join", desc: "Scan a code or enter a room ID to join a Drop room instantly." },
