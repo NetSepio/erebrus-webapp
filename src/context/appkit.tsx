@@ -19,7 +19,7 @@ import {
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { defineChain } from "@reown/appkit/networks";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import type { Provider } from "@reown/appkit-adapter-solana/react";
@@ -324,17 +324,27 @@ export function useWalletAuth() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState(false);
+  // Guards against a second signMessage if authenticate() is invoked twice
+  // before isAuthenticating has propagated (double click / re-render).
+  const authInFlight = useRef(false);
 
-  // Get current auth status
+  // Get current auth status. Match the connected wallet against EITHER chain's
+  // cookie rather than guessing the chain from caipNetworkId — that value can be
+  // momentarily undefined right after a redirect, which otherwise reads the wrong
+  // (empty) chain cookie and forces a redundant second sign-in.
   const getCurrentAuthStatus = () => {
     if (!isConnected || !address) return false;
-    const chainType = caipNetworkId?.startsWith("solana:") ? "solana" : "evm";
-    const { token, wallet, expired } = getAuthFromCookies(chainType);
-    if (expired && token) {
-      clearAuthCookies(chainType);
-      return false;
+    const lower = address.toLowerCase();
+    for (const chainType of ["solana", "evm"] as const) {
+      const { token, wallet, expired } = getAuthFromCookies(chainType);
+      if (!token) continue;
+      if (expired) {
+        clearAuthCookies(chainType);
+        continue;
+      }
+      if (wallet?.toLowerCase() === lower) return true;
     }
-    return !!(token && wallet?.toLowerCase() === address.toLowerCase());
+    return false;
   };
 
   // Update authSuccess state when authentication status changes
@@ -355,6 +365,11 @@ export function useWalletAuth() {
       setAuthError("Wallet not connected");
       return false;
     }
+
+    // Reentrancy guard: never open a second wallet signature prompt while one
+    // is already pending.
+    if (authInFlight.current) return false;
+    authInFlight.current = true;
 
     setIsAuthenticating(true);
     setAuthError(null);
@@ -416,6 +431,7 @@ export function useWalletAuth() {
       return false;
     } finally {
       setIsAuthenticating(false);
+      authInFlight.current = false;
     }
   };
 

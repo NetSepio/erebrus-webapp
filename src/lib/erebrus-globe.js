@@ -42,9 +42,52 @@ export function createNodeGlobe(canvas, opts = {}) {
   let nodes = opts.nodes ? opts.nodes.slice() : DEFAULT_NODES.slice();
   let selectedId = opts.selectedId || (nodes[0] && nodes[0].id);
   const getSelectedId = opts.getSelectedId || (() => selectedId);
+  const onSelect = typeof opts.onSelect === 'function' ? opts.onSelect : null;
+  const onHover = typeof opts.onHover === 'function' ? opts.onHover : null;
   const aurora = opts.aurora !== false;
   let rot = 0, raf = 0, alive = true;
+  let autoRotate = true;
+  // Screen-space positions of front-facing nodes from the last frame, for hit-testing.
+  let hot = [];
+  let hoveredId = null;
   const { dpr, resize } = setupCanvas(canvas);
+
+  // Map a pointer event to canvas-internal pixel coordinates, then to the
+  // nearest front-facing node within a forgiving touch radius.
+  const pickNode = (ev) => {
+    const r = canvas.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    const px = (ev.clientX - r.left) * (canvas.width / r.width);
+    const py = (ev.clientY - r.top) * (canvas.height / r.height);
+    const hitR = 16 * dpr;
+    let best = null, bestD = hitR * hitR;
+    for (const h of hot) {
+      const dx = h.sx - px, dy = h.sy - py;
+      const d = dx * dx + dy * dy;
+      if (d <= bestD) { bestD = d; best = h; }
+    }
+    return best;
+  };
+
+  const handleClick = (ev) => {
+    const hit = pickNode(ev);
+    if (hit) { selectedId = hit.id; onSelect && onSelect(hit.id); }
+  };
+  const handleMove = (ev) => {
+    const hit = pickNode(ev);
+    const id = hit ? hit.id : null;
+    canvas.style.cursor = id ? 'pointer' : 'default';
+    // Pause spin while the pointer rests on a node so it's easy to click.
+    autoRotate = !id;
+    if (id !== hoveredId) { hoveredId = id; onHover && onHover(id); }
+  };
+  const handleLeave = () => {
+    autoRotate = true;
+    if (hoveredId !== null) { hoveredId = null; onHover && onHover(null); }
+  };
+  canvas.addEventListener('click', handleClick);
+  canvas.addEventListener('mousemove', handleMove);
+  canvas.addEventListener('mouseleave', handleLeave);
 
   const draw = () => {
     if (!alive) return;
@@ -74,20 +117,31 @@ export function createNodeGlobe(canvas, opts = {}) {
     const selId = getSelectedId();
     const sel = nodes.find(n => n.id === selId) || nodes[0];
 
+    hot = [];
     nodes.forEach(n => {
       const p = project(n.lat, n.lng, R, rot);
       const front = p.z > -R * 0.15;
       const sx = cx + p.x, sy = cy - p.y;
       const isSel = sel && n.id === sel.id;
+      if (front) hot.push({ id: n.id, sx, sy });
       if (!front && !isSel) return;
       const depth = Math.max(0, (p.z + R) / (2 * R));
       const baseA = front ? (0.5 + depth * 0.5) : 0.25;
-      const rad = (isSel ? 4.5 : 2.6) * dpr;
+      const isHover = n.id === hoveredId;
+      const rad = (isSel ? 4.5 : isHover ? 3.6 : 2.6) * dpr;
 
       ctx.beginPath();
       ctx.arc(sx, sy, rad, 0, Math.PI * 2);
       ctx.fillStyle = isSel ? `rgba(255,107,53,${baseA})` : `rgba(255,150,90,${baseA * 0.8})`;
       ctx.fill();
+
+      if (isHover && !isSel && front) {
+        ctx.beginPath();
+        ctx.arc(sx, sy, rad + 3 * dpr, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,180,130,0.6)';
+        ctx.lineWidth = 1.2 * dpr;
+        ctx.stroke();
+      }
 
       if (isSel && front) {
         const pulse = (Math.sin(Date.now() / 350) + 1) / 2;
@@ -106,7 +160,7 @@ export function createNodeGlobe(canvas, opts = {}) {
       }
     });
 
-    rot += 0.12;
+    if (autoRotate) rot += 0.12;
     raf = requestAnimationFrame(draw);
   };
 
@@ -119,6 +173,9 @@ export function createNodeGlobe(canvas, opts = {}) {
       alive = false;
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
+      canvas.removeEventListener('click', handleClick);
+      canvas.removeEventListener('mousemove', handleMove);
+      canvas.removeEventListener('mouseleave', handleLeave);
     },
   };
 }
