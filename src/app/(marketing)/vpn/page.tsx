@@ -7,13 +7,6 @@ import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
 import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
 import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
 
-export const metadata = {
-  title: "Erebrus VPN — Decentralized, no-logs VPN",
-  description:
-    "A decentralized VPN run by a global community, not a company. Wallet login, WireGuard tunnels, and a network with no central operator.",
-  icons: { icon: "/brand/erebrus-vpn.png" },
-};
-
 const features = [
   { glyph: "◎", title: "No central operator", desc: "Traffic routes through community nodes. No company to subpoena or breach." },
   { glyph: "◇", title: "WireGuard", desc: "Fast, modern tunnels provisioned per device with sing-box profiles." },

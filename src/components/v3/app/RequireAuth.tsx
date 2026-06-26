@@ -4,7 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useWalletAuth } from "@/context/appkit";
 import { AuthModalProvider, AuthModalTrigger } from "@/components/v3/AuthModal";
-import { AccentButton } from "@/components/v3/ui";
+import { AccentButton, ActionButton } from "@/components/v3/ui";
 import { Loader2 } from "lucide-react";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -37,13 +37,14 @@ export function RequireAuth({ children }: { children: ReactNode }) {
             <AuthModalTrigger>
               <AccentButton className="w-full">Connect wallet</AccentButton>
             </AuthModalTrigger>
-            <button
+            <ActionButton
               type="button"
-              className="text-sm text-[var(--text-3)] hover:text-[var(--text-2)]"
+              variant="neutral"
+              className="w-full !py-2.5 !text-sm"
               onClick={() => router.push("/")}
             >
               ← Back to home
-            </button>
+            </ActionButton>
           </div>
         </div>
       </AuthModalProvider>

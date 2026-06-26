@@ -38,14 +38,17 @@ export function AccentButton({
   variant = "primary",
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "ghost" | "danger";
+  variant?: "primary" | "ghost" | "outline" | "danger";
 }) {
   const styles = {
     primary:
       "bg-[var(--accent)] text-[var(--on-accent)] hover:bg-[var(--accent-hi)] shadow-[0_10px_34px_rgba(255,107,53,0.32)]",
     ghost:
-      "bg-white/[0.04] text-[var(--text)] border border-white/[0.12] hover:bg-white/[0.08]",
-    danger: "bg-transparent text-[var(--danger)] hover:bg-[var(--danger)]/10",
+      "border border-[var(--accent)]/50 bg-[var(--accent)]/14 text-[var(--accent-hi)] hover:bg-[var(--accent)]/22 hover:border-[var(--accent)]/65",
+    outline:
+      "border border-[var(--accent)]/55 bg-[var(--accent)]/12 text-[var(--accent-hi)] hover:bg-[var(--accent)]/20",
+    danger:
+      "border border-[var(--danger)]/35 bg-[var(--danger)]/10 text-[var(--danger)] hover:bg-[var(--danger)]/16",
   };
 
   return (
@@ -123,11 +126,15 @@ export function ActionButton({
   );
 }
 
+/** Always-visible icon control for nav drawers and toolbars. */
+export const iconButtonClass =
+  "inline-flex items-center justify-center rounded-lg border border-white/[0.12] bg-white/[0.05] p-2 text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/35 hover:bg-[var(--accent)]/10 hover:text-[var(--accent-hi)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40";
+
 export const v3TabsListClass =
   "flex h-auto flex-wrap gap-1 rounded-xl border border-white/[0.06] bg-white/[0.04] p-1 text-[var(--text-2)]";
 
 export const v3TabsTriggerClass =
-  "rounded-lg px-4 py-2 text-sm font-medium text-[var(--text-2)] transition-colors data-[state=active]:bg-[var(--accent)]/15 data-[state=active]:text-[var(--accent-hi)] data-[state=active]:shadow-none";
+  "rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-[var(--text-2)] transition-colors hover:border-[var(--accent)]/25 hover:text-[var(--accent-hi)] data-[state=active]:border-[var(--accent)]/35 data-[state=active]:bg-[var(--accent)]/15 data-[state=active]:text-[var(--accent-hi)] data-[state=active]:shadow-none";
 
 export function StatCard({
   label,

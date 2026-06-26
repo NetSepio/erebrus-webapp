@@ -8,7 +8,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuroraBackground } from "@/components/v3/AuroraBackground";
 import { WalletMenu } from "@/components/v3/app/WalletMenu";
-import { AccentButton } from "@/components/v3/ui";
+import { AccentButton, iconButtonClass } from "@/components/v3/ui";
 import { useWalletAuth } from "@/context/appkit";
 import { AuthModalProvider } from "@/components/v3/AuthModal";
 import { fetchSubscription } from "@/lib/gateway/client";
@@ -25,7 +25,8 @@ const SCREEN_META: Record<string, { title: string; subtitle: string }> = {
   "/dashboard": { title: "Dashboard", subtitle: "Your network overview" },
   "/connect": { title: "VPN", subtitle: "Connect to the sovereign network" },
   "/workspace": { title: "Workspace", subtitle: "Orgs and nodes you operate" },
-  "/profile": { title: "Profile", subtitle: "Account and activity" },
+  "/profile": { title: "Profile", subtitle: "Account settings" },
+  "/profile/activity": { title: "Activity", subtitle: "Your account activity log" },
   "/rewards": { title: "Rewards & XP", subtitle: "Earn, claim, and climb tiers" },
   "/subscribe": { title: "Subscribe", subtitle: "Access pass and entitlements" },
   "/admin": { title: "Admin Console", subtitle: "Platform administration" },
@@ -117,7 +118,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <aside className="hidden w-[244px] shrink-0 flex-col border-r border-white/[0.06] bg-[var(--elevated)]/70 p-4 backdrop-blur-xl lg:flex sticky top-0 h-screen">
             <Link href="/dashboard" className="mb-5 flex items-center gap-2.5 px-2.5 py-1.5">
               <Image
-                src="/brand/erebrus-icon.png"
+                src="/brand/erebrus-mark.png"
                 alt="Erebrus"
                 width={30}
                 height={30}
@@ -139,7 +140,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               <aside className="absolute left-0 top-0 flex h-full w-[280px] flex-col border-r border-white/[0.06] bg-[var(--elevated)] p-4">
                 <div className="mb-4 flex items-center justify-between">
                   <span className="font-bold">Erebrus</span>
-                  <button type="button" onClick={() => setMobileOpen(false)}>
+                  <button
+                    type="button"
+                    className={iconButtonClass}
+                    onClick={() => setMobileOpen(false)}
+                    aria-label="Close menu"
+                  >
                     <X size={20} />
                   </button>
                 </div>
@@ -154,7 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  className="rounded-lg p-2 text-[var(--text-2)] lg:hidden"
+                  className={cn(iconButtonClass, "lg:hidden")}
                   onClick={() => setMobileOpen(true)}
                   aria-label="Open menu"
                 >

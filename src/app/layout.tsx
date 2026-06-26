@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { AppKit } from "../context/appkit";
 import AppWalletProvider from "@/components/AppWalletProvider";
 import { Toaster } from "sonner";
+import { pageMetadata } from "@/lib/seo";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -21,17 +22,14 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata = {
-  title: "Erebrus — The sovereign internet",
-  description:
-    "Privacy infrastructure owned by the people who run it. Decentralized VPN and local-first Drop.",
-  metadataBase: new URL("https://erebrus.io"),
-  icons: { icon: "/brand/erebrus-icon.png" },
-  openGraph: {
-    type: "website",
-    url: "https://erebrus.io",
+  ...pageMetadata({
     title: "Erebrus — The sovereign internet",
-    description:
-      "Decentralized VPN and local-first Drop — no clouds, no accounts, no middlemen.",
+    path: "/",
+  }),
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    shortcut: "/favicon.ico",
+    apple: "/brand/erebrus-app-icon-180.png",
   },
 };
 
