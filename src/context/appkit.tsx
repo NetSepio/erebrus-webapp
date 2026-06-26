@@ -16,17 +16,17 @@ import {
   solanaTestnet,
   solanaDevnet,
 } from "@reown/appkit/networks";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { defineChain } from "@reown/appkit/networks";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
-import axios from "axios";
-import { BrowserProvider } from "ethers";
 import { toast } from "sonner";
 import type { Provider } from "@reown/appkit-adapter-solana/react";
+import {
+  authenticateEvmVpn,
+  authenticateSolanaVpn,
+} from "@/lib/vpn-gateway-auth";
 
 declare global {
   interface Window {
@@ -278,66 +278,17 @@ const authenticateEVM = async (
   walletProvider: Eip1193Provider
 ) => {
   try {
-    // Enhanced wallet address validation
     if (!walletAddress || walletAddress.trim() === "") {
       throw new Error("Wallet address is required");
     }
 
-    // Validate Ethereum address format
     const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
     if (!isValidEthAddress) {
       throw new Error("Invalid Ethereum wallet address format");
     }
 
-    const GATEWAY_URL = "https://gateway.netsepio.com/";
-    const chainName = "evm";
-
-    const { data } = await axios.get(
-      `${GATEWAY_URL}api/v1.0/flowid?walletAddress=${walletAddress}&chain=evm`
-    );
-
-    // Validate API response
-    if (!data?.payload?.eula || !data?.payload?.flowId) {
-      throw new Error("Invalid response from authentication server");
-    }
-
-    const message = data.payload.eula;
-    const flowId = data.payload.flowId;
-    const combinedMessage = `${message}${flowId}`;
-
-    const provider = new BrowserProvider(walletProvider);
-    const signer = await provider.getSigner();
-    const signerAddress = await signer.getAddress();
-
-    if (signerAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
-      throw new Error(
-        `Mismatch: Signer address (${signerAddress}) !== Connected address (${walletAddress})`
-      );
-    }
-
-    let signature = await signer.signMessage(combinedMessage);
-
-    if (signature.startsWith("0x")) {
-      signature = signature.slice(2);
-    }
-
-    const authResponse = await axios.post(
-      `${GATEWAY_URL}api/v1.0/authenticate`,
-      {
-        chainName,
-        flowId,
-        signature,
-        walletAddress,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const { token, userId } = authResponse.data.payload;
-    setAuthCookies("evm", token, walletAddress, userId);
+    const session = await authenticateEvmVpn(walletAddress, walletProvider);
+    setAuthCookies("evm", session.token, walletAddress, session.userId);
     return true;
   } catch (error) {
     console.error("EVM Authentication error:", error);
@@ -352,46 +303,8 @@ const authenticateSolana = async (
   walletProvider: Provider
 ) => {
   try {
-    const GATEWAY_URL = "https://gateway.netsepio.com/";
-    const chainName = "sol";
-
-    const { data } = await axios.get(`${GATEWAY_URL}api/v1.0/flowid`, {
-      params: {
-        walletAddress,
-        chain: chainName,
-      },
-    });
-
-    const message = data.payload.eula;
-    const flowId = data.payload.flowId;
-
-    const encodedMessage = new TextEncoder().encode(message);
-
-    const signature = await walletProvider.signMessage(encodedMessage);
-
-    const signatureHex = Array.from(new Uint8Array(signature))
-      .map((b: number) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    const authResponse = await axios.post(
-      `${GATEWAY_URL}api/v1.0/authenticate?walletAddress=${walletAddress}&chain=sol`,
-      {
-        flowId,
-        signature: signatureHex,
-        pubKey: walletAddress,
-        walletAddress,
-        message,
-        chainName,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const { token, userId } = authResponse.data.payload;
-    setAuthCookies("solana", token, walletAddress, userId);
+    const session = await authenticateSolanaVpn(walletAddress, walletProvider);
+    setAuthCookies("solana", session.token, walletAddress, session.userId);
     return true;
   } catch (error) {
     console.error("Solana Authentication error:", error);
@@ -411,17 +324,27 @@ export function useWalletAuth() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState(false);
+  // Guards against a second signMessage if authenticate() is invoked twice
+  // before isAuthenticating has propagated (double click / re-render).
+  const authInFlight = useRef(false);
 
-  // Get current auth status
+  // Get current auth status. Match the connected wallet against EITHER chain's
+  // cookie rather than guessing the chain from caipNetworkId — that value can be
+  // momentarily undefined right after a redirect, which otherwise reads the wrong
+  // (empty) chain cookie and forces a redundant second sign-in.
   const getCurrentAuthStatus = () => {
     if (!isConnected || !address) return false;
-    const chainType = caipNetworkId?.startsWith("solana:") ? "solana" : "evm";
-    const { token, wallet, expired } = getAuthFromCookies(chainType);
-    if (expired && token) {
-      clearAuthCookies(chainType);
-      return false;
+    const lower = address.toLowerCase();
+    for (const chainType of ["solana", "evm"] as const) {
+      const { token, wallet, expired } = getAuthFromCookies(chainType);
+      if (!token) continue;
+      if (expired) {
+        clearAuthCookies(chainType);
+        continue;
+      }
+      if (wallet?.toLowerCase() === lower) return true;
     }
-    return !!(token && wallet?.toLowerCase() === address.toLowerCase());
+    return false;
   };
 
   // Update authSuccess state when authentication status changes
@@ -442,6 +365,11 @@ export function useWalletAuth() {
       setAuthError("Wallet not connected");
       return false;
     }
+
+    // Reentrancy guard: never open a second wallet signature prompt while one
+    // is already pending.
+    if (authInFlight.current) return false;
+    authInFlight.current = true;
 
     setIsAuthenticating(true);
     setAuthError(null);
@@ -503,6 +431,7 @@ export function useWalletAuth() {
       return false;
     } finally {
       setIsAuthenticating(false);
+      authInFlight.current = false;
     }
   };
 
@@ -543,16 +472,24 @@ export function AppKit({ children }: { children: React.ReactNode }) {
 createAppKit({
   adapters: [new EthersAdapter(), solanaWeb3JsAdapter],
   metadata,
-  networks: [solana, monadTestnet],
+  networks: [mainnet, solana],
   projectId,
+  // Skip Reown Cloud remote-feature fetch. The dashboard has "Sign In With X"
+  // (SIWX / ReownAuthentication) enabled, which injects a redundant CAIP-122
+  // signature prompt on connect — the app already authenticates with its own
+  // gateway challenge. `basic` mode prevents that remote feature from loading.
+  // It's a valid runtime option (read by AppKit's base client) but omitted from
+  // the full `CreateAppKit` type, so the error below is expected.
+  // @ts-expect-error -- `basic` is honored at runtime; not in the public type
+  basic: true,
   features: {
     analytics: true,
   },
-  defaultNetwork: mainnet,
+  defaultNetwork: solana,
   themeMode: "dark",
   themeVariables: {
-    "--apkt-font-family": "DM Sans, sans-serif",
-    "--apkt-accent": "#ffffff",
+    "--apkt-font-family": "Space Grotesk, sans-serif",
+    "--apkt-accent": "#FF6B35",
     "--apkt-color-mix": "#ffffff",
     "--apkt-color-mix-strength": 40,
   },

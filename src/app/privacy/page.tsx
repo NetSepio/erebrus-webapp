@@ -1,11 +1,19 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
+import { LegalPageShell, LegalSection } from "@/components/v3/marketing/LegalPageShell";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Erebrus",
+export const metadata = pageMetadata({
+  title: "Privacy Policy",
   description:
-    "Privacy Policy for Erebrus VPN and Erebrus Drop, products of NetSepio.",
-};
+    "Privacy Policy for Erebrus VPN and Erebrus Drop — how NetSepio handles wallet auth, VPN metadata, and local-first Drop transfers.",
+  path: "/privacy",
+  keywords: [
+    "Erebrus privacy policy",
+    "VPN privacy",
+    "local file sharing privacy",
+    "wallet authentication",
+    "NetSepio",
+  ],
+});
 
 type PolicySection = {
   title: string;
@@ -194,113 +202,30 @@ const sections: PolicySection[] = [
   },
 ];
 
-function SectionBlock({ section }: { section: PolicySection }) {
-  return (
-    <section className="rounded-lg border border-white/10 bg-white/[0.03] p-6">
-      <h2 className="mb-4 text-2xl font-semibold text-white">
-        {section.title}
-      </h2>
-      {section.body?.map((paragraph) => (
-        <p key={paragraph} className="mb-4 leading-8 text-slate-300 last:mb-0">
-          {paragraph}
-        </p>
-      ))}
-      {section.items && (
-        <ul className="space-y-3 pl-5 text-slate-300">
-          {section.items.map((item) => (
-            <li key={item} className="list-disc leading-7">
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
-      {section.subsections?.map((subsection) => (
-        <div key={subsection.title} className="mt-5 rounded-lg bg-black/20 p-5">
-          <h3 className="mb-3 text-lg font-semibold text-cyan-200">
-            {subsection.title}
-          </h3>
-          {subsection.body?.map((paragraph) => (
-            <p
-              key={paragraph}
-              className="mb-4 leading-8 text-slate-300 last:mb-0"
-            >
-              {paragraph}
-            </p>
-          ))}
-          {subsection.items && (
-            <ul className="space-y-3 pl-5 text-slate-300">
-              {subsection.items.map((item) => (
-                <li key={item} className="list-disc leading-7">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ))}
-    </section>
-  );
-}
-
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#020417] px-4 pt-32 pb-20 text-white sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-10 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-6">
-          <p className="mb-3 text-sm font-medium uppercase text-emerald-200">
-            Erebrus legal
-          </p>
-          <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-            Privacy Policy
-          </h1>
-          <p className="max-w-3xl leading-8 text-slate-300">
-            This policy covers Erebrus VPN and Erebrus Drop, including wallet
-            authentication, VPN client management, local Drop Rooms, QR joins,
-            browser Drop links, received files, and Library controls.
-          </p>
-          <p className="mt-4 text-sm text-slate-400">
-            Effective date: {lastUpdated}
-          </p>
-        </div>
-
-        <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2">
-          {privacyHighlights.map((highlight) => (
-            <div
-              key={highlight}
-              className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-slate-300"
-            >
-              {highlight}
-            </div>
-          ))}
-        </div>
-
-        <div className="mb-8 flex flex-wrap gap-3 text-sm">
-          <Link
-            href="/terms"
-            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-cyan-200 transition-colors hover:bg-white/[0.08]"
+    <LegalPageShell
+      eyebrow="Erebrus legal"
+      title="Privacy Policy"
+      summary="This policy covers Erebrus VPN and Erebrus Drop, including wallet authentication, VPN client management, local Drop Rooms, QR joins, browser Drop links, received files, and Library controls."
+      lastUpdated={lastUpdated}
+    >
+      <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2">
+        {privacyHighlights.map((highlight) => (
+          <div
+            key={highlight}
+            className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 text-sm leading-6 text-[var(--text-2)]"
           >
-            Terms and Conditions
-          </Link>
-          <Link
-            href="/#drop"
-            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-emerald-200 transition-colors hover:bg-white/[0.08]"
-          >
-            Erebrus Drop
-          </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-blue-200 transition-colors hover:bg-white/[0.08]"
-          >
-            VPN Dashboard
-          </Link>
-        </div>
-
-        <div className="space-y-5">
-          {sections.map((section) => (
-            <SectionBlock key={section.title} section={section} />
-          ))}
-        </div>
+            {highlight}
+          </div>
+        ))}
       </div>
-    </main>
+
+      <div className="space-y-5">
+        {sections.map((section) => (
+          <LegalSection key={section.title} {...section} />
+        ))}
+      </div>
+    </LegalPageShell>
   );
 }

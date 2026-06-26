@@ -1,38 +1,35 @@
 import type React from "react";
 import "@/app/globals.css";
-import { DM_Sans } from "next/font/google";
-import localFont from "next/font/local";
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import AppChrome from "@/components/layout/AppChrome";
 import { cn } from "@/lib/utils";
-import "./globals.css";
 import { AppKit } from "../context/appkit";
 import AppWalletProvider from "@/components/AppWalletProvider";
+import { Toaster } from "sonner";
+import { pageMetadata } from "@/lib/seo";
 
-const dmSans = DM_Sans({ subsets: ["latin"], 
-  variable: "--font-dm-sans",
- });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  weight: ["400", "500", "600", "700"],
+});
 
-const myFont = localFont({
-  src: "../../public/fonts/Another-Xanadu.ttf",
-  variable: "--font-another-xanadu",
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
+  weight: ["400", "500", "600"],
 });
 
 export const metadata = {
-  name: "Erebrus",
-  description:
-    "Redefining digital connectivity and unleashing the future of internet with globally accessible, secure and private network through the power of DePIN.",
-  url: "https://erebrus.io",
-  icons: ["https://avatars.githubusercontent.com/u/37784886"],
-  openGraph: {
-    type: "website",
-    url: "https://erebrus.io",
-    title: "Erebrus",
-    description:
-      "Redefining digital connectivity and unleashing the future of internet with globally accessible, secure and private network through the power of DePIN.",
-  },
-  alternates: {
-    canonical: "https://erebrus.io",
+  ...pageMetadata({
+    title: "Erebrus — The sovereign internet",
+    path: "/",
+  }),
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    shortcut: "/favicon.ico",
+    apple: "/brand/erebrus-app-icon-180.png",
   },
 };
 
@@ -42,15 +39,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <head>
-        <link rel='icon' href='/favicon.ico' />
-      </head>
-      <body className={cn("min-h-screen flex flex-col", myFont.variable, dmSans.variable)}>
+    <html lang="en" suppressHydrationWarning className="dark">
+      <body
+        className={cn(
+          "min-h-screen flex flex-col font-sans antialiased",
+          spaceGrotesk.variable,
+          ibmPlexMono.variable
+        )}
+      >
         <AppWalletProvider>
           <AppKit>
-            <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
               <AppChrome>{children}</AppChrome>
+              <Toaster theme="dark" position="top-center" richColors />
             </ThemeProvider>
           </AppKit>
         </AppWalletProvider>
