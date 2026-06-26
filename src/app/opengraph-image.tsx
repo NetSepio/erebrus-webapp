@@ -44,7 +44,7 @@ export default function OgImage() {
           />
           <div style={{ fontSize: 52, fontWeight: 700, letterSpacing: "-0.03em" }}>Erebrus</div>
         </div>
-        <div style={{ position: "relative", maxWidth: 900 }}>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", maxWidth: 900 }}>
           <div
             style={{
               fontSize: 64,
