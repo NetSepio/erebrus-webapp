@@ -1,39 +1,36 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { createNodeGlobe } from "@/lib/erebrus-globe";
+import { createHeroGlobe } from "@/lib/erebrus-globe";
 import type { GatewayNode } from "@/lib/gateway/types";
 import { toGlobeNodes } from "@/lib/globe-nodes";
 
-export function NodeGlobe({
+export function HeroGlobe({
   nodes,
-  selectedId,
-  className = "h-[470px]",
+  hubId,
+  className = "h-full",
 }: {
   nodes: GatewayNode[];
-  selectedId?: string;
+  hubId?: string;
   className?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const controllerRef = useRef<ReturnType<typeof createNodeGlobe> | null>(null);
-  const selectedRef = useRef(selectedId);
+  const controllerRef = useRef<ReturnType<typeof createHeroGlobe> | null>(null);
 
   const globeNodes = useMemo(() => toGlobeNodes(nodes), [nodes]);
   const nodesKey = useMemo(
     () => globeNodes.map((n) => `${n.id}:${n.lat}:${n.lng}`).join("|"),
     [globeNodes]
   );
-
-  selectedRef.current = selectedId;
+  const resolvedHubId = hubId ?? globeNodes[0]?.id;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const globe = createNodeGlobe(canvas, {
+    const globe = createHeroGlobe(canvas, {
       nodes: globeNodes,
-      selectedId,
-      getSelectedId: () => selectedRef.current,
+      hubId: resolvedHubId,
     });
     controllerRef.current = globe;
 
@@ -50,20 +47,13 @@ export function NodeGlobe({
 
   return (
     <div
-      className={`relative w-full overflow-hidden bg-[#0B0B0E] ${className}`}
+      className={`relative w-full overflow-hidden bg-[#0A0A0C] ${className}`}
       style={{
         backgroundImage:
           "radial-gradient(ellipse 60% 60% at 50% 45%, rgba(255,107,53,0.06), transparent 70%)",
       }}
     >
       <canvas ref={canvasRef} className="block h-full w-full" />
-      {globeNodes.length === 0 && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <p className="rounded-xl border border-white/[0.08] bg-black/40 px-4 py-2 font-mono text-[11px] text-[var(--text-3)] backdrop-blur-sm">
-            Waiting for nodes to come online…
-          </p>
-        </div>
-      )}
     </div>
   );
 }

@@ -16,9 +16,8 @@ import {
 } from "@/lib/gateway/client";
 import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
-import { AccentButton, Card, MonoLabel } from "@/components/v3/ui";
+import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
-import { uniqueCountries } from "@/lib/regions";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -197,44 +196,37 @@ export function VpnConnectPanel() {
       )}
 
       <div className="grid gap-5 xl:grid-cols-[1fr_372px]">
-        <Card className="overflow-hidden">
-          <div className="relative min-h-[360px] md:min-h-[480px]">
+        <Card
+          className="overflow-hidden"
+          style={{
+            background: "linear-gradient(180deg, #101014, #0B0B0E)",
+          }}
+        >
+          <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4 md:px-[22px]">
+            <div className="flex items-center gap-2.5">
+              <MonoLabel>Global Network</MonoLabel>
+              <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--success)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
+                {nodes.length} online
+              </span>
+            </div>
+            <span className="font-mono text-[11px] text-[var(--text-3)]">Auto-rotating</span>
+          </div>
+          <div className="relative h-[360px] md:h-[470px]">
             <NodeGlobe
               nodes={nodes}
               selectedId={selected?.id}
-              className="absolute inset-0 h-full min-h-[360px] md:min-h-[480px]"
+              className="absolute inset-0 h-full"
             />
-            <div className="pointer-events-none absolute left-0 right-0 top-0 z-[3] flex items-center justify-between border-b border-white/[0.06] bg-gradient-to-b from-black/50 to-transparent px-5 py-4">
-              <div className="flex items-center gap-2.5">
-                <MonoLabel className="text-[var(--text)]">Global Network</MonoLabel>
-                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--success)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
-                  {nodes.length} online
-                </span>
-              </div>
-              <span className="font-mono text-[10px] uppercase tracking-wide text-[var(--text-3)]">
-                Live · rotating
-              </span>
-            </div>
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-[3] flex flex-wrap items-end justify-between gap-4 border-t border-white/[0.06] bg-gradient-to-t from-black/70 to-transparent px-5 py-4">
-              <div className="flex gap-6">
-                <GlobeStat value={nodes.length} label="Nodes" />
-                <GlobeStat value={uniqueCountries(nodes) || "—"} label="Regions" />
-                <GlobeStat
-                  value={nodes.reduce((s, n) => s + (n.load_pct ?? 0), 0) / (nodes.length || 1)}
-                  label="Avg load"
-                  suffix="%"
-                />
+            <div className="pointer-events-none absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4 md:left-[22px] md:right-[22px]">
+              <div className="font-mono text-[11px] leading-relaxed text-[var(--text-3)]">
+                <div>LAT {selected?.latitude?.toFixed(1) ?? "—"}</div>
+                <div>LON {selected?.longitude?.toFixed(1) ?? "—"}</div>
               </div>
               {selected && (
                 <div className="text-right">
-                  <div className="font-mono text-[10px] uppercase tracking-wide text-[var(--accent-hi)]">
-                    Selected node
-                  </div>
-                  <div className="text-base font-semibold">{selected.name || selected.region}</div>
-                  <div className="font-mono text-[10px] text-[var(--text-3)]">
-                    {selected.latitude?.toFixed(2)}°, {selected.longitude?.toFixed(2)}°
-                  </div>
+                  <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
+                  <div className="text-lg font-semibold">{selected.name || selected.region}</div>
                 </div>
               )}
             </div>
@@ -382,27 +374,29 @@ export function VpnConnectPanel() {
                 {new Date(client.created_at).toLocaleDateString()}
               </div>
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  className="rounded-lg p-2 text-[var(--text-2)] hover:bg-white/[0.06]"
+                <ActionButton
+                  variant="neutral"
+                  className="!px-2.5"
                   onClick={async () => {
                     const { config } = await fetchVpnClientConfig(client.id);
                     saveAs(new Blob([config]), `${client.name}.conf`);
                   }}
                 >
-                  <Download size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg p-2 text-[var(--danger)] hover:bg-[var(--danger)]/10"
+                  <Download size={14} />
+                  Config
+                </ActionButton>
+                <ActionButton
+                  variant="danger"
+                  className="!px-2.5"
                   onClick={async () => {
                     await deleteVpnClient(client.id);
                     toast.success("Device removed");
                     await refresh();
                   }}
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <Trash2 size={14} />
+                  Remove
+                </ActionButton>
               </div>
             </div>
           ))
@@ -439,30 +433,6 @@ export function VpnConnectPanel() {
           </AccentButton>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-function GlobeStat({
-  value,
-  label,
-  suffix = "",
-}: {
-  value: string | number;
-  label: string;
-  suffix?: string;
-}) {
-  const display =
-    typeof value === "number" && !Number.isInteger(value) ? value.toFixed(0) : value;
-  return (
-    <div>
-      <div className="text-xl font-bold tracking-tight md:text-2xl">
-        {display}
-        {suffix}
-      </div>
-      <div className="font-mono text-[10px] uppercase tracking-wide text-[var(--text-3)]">
-        {label}
-      </div>
     </div>
   );
 }

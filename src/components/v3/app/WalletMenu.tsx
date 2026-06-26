@@ -79,7 +79,7 @@ export function WalletMenu({ subscription }: { subscription: GatewaySubscription
             <button
               type="button"
               onClick={logout}
-              className="flex w-full items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-left text-[13.5px] text-[var(--danger)] hover:bg-white/[0.04]"
+              className="flex w-full items-center gap-2.5 rounded-[9px] border border-transparent px-3 py-2.5 text-left text-[13.5px] text-[var(--danger)] transition-colors hover:border-[var(--danger)]/20 hover:bg-[var(--danger)]/8"
             >
               <span className="font-mono">⏻</span>
               Log out
@@ -106,7 +106,7 @@ function MenuLink({
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-[13.5px] hover:bg-white/[0.04]"
+      className="flex items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-[13.5px] text-[var(--text)] transition-colors hover:bg-white/[0.06]"
     >
       <span className="font-mono text-[var(--text-2)]">{glyph}</span>
       {children}

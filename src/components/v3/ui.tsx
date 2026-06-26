@@ -90,6 +90,45 @@ export function MonoLabel({ children, className }: { children: ReactNode; classN
   );
 }
 
+/** Always-visible secondary control — not hover-dependent. */
+export function ActionButton({
+  children,
+  className,
+  variant = "accent",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "accent" | "neutral" | "danger";
+}) {
+  const styles = {
+    accent:
+      "border border-[var(--accent)]/30 bg-[var(--accent)]/14 text-[var(--accent-hi)] hover:bg-[var(--accent)]/22",
+    neutral:
+      "border border-white/[0.12] bg-white/[0.05] text-[var(--text)] hover:bg-white/[0.09]",
+    danger:
+      "border border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)] hover:bg-[var(--danger)]/16",
+  };
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        "inline-flex items-center justify-center gap-1.5 rounded-[10px] px-3 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        styles[variant],
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+export const v3TabsListClass =
+  "flex h-auto flex-wrap gap-1 rounded-xl border border-white/[0.06] bg-white/[0.04] p-1 text-[var(--text-2)]";
+
+export const v3TabsTriggerClass =
+  "rounded-lg px-4 py-2 text-sm font-medium text-[var(--text-2)] transition-colors data-[state=active]:bg-[var(--accent)]/15 data-[state=active]:text-[var(--accent-hi)] data-[state=active]:shadow-none";
+
 export function StatCard({
   label,
   value,
