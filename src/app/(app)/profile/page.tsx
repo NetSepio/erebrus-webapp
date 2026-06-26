@@ -163,13 +163,13 @@ export default function ProfilePage() {
                   onChange={(e) => setName(e.target.value)}
                   className="h-8 w-32 border-white/10 bg-[var(--surface-2)] text-sm"
                 />
-                <button
+                <AccentButton
                   type="button"
                   onClick={saveName}
-                  className="text-xs font-semibold text-[var(--accent-hi)]"
+                  className="!px-3 !py-1.5 !text-xs"
                 >
                   Save
-                </button>
+                </AccentButton>
               </div>
             </div>
             <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">

@@ -123,10 +123,10 @@ export default function RewardsPage() {
                     setMetric(m);
                     load(m);
                   }}
-                  className={`rounded-md px-2 py-1 font-mono text-[10px] uppercase ${
+                  className={`rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase transition-colors ${
                     metric === m
-                      ? "bg-[var(--accent)]/20 text-[var(--accent-hi)]"
-                      : "text-[var(--text-3)]"
+                      ? "border-[var(--accent)]/30 bg-[var(--accent)]/20 text-[var(--accent-hi)]"
+                      : "border-white/[0.1] bg-white/[0.04] text-[var(--text-2)]"
                   }`}
                 >
                   {m}

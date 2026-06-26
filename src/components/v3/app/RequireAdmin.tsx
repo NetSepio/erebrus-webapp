@@ -26,7 +26,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
         </p>
         <Link
           href="/dashboard"
-          className="mt-5 inline-block text-sm text-[var(--accent-hi)] hover:underline"
+          className="mt-5 inline-flex rounded-[10px] border border-[var(--accent)]/30 bg-[var(--accent)]/14 px-4 py-2 text-sm font-semibold text-[var(--accent-hi)]"
         >
           ← Back to dashboard
         </Link>

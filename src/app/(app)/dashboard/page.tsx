@@ -142,7 +142,7 @@ export default function DashboardPage() {
           )}
           <Link
             href="/workspace"
-            className="block px-5 py-3.5 text-center text-sm text-[var(--text-2)] hover:text-[var(--text)]"
+            className="mx-5 mb-4 mt-2 block rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-center text-sm font-semibold text-[var(--text)] transition-colors hover:bg-white/[0.06]"
           >
             + Create a workspace
           </Link>

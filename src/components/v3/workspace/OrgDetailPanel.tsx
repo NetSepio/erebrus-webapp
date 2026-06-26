@@ -25,7 +25,15 @@ import type {
   GatewayOrgMember,
   GatewayVpnClient,
 } from "@/lib/gateway/types";
-import { AccentButton, Card, MonoLabel, StatCard } from "@/components/v3/ui";
+import {
+  AccentButton,
+  ActionButton,
+  Card,
+  MonoLabel,
+  StatCard,
+  v3TabsListClass,
+  v3TabsTriggerClass,
+} from "@/components/v3/ui";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -214,13 +222,9 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           {org.enrollment_secret ? (
             <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#08080A] px-3.5 py-3 font-mono text-xs">
               <span className="flex-1 truncate">{org.enrollment_secret}</span>
-              <button
-                type="button"
-                onClick={copySecret}
-                className="rounded-lg bg-[var(--accent)]/14 px-2.5 py-1.5 text-[var(--accent-hi)]"
-              >
+              <ActionButton type="button" onClick={copySecret}>
                 {copied ? "Copied" : "Copy"}
-              </button>
+              </ActionButton>
             </div>
           ) : (
             <p className="mt-3 text-sm text-[var(--text-3)]">Secret visible to owners/admins only.</p>
@@ -229,11 +233,21 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
       )}
 
       <Tabs defaultValue="nodes">
-        <TabsList className="bg-white/[0.04]">
-          <TabsTrigger value="nodes">Nodes</TabsTrigger>
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="clients">VPN clients</TabsTrigger>
-          {isPrivileged && <TabsTrigger value="apikeys">API keys</TabsTrigger>}
+        <TabsList className={v3TabsListClass}>
+          <TabsTrigger value="nodes" className={v3TabsTriggerClass}>
+            Nodes
+          </TabsTrigger>
+          <TabsTrigger value="members" className={v3TabsTriggerClass}>
+            Members
+          </TabsTrigger>
+          <TabsTrigger value="clients" className={v3TabsTriggerClass}>
+            VPN clients
+          </TabsTrigger>
+          {isPrivileged && (
+            <TabsTrigger value="apikeys" className={v3TabsTriggerClass}>
+              API keys
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="nodes" className="mt-4">
@@ -262,13 +276,15 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                   <div className="flex flex-wrap gap-4 font-mono text-sm capitalize text-[var(--text-2)]">
                     <span>{node.load_pct?.toFixed(0) ?? 0}% load</span>
                     <span>{node.access_mode}</span>
-                    <button
-                      type="button"
-                      className="text-[var(--accent-hi)]"
-                      onClick={() => loadNodeMetrics(node.id)}
-                    >
-                      {nodeMetrics[node.id] ?? "24h stats"}
-                    </button>
+                    {nodeMetrics[node.id] ? (
+                      <span className="font-mono text-[11px] text-[var(--text-3)]">
+                        {nodeMetrics[node.id]}
+                      </span>
+                    ) : (
+                      <ActionButton type="button" onClick={() => loadNodeMetrics(node.id)}>
+                        24h stats
+                      </ActionButton>
+                    )}
                   </div>
                 </div>
               ))
@@ -325,9 +341,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     </select>
                   )}
                   {isOwner && m.role === "admin" && (
-                    <button
+                    <ActionButton
                       type="button"
-                      className="text-xs text-[var(--accent-hi)]"
                       onClick={() =>
                         transferOrgOwnership(orgId, m.user_id)
                           .then(reload)
@@ -335,12 +350,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                       }
                     >
                       Make owner
-                    </button>
+                    </ActionButton>
                   )}
                   {isPrivileged && m.role !== "owner" && (
-                    <button
+                    <ActionButton
                       type="button"
-                      className="text-xs text-[var(--danger)]"
+                      variant="danger"
                       onClick={() =>
                         removeOrgMember(orgId, m.user_id).then(reload).catch(() =>
                           toast.error("Failed to remove member")
@@ -348,7 +363,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                       }
                     >
                       Remove
-                    </button>
+                    </ActionButton>
                   )}
                 </div>
               </div>
@@ -398,9 +413,9 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     <div className="font-medium">{k.name ?? "API key"}</div>
                     <div className="font-mono text-xs text-[var(--text-3)]">{k.prefix}…</div>
                   </div>
-                  <button
+                  <ActionButton
                     type="button"
-                    className="text-xs text-[var(--danger)]"
+                    variant="danger"
                     onClick={() =>
                       revokeOrgApiKey(orgId, k.id).then(reload).catch(() =>
                         toast.error("Failed to revoke key")
@@ -408,7 +423,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     }
                   >
                     Revoke
-                  </button>
+                  </ActionButton>
                 </div>
               ))}
             </Card>

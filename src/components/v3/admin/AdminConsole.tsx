@@ -24,7 +24,15 @@ import type {
   GatewayAdminUser,
   GatewayPlatformSetting,
 } from "@/lib/gateway/types";
-import { AccentButton, Card, MonoLabel, StatCard } from "@/components/v3/ui";
+import {
+  AccentButton,
+  ActionButton,
+  Card,
+  MonoLabel,
+  StatCard,
+  v3TabsListClass,
+  v3TabsTriggerClass,
+} from "@/components/v3/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,14 +75,9 @@ function NodeMetricsRow({ nodeId }: { nodeId: string }) {
       {metrics ? (
         <p className="font-mono text-[11px] text-[var(--text-3)]">{metrics}</p>
       ) : (
-        <button
-          type="button"
-          onClick={load}
-          disabled={loading}
-          className="text-xs text-[var(--accent-hi)] hover:underline disabled:opacity-50"
-        >
-          {loading ? "Loading metrics…" : "View 24h stats"}
-        </button>
+        <ActionButton type="button" onClick={load} disabled={loading}>
+          {loading ? "Loading…" : "View 24h stats"}
+        </ActionButton>
       )}
     </div>
   );
@@ -230,14 +233,28 @@ export function AdminConsole() {
       </div>
 
       <Tabs defaultValue="users" onValueChange={onTab}>
-        <TabsList className="flex h-auto flex-wrap gap-1 bg-white/[0.04] p-1">
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="nodes">Nodes</TabsTrigger>
-          <TabsTrigger value="orgs">Orgs</TabsTrigger>
-          <TabsTrigger value="subs">Subscriptions</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-          <TabsTrigger value="perks">Perks</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsList className={v3TabsListClass}>
+          <TabsTrigger value="users" className={v3TabsTriggerClass}>
+            Users
+          </TabsTrigger>
+          <TabsTrigger value="nodes" className={v3TabsTriggerClass}>
+            Nodes
+          </TabsTrigger>
+          <TabsTrigger value="orgs" className={v3TabsTriggerClass}>
+            Orgs
+          </TabsTrigger>
+          <TabsTrigger value="subs" className={v3TabsTriggerClass}>
+            Subscriptions
+          </TabsTrigger>
+          <TabsTrigger value="activity" className={v3TabsTriggerClass}>
+            Activity
+          </TabsTrigger>
+          <TabsTrigger value="perks" className={v3TabsTriggerClass}>
+            Perks
+          </TabsTrigger>
+          <TabsTrigger value="settings" className={v3TabsTriggerClass}>
+            Settings
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="mt-4 space-y-3">
@@ -297,10 +314,10 @@ export function AdminConsole() {
                     .then((d) => setNodes(d.nodes))
                     .catch(() => toast.error("Failed to load nodes"));
                 }}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
                   nodeFilter === s
-                    ? "bg-[var(--accent)]/20 text-[var(--accent-hi)]"
-                    : "bg-white/[0.04] text-[var(--text-2)]"
+                    ? "border-[var(--accent)]/30 bg-[var(--accent)]/20 text-[var(--accent-hi)]"
+                    : "border-white/[0.1] bg-white/[0.04] text-[var(--text-2)]"
                 }`}
               >
                 {s || "All"}
