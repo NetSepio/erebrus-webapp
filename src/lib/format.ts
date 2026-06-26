@@ -7,11 +7,28 @@ export function formatBytes(bytes?: number | null): string {
   return `${value >= 100 || i === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[i]}`;
 }
 
+/** Parse gateway ISO or unix timestamps to epoch ms. */
+export function timestampMs(input?: string | number | null): number | undefined {
+  if (input == null || input === "") return undefined;
+  const ms =
+    typeof input === "number" ? input * (input < 1e12 ? 1000 : 1) : Date.parse(input);
+  return Number.isNaN(ms) ? undefined : ms;
+}
+
+/** True when [input] is within [windowMs] of now (default 3 min — WG rekey window). */
+export function isRecentTimestamp(
+  input?: string | number | null,
+  windowMs = 3 * 60 * 1000
+): boolean {
+  const ms = timestampMs(input);
+  if (ms == null) return false;
+  return Date.now() - ms < windowMs;
+}
+
 /** Compact "time ago" for handshakes/heartbeats. Returns "—" when unknown. */
 export function formatRelativeTime(input?: string | number | null): string {
-  if (input == null || input === "") return "—";
-  const ms = typeof input === "number" ? input * (input < 1e12 ? 1000 : 1) : Date.parse(input);
-  if (Number.isNaN(ms)) return "—";
+  const ms = timestampMs(input);
+  if (ms == null) return "—";
   const diff = Date.now() - ms;
   if (diff < 0) return "just now";
   const sec = Math.floor(diff / 1000);
@@ -22,6 +39,33 @@ export function formatRelativeTime(input?: string | number | null): string {
   if (hr < 24) return `${hr}h ago`;
   const day = Math.floor(hr / 24);
   return `${day}d ago`;
+}
+
+/** Pick label + timestamp for node liveness UI (matches VPN app logic). */
+export function nodeActivityDisplay(
+  node: {
+    status?: string;
+    last_peer_handshake?: string | number | null;
+    last_heartbeat?: string | number | null;
+    last_seen?: string | number | null;
+  },
+  handshakeWindowMs = 3 * 60 * 1000,
+  heartbeatWindowMs = 90 * 1000
+): { label: string; at?: string | number } {
+  const online = node.status === "online";
+  const recentHandshake = isRecentTimestamp(node.last_peer_handshake, handshakeWindowMs);
+  if (recentHandshake && node.last_peer_handshake != null) {
+    return { label: "Last handshake", at: node.last_peer_handshake };
+  }
+  const heartbeat = node.last_heartbeat ?? node.last_seen;
+  const recentHeartbeat = isRecentTimestamp(heartbeat, heartbeatWindowMs);
+  if (online && recentHeartbeat && heartbeat != null) {
+    return { label: "Alive", at: heartbeat };
+  }
+  if (heartbeat != null) {
+    return { label: online ? "Alive" : "Last alive", at: heartbeat };
+  }
+  return { label: online ? "Alive" : "Last alive" };
 }
 
 export type ClientActivity = {

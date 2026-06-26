@@ -22,11 +22,3 @@ export function createNodeGlobe(
     aurora?: boolean;
   }
 ): GlobeController;
-
-export function createHeroGlobe(
-  canvas: HTMLCanvasElement,
-  opts?: {
-    nodes?: ErebrusGlobeNode[];
-    hubId?: string;
-  }
-): GlobeController;

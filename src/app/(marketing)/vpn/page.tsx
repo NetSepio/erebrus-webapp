@@ -8,7 +8,7 @@ import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
 import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
 
 const features = [
-  { glyph: "◎", title: "No central operator", desc: "Traffic routes through community nodes. No company to subpoena or breach." },
+  { glyph: "◎", title: "Community-run network", desc: "Traffic routes through independent nodes worldwide — no single honeypot of user data to breach or sell." },
   { glyph: "◇", title: "WireGuard", desc: "Fast, modern tunnels provisioned per device with sing-box profiles." },
   { glyph: "⬡", title: "Tier-gated pools", desc: "Premium node pools unlock as you earn XP and climb ranks." },
   { glyph: "↻", title: "Multi-protocol", desc: "WireGuard, VLESS REALITY, and Hysteria2 — auto or stealth groups." },
@@ -28,17 +28,18 @@ export default function VpnMarketingPage() {
             <LiveNetworkBadge />
           </div>
           <h1 className="text-4xl font-bold leading-none tracking-tight md:text-[64px]">
-            Privacy you can&apos;t be{" "}
+            The internet,{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(120deg, #FF7E44, #E0531F)" }}
             >
-              switched off.
+              off the record.
             </span>
           </h1>
           <p className="mt-5 max-w-[540px] text-lg leading-relaxed text-[var(--text-2)]">
-            A decentralized VPN run by a global community, not a company. Wallet login, WireGuard
-            tunnels, and a network with no central operator to log, sell, or seize your traffic.
+            A no-logs VPN powered by a worldwide community of operators. Modern WireGuard tunnels
+            and wallet sign-in keep your browsing private — so your data stays yours instead of
+            becoming the product.
           </p>
           <div className="mt-8 flex flex-wrap gap-3.5">
             <AuthModalTrigger>
@@ -84,7 +85,7 @@ export default function VpnMarketingPage() {
       <section id="features" className="mx-auto max-w-[1180px] px-4 py-20 md:px-8">
         <div className="mb-12 text-center">
           <Eyebrow className="mb-4">Why Erebrus VPN</Eyebrow>
-          <h2 className="text-3xl font-bold md:text-[44px]">No company. No logs. No off switch.</h2>
+          <h2 className="text-3xl font-bold md:text-[44px]">Private by design. Powered by a global community.</h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (

@@ -2,6 +2,8 @@ import { regionCoords } from "@/lib/regions";
 import type {
   GatewayLeaderboardEntry,
   GatewayNode,
+  GatewayNodeCapabilities,
+  GatewayNodeOrgSummary,
   GatewayOrg,
   GatewayPlan,
   GatewayProfile,
@@ -9,18 +11,56 @@ import type {
   GatewayVpnClient,
 } from "./types";
 
+function optStr(v: unknown): string | undefined {
+  const s = v == null ? "" : String(v).trim();
+  return s || undefined;
+}
+
+function optNum(v: unknown): number | undefined {
+  if (v == null || v === "" || Number.isNaN(Number(v))) return undefined;
+  return Number(v);
+}
+
+function normalizeNodeOrg(raw: unknown): GatewayNodeOrgSummary | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const name = optStr(o.name);
+  if (!name) return undefined;
+  return {
+    name,
+    kind: optStr(o.kind),
+    verified: o.verified === true,
+    slug: optStr(o.slug),
+    description: optStr(o.description),
+    website: optStr(o.website),
+  };
+}
+
+function normalizeCapabilities(raw: unknown): GatewayNodeCapabilities | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const caps = raw as Record<string, unknown>;
+  const out: GatewayNodeCapabilities = {};
+  const accessMode = optStr(caps.access_mode);
+  if (accessMode) out.access_mode = accessMode;
+  if (caps.app_hosting === true) out.app_hosting = true;
+  const wildcard = optStr(caps.wildcard_domain);
+  if (wildcard) out.wildcard_domain = wildcard;
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
   const region = String(raw.region ?? "unknown");
-  const zone = raw.zone ? String(raw.zone) : undefined;
+  const zone = optStr(raw.zone);
   const coords = regionCoords(region, zone);
   const speedtest = (raw.speedtest ?? {}) as Record<string, unknown>;
-  const org = (raw.org ?? {}) as Record<string, unknown>;
-  const num = (v: unknown): number | undefined =>
-    v == null || v === "" || Number.isNaN(Number(v)) ? undefined : Number(v);
+  const heartbeat = optStr(raw.last_heartbeat);
+  const peerHandshake = optStr(raw.last_peer_handshake);
+  const wallet = optStr(raw.wallet_address ?? raw.wallet);
   return {
     id: String(raw.node_id ?? raw.id ?? ""),
     node_id: String(raw.node_id ?? raw.id ?? ""),
     name: String(raw.name ?? region),
+    peer_id: optStr(raw.peer_id),
     did: String(raw.did ?? ""),
     region,
     zone,
@@ -31,12 +71,25 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     status: String(raw.status ?? "offline"),
     access_mode: String(raw.access_mode ?? "public"),
     min_tier: Number(raw.min_tier ?? 0),
-    load_pct: num(raw.load_pct) ?? 0,
-    latency_ms: num(speedtest.latency_ms),
-    download_mbps: num(speedtest.download_mbps),
-    upload_mbps: num(speedtest.upload_mbps),
-    speedtest_at: num(speedtest.measured_at),
-    org_name: org.name ? String(org.name) : undefined,
+    load_pct: optNum(raw.load_pct) ?? 0,
+    latency_ms: optNum(speedtest.latency_ms),
+    download_mbps: optNum(speedtest.download_mbps),
+    upload_mbps: optNum(speedtest.upload_mbps),
+    speedtest_at: optNum(speedtest.measured_at),
+    last_seen: (heartbeat ?? peerHandshake ?? raw.last_seen ?? raw.last_alive) as
+      | string
+      | number
+      | undefined,
+    last_heartbeat: heartbeat,
+    last_peer_handshake: peerHandshake,
+    created_at: optStr(raw.created_at),
+    wallet_address: wallet,
+    ip_hash: optStr(raw.ip_hash),
+    version: optStr(raw.version),
+    rx_bytes: optNum(raw.rx_bytes),
+    tx_bytes: optNum(raw.tx_bytes),
+    capabilities: normalizeCapabilities(raw.capabilities),
+    org: normalizeNodeOrg(raw.org),
     protocols: Array.isArray(raw.protocols) ? (raw.protocols as string[]) : [],
   };
 }

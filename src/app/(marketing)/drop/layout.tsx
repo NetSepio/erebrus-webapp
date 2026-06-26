@@ -8,10 +8,8 @@ export const metadata: Metadata = {
     description:
       "Turn any phone into a temporary, secure file server on local Wi-Fi. Share files between nearby devices — nothing touches the cloud.",
     path: "/drop",
-    image: "/brand/erebrus-drop.png",
-    imageAlt: "Erebrus Drop",
-    imageWidth: 512,
-    imageHeight: 512,
+    // og + twitter images come from this route's opengraph-image/twitter-image.
+    image: null,
   }),
   icons: {
     icon: [{ url: "/brand/erebrus-drop.png", type: "image/png" }],

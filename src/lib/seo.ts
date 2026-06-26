@@ -5,15 +5,7 @@ export const SITE_NAME = "Erebrus";
 export const TWITTER_HANDLE = "@NetSepio";
 
 export const DEFAULT_DESCRIPTION =
-  "Privacy infrastructure owned by the people who run it. Decentralized VPN and local-first Drop — no clouds, no accounts, no middlemen.";
-
-/** Product-specific social preview images (absolute paths; resolved via metadataBase). */
-export const OG_IMAGES = {
-  default: "/brand/erebrus-lockup-horizontal.png",
-  vpn: "/brand/erebrus-vpn.png",
-  drop: "/brand/erebrus-drop.png",
-  mark: "/brand/erebrus-mark-256.png",
-} as const;
+  "Take back your digital agency. Erebrus is a no-logs decentralized VPN and local-first Drop — privacy infrastructure run by the people who use it, not the platforms that profit from you.";
 
 const DEFAULT_KEYWORDS = [
   "Erebrus",
@@ -32,7 +24,8 @@ type PageMetaInput = {
   title: string;
   description?: string;
   path?: string;
-  image?: string;
+  /** Explicit social image URL, or `null` to defer to a route's own opengraph-image. */
+  image?: string | null;
   imageAlt?: string;
   imageWidth?: number;
   imageHeight?: number;
@@ -44,7 +37,10 @@ export function pageMetadata({
   title,
   description = DEFAULT_DESCRIPTION,
   path = "",
-  image,
+  // Defaults to the dynamic 1200×630 card (src/app/opengraph-image.tsx). Set
+  // explicitly because pages that define `openGraph` suppress Next's automatic
+  // injection of the file-convention image.
+  image = "/opengraph-image",
   imageAlt,
   imageWidth = 1200,
   imageHeight = 630,

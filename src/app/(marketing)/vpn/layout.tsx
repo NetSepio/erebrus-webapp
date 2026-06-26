@@ -6,12 +6,10 @@ export const metadata: Metadata = {
   ...pageMetadata({
     title: "Erebrus VPN — Decentralized, no-logs VPN",
     description:
-      "A decentralized VPN run by a global community, not a company. Wallet login, WireGuard tunnels, and a network with no central operator.",
+      "A no-logs, privacy-first VPN powered by a worldwide community of node operators. Modern WireGuard encryption and wallet sign-in keep your traffic private — your data stays yours, never sold.",
     path: "/vpn",
-    image: "/brand/erebrus-vpn.png",
-    imageAlt: "Erebrus VPN",
-    imageWidth: 512,
-    imageHeight: 512,
+    // og + twitter images come from this route's opengraph-image/twitter-image.
+    image: null,
   }),
   icons: {
     icon: [{ url: "/brand/erebrus-vpn.png", type: "image/png" }],

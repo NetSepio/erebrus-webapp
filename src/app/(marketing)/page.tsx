@@ -19,7 +19,7 @@ const features = [
   {
     glyph: "⬡",
     title: "Community-owned",
-    desc: "No central company can log your traffic or shut you off. The network is run by operators worldwide.",
+    desc: "The network is run by independent operators worldwide — so your traffic isn't logged, sold, or cut off by any single party.",
   },
   {
     glyph: "◎",
@@ -88,9 +88,9 @@ export default function LandingPage() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-[640px] text-base leading-relaxed text-[var(--text-2)] md:text-xl">
-          Erebrus is privacy infrastructure owned by the people who run it. A decentralized VPN
-          that can&apos;t log you, and Drop for sharing files device-to-device — no clouds, no
-          accounts, no middlemen.
+          Everything you do online is watched, tracked, and sold. Erebrus hands the controls back
+          to you — a no-logs VPN and device-to-device Drop, run by people, not the platforms that
+          profit from you.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">

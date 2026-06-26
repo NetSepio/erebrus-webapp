@@ -12,10 +12,9 @@ type NavVariant = "platform" | "vpn" | "drop";
 
 const navLinks: Record<NavVariant, Array<{ label: string; href: string; external?: boolean }>> = {
   platform: [
-    { label: "Products", href: "/#products" },
     { label: "VPN", href: "/vpn" },
     { label: "Drop", href: "/drop" },
-    { label: "Run a node", href: "/#operators" },
+    { label: "Docs", href: "https://docs.netsepio.com/erebrus/", external: true },
   ],
   vpn: [
     { label: "Features", href: "/vpn#features" },
@@ -110,16 +109,29 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
       {open && (
         <div className="border-t border-white/[0.06] px-4 py-4 md:hidden">
           <nav className="flex flex-col gap-3">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="py-2 text-sm font-medium text-[var(--text-2)]"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 text-sm font-medium text-[var(--text-2)]"
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="py-2 text-sm font-medium text-[var(--text-2)]"
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
             <AuthModalTrigger>
               <AccentButton className="w-full">Launch app</AccentButton>
             </AuthModalTrigger>
