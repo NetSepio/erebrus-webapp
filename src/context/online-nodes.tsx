@@ -10,8 +10,6 @@ import {
   useOnlineNodesPoller,
   type OnlineNodesSnapshot,
 } from "@/hooks/use-online-nodes";
-import type { GatewayNode } from "@/lib/gateway/types";
-
 const OnlineNodesContext = createContext<OnlineNodesSnapshot | null>(null);
 
 export function OnlineNodesProvider({ children }: { children: ReactNode }) {
