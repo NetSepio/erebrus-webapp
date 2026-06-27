@@ -474,14 +474,6 @@ createAppKit({
   metadata,
   networks: [mainnet, solana],
   projectId,
-  // Skip Reown Cloud remote-feature fetch. The dashboard has "Sign In With X"
-  // (SIWX / ReownAuthentication) enabled, which injects a redundant CAIP-122
-  // signature prompt on connect — the app already authenticates with its own
-  // gateway challenge. `basic` mode prevents that remote feature from loading.
-  // It's a valid runtime option (read by AppKit's base client) but omitted from
-  // the full `CreateAppKit` type, so the error below is expected.
-  // @ts-expect-error -- `basic` is honored at runtime; not in the public type
-  basic: true,
   features: {
     analytics: true,
   },
@@ -490,8 +482,8 @@ createAppKit({
   themeVariables: {
     "--apkt-font-family": "Space Grotesk, sans-serif",
     "--apkt-accent": "#FF6B35",
-    "--apkt-color-mix": "#ffffff",
-    "--apkt-color-mix-strength": 40,
+    // Omit color-mix — blending white into dark tokens (e.g. strength 40) greys out
+    // wallet list labels and makes the modal hard to read.
   },
   chainImages: {
     11155931: "/rise.jpg",
