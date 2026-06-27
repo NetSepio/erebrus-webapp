@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import AppChrome from "@/components/layout/AppChrome";
 import { cn } from "@/lib/utils";
 import { AppKit } from "../context/appkit";
-import AppWalletProvider from "@/components/AppWalletProvider";
+import { OnlineNodesProvider } from "@/context/online-nodes";
 import { Toaster } from "sonner";
 import { pageMetadata } from "@/lib/seo";
 
@@ -47,14 +47,14 @@ export default function RootLayout({
           ibmPlexMono.variable
         )}
       >
-        <AppWalletProvider>
-          <AppKit>
+        <AppKit>
+          <OnlineNodesProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
               <AppChrome>{children}</AppChrome>
               <Toaster theme="dark" position="top-center" richColors />
             </ThemeProvider>
-          </AppKit>
-        </AppWalletProvider>
+          </OnlineNodesProvider>
+        </AppKit>
       </body>
     </html>
   );

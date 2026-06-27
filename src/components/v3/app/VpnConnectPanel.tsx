@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { generateKeyPair } from "curve25519-js";
 import { saveAs } from "file-saver";
 import {
-  fetchNodes,
   fetchSubscription,
   fetchVpnClients,
   fetchPlans,
@@ -14,6 +13,7 @@ import {
   startTrial,
   GatewayApiError,
 } from "@/lib/gateway/client";
+import { useOnlineNodes } from "@/context/online-nodes";
 import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
 import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
@@ -47,7 +47,7 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 export function VpnConnectPanel() {
-  const [nodes, setNodes] = useState<GatewayNode[]>([]);
+  const { nodes, loading: nodesLoading } = useOnlineNodes();
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [sub, setSub] = useState<GatewaySubscription | null>(null);
   const [plans, setPlans] = useState<GatewayPlan[]>([]);
@@ -60,17 +60,14 @@ export function VpnConnectPanel() {
   const [deviceName, setDeviceName] = useState("");
 
   const refresh = useCallback(async () => {
-    const [n, c, s, p] = await Promise.all([
-      fetchNodes({ status: "online" }).catch(() => []),
+    const [c, s, p] = await Promise.all([
       fetchVpnClients().catch(() => []),
       fetchSubscription().catch(() => null),
       fetchPlans().catch(() => []),
     ]);
-    setNodes(n.sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99)));
     setClients(c);
     setSub(s);
     setPlans(p);
-    setSelected((prev) => prev ?? n[0] ?? null);
     setState(c.length > 0 ? "connected" : "disconnected");
     setLoading(false);
   }, []);
@@ -78,6 +75,13 @@ export function VpnConnectPanel() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    setSelected((prev) => {
+      if (!prev) return nodes[0] ?? null;
+      return nodes.find((n) => n.id === prev.id) ?? nodes[0] ?? null;
+    });
+  }, [nodes]);
 
   const deviceLimit = subscriptionDeviceLimit(sub, plans);
   const atLimit = clients.length >= deviceLimit;
@@ -201,7 +205,7 @@ export function VpnConnectPanel() {
     }
   };
 
-  if (loading) {
+  if (loading || nodesLoading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--accent)]" />

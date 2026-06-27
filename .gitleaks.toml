@@ -1,0 +1,11 @@
+# gitleaks — Erebrus webapp
+[extend]
+useDefault = true
+
+[allowlist]
+description = "env templates, docs, and generated assets"
+paths = [
+  '''\.env\.example$''',
+  '''docs/.*''',
+  '''public/.*''',
+]

@@ -1,0 +1,89 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main, prod]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          (github.event.workflow_run.head_branch == 'main' ||
+           github.event.workflow_run.head_branch == 'prod') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push image (development)
+        if: github.event.workflow_run.head_branch == 'main'
+        env:
+          DEV_ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
+        run: |
+          echo "$DEV_ENV_FILE" > .env.local
+          export TAG=main
+          export GITHUB_REF_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:${{ github.event.workflow_run.head_sha }}
+          export GITHUB_BRANCH_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:$TAG
+          docker build --build-arg version=${{ github.event.workflow_run.head_sha }} \
+            -t "$GITHUB_REF_IMAGE" -t "$GITHUB_BRANCH_IMAGE" .
+          docker push "$GITHUB_REF_IMAGE"
+          docker push "$GITHUB_BRANCH_IMAGE"
+          rm -f .env.local
+
+      - name: Build and push image (production)
+        if: github.event.workflow_run.head_branch == 'prod'
+        env:
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
+        run: |
+          echo "$PROD_ENV_FILE" > .env
+          export TAG=prod
+          export GITHUB_REF_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:${{ github.event.workflow_run.head_sha }}
+          export GITHUB_BRANCH_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:$TAG
+          docker build --build-arg version=${{ github.event.workflow_run.head_sha }} \
+            -t "$GITHUB_REF_IMAGE" -t "$GITHUB_BRANCH_IMAGE" .
+          docker push "$GITHUB_REF_IMAGE"
+          docker push "$GITHUB_BRANCH_IMAGE"
+          rm -f .env
+
+      - name: Deploy to development server
+        if: github.event.workflow_run.head_branch == 'main'
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEV_REMOTE_SERVER_ADDRESS }}
+          username: ${{ secrets.DEV_SERVER_USERNAME }}
+          key: ${{ secrets.DEV_REMOTE_SERVER_KEY }}
+          port: ${{ secrets.DEV_SSH_PORT }}
+          script: |
+            docker rm -f erebrus-frontend-dev || true
+            docker rmi ghcr.io/netsepio/erebrus-webapp:main || true
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            docker pull ghcr.io/netsepio/erebrus-webapp:main
+            docker run --name="erebrus-frontend-dev" --restart=always -p 4041:3000 --net=bridge -d ghcr.io/netsepio/erebrus-webapp:main
+
+      - name: Deploy to production server
+        if: github.event.workflow_run.head_branch == 'prod'
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PROD_REMOTE_SERVER_ADDRESS }}
+          username: ${{ secrets.PROD_SERVER_USERNAME }}
+          key: ${{ secrets.PROD_REMOTE_SERVER_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT }}
+          script: |
+            docker rm -f erebrus-frontend || true
+            docker rmi ghcr.io/netsepio/erebrus-webapp:prod || true
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            docker pull ghcr.io/netsepio/erebrus-webapp:prod
+            docker run --name="erebrus-frontend" --restart=always -p 4040:3000 --net=bridge -d ghcr.io/netsepio/erebrus-webapp:prod

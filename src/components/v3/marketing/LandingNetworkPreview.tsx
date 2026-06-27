@@ -1,30 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchNodes } from "@/lib/gateway/client";
-import type { GatewayNode } from "@/lib/gateway/types";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
+import { useOnlineNodes } from "@/context/online-nodes";
 import { uniqueCountries } from "@/lib/regions";
 
 export function LandingNetworkPreview() {
-  const [nodes, setNodes] = useState<GatewayNode[]>([]);
+  const { nodes } = useOnlineNodes();
   const [selectedId, setSelectedId] = useState<string | undefined>();
   const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchNodes({ status: "online" })
-      .then((n) => {
-        const sorted = n.sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99));
-        setNodes(sorted);
-        setSelectedId((prev) => prev ?? sorted[0]?.id);
-      })
-      .catch(() => setNodes([]));
-  }, []);
+    setSelectedId((prev) => prev ?? nodes[0]?.id);
+  }, [nodes]);
 
   const detailNode = useMemo(
-    () => (detailId ? nodes.find((n) => n.id === detailId) ?? null : null),
-    [detailId, nodes]
+    () => (detailId ? (nodes.find((n) => n.id === detailId) ?? null) : null),
+    [detailId, nodes],
   );
 
   const handleSelect = useCallback((id: string) => {
@@ -38,7 +31,9 @@ export function LandingNetworkPreview() {
         <span className="h-2.5 w-2.5 rounded-full bg-[#2A2A2E]" />
         <span className="h-2.5 w-2.5 rounded-full bg-[#2A2A2E]" />
         <span className="h-2.5 w-2.5 rounded-full bg-[#2A2A2E]" />
-        <span className="ml-3 font-mono text-[11px] text-[var(--text-3)]">app.erebrus.io/dashboard</span>
+        <span className="ml-3 font-mono text-[11px] text-[var(--text-3)]">
+          Erebrus Global Network
+        </span>
       </div>
       <div className="relative aspect-[16/10] bg-[var(--bg)] sm:aspect-[16/8.4]">
         <NodeGlobe
@@ -64,7 +59,6 @@ export function LandingNetworkPreview() {
         <div className="pointer-events-none absolute bottom-5 left-5 flex gap-6">
           <Stat value={nodes.length} label="Nodes online" />
           <Stat value={uniqueCountries(nodes) || "—"} label="Regions" />
-          <Stat value="0" label="Logs kept" highlight />
         </div>
 
         {detailNode && (
