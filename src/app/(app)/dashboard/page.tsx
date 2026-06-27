@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  fetchNodes,
   fetchOrgs,
   fetchSubscription,
   fetchVpnClients,
 } from "@/lib/gateway/client";
+import { useOnlineNodes } from "@/context/online-nodes";
 import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
 import { AccentButton, Card, StatCard, StatusDot } from "@/components/v3/ui";
-import type { GatewayNode, GatewayOrg, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import type { GatewayOrg, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 
 export default function DashboardPage() {
+  const { nodes, loading: nodesLoading } = useOnlineNodes({ sortByLoad: false });
   const [sub, setSub] = useState<GatewaySubscription | null>(null);
-  const [nodes, setNodes] = useState<GatewayNode[]>([]);
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,24 +22,22 @@ export default function DashboardPage() {
   useEffect(() => {
     Promise.all([
       fetchSubscription().catch(() => null),
-      fetchNodes({ status: "online" }).catch(() => []),
       fetchVpnClients().catch(() => []),
       fetchOrgs().catch(() => []),
-    ]).then(([s, n, c, o]) => {
+    ]).then(([s, c, o]) => {
       setSub(s);
-      setNodes(n);
       setClients(c);
       setOrgs(o);
       setLoading(false);
     });
   }, []);
 
-  const onlineCount = nodes.filter((n) => n.status === "online").length;
+  const onlineCount = nodes.length;
   const end = subscriptionEndDate(sub ?? undefined);
   const days = daysRemaining(end);
   const pct = planProgress(end, trialTotalDays(sub?.source));
 
-  if (loading) {
+  if (loading || nodesLoading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-[var(--text-2)]">
         Loading dashboard…

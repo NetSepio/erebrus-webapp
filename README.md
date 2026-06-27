@@ -1,130 +1,68 @@
-# 🌐 Erebrus - Decentralized VPN Network
+# Erebrus
 
-> Redefining digital connectivity and unleashing the future of internet with globally accessible, secure and private network through the power of DePIN.
+**The sovereign internet** — built by [NetSepio](https://netsepio.com).
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC)](https://tailwindcss.com)
-[![Web3](https://img.shields.io/badge/Web3-Ready-3C3C3D)](https://web3js.org)
-
-## ✨ Features
-
-- 🔐 **Decentralized VPN** - Connect to a global network of community-operated nodes
-- 💼 **Web3 Authentication** - Sign in with EVM, Solana, or Aptos wallets
-- 🎁 **Free Trial** - Get instant VPN access upon wallet connection
-- 🌍 **Global Node Network** - Choose from nodes across 30+ countries
-- 🖼️ **NFT Access Pass** - Mint VPN access as NFTs (coming soon)
-- 📊 **Network Explorer** - Real-time visualization of active nodes
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- npm/yarn/pnpm
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/erebrus-webapp.git
-cd erebrus-webapp
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your API keys
-
-# Run development server
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to view the app.
-
-## 🏗️ Architecture
-
-```
-erebrus-webapp/
-├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── dashboard/    # VPN configuration dashboard
-│   │   ├── explorer/     # Network node explorer
-│   │   └── api/          # API routes
-│   ├── components/       # React components
-│   │   ├── ui/          # shadcn/ui components
-│   │   └── login/       # Wallet connection
-│   ├── context/         # React contexts
-│   └── lib/             # Utilities
-├── public/              # Static assets
-└── tailwind.config.ts   # Theme configuration
-```
-
-## 🔧 Environment Variables
-
-```bash
-# API Configuration
-NEXT_PUBLIC_API_URL=https://api.erebrus.io
-
-# Web3
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id
-NEXT_PUBLIC_ALCHEMY_KEY=your_alchemy_key
-
-# IPFS (for NFT metadata)
-NEXT_PUBLIC_PINATA_API_KEY=your_pinata_key
-NEXT_PUBLIC_PINATA_SECRET=your_pinata_secret
-```
-
-## 📝 Development
-
-### Branch Strategy
-- `main` - Production branch
-- `10xdev` - Active development branch
-
-### Code Style
-- TypeScript strict mode
-- ESLint + Prettier
-- Tailwind CSS for styling
-- Framer Motion for animations
-
-### Key Commands
-```bash
-npm run dev      # Start dev server with Turbo
-npm run build    # Production build
-npm run lint     # Run ESLint
-```
-
-## 🌟 Tech Stack
-
-- **Framework**: [Next.js 15](https://nextjs.org) with App Router
-- **Language**: [TypeScript](https://www.typescriptlang.org)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com)
-- **Components**: [shadcn/ui](https://ui.shadcn.com)
-- **Animation**: [Framer Motion](https://www.framer.com/motion)
-- **3D Graphics**: [Three.js](https://threejs.org) + React Three Fiber
-- **Web3**: 
-  - [Reown AppKit](https://reown.com/appkit) - Wallet connection
-  - [Wagmi](https://wagmi.sh) - EVM interactions
-  - [Solana Wallet Adapter](https://github.com/anza-xyz/wallet-adapter)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is proprietary software. All rights reserved.
-
-## 🔗 Links
-
-- [Website](https://erebrus.io)
-- [Documentation](https://docs.netsepio.com)
-- [Twitter](https://x.com/netsepio)
+[Erebrus](https://erebrus.io) is for people who want connectivity without surrendering ownership of their data, identity, or infrastructure. No single company should decide who gets online, what gets logged, or what gets sold.
 
 ---
 
-<p align="center">Built with ❤️ by the NetSepio Team</p>
+## What NetSepio stands for
+
+NetSepio builds open, community-run networks — not another walled garden.
+
+We believe the internet should be **private by default**, **portable across devices**, and **owned by the people who use and operate it**. Erebrus is the consumer face of that idea: software that connects you to a global mesh of independent operators instead of routing everything through a handful of centralized providers.
+
+---
+
+## What you can do on erebrus.io today
+
+### Erebrus VPN
+
+Connect through a worldwide network of community-operated nodes — not a corporate VPN farm.
+
+- Sign in with your **Solana or EVM wallet** (no passwords stored)
+- Start with a **free trial**, or extend access with an **NFT pass**
+- Choose a node, get a **WireGuard** config, and use it on phone, laptop, or desktop
+- Browse a **live network map** — see where nodes are and how the mesh is doing
+- Manage your **profile**, devices, and subscription from one place
+
+### Erebrus Drop
+
+Share files **device-to-device on local Wi‑Fi**. Nothing uploads to the cloud; transfers stay on your network.
+
+### For operators & teams
+
+- **Run a node** — contribute capacity, track uptime, earn rewards
+- **Workspaces** — group nodes for your org, invite members, issue API keys
+- **Admin tools** — platform operators can monitor network health and usage
+
+---
+
+## How it works (in plain terms)
+
+1. **Connect your wallet** — that’s your account.
+2. **Get access** — trial, NFT, or subscription.
+3. **Pick a node & connect** — we provision a secure tunnel to your device.
+4. **Go** — use the VPN client you already trust (WireGuard).
+
+Your traffic is meant to flow through independent operators. We don’t build a business model on logging or reselling your activity.
+
+---
+
+## Links
+
+| | |
+|---|---|
+| **App** | [erebrus.io](https://erebrus.io) |
+| **VPN** | [erebrus.io/vpn](https://erebrus.io/vpn) |
+| **Drop** | [erebrus.io/drop](https://erebrus.io/drop) |
+| **NetSepio** | [netsepio.com](https://netsepio.com) |
+| **X** | [@netsepio](https://x.com/netsepio) |
+
+---
+
+## For developers
+
+This repository powers the Erebrus website and web app. Branch flow: changes land on `main` (development deploy), then promote to `prod` for production.
+
+Proprietary — © NetSepio. All rights reserved.

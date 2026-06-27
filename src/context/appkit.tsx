@@ -24,9 +24,9 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import type { Provider } from "@reown/appkit-adapter-solana/react";
 import {
-  authenticateEvmVpn,
-  authenticateSolanaVpn,
-} from "@/lib/vpn-gateway-auth";
+  authenticateEvm as gatewayAuthenticateEvm,
+  authenticateSolana as gatewayAuthenticateSolana,
+} from "@/lib/gateway-auth";
 
 declare global {
   interface Window {
@@ -287,7 +287,7 @@ const authenticateEVM = async (
       throw new Error("Invalid Ethereum wallet address format");
     }
 
-    const session = await authenticateEvmVpn(walletAddress, walletProvider);
+    const session = await gatewayAuthenticateEvm(walletAddress, walletProvider);
     setAuthCookies("evm", session.token, walletAddress, session.userId);
     return true;
   } catch (error) {
@@ -303,7 +303,7 @@ const authenticateSolana = async (
   walletProvider: Provider
 ) => {
   try {
-    const session = await authenticateSolanaVpn(walletAddress, walletProvider);
+    const session = await gatewayAuthenticateSolana(walletAddress, walletProvider);
     setAuthCookies("solana", session.token, walletAddress, session.userId);
     return true;
   } catch (error) {

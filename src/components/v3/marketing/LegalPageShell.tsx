@@ -2,8 +2,6 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
-import { AuroraBackground } from "@/components/v3/AuroraBackground";
-import { AuthModalProvider } from "@/components/v3/AuthModal";
 import { AccentButton } from "@/components/v3/ui";
 
 export function LegalPageShell({
@@ -20,66 +18,61 @@ export function LegalPageShell({
   children: ReactNode;
 }) {
   return (
-    <AuthModalProvider>
-      <div className="relative min-h-screen bg-[var(--bg)] text-[var(--text)]">
-        <AuroraBackground />
-        <div className="relative z-[2] flex min-h-screen flex-col">
-          <MarketingNav variant="platform" />
-          <main className="flex-1 px-4 py-12 md:px-8 md:py-16">
-            <div className="mx-auto max-w-4xl">
-              <div
-                className="mb-10 rounded-2xl border p-6 md:p-8"
-                style={{
-                  borderColor: "rgba(255,107,53,0.22)",
-                  background:
-                    "radial-gradient(ellipse 80% 120% at 100% 0%, rgba(255,107,53,0.1), transparent 55%), linear-gradient(180deg, #131318, #0D0D11)",
-                }}
-              >
-                <p className="font-mono text-xs uppercase tracking-[0.15em] text-[var(--accent-hi)]">
-                  {eyebrow}
-                </p>
-                <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{title}</h1>
-                <p className="mt-4 max-w-3xl leading-relaxed text-[var(--text-2)]">{summary}</p>
-                <p className="mt-4 font-mono text-xs text-[var(--text-3)]">
-                  Effective date: {lastUpdated}
-                </p>
-              </div>
+    <>
+      <MarketingNav variant="platform" />
+      <main className="flex-1 px-4 py-12 md:px-8 md:py-16">
+        <div className="mx-auto max-w-4xl">
+          <div
+            className="mb-10 rounded-2xl border p-6 md:p-8"
+            style={{
+              borderColor: "rgba(255,107,53,0.22)",
+              background:
+                "radial-gradient(ellipse 80% 120% at 100% 0%, rgba(255,107,53,0.1), transparent 55%), linear-gradient(180deg, #131318, #0D0D11)",
+            }}
+          >
+            <p className="font-mono text-xs uppercase tracking-[0.15em] text-[var(--accent-hi)]">
+              {eyebrow}
+            </p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{title}</h1>
+            <p className="mt-4 max-w-3xl leading-relaxed text-[var(--text-2)]">{summary}</p>
+            <p className="mt-4 font-mono text-xs text-[var(--text-3)]">
+              Effective date: {lastUpdated}
+            </p>
+          </div>
 
-              <div className="mb-8 flex flex-wrap gap-2">
-                <Link href="/privacy">
-                  <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
-                    Privacy
-                  </AccentButton>
-                </Link>
-                <Link href="/terms">
-                  <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
-                    Terms
-                  </AccentButton>
-                </Link>
-                <Link href="/vpn">
-                  <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
-                    VPN
-                  </AccentButton>
-                </Link>
-                <Link href="/drop">
-                  <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
-                    Drop
-                  </AccentButton>
-                </Link>
-                <Link href="/contact">
-                  <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
-                    Contact
-                  </AccentButton>
-                </Link>
-              </div>
+          <div className="mb-8 flex flex-wrap gap-2">
+            <Link href="/privacy">
+              <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
+                Privacy
+              </AccentButton>
+            </Link>
+            <Link href="/terms">
+              <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
+                Terms
+              </AccentButton>
+            </Link>
+            <Link href="/vpn">
+              <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
+                VPN
+              </AccentButton>
+            </Link>
+            <Link href="/drop">
+              <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
+                Drop
+              </AccentButton>
+            </Link>
+            <Link href="/contact">
+              <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
+                Contact
+              </AccentButton>
+            </Link>
+          </div>
 
-              {children}
-            </div>
-          </main>
-          <MarketingFooter />
+          {children}
         </div>
-      </div>
-    </AuthModalProvider>
+      </main>
+      <MarketingFooter />
+    </>
   );
 }
 

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchNodes } from "@/lib/gateway/client";
+import { useOnlineNodes } from "@/context/online-nodes";
 import { uniqueCountries } from "@/lib/regions";
 
 export type NetworkStats = {
@@ -11,23 +10,11 @@ export type NetworkStats = {
 };
 
 export function useNetworkStats(): NetworkStats {
-  const [stats, setStats] = useState<NetworkStats>({
-    nodesOnline: 0,
-    countries: 0,
-    loading: true,
-  });
+  const { nodes, loading } = useOnlineNodes({ sortByLoad: false });
 
-  useEffect(() => {
-    fetchNodes({ status: "online" })
-      .then((nodes) => {
-        setStats({
-          nodesOnline: nodes.length,
-          countries: uniqueCountries(nodes),
-          loading: false,
-        });
-      })
-      .catch(() => setStats((s) => ({ ...s, loading: false })));
-  }, []);
-
-  return stats;
+  return {
+    nodesOnline: nodes.length,
+    countries: uniqueCountries(nodes),
+    loading,
+  };
 }

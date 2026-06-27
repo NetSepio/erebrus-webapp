@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  async redirects() {
+    return [
+      { source: "/explorer", destination: "/connect", permanent: true },
+      { source: "/usernodes", destination: "/workspace", permanent: true },
+      { source: "/usernode/:id", destination: "/workspace", permanent: true },
+      { source: "/mint", destination: "/", permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "assets.aceternity.com", pathname: "/**" },

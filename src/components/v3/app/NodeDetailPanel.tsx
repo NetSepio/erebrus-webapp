@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { GatewayNode } from "@/lib/gateway/types";
 import { AccentButton } from "@/components/v3/ui";
 import { formatRelativeTime, nodeActivityDisplay } from "@/lib/format";
+import { useRelativeTimeTick } from "@/hooks/use-relative-time-tick";
 import { nodeGeoLabel, regionFlag } from "@/lib/regions";
 import {
   X,
@@ -87,6 +88,7 @@ export function NodeDetailPanel({
   /** Hide the provision/download action (e.g. on the public landing map). */
   showAction?: boolean;
 }) {
+  useRelativeTimeTick();
   const online = node.status === "online";
   const mbps = (v?: number) => (v != null ? `${v >= 100 ? v.toFixed(0) : v.toFixed(1)} Mbps` : "—");
   const flag = regionFlag(node.region);
