@@ -34,4 +34,20 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm type-check
+      - name: Prepare build env
+        env:
+          NEXT_PUBLIC_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_PROJECT_ID }}
+          NEXT_PUBLIC_HELIUS_API_KEY: ${{ secrets.NEXT_PUBLIC_HELIUS_API_KEY }}
+        run: |
+          if [ -n "$NEXT_PUBLIC_PROJECT_ID" ]; then
+            PROJECT_ID="$NEXT_PUBLIC_PROJECT_ID"
+          else
+            PROJECT_ID="00000000000000000000000000000000"
+          fi
+          HELIUS="${NEXT_PUBLIC_HELIUS_API_KEY:-ci-build-placeholder}"
+          cat > .env.local <<EOF
+          NEXT_PUBLIC_PROJECT_ID=$PROJECT_ID
+          NEXT_PUBLIC_GATEWAY_URL=https://gateway.erebrus.io/
+          NEXT_PUBLIC_HELIUS_API_KEY=$HELIUS
+          EOF
       - run: pnpm build
