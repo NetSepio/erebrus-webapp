@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import {
   Dialog,
@@ -102,8 +103,10 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
 
 export function AuthModalTrigger({
   children,
+  className,
 }: {
   children: ReactNode;
+  className?: string;
 }) {
   const { open } = useContext(AuthModalContext);
   return (
@@ -112,7 +115,7 @@ export function AuthModalTrigger({
       tabIndex={0}
       onClick={open}
       onKeyDown={(e) => e.key === "Enter" && open()}
-      className="inline-flex cursor-pointer"
+      className={cn("inline-flex cursor-pointer", className)}
     >
       {children}
     </span>

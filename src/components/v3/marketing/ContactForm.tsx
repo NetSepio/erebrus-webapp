@@ -1,18 +1,56 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AccentButton } from "@/components/v3/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const inputClass =
   "w-full rounded-xl border border-white/[0.1] bg-white/[0.04] px-4 py-3 text-[var(--text)] placeholder:text-[var(--text-3)] outline-none transition-colors focus:border-[var(--accent)]/45 focus:ring-2 focus:ring-[var(--accent)]/20";
 
+const selectTriggerClass = cn(
+  inputClass,
+  "flex h-auto items-center justify-between text-left"
+);
+
+const selectContentClass =
+  "rounded-xl border border-white/[0.1] bg-[#131318] text-[var(--text)] shadow-[0_16px_40px_rgba(0,0,0,0.5)]";
+
+const selectItemClass =
+  "rounded-lg py-2.5 pl-8 pr-3 text-sm text-[var(--text-2)] focus:bg-[var(--accent)]/15 focus:text-[var(--text)] data-[highlighted]:bg-[var(--accent)]/15 data-[highlighted]:text-[var(--text)]";
+
+const CATEGORIES = [
+  { value: "profile", label: "Profile" },
+  { value: "login", label: "Login" },
+  { value: "payment", label: "Payment" },
+  { value: "account-deletion", label: "Account deletion" },
+  { value: "feedback", label: "Feedback" },
+  { value: "enterprise", label: "Enterprise / Sovereign Infrastructure" },
+] as const;
+
+type CategoryValue = (typeof CATEGORIES)[number]["value"];
+
+function getInitialCategory(searchParams: URLSearchParams | null): CategoryValue | "" {
+  const raw = searchParams?.get("category")?.toLowerCase();
+  if (raw === "enterprise") return "enterprise";
+  return "";
+}
+
 export function ContactForm() {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     walletAddress: "",
-    category: "",
+    category: getInitialCategory(searchParams),
     description: "",
   });
   const [showPopup, setShowPopup] = useState(false);
@@ -23,7 +61,7 @@ export function ContactForm() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -97,21 +135,24 @@ export function ContactForm() {
           <label htmlFor="category" className="mb-2 block text-sm font-medium text-[var(--text-2)]">
             Query category
           </label>
-          <select
-            id="category"
-            name="category"
+          <Select
+            value={formData.category || undefined}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, category: value as CategoryValue }))
+            }
             required
-            value={formData.category}
-            onChange={handleChange}
-            className={inputClass}
           >
-            <option value="">Select a category</option>
-            <option value="profile">Profile</option>
-            <option value="login">Login</option>
-            <option value="payment">Payment</option>
-            <option value="account-deletion">Account deletion</option>
-            <option value="feedback">Feedback</option>
-          </select>
+            <SelectTrigger id="category" className={selectTriggerClass}>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent className={selectContentClass}>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat.value} value={cat.value} className={selectItemClass}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
