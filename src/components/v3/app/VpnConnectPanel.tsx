@@ -1,8 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { generateKeyPair } from "curve25519-js";
 import { saveAs } from "file-saver";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  generateWgKeyPair,
+  injectPrivateKey,
+  storeClientPrivateKey,
+  getClientPrivateKey,
+  removeClientPrivateKey,
+} from "@/lib/wireguard";
 import {
   fetchSubscription,
   fetchVpnClients,
@@ -37,14 +44,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp } from "lucide-react";
+import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode } from "lucide-react";
 import Link from "next/link";
 
 type VpnState = "disconnected" | "connecting" | "connected";
-
-function bytesToBase64(bytes: Uint8Array): string {
-  return btoa(String.fromCharCode(...bytes));
-}
 
 export function VpnConnectPanel() {
   const { nodes, loading: nodesLoading } = useOnlineNodes();
@@ -58,6 +61,11 @@ export function VpnConnectPanel() {
   const [provisioning, setProvisioning] = useState(false);
   const [nameDialog, setNameDialog] = useState(false);
   const [deviceName, setDeviceName] = useState("");
+  const [configModal, setConfigModal] = useState<{
+    name: string;
+    config: string;
+    hasKey: boolean;
+  } | null>(null);
 
   const refresh = useCallback(async () => {
     const [c, s, p] = await Promise.all([
@@ -146,23 +154,25 @@ export function VpnConnectPanel() {
     setProvisioning(true);
     setState("connecting");
     try {
-      const seed = new Uint8Array(32);
-      crypto.getRandomValues(seed);
-      const { public: wgPublicKeyBytes } = generateKeyPair(seed);
-      const wgPublicKey = bytesToBase64(wgPublicKeyBytes);
+      const { privateKey, publicKey } = generateWgKeyPair();
 
       const client = await provisionVpnClient({
         name,
         node_id: selected.id,
-        wg_public_key: wgPublicKey,
+        wg_public_key: publicKey,
         idempotency_key: `${selected.id}-${Date.now()}`,
       });
 
-      const configRes = await fetchVpnClientConfig(client.id);
-      saveAs(new Blob([configRes.config], { type: "text/plain" }), `erebrus-${selected.region}.conf`);
+      // The node builds the config from our public key only — inject the
+      // client-held private key to make it usable, and persist it so this
+      // device's config can be re-downloaded or shown as a QR later.
+      storeClientPrivateKey(client.id, privateKey);
+      const { config: rawConfig } = await fetchVpnClientConfig(client.id);
+      const config = injectPrivateKey(rawConfig, privateKey);
 
       setState("connected");
-      toast.success("VPN client provisioned — config downloaded");
+      setConfigModal({ name: client.name || name, config, hasKey: true });
+      toast.success("VPN client provisioned");
       await refresh();
     } catch (err) {
       setState("disconnected");
@@ -512,14 +522,19 @@ export function VpnConnectPanel() {
                     className="!px-2.5"
                     onClick={async () => {
                       try {
-                        const { config } = await fetchVpnClientConfig(client.id);
-                        saveAs(new Blob([config]), `${client.name}.conf`);
+                        const { config: raw } = await fetchVpnClientConfig(client.id);
+                        const pk = getClientPrivateKey(client.id);
+                        setConfigModal({
+                          name: client.name,
+                          config: pk ? injectPrivateKey(raw, pk) : raw,
+                          hasKey: !!pk,
+                        });
                       } catch {
                         toast.error("Could not fetch config");
                       }
                     }}
                   >
-                    <Download size={14} />
+                    <QrCode size={14} />
                     Config
                   </ActionButton>
                   <ActionButton
@@ -528,6 +543,7 @@ export function VpnConnectPanel() {
                     onClick={async () => {
                       try {
                         await deleteVpnClient(client.id);
+                        removeClientPrivateKey(client.id);
                         toast.success("Device removed");
                         await refresh();
                       } catch {
@@ -571,8 +587,49 @@ export function VpnConnectPanel() {
             onClick={() => runProvision(deviceName.trim() || "My device")}
             disabled={provisioning}
           >
-            Provision & download
+            {provisioning ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
+              </>
+            ) : (
+              "Provision device"
+            )}
           </AccentButton>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!configModal} onOpenChange={(o) => !o && setConfigModal(null)}>
+        <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{configModal?.name} — WireGuard config</DialogTitle>
+          </DialogHeader>
+          {configModal?.hasKey ? (
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-center text-sm text-[var(--text-2)]">
+                Scan this with the WireGuard app, or download the <code>.conf</code> and import it.
+              </p>
+              <div className="rounded-2xl bg-white p-4">
+                <QRCodeSVG value={configModal.config} size={208} level="M" marginSize={0} />
+              </div>
+              <AccentButton
+                className="w-full"
+                onClick={() =>
+                  saveAs(
+                    new Blob([configModal.config], { type: "text/plain" }),
+                    `${configModal.name.replace(/[^a-z0-9-_]+/gi, "-") || "erebrus"}.conf`
+                  )
+                }
+              >
+                <Download size={16} /> Download .conf
+              </AccentButton>
+            </div>
+          ) : (
+            <p className="rounded-lg bg-[var(--warn)]/10 px-3 py-3 text-center text-sm text-[var(--warn)]">
+              The private key for this device isn’t available in this browser, so an installable
+              config can’t be rebuilt. Remove this device and add it again to get a fresh config you
+              can download or scan.
+            </p>
+          )}
         </DialogContent>
       </Dialog>
     </div>
