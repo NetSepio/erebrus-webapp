@@ -4,6 +4,7 @@ import {
   normalizeLeaderboardEntry,
   normalizeNode,
   normalizeOrg,
+  normalizeOrgNode,
   normalizePlan,
   normalizeProfile,
   normalizeSubscription,
@@ -19,9 +20,17 @@ import type {
   GatewayNode,
   GatewayNodeMetrics,
   GatewayOperatorNode,
+  GatewayFirewallRule,
+  GatewayFirewallService,
+  GatewayFirewallStatus,
+  GatewayFirewallSyncResult,
   GatewayOrg,
+  GatewayOrgEntitlements,
   GatewayOrgMember,
+  GatewayOrgNode,
+  GatewayOrgNodeService,
   GatewayOrgUsage,
+  GatewayRegistrationTokenResult,
   GatewayPerk,
   GatewayPlan,
   GatewayPlatformSetting,
@@ -228,8 +237,8 @@ export async function fetchOrg(id: string): Promise<GatewayOrg> {
 
 export async function createOrg(body: {
   name: string;
-  kind: string;
   slug: string;
+  kind?: string;
   description?: string;
   website?: string;
 }): Promise<GatewayOrg> {
@@ -263,6 +272,22 @@ export async function addOrgMember(
   await gatewayFetch(`orgs/${orgId}/members`, { method: "POST", body: JSON.stringify(body) });
 }
 
+export async function inviteOrgMember(
+  orgId: string,
+  body: {
+    wallet_address?: string;
+    email?: string;
+    chain?: string;
+    role?: string;
+    seat_tier?: string;
+  }
+): Promise<{ member?: GatewayOrgMember; status?: string; email?: string; email_sent?: boolean }> {
+  return gatewayFetch(`orgs/${orgId}/members/invite`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export async function removeOrgMember(orgId: string, userId: string): Promise<void> {
   await gatewayFetch(`orgs/${orgId}/members/${userId}`, { method: "DELETE" });
 }
@@ -270,7 +295,7 @@ export async function removeOrgMember(orgId: string, userId: string): Promise<vo
 export async function patchOrgMember(
   orgId: string,
   userId: string,
-  role: "admin" | "member"
+  role: "admin" | "member" | "node_operator"
 ): Promise<void> {
   await gatewayFetch(`orgs/${orgId}/members/${userId}`, {
     method: "PATCH",
@@ -290,9 +315,94 @@ export async function fetchOrgClients(orgId: string): Promise<GatewayVpnClient[]
   return asArray(data, normalizeClient);
 }
 
-export async function fetchOrgNodes(id: string): Promise<GatewayNode[]> {
+export async function fetchOrgNodes(id: string): Promise<GatewayOrgNode[]> {
   const data = await gatewayFetch<unknown>(`orgs/${id}/nodes`);
-  return asArray(data, normalizeNode);
+  return asArray(data, normalizeOrgNode);
+}
+
+export async function fetchOrgEntitlements(id: string): Promise<GatewayOrgEntitlements> {
+  return gatewayFetch(`orgs/${id}/entitlements`);
+}
+
+export async function createNodeRegistrationToken(
+  orgId: string,
+  body?: { ttl_hours?: number; scopes?: string[] }
+): Promise<GatewayRegistrationTokenResult> {
+  return gatewayFetch(`orgs/${orgId}/node-registration-tokens`, {
+    method: "POST",
+    body: JSON.stringify(body ?? { ttl_hours: 24 }),
+  });
+}
+
+export async function fetchOrgNodeServices(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayOrgNodeService[]> {
+  const data = await gatewayFetch<unknown>(`orgs/${orgId}/nodes/${nodeId}/services`);
+  return Array.isArray(data) ? (data as GatewayOrgNodeService[]) : [];
+}
+
+export async function fetchFirewallService(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayFirewallService> {
+  return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall`);
+}
+
+export async function fetchFirewallStatus(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayFirewallStatus> {
+  return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/status`);
+}
+
+export async function fetchFirewallRules(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayFirewallRule[]> {
+  const data = await gatewayFetch<unknown>(`orgs/${orgId}/nodes/${nodeId}/firewall/rules`);
+  return Array.isArray(data) ? (data as GatewayFirewallRule[]) : [];
+}
+
+export async function createFirewallRule(
+  orgId: string,
+  nodeId: string,
+  body: {
+    rule_type: string;
+    target: string;
+    action?: string;
+    scope?: string;
+    enabled?: boolean;
+  }
+): Promise<GatewayFirewallRule> {
+  return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/rules`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteFirewallRule(
+  orgId: string,
+  nodeId: string,
+  ruleId: string
+): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/rules/${ruleId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function syncFirewall(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayFirewallSyncResult> {
+  return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/sync`, { method: "POST" });
+}
+
+export async function restartFirewall(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayFirewallSyncResult> {
+  return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/restart`, { method: "POST" });
 }
 
 export async function fetchOrgUsage(id: string, days = 30): Promise<GatewayOrgUsage> {

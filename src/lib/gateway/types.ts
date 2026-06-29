@@ -161,29 +161,142 @@ export interface GatewayPlan {
   device_limit?: number;
 }
 
+export type OrgMemberRole = "owner" | "admin" | "node_operator" | "member" | "viewer";
+
+export type DeploymentProfile = "erebrus" | "shield" | "sentinel";
+
 export interface GatewayOrg {
   id: string;
   name: string;
+  /** Legacy display label; prefer `plan` from gateway. */
   kind: string;
   slug?: string;
+  plan?: string;
+  billing_status?: string;
+  verification_status?: string;
+  public_profile_enabled?: boolean;
   description?: string;
   website?: string;
-  role?: string;
+  role?: OrgMemberRole | string;
   /** Always present on org API responses; `false` is meaningful. */
   verified: boolean;
   member_count?: number;
   node_count?: number;
   online_nodes?: number;
+  /** Deprecated — use scoped registration tokens instead. */
   enrollment_secret?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface GatewayOrgMember {
+  id?: string;
   user_id: string;
   wallet_address: string;
-  chain: GatewayChain;
-  role: "owner" | "admin" | "member";
+  chain?: GatewayChain;
+  role: OrgMemberRole | string;
+  seat_tier?: string;
+  status?: string;
   name?: string;
+  created_at?: string;
+}
+
+/** Control-plane org node (`GET /orgs/:id/nodes`). */
+export interface GatewayOrgNode {
+  id: string;
+  org_id: string;
+  node_id: string;
+  node_name?: string;
+  deployment_profile: DeploymentProfile | string;
+  node_type?: string;
+  visibility?: string;
+  managed_by?: string;
+  region?: string;
+  zone?: string;
+  status: string;
+  api_public_url?: string;
+  last_seen_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GatewayOrgNodeService {
+  id: string;
+  org_id: string;
+  node_id: string;
+  service_type: string;
+  service_name?: string;
+  service_provider?: string;
+  service_status: string;
+  visibility?: string;
+  config_ref?: string;
+  access_url?: string;
+  license_id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GatewayOrgEntitlements {
+  org_id: string;
+  plan: string;
+  paid_seats_included: number;
+  managed_vpn_nodes_included: number;
+  shield_instances_included: number;
+  sentinel_licenses_included: number;
+  public_node_access_tier?: string;
+  api_quota_monthly?: number;
+  bandwidth_policy?: string;
+  support_tier?: string;
+  audit_logs_enabled?: boolean;
+  advanced_analytics_enabled?: boolean;
+}
+
+export interface GatewayRegistrationTokenMeta {
+  id: string;
+  org_id: string;
+  scopes: string[];
+  expires_at: string;
+  created_by?: string;
+  used_at?: string;
+  created_at?: string;
+}
+
+export interface GatewayRegistrationTokenResult {
+  token: string;
+  token_meta: GatewayRegistrationTokenMeta;
+}
+
+export interface GatewayFirewallService {
+  service: GatewayOrgNodeService;
+  service_kind: "shield" | "sentinel" | string;
+}
+
+export interface GatewayFirewallRule {
+  id: string;
+  org_id: string;
+  node_id: string;
+  firewall_service_id: string;
+  rule_type: string;
+  target: string;
+  action?: string;
+  scope?: string;
+  enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GatewayFirewallStatus {
+  service_status: string;
+  service_kind: string;
+  access_url?: string;
+  config_ref?: string;
+}
+
+export interface GatewayFirewallSyncResult {
+  service: GatewayOrgNodeService;
+  action: string;
+  node_notified?: boolean;
+  rules?: number;
 }
 
 export interface GatewayProfile {

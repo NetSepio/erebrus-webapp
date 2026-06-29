@@ -5,6 +5,7 @@ import type {
   GatewayNodeCapabilities,
   GatewayNodeOrgSummary,
   GatewayOrg,
+  GatewayOrgNode,
   GatewayPlan,
   GatewayProfile,
   GatewaySubscription,
@@ -134,17 +135,47 @@ export function normalizeClient(raw: Record<string, unknown>): GatewayVpnClient 
 }
 
 export function normalizeOrg(raw: Record<string, unknown>): GatewayOrg {
+  const plan = optStr(raw.plan);
+  const verification = optStr(raw.verification_status);
   return {
     id: String(raw.id ?? ""),
     name: String(raw.name ?? ""),
-    kind: String(raw.kind ?? "team"),
+    kind: String(raw.kind ?? plan ?? "team"),
     slug: raw.slug as string | undefined,
+    plan,
+    billing_status: optStr(raw.billing_status),
+    verification_status: verification,
+    public_profile_enabled: raw.public_profile_enabled === true,
     description: raw.description as string | undefined,
     website: raw.website as string | undefined,
     role: raw.role as string | undefined,
-    verified: Boolean(raw.verified),
+    verified:
+      raw.verified === true ||
+      verification === "verified",
     enrollment_secret: raw.enrollment_secret as string | undefined,
     created_at: raw.created_at as string | undefined,
+    updated_at: optStr(raw.updated_at),
+  };
+}
+
+/** Maps `GET /orgs/:id/nodes` control-plane records. */
+export function normalizeOrgNode(raw: Record<string, unknown>): GatewayOrgNode {
+  return {
+    id: String(raw.id ?? ""),
+    org_id: String(raw.org_id ?? ""),
+    node_id: String(raw.node_id ?? ""),
+    node_name: optStr(raw.node_name),
+    deployment_profile: String(raw.deployment_profile ?? "erebrus"),
+    node_type: optStr(raw.node_type),
+    visibility: optStr(raw.visibility),
+    managed_by: optStr(raw.managed_by),
+    region: optStr(raw.region) ?? "unknown",
+    zone: optStr(raw.zone),
+    status: String(raw.status ?? "offline"),
+    api_public_url: optStr(raw.api_public_url),
+    last_seen_at: optStr(raw.last_seen_at),
+    created_at: optStr(raw.created_at),
+    updated_at: optStr(raw.updated_at),
   };
 }
 
