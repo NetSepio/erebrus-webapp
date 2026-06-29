@@ -16,10 +16,41 @@ import {
   getAdditionalSeatPrice,
   getComparisonPrice,
   getComparisonMonthlyEquivalent,
+  COMMUNITY_EDITION_FEATURE,
   COMMUNITY_EDITION_FOOTNOTE,
+  ORG_MEMBERS_NOTE,
+  UNLIMITED_ORG_MEMBERS_FEATURE,
+  UNLIMITED_FREE_ORG_MEMBERS_FEATURE,
 } from "@/lib/pricing-plans";
 
-const COMMUNITY_EDITION_FEATURE = "Community Edition Firewall";
+function FeatureLabel({ feature }: { feature: string }) {
+  if (feature === COMMUNITY_EDITION_FEATURE) {
+    return (
+      <>
+        {COMMUNITY_EDITION_FEATURE}
+        <sup className="ml-0.5 font-mono text-[10px] text-[var(--accent-hi)]">
+          *
+        </sup>
+      </>
+    );
+  }
+
+  if (
+    feature === UNLIMITED_ORG_MEMBERS_FEATURE ||
+    feature === UNLIMITED_FREE_ORG_MEMBERS_FEATURE
+  ) {
+    return (
+      <>
+        {feature}
+        <sup className="ml-0.5 font-mono text-[10px] text-[var(--accent-hi)]">
+          †
+        </sup>
+      </>
+    );
+  }
+
+  return <>{feature}</>;
+}
 
 function BillingToggle({
   period,
@@ -179,16 +210,7 @@ function PlanCard({
                 strokeWidth={2.5}
               />
               <span>
-                {feature === COMMUNITY_EDITION_FEATURE ? (
-                  <>
-                    {COMMUNITY_EDITION_FEATURE}
-                    <sup className="ml-0.5 font-mono text-[10px] text-[var(--accent-hi)]">
-                      *
-                    </sup>
-                  </>
-                ) : (
-                  feature
-                )}
+                <FeatureLabel feature={feature} />
               </span>
             </li>
           ))}
@@ -334,10 +356,16 @@ export function PricingPageContent() {
           </div>
         </Card>
 
-        <p className="mt-4 w-full text-xs leading-relaxed text-[var(--text-3)]">
-          <span className="mr-1 font-mono text-[var(--accent-hi)]">*</span>
-          {COMMUNITY_EDITION_FOOTNOTE}
-        </p>
+        <div className="mt-4 space-y-2">
+          <p className="w-full text-xs leading-relaxed text-[var(--text-3)]">
+            <span className="mr-1 font-mono text-[var(--accent-hi)]">*</span>
+            {COMMUNITY_EDITION_FOOTNOTE}
+          </p>
+          <p className="w-full text-xs leading-relaxed text-[var(--text-3)]">
+            <span className="mr-1 font-mono text-[var(--accent-hi)]">†</span>
+            {ORG_MEMBERS_NOTE}
+          </p>
+        </div>
       </section>
 
       <section className="mx-auto max-w-[1180px] px-4 pb-24 md:px-8">

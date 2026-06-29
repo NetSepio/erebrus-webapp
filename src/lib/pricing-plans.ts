@@ -56,10 +56,10 @@ export const PRICING_PLANS: PricingPlan[] = [
     subtitle: "Private Access",
     tagline: "Start your private network for free.",
     description:
-      "Try Erebrus with free public nodes, self-hosted private nodes, and shared org resources.",
+      "Use limited public nodes, connect to private Org resources, or self-host your own private node.",
     pricing: { monthly: null, annualEffectiveMonthly: null, annualTotal: null },
     includes: [
-      "Unlimited org members",
+      "Unlimited Org members",
       "Free user access",
       "Limited public Erebrus nodes",
       "Self-host private nodes",
@@ -84,7 +84,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     subtitle: "Builder Access",
     tagline: "Premium access for individuals and builders.",
     description:
-      "Faster public nodes, API keys, and Access to share premium Drop and AI services within your org.",
+      "Get faster public VPN nodes, Gateway API access, and premium Drop and AI services.",
     pricing: {
       monthly: 4.99,
       annualEffectiveMonthly: 3.99,
@@ -118,7 +118,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     subtitle: "Team Network",
     tagline: "Dedicated private infrastructure for teams.",
     description:
-      "A dedicated VPN node, Community Edition Firewall, and shared org services for your team.",
+      "Get a managed dedicated VPN node, Community Edition Firewall support, and shared Org services for your team.",
     pricing: {
       monthly: 24.99,
       annualEffectiveMonthly: 19.99,
@@ -127,9 +127,8 @@ export const PRICING_PLANS: PricingPlan[] = [
     inheritsFrom: "starter",
     seatsIncluded: { count: 5, label: "Pro seats" },
     includes: [
-      "Unlimited free org members",
       "1 managed dedicated VPN node",
-      "Community Edition Firewall",
+      "Erebrus Shield",
       "DNS allow/block list controls",
       "Private org VPN access",
       "Shared Drop on org nodes",
@@ -161,7 +160,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     subtitle: "Security Cloud",
     tagline: "Secure private networking for organizations.",
     description:
-      "Dedicated nodes, Erebrus Firewall, threat monitoring, audit logs, and priority support.",
+      "Get dedicated VPN infrastructure, Erebrus Sentinel licensing, network-layer monitoring, audit logs, and priority support.",
     pricing: {
       monthly: 99.99,
       annualEffectiveMonthly: 79.99,
@@ -170,9 +169,8 @@ export const PRICING_PLANS: PricingPlan[] = [
     inheritsFrom: "pro",
     seatsIncluded: { count: 25, label: "Business seats" },
     includes: [
-      "Unlimited free org members",
       "3 managed dedicated VPN nodes",
-      "Erebrus Firewall license",
+      "Erebrus Sentinel license",
       "Network-layer threat monitoring",
       "AI-assisted threat detection",
       "Real-time policy enforcement",
@@ -197,8 +195,16 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
 ];
 
+export const UNLIMITED_ORG_MEMBERS_FEATURE = "Unlimited Org members";
+export const UNLIMITED_FREE_ORG_MEMBERS_FEATURE = "Unlimited free Org members";
+
+export const ORG_MEMBERS_NOTE =
+  "Org members are unlimited. Paid seats unlock premium access, higher limits, and plan-specific services. Free members can access free public nodes and private Org resources shared with them.";
+
+export const COMMUNITY_EDITION_FEATURE = "Erebrus Shield";
+
 export const COMMUNITY_EDITION_FOOTNOTE =
-  "Community Edition Firewall may use supported open-source DNS/firewall components such as AdGuard Home, Pi-hole, or compatible alternatives depending on deployment requirements.";
+  "Erebrus Shield may use supported open-source DNS/firewall components such as AdGuard Home, Pi-hole, or compatible alternatives depending on deployment requirements.";
 
 export const ENTERPRISE_PLAN: EnterprisePlan = {
   name: "Enterprise",
