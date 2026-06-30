@@ -14,6 +14,8 @@ import {
   fetchSubscription,
   fetchVpnClients,
   fetchPlans,
+  fetchOrgs,
+  fetchOrgVpnNodes,
   provisionVpnClient,
   deleteVpnClient,
   fetchVpnClientConfig,
@@ -23,7 +25,7 @@ import {
 import { useOnlineNodes } from "@/context/online-nodes";
 import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
-import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import type { GatewayNode, GatewayOrg, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
@@ -44,16 +46,52 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode } from "lucide-react";
+import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode, BadgeCheck } from "lucide-react";
 import Link from "next/link";
+
+function ScopeChip({
+  label,
+  active,
+  onClick,
+  verified = false,
+  count,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  verified?: boolean;
+  count?: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-[11px] tracking-wide transition ${
+        active
+          ? "border-[var(--accent)]/50 bg-[var(--accent)]/15 text-[var(--accent-hi)]"
+          : "border-white/[0.08] text-[var(--text-3)] hover:bg-white/[0.04]"
+      }`}
+    >
+      <span className="normal-case">{label}</span>
+      {verified && <BadgeCheck size={13} className="text-[var(--accent-hi)]" />}
+      {count != null && (
+        <span className="rounded bg-white/[0.06] px-1.5 text-[10px] text-[var(--text-3)]">{count}</span>
+      )}
+    </button>
+  );
+}
 
 type VpnState = "disconnected" | "connecting" | "connected";
 
 export function VpnConnectPanel() {
-  const { nodes, loading: nodesLoading } = useOnlineNodes();
+  const { nodes: publicNodes, loading: nodesLoading } = useOnlineNodes();
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [sub, setSub] = useState<GatewaySubscription | null>(null);
   const [plans, setPlans] = useState<GatewayPlan[]>([]);
+  const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
+  const [orgNodes, setOrgNodes] = useState<GatewayNode[]>([]);
+  // Active node scope: null = Public network, otherwise an org slug.
+  const [scope, setScope] = useState<string | null>(null);
   const [selected, setSelected] = useState<GatewayNode | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [state, setState] = useState<VpnState>("disconnected");
@@ -68,14 +106,18 @@ export function VpnConnectPanel() {
   } | null>(null);
 
   const refresh = useCallback(async () => {
-    const [c, s, p] = await Promise.all([
+    const [c, s, p, o, on] = await Promise.all([
       fetchVpnClients().catch(() => []),
       fetchSubscription().catch(() => null),
       fetchPlans().catch(() => []),
+      fetchOrgs().catch(() => []),
+      fetchOrgVpnNodes().catch(() => []),
     ]);
     setClients(c);
     setSub(s);
     setPlans(p);
+    setOrgs(o);
+    setOrgNodes(on);
     setState(c.length > 0 ? "connected" : "disconnected");
     setLoading(false);
   }, []);
@@ -83,6 +125,60 @@ export function VpnConnectPanel() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Org-scoped nodes grouped by org slug (incl. private nodes).
+  const orgNodesBySlug = useMemo(() => {
+    const map = new Map<string, GatewayNode[]>();
+    for (const n of orgNodes) {
+      const slug = n.org?.slug;
+      if (!slug) continue;
+      const arr = map.get(slug) ?? [];
+      arr.push(n);
+      map.set(slug, arr);
+    }
+    return map;
+  }, [orgNodes]);
+
+  // Scope options: orgs from /orgs (incl. empty), plus any org that has nodes
+  // but wasn't returned by /orgs (synthesized from the node's org block).
+  const scopeOrgs = useMemo(() => {
+    const bySlug = new Map<string, { slug: string; name: string; verified: boolean }>();
+    for (const o of orgs) {
+      if (o.slug) bySlug.set(o.slug, { slug: o.slug, name: o.name, verified: o.verified });
+    }
+    for (const [slug, ns] of orgNodesBySlug) {
+      if (!bySlug.has(slug)) {
+        const org = ns[0]?.org;
+        bySlug.set(slug, { slug, name: org?.name ?? slug, verified: org?.verified ?? false });
+      }
+    }
+    return [...bySlug.values()];
+  }, [orgs, orgNodesBySlug]);
+
+  // Drop a stale scope whose org is no longer available.
+  useEffect(() => {
+    if (scope && !scopeOrgs.some((o) => o.slug === scope)) setScope(null);
+  }, [scope, scopeOrgs]);
+
+  // The active, scope-filtered node list (sorted lightest-load first).
+  const nodes = useMemo(() => {
+    const source = scope ? (orgNodesBySlug.get(scope) ?? []) : publicNodes;
+    return [...source].sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99));
+  }, [scope, orgNodesBySlug, publicNodes]);
+
+  const scopeLabel = useMemo(
+    () => (scope ? scopeOrgs.find((o) => o.slug === scope)?.name ?? "Organization" : "Public network"),
+    [scope, scopeOrgs]
+  );
+
+  // Node name lookup spanning public + org nodes (for the VPN-clients list).
+  const nodeNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const n of [...publicNodes, ...orgNodes]) {
+      if (n.name) m.set(n.id, n.name);
+    }
+    return m;
+  }, [publicNodes, orgNodes]);
 
   useEffect(() => {
     setSelected((prev) => {
@@ -228,11 +324,36 @@ export function VpnConnectPanel() {
       {!entitled && (
         <Card className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <p className="text-sm text-[var(--text-2)]">
-            Start your free 7-day trial to provision WireGuard clients on the network.
+            {sub?.trial_consumed
+              ? "Your 7-day trial has ended. Contact support to upgrade your plan, or hold the access NFT to extend to 30 days."
+              : "Start your free 7-day trial to provision WireGuard clients on the network."}
           </p>
-          <AccentButton onClick={startFreeTrial} disabled={sub?.trial_consumed}>
-            {sub?.trial_consumed ? "Trial used" : "Start trial"}
-          </AccentButton>
+          {sub?.trial_consumed ? (
+            <Link href="/contact">
+              <AccentButton>Contact support</AccentButton>
+            </Link>
+          ) : (
+            <AccentButton onClick={startFreeTrial}>Start trial</AccentButton>
+          )}
+        </Card>
+      )}
+
+      {scopeOrgs.length > 0 && (
+        <Card className="flex flex-wrap items-center gap-2 p-3">
+          <span className="mr-1 pl-1 font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">
+            VPN source
+          </span>
+          <ScopeChip label="Public network" active={scope === null} onClick={() => setScope(null)} />
+          {scopeOrgs.map((o) => (
+            <ScopeChip
+              key={o.slug}
+              label={o.name}
+              verified={o.verified}
+              count={orgNodesBySlug.get(o.slug)?.length ?? 0}
+              active={scope === o.slug}
+              onClick={() => setScope(o.slug)}
+            />
+          ))}
         </Card>
       )}
 
@@ -245,13 +366,15 @@ export function VpnConnectPanel() {
         >
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4 md:px-[22px]">
             <div className="flex items-center gap-2.5">
-              <MonoLabel>Global Network</MonoLabel>
+              <MonoLabel>{scope ? scopeLabel : "Global Network"}</MonoLabel>
               <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--success)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
                 {nodes.length} online
               </span>
             </div>
-            <span className="font-mono text-[11px] text-[var(--text-3)]">Auto-rotating</span>
+            <span className="font-mono text-[11px] text-[var(--text-3)]">
+              {scope ? "Org nodes" : "Auto-rotating"}
+            </span>
           </div>
           <div className="relative h-[360px] md:h-[470px]">
             <NodeGlobe
@@ -470,8 +593,9 @@ export function VpnConnectPanel() {
         ) : (
           clients.map((client) => {
             const activity = clientActivity(client.last_handshake);
-            const nodeRegion =
-              nodes.find((n) => n.id === client.node_id)?.name ?? client.node_region;
+            // Look across all known nodes (public + org) so a client's node name
+            // resolves regardless of the currently selected scope.
+            const nodeRegion = nodeNameById.get(client.node_id) ?? client.node_region;
             return (
               <div
                 key={client.id}

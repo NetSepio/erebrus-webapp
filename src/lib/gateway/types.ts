@@ -472,6 +472,7 @@ export interface GatewayAdminOrg {
   id?: string;
   name: string;
   kind: string;
+  plan?: string;
   verified: boolean;
   slug?: string;
   description?: string;

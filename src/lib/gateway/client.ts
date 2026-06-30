@@ -430,6 +430,16 @@ export async function revokeOrgApiKey(orgId: string, keyId: string): Promise<voi
 
 // ── Operator ───────────────────────────────────────────────────────────────
 
+/**
+ * Org-scoped VPN nodes for the connect flow: every node across the orgs the
+ * caller belongs to (incl. private), normalized into full `GatewayNode`s (geo
+ * is derived from region/zone, so they place on the globe like public nodes).
+ */
+export async function fetchOrgVpnNodes(): Promise<GatewayNode[]> {
+  const data = await gatewayFetch<unknown>("operator/nodes");
+  return asArray(data, normalizeNode);
+}
+
 export async function fetchOperatorNodes(): Promise<GatewayOperatorNode[]> {
   const data = await gatewayFetch<unknown>("operator/nodes");
   if (!Array.isArray(data)) return [];
@@ -581,13 +591,40 @@ export async function fetchAdminOrgs(params?: {
   limit?: number;
   offset?: number;
 }): Promise<{ orgs: GatewayAdminOrg[]; limit: number; offset: number }> {
-  return gatewayFetch("admin/orgs", { params });
+  const data = await gatewayFetch<{
+    orgs?: Record<string, unknown>[];
+    limit?: number;
+    offset?: number;
+  }>("admin/orgs", { params });
+  const orgs = (data.orgs ?? []).map((raw): GatewayAdminOrg => {
+    const o = normalizeOrg(raw);
+    return {
+      id: o.id || undefined,
+      name: o.name,
+      kind: o.kind,
+      plan: o.plan,
+      verified: o.verified,
+      slug: o.slug,
+      description: o.description,
+      website: o.website,
+      created_at: o.created_at,
+      updated_at: o.updated_at,
+    };
+  });
+  return { orgs, limit: data.limit ?? 0, offset: data.offset ?? 0 };
 }
 
 export async function patchAdminOrg(id: string, verified: boolean): Promise<void> {
   await gatewayFetch(`admin/orgs/${id}`, {
     method: "PATCH",
-    body: JSON.stringify({ verified }),
+    body: JSON.stringify({ verification_status: verified ? "verified" : "unverified" }),
+  });
+}
+
+export async function setAdminOrgPlan(id: string, plan: string): Promise<void> {
+  await gatewayFetch(`admin/orgs/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ plan }),
   });
 }
 

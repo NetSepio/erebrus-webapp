@@ -13,6 +13,7 @@ import {
   fetchAdminUsers,
   grantAdminPerk,
   patchAdminOrg,
+  setAdminOrgPlan,
   patchAdminSettings,
   GatewayApiError,
 } from "@/lib/gateway/client";
@@ -39,6 +40,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { truncateAddress } from "@/lib/design";
 import { regionZoneLabel } from "@/lib/regions";
+
+// Org plans the platform admin can assign manually (self-serve upgrades land
+// with payments later). Mirrors the gateway's normalizeOrgPlan whitelist.
+const ORG_PLANS = ["basic", "starter", "pro", "business", "enterprise"] as const;
 
 function formatBytes(n: number): string {
   if (!n || n < 1) return "0 B";
@@ -183,6 +188,26 @@ export function AdminConsole() {
       loadOrgs();
     } catch (e) {
       toast.error(e instanceof GatewayApiError ? e.message : "Failed to update org");
+    }
+  };
+
+  const verifyOrg = async (id: string, verified: boolean) => {
+    try {
+      await patchAdminOrg(id, verified);
+      toast.success(verified ? "Org verified" : "Org unverified");
+      loadOrgs();
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to update org");
+    }
+  };
+
+  const assignOrgPlan = async (id: string, plan: string) => {
+    try {
+      await setAdminOrgPlan(id, plan);
+      toast.success(`Plan set to ${plan}`);
+      loadOrgs();
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to set plan");
     }
   };
 
@@ -404,23 +429,52 @@ export function AdminConsole() {
           <Card className="overflow-hidden">
             {orgs.map((o, i) => (
               <div
-                key={`${o.name}-${i}`}
-                className="flex items-center justify-between border-b border-white/[0.04] px-5 py-3"
+                key={o.id ?? `${o.name}-${i}`}
+                className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3"
               >
-                <div>
+                <div className="min-w-0">
                   <div className="font-semibold">{o.name}</div>
-                  <div className="text-xs capitalize text-[var(--text-3)]">
-                    {o.kind}
+                  <div className="text-xs text-[var(--text-3)]">
+                    <span className="uppercase text-[var(--accent-hi)]">{o.plan ?? o.kind}</span>
                     {o.slug ? ` · ${o.slug}` : ""}
                   </div>
                 </div>
-                <span
-                  className={`font-mono text-[10px] uppercase ${
-                    o.verified ? "text-[var(--success)]" : "text-[var(--text-3)]"
-                  }`}
-                >
-                  {o.verified ? "Verified" : "Unverified"}
-                </span>
+                {o.id ? (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={o.plan ?? "basic"}
+                      onChange={(e) => assignOrgPlan(o.id!, e.target.value)}
+                      className="rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1 text-xs capitalize text-[var(--text)]"
+                      aria-label={`Plan for ${o.name}`}
+                    >
+                      {ORG_PLANS.map((p) => (
+                        <option key={p} value={p} className="capitalize">
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => verifyOrg(o.id!, !o.verified)}
+                      title={o.verified ? "Click to unverify" : "Click to verify"}
+                      className={`rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase ${
+                        o.verified
+                          ? "border-[var(--success)]/40 text-[var(--success)]"
+                          : "border-white/10 text-[var(--text-3)] hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      {o.verified ? "Verified" : "Unverified"}
+                    </button>
+                  </div>
+                ) : (
+                  <span
+                    className={`font-mono text-[10px] uppercase ${
+                      o.verified ? "text-[var(--success)]" : "text-[var(--text-3)]"
+                    }`}
+                  >
+                    {o.verified ? "Verified" : "Unverified"}
+                  </span>
+                )}
               </div>
             ))}
           </Card>
