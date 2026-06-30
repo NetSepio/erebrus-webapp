@@ -18,7 +18,11 @@ import {
   removeOrgMember,
   patchOrgMember,
   transferOrgOwnership,
+  assignOrgSeat,
+  revokeOrgSeat,
+  deleteOrg,
   updateOrg,
+  GatewayApiError,
 } from "@/lib/gateway/client";
 import type {
   GatewayApiKey,
@@ -71,6 +75,31 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const isOwner = org?.role === "owner";
   const canManageNodes =
     org?.role === "owner" || org?.role === "admin" || org?.role === "node_operator";
+
+  // Seats: a paid plan's tier is also the seat tier to assign. Seats used = the
+  // owner + members holding a non-free seat (== VPN-entitled members).
+  const PLAN_SEAT_TIER: Record<string, string> = {
+    starter: "starter",
+    pro: "pro",
+    business: "business",
+    enterprise: "enterprise",
+  };
+  const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
+  const seatsUsed = members.filter((m) => m.seat_tier && m.seat_tier !== "free").length;
+  const seatsIncluded = entitlements?.paid_seats_included ?? 0;
+
+  const handleDeleteOrg = async () => {
+    if (!confirm(`Delete "${org?.name}"? This removes the workspace, its members and seats. Nodes are detached and keep running. This cannot be undone.`)) {
+      return;
+    }
+    try {
+      await deleteOrg(orgId);
+      toast.success("Organization deleted");
+      window.location.href = "/workspace";
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to delete org");
+    }
+  };
 
   const loadNodeServices = async (nodeList: GatewayOrgNode[]) => {
     const entries = await Promise.all(
@@ -213,12 +242,18 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
             {org.role}
           </span>
         )}
+        {isOwner && (
+          <ActionButton type="button" variant="danger" onClick={handleDeleteOrg}>
+            Delete org
+          </ActionButton>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Nodes online" value={online} />
         <StatCard label="Total nodes" value={nodes.length} />
         <StatCard label="Members" value={members.length} />
+        <StatCard label="Seats (VPN)" value={planSeatTier ? `${seatsUsed}/${seatsIncluded}` : "—"} />
         <StatCard label="VPN clients" value={clients.length} />
         <StatCard label="API calls (30d)" value={usage.api_calls ?? "—"} />
       </div>
@@ -411,6 +446,35 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                   </MonoLabel>
                 </div>
                 <div className="flex items-center gap-2">
+                  {isPrivileged && planSeatTier && m.role !== "owner" &&
+                    (m.seat_tier && m.seat_tier !== "free" ? (
+                      <ActionButton
+                        type="button"
+                        onClick={() =>
+                          revokeOrgSeat(orgId, m.user_id)
+                            .then(reload)
+                            .catch((e) =>
+                              toast.error(e instanceof GatewayApiError ? e.message : "Failed to revoke seat")
+                            )
+                        }
+                      >
+                        Revoke seat
+                      </ActionButton>
+                    ) : (
+                      <ActionButton
+                        type="button"
+                        variant="accent"
+                        onClick={() =>
+                          assignOrgSeat(orgId, m.user_id, planSeatTier)
+                            .then(reload)
+                            .catch((e) =>
+                              toast.error(e instanceof GatewayApiError ? e.message : "No seats remaining")
+                            )
+                        }
+                      >
+                        Give seat
+                      </ActionButton>
+                    ))}
                   {isPrivileged && m.role !== "owner" && (
                     <select
                       value={m.role}

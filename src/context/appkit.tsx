@@ -257,6 +257,54 @@ const getAuthFromCookies = (chainType: "solana" | "evm") => {
   return { token, wallet, userId, expired } as const;
 };
 
+// ── Non-wallet session (email / Google / Apple login) ───────────────────────
+// Wallet-optional accounts: stored under distinct keys so the wallet-disconnect
+// cleanup never clears them.
+const SESSION_TOKEN = "erebrus_session_token";
+const SESSION_USERID = "erebrus_session_userid";
+const SESSION_METHOD = "erebrus_session_method";
+const SESSION_EXP = "erebrus_session_exp";
+
+export const setWebSession = (token: string, userId: string, method: string) => {
+  const options = {
+    expires: 7,
+    path: "/",
+    sameSite: "Strict" as const,
+    secure: process.env.NODE_ENV === "production",
+  };
+  Cookies.set(SESSION_TOKEN, token, options);
+  Cookies.set(SESSION_USERID, userId, options);
+  Cookies.set(SESSION_METHOD, method, options);
+  Cookies.set(SESSION_EXP, (Date.now() + TOKEN_TTL_MS).toString(), options);
+};
+
+export const clearWebSession = () => {
+  [SESSION_TOKEN, SESSION_USERID, SESSION_METHOD, SESSION_EXP].forEach((k) =>
+    Cookies.remove(k, { path: "/" })
+  );
+};
+
+export const getWebSession = () => {
+  const token = Cookies.get(SESSION_TOKEN);
+  const exp = Cookies.get(SESSION_EXP);
+  let expired = true;
+  if (exp && exp.trim() !== "") {
+    const ts = parseInt(exp, 10);
+    if (!isNaN(ts) && ts > 0) expired = Date.now() > ts;
+  }
+  return {
+    token: token && token.trim() !== "" ? token : undefined,
+    userId: Cookies.get(SESSION_USERID),
+    method: Cookies.get(SESSION_METHOD),
+    expired,
+  };
+};
+
+export const hasWebSession = () => {
+  const s = getWebSession();
+  return !!s.token && !s.expired;
+};
+
 // Helper function to get current authentication token
 export const getCurrentAuthToken = () => {
   const solanaAuth = getAuthFromCookies("solana");
@@ -265,6 +313,10 @@ export const getCurrentAuthToken = () => {
   // Return the token that's not expired
   if (solanaAuth.token && !solanaAuth.expired) return solanaAuth.token;
   if (evmAuth.token && !evmAuth.expired) return evmAuth.token;
+
+  // Non-wallet (email / Google / Apple) session
+  const web = getWebSession();
+  if (web.token && !web.expired) return web.token;
 
   // Fallback to legacy token
   return Cookies.get("erebrus_token") || null;
@@ -450,15 +502,25 @@ export function useWalletAuth() {
     }
   }, [isConnected]);
 
+  // Authenticated via a connected+signed wallet OR a non-wallet (email/OIDC) session.
+  const authed = getCurrentAuthStatus() || hasWebSession();
   return {
     isConnected,
     address,
-    isAuthenticated: getCurrentAuthStatus(),
-    isVerified: getCurrentAuthStatus(), // Simplified: verified when authenticated
+    isAuthenticated: authed,
+    isVerified: authed, // Simplified: verified when authenticated
     isAuthenticating,
     authError,
     authSuccess,
     authenticate,
+    signOut: () => {
+      clearWebSession();
+      (["solana", "evm"] as const).forEach((c) => clearAuthCookies(c));
+      ["erebrus_token", "erebrus_wallet", "erebrus_userid", EXPIRY_KEY].forEach((k) =>
+        Cookies.remove(k, { path: "/" })
+      );
+      setAuthSuccess(false);
+    },
     token: getCurrentAuthToken(), // Provide current valid token
   };
 }

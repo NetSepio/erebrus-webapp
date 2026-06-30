@@ -310,6 +310,26 @@ export async function transferOrgOwnership(orgId: string, userId: string): Promi
   });
 }
 
+export async function deleteOrg(orgId: string): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}`, { method: "DELETE" });
+}
+
+// Assigning a paid seat grants the member VPN entitlement + manager (admin) role;
+// revoking removes both. Seats are capped by the org plan's paid_seats_included.
+export async function assignOrgSeat(orgId: string, userId: string, seatTier: string): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/seats/assign`, {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId, seat_tier: seatTier }),
+  });
+}
+
+export async function revokeOrgSeat(orgId: string, userId: string): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/seats/revoke`, {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId }),
+  });
+}
+
 export async function fetchOrgClients(orgId: string): Promise<GatewayVpnClient[]> {
   const data = await gatewayFetch<unknown>(`orgs/${orgId}/clients`);
   return asArray(data, normalizeClient);
