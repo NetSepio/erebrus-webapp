@@ -124,9 +124,11 @@ export function normalizePlan(raw: Record<string, unknown>): GatewayPlan {
 
 export function normalizeClient(raw: Record<string, unknown>): GatewayVpnClient {
   return {
-    id: String(raw.id),
-    name: String(raw.name),
-    node_id: String(raw.node_id),
+    // Provisioning returns the node's credential bundle, which carries id +
+    // node_id but no name — don't stringify missing fields into "undefined".
+    id: String(raw.id ?? ""),
+    name: String(raw.name ?? ""),
+    node_id: String(raw.node_id ?? ""),
     status: raw.status as string | undefined,
     created_at: String(raw.created_at ?? new Date().toISOString()),
     rx_bytes: Number(raw.rx_bytes ?? 0),

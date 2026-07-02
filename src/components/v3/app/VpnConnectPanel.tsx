@@ -81,8 +81,6 @@ function ScopeChip({
   );
 }
 
-type VpnState = "disconnected" | "connecting" | "connected";
-
 export function VpnConnectPanel() {
   const { nodes: publicNodes, loading: nodesLoading } = useOnlineNodes();
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
@@ -94,7 +92,6 @@ export function VpnConnectPanel() {
   const [scope, setScope] = useState<string | null>(null);
   const [selected, setSelected] = useState<GatewayNode | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [state, setState] = useState<VpnState>("disconnected");
   const [loading, setLoading] = useState(true);
   const [provisioning, setProvisioning] = useState(false);
   const [nameDialog, setNameDialog] = useState(false);
@@ -118,13 +115,21 @@ export function VpnConnectPanel() {
     setPlans(p);
     setOrgs(o);
     setOrgNodes(on);
-    setState(c.length > 0 ? "connected" : "disconnected");
     setLoading(false);
   }, []);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Recent handshakes are what tell us a tunnel is actually up — poll them so
+  // the protection status flips when the user connects in the WireGuard app.
+  useEffect(() => {
+    const t = setInterval(() => {
+      fetchVpnClients().then(setClients).catch(() => {});
+    }, 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   // Org-scoped nodes grouped by org slug (incl. private nodes).
   const orgNodesBySlug = useMemo(() => {
@@ -216,13 +221,22 @@ export function VpnConnectPanel() {
     [nodes]
   );
 
+  // A config existing ≠ being protected. Only a recent WireGuard handshake
+  // (client actually connected through a node) counts as an active tunnel.
+  const tunnelActive = useMemo(
+    () => clients.some((c) => clientActivity(c.last_handshake).online),
+    [clients]
+  );
+
   const statusUi = useMemo(() => {
-    if (state === "connecting")
-      return { label: "CONNECTING", color: "var(--accent-hi)", border: "rgba(255,107,53,0.3)" };
-    if (state === "connected" || clients.length > 0)
+    if (provisioning)
+      return { label: "PROVISIONING", color: "var(--accent-hi)", border: "rgba(255,107,53,0.3)" };
+    if (tunnelActive)
       return { label: "PROTECTED", color: "var(--success)", border: "rgba(54,211,153,0.3)" };
-    return { label: "DISCONNECTED", color: "var(--text-3)", border: "rgba(255,255,255,0.08)" };
-  }, [state, clients.length]);
+    if (clients.length > 0)
+      return { label: "CONFIG READY — NOT CONNECTED", color: "var(--warn)", border: "rgba(255,255,255,0.08)" };
+    return { label: "NOT PROTECTED", color: "var(--text-3)", border: "rgba(255,255,255,0.08)" };
+  }, [provisioning, tunnelActive, clients.length]);
 
   const sessionStats = useMemo(() => {
     const active = clients[0];
@@ -248,30 +262,27 @@ export function VpnConnectPanel() {
   const runProvision = async (name: string) => {
     if (!selected) return;
     setProvisioning(true);
-    setState("connecting");
     try {
       const { privateKey, publicKey } = generateWgKeyPair();
 
-      const client = await provisionVpnClient({
+      // Provisioning returns the node's credential bundle, whose
+      // wireguard.client_conf has a PrivateKey placeholder — the node never
+      // sees our private key. Persist the key so this device's config can be
+      // re-downloaded or shown as a QR later, then inject it locally.
+      const { client, wgConfig } = await provisionVpnClient({
         name,
         node_id: selected.id,
         wg_public_key: publicKey,
         idempotency_key: `${selected.id}-${Date.now()}`,
       });
-
-      // The node builds the config from our public key only — inject the
-      // client-held private key to make it usable, and persist it so this
-      // device's config can be re-downloaded or shown as a QR later.
       storeClientPrivateKey(client.id, privateKey);
-      const { config: rawConfig } = await fetchVpnClientConfig(client.id);
+      const rawConfig = wgConfig ?? (await fetchVpnClientConfig(client.id)).config;
       const config = injectPrivateKey(rawConfig, privateKey);
 
-      setState("connected");
-      setConfigModal({ name: client.name || name, config, hasKey: true });
+      setConfigModal({ name, config, hasKey: true });
       toast.success("VPN client provisioned");
       await refresh();
     } catch (err) {
-      setState("disconnected");
       if (err instanceof GatewayApiError) {
         if (err.status === 402) toast.error("No entitlement — start trial or refresh NFT");
         else if (err.status === 409) toast.error("Device limit reached");
@@ -419,10 +430,10 @@ export function VpnConnectPanel() {
         <div className="flex flex-col gap-4">
           <Card className="p-6 text-center" style={{ borderColor: statusUi.border }}>
             <div className="relative mx-auto mb-5 h-[148px] w-[148px]">
-              {state === "connecting" && (
+              {provisioning && (
                 <div className="absolute inset-0 animate-spin rounded-full border-2 border-[var(--accent)]/20 border-t-[var(--accent)]" />
               )}
-              {state === "connected" && (
+              {tunnelActive && (
                 <>
                   <div className="absolute inset-0 animate-ping rounded-full border border-[var(--success)]/40 opacity-40" />
                   <div className="absolute inset-2 animate-ping rounded-full border border-[var(--success)]/30 opacity-30 [animation-delay:600ms]" />
@@ -434,11 +445,10 @@ export function VpnConnectPanel() {
                 disabled={provisioning || !selected || nodes.length === 0}
                 className="absolute inset-7 flex items-center justify-center rounded-full border-0 transition-transform hover:scale-105 disabled:opacity-60"
                 style={{
-                  background: state === "connected" ? "var(--success)" : "var(--accent)",
-                  boxShadow:
-                    state === "connected"
-                      ? "0 0 40px rgba(54,211,153,0.4)"
-                      : "0 0 40px rgba(255,107,53,0.4)",
+                  background: tunnelActive ? "var(--success)" : "var(--accent)",
+                  boxShadow: tunnelActive
+                    ? "0 0 40px rgba(54,211,153,0.4)"
+                    : "0 0 40px rgba(255,107,53,0.4)",
                 }}
               >
                 <div className="h-7 w-7 rotate-[-45deg] rounded-[9px] border-[3.5px] border-[var(--on-accent)] border-r-transparent" />
@@ -449,13 +459,19 @@ export function VpnConnectPanel() {
             </div>
             <div className="text-2xl font-semibold">{selected?.name ?? selected?.region ?? "—"}</div>
             <div className="text-sm text-[var(--text-2)]">{selected ? nodeGeoLabel(selected) : "—"}</div>
+            {!tunnelActive && clients.length > 0 && !provisioning && (
+              <p className="mt-2 text-xs text-[var(--text-3)]">
+                Import your config into the WireGuard app and connect — status updates once the
+                tunnel handshakes.
+              </p>
+            )}
             <AccentButton className="mt-5 w-full" onClick={provision} disabled={provisioning || !selected}>
               {provisioning ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
                 </>
               ) : (
-                "Download config"
+                "Add device"
               )}
             </AccentButton>
           </Card>
