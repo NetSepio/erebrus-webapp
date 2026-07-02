@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     image: null,
   }),
   icons: {
-    icon: [{ url: "/brand/erebrus-vpn.png", type: "image/png" }],
-    shortcut: "/brand/erebrus-vpn.png",
-    apple: "/brand/erebrus-vpn.png",
+    icon: [{ url: "/vpn/logo.png", type: "image/png", sizes: "1024x1024" }],
+    shortcut: "/vpn/logo.png",
+    apple: "/vpn/logo.png",
   },
 };
 
