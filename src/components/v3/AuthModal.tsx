@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/dialog";
 import { useAppKit } from "@reown/appkit/react";
 import { useWalletAuth, setWebSession } from "@/context/appkit";
-import { emailLoginStart, emailLoginVerify } from "@/lib/gateway-auth";
+import { useAppleSignIn, useGoogleSignIn } from "@/hooks/use-social-login";
+import {
+  appleLogin,
+  emailLoginStart,
+  emailLoginVerify,
+  googleLogin,
+} from "@/lib/gateway-auth";
 import { AccentButton, ActionButton } from "@/components/v3/ui";
 import { Input } from "@/components/ui/input";
 import { Loader2, Mail } from "lucide-react";
@@ -40,6 +46,40 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
+  const [socialBusy, setSocialBusy] = useState(false);
+
+  const completeSocialLogin = useCallback(
+    async (provider: "google" | "apple", idToken: string) => {
+      setSocialBusy(true);
+      try {
+        const session =
+          provider === "google"
+            ? await googleLogin(idToken)
+            : await appleLogin(idToken);
+        setWebSession(session.token, session.userId, provider);
+        setVisible(false);
+        router.push("/dashboard");
+      } catch {
+        toast.error(
+          provider === "google"
+            ? "Google sign-in failed — try again"
+            : "Apple sign-in failed — try again"
+        );
+      } finally {
+        setSocialBusy(false);
+      }
+    },
+    [router]
+  );
+
+  const { ready: googleReady, signIn: signInWithGoogle, btnRef: googleBtnRef } =
+    useGoogleSignIn(GOOGLE_CLIENT_ID, (token) => void completeSocialLogin("google", token), visible);
+
+  const { ready: appleReady, signIn: signInWithApple } = useAppleSignIn(
+    APPLE_CLIENT_ID,
+    (token) => void completeSocialLogin("apple", token),
+    visible
+  );
 
   const handleLaunch = useCallback(async () => {
     if (!isConnected) {
@@ -193,24 +233,45 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
                 type="button"
                 variant="neutral"
                 className="!py-2.5"
-                disabled={!GOOGLE_CLIENT_ID}
-                onClick={() => toast.message("Google sign-in is being set up")}
+                disabled={!GOOGLE_CLIENT_ID || !googleReady || socialBusy}
+                onClick={() => {
+                  if (!signInWithGoogle()) {
+                    toast.error("Google sign-in is not ready yet — try again in a moment");
+                  }
+                }}
               >
+                {socialBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Google
               </ActionButton>
               <ActionButton
                 type="button"
                 variant="neutral"
                 className="!py-2.5"
-                disabled={!APPLE_CLIENT_ID}
-                onClick={() => toast.message("Apple sign-in is being set up")}
+                disabled={!APPLE_CLIENT_ID || !appleReady || socialBusy}
+                onClick={() => {
+                  void signInWithApple().then((started) => {
+                    if (!started) {
+                      toast.error("Apple sign-in is not ready yet — try again in a moment");
+                    }
+                  });
+                }}
               >
                 Apple
               </ActionButton>
             </div>
+            {/* GIS renders its own button here; we proxy clicks from our custom button above. */}
+            <div
+              ref={googleBtnRef}
+              className="sr-only absolute h-0 w-0 overflow-hidden"
+              aria-hidden
+            />
             {(!GOOGLE_CLIENT_ID || !APPLE_CLIENT_ID) && (
               <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
-                Google / Apple unlock once their client IDs are configured
+                {!GOOGLE_CLIENT_ID && !APPLE_CLIENT_ID
+                  ? "Google / Apple unlock once their client IDs are configured"
+                  : !GOOGLE_CLIENT_ID
+                    ? "Google unlocks once NEXT_PUBLIC_GOOGLE_CLIENT_ID is configured"
+                    : "Apple unlocks once NEXT_PUBLIC_APPLE_CLIENT_ID is configured"}
               </p>
             )}
           </div>
