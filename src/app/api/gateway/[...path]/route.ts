@@ -36,7 +36,11 @@ async function proxy(request: NextRequest, pathSegments: string[]) {
   }
 
   const res = await fetch(target.toString(), init);
-  const body = await res.text();
+  // 204/205/304 are null-body statuses — constructing a Response with a body
+  // (even an empty string) for them throws, turning successful DELETEs into 500s.
+  const body = res.status === 204 || res.status === 205 || res.status === 304
+    ? null
+    : await res.text();
 
   return new NextResponse(body, {
     status: res.status,

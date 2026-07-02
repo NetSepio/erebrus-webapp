@@ -119,7 +119,8 @@ async function gatewayFetch<T>(
   }
 
   if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 // ── Nodes ──────────────────────────────────────────────────────────────────
@@ -136,18 +137,28 @@ export async function fetchVpnClients(): Promise<GatewayVpnClient[]> {
   return asArray(data, normalizeClient);
 }
 
+// Both POST /vpn/clients and GET /vpn/clients/:id/config return the node's
+// credential bundle: { id, wireguard: { client_conf, ... }, transports, ... }.
+// The WireGuard conf (with a REPLACE_WITH_PRIVATE_KEY placeholder) lives at
+// wireguard.client_conf.
+function bundleWgConfig(data: Record<string, unknown>): string | null {
+  const wg = data.wireguard as Record<string, unknown> | undefined;
+  const conf = wg?.client_conf ?? data.config ?? data.bundle;
+  return typeof conf === "string" && conf.length > 0 ? conf : null;
+}
+
 export async function provisionVpnClient(body: {
   name: string;
   node_id: string;
   wg_public_key: string;
   wg_preshared_key?: string;
   idempotency_key?: string;
-}): Promise<GatewayVpnClient> {
+}): Promise<{ client: GatewayVpnClient; wgConfig: string | null }> {
   const data = await gatewayFetch<Record<string, unknown>>("vpn/clients", {
     method: "POST",
     body: JSON.stringify(body),
   });
-  return normalizeClient(data);
+  return { client: normalizeClient(data), wgConfig: bundleWgConfig(data) };
 }
 
 export async function deleteVpnClient(id: string): Promise<void> {
@@ -156,9 +167,9 @@ export async function deleteVpnClient(id: string): Promise<void> {
 
 export async function fetchVpnClientConfig(id: string): Promise<{ config: string }> {
   const data = await gatewayFetch<Record<string, unknown>>(`vpn/clients/${id}/config`);
-  const config = (data.config ?? data.bundle ?? "") as string;
-  if (typeof config === "string" && config.length > 0) return { config };
-  return { config: JSON.stringify(data, null, 2) };
+  const config = bundleWgConfig(data);
+  if (!config) throw new Error("Credential bundle has no WireGuard config");
+  return { config };
 }
 
 // ── Subscriptions ──────────────────────────────────────────────────────────
