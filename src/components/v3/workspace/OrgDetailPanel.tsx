@@ -10,8 +10,10 @@ import {
   fetchOrgUsage,
   fetchOrgClients,
   fetchOrgEntitlements,
+  fetchOrgProfile,
   fetchOrgNodeServices,
   createNodeRegistrationToken,
+  updateOrgProfile,
   createOrgApiKey,
   revokeOrgApiKey,
   inviteOrgMember,
@@ -28,6 +30,7 @@ import type {
   GatewayApiKey,
   GatewayOrg,
   GatewayOrgEntitlements,
+  GatewayOrgProfile,
   GatewayOrgMember,
   GatewayOrgNode,
   GatewayOrgNodeService,
@@ -37,6 +40,7 @@ import {
   profileBadgeClass,
   profileLabel,
   serviceStatusLabel,
+  visibilityLabel,
 } from "@/lib/gateway/profiles";
 import { NodeFirewallPanel } from "@/components/v3/workspace/NodeFirewallPanel";
 import {
@@ -66,7 +70,13 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [memberEmail, setMemberEmail] = useState("");
   const [memberChain, setMemberChain] = useState("sol");
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
+  const [orgProfile, setOrgProfile] = useState<GatewayOrgProfile | null>(null);
   const [editName, setEditName] = useState("");
+  const [editSlug, setEditSlug] = useState("");
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editWebsite, setEditWebsite] = useState("");
+  const [editPublicProfile, setEditPublicProfile] = useState(false);
   const [regToken, setRegToken] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [tokenCopied, setTokenCopied] = useState(false);
@@ -112,27 +122,39 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   };
 
   const reload = () => {
-    Promise.all([
-      fetchOrg(orgId),
-      fetchOrgNodes(orgId).catch(() => []),
-      fetchOrgMembers(orgId).catch(() => []),
-      isPrivileged ? fetchOrgApiKeys(orgId).catch(() => []) : Promise.resolve([]),
-      fetchOrgUsage(orgId).catch(() => ({})),
-      fetchOrgClients(orgId).catch(() => []),
-      fetchOrgEntitlements(orgId).catch(() => null),
-    ]).then(([o, n, m, keys, u, c, ent]) => {
-      setOrg(o);
-      setEditName(o.name);
-      setNodes(n);
-      setMembers(m);
-      setApiKeys(keys as GatewayApiKey[]);
-      setUsage(u as Record<string, number>);
-      setClients(c as GatewayVpnClient[]);
-      setEntitlements(ent);
-      if (n.length > 0) {
-        setSelectedNodeId((prev) => prev ?? n[0].node_id);
-        void loadNodeServices(n);
-      }
+    fetchOrg(orgId).then((o) => {
+      const privileged = o.role === "owner" || o.role === "admin";
+      return Promise.all([
+        Promise.resolve(o),
+        fetchOrgNodes(orgId).catch(() => []),
+        fetchOrgMembers(orgId).catch(() => []),
+        privileged ? fetchOrgApiKeys(orgId).catch(() => []) : Promise.resolve([]),
+        fetchOrgUsage(orgId).catch(() => ({})),
+        fetchOrgClients(orgId).catch(() => []),
+        fetchOrgEntitlements(orgId).catch(() => null),
+        privileged ? fetchOrgProfile(orgId).catch(() => null) : Promise.resolve(null),
+      ]).then(([orgData, n, m, keys, u, c, ent, profile]) => {
+        setOrg(orgData);
+        setEditName(orgData.name);
+        setEditSlug(orgData.slug ?? "");
+        setEditPublicProfile(orgData.public_profile_enabled ?? false);
+        if (profile) {
+          setOrgProfile(profile);
+          setEditDisplayName(profile.display_name ?? "");
+          setEditDescription(profile.description ?? "");
+          setEditWebsite(profile.website_url ?? "");
+        }
+        setNodes(n);
+        setMembers(m);
+        setApiKeys(keys as GatewayApiKey[]);
+        setUsage(u as Record<string, number>);
+        setClients(c as GatewayVpnClient[]);
+        setEntitlements(ent);
+        if (n.length > 0) {
+          setSelectedNodeId((prev) => prev ?? n[0].node_id);
+          void loadNodeServices(n);
+        }
+      });
     });
   };
 
@@ -151,11 +173,15 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     }
   };
 
-  const copyToken = async () => {
-    if (!regToken) return;
-    await navigator.clipboard.writeText(regToken);
+  const registrationEnvLine = regToken
+    ? `EREBRUS_NODE_REGISTRATION_TOKEN=${regToken}`
+    : null;
+
+  const copyRegistrationEnv = async () => {
+    if (!registrationEnvLine) return;
+    await navigator.clipboard.writeText(registrationEnvLine);
     setTokenCopied(true);
-    toast.success("Token copied");
+    toast.success("Copied env line");
     setTimeout(() => setTokenCopied(false), 2000);
   };
 
@@ -170,14 +196,23 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     }
   };
 
-  const saveOrgName = async () => {
+  const saveOrgSettings = async () => {
     if (!editName.trim() || !isPrivileged) return;
     try {
-      await updateOrg(orgId, { name: editName.trim() });
+      await updateOrg(orgId, {
+        name: editName.trim(),
+        slug: editSlug.trim() || undefined,
+        public_profile_enabled: editPublicProfile,
+      });
+      await updateOrgProfile(orgId, {
+        display_name: editDisplayName.trim() || undefined,
+        description: editDescription.trim() || undefined,
+        website_url: editWebsite.trim() || undefined,
+      });
       reload();
-      toast.success("Workspace updated");
+      toast.success("Workspace settings saved");
     } catch {
-      toast.error("Failed to update workspace");
+      toast.error("Failed to save workspace settings");
     }
   };
 
@@ -207,27 +242,42 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const selectedNode = nodes.find((n) => n.node_id === selectedNodeId) ?? null;
 
   return (
-    <div className="space-y-5">
-      <Link href="/workspace" className="inline-flex text-sm text-[var(--text-2)] hover:text-[var(--text)]">
-        ← All workspaces
-      </Link>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,17rem)_1fr] lg:items-start">
+      <aside className="space-y-4">
+        <Link href="/workspace" className="inline-flex text-sm text-[var(--text-2)] hover:text-[var(--text)]">
+          ← All workspaces
+        </Link>
 
-      {isPrivileged && (
-        <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
-          <div className="flex-1">
-            <Label>Workspace name</Label>
-            <Input
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="mt-1 border-white/10 bg-[var(--surface-2)]"
-            />
-          </div>
-          <AccentButton type="button" onClick={saveOrgName}>
-            Save
-          </AccentButton>
-        </Card>
-      )}
+        {isPrivileged && (
+          <Card className="p-4">
+            <div className="font-semibold">Connect a node</div>
+            <p className="mt-1 text-sm text-[var(--text-2)]">
+              Mint a setup token, then add it to your node&apos;s environment before install or restart.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <AccentButton type="button" onClick={mintRegistrationToken}>
+                Mint token (24h)
+              </AccentButton>
+              {registrationEnvLine && (
+                <ActionButton type="button" onClick={copyRegistrationEnv}>
+                  {tokenCopied ? "Copied" : "Copy env"}
+                </ActionButton>
+              )}
+            </div>
+            {registrationEnvLine && (
+              <div className="mt-3 rounded-xl border border-white/[0.08] bg-[#08080A] px-3 py-2.5 font-mono text-[11px] break-all text-[var(--text-2)]">
+                {registrationEnvLine}
+              </div>
+            )}
+            <p className="mt-3 text-[11px] leading-relaxed text-[var(--text-3)]">
+              Optional: set <code className="font-mono">EREBRUS_PROFILE=shield</code> or{" "}
+              <code className="font-mono">sentinel</code> for AdGuard or firewall add-ons.
+            </p>
+          </Card>
+        )}
+      </aside>
 
+      <div className="min-w-0 space-y-5">
       <div className="flex flex-wrap items-center gap-4">
         <div className="h-[52px] w-[52px] rounded-[14px] bg-gradient-to-br from-[var(--solana)] to-[var(--accent)]" />
         <div className="flex-1">
@@ -258,34 +308,6 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         <StatCard label="API calls (30d)" value={usage.api_calls ?? "—"} />
       </div>
 
-      {isPrivileged && (
-        <Card className="p-6">
-          <div className="font-semibold">Register a node</div>
-          <p className="mt-1 text-sm text-[var(--text-2)]">
-            Mint a scoped token for{" "}
-            <code className="font-mono text-xs">EREBRUS_NODE_REGISTRATION_TOKEN</code> /{" "}
-            <code className="font-mono text-xs">POST /api/v2/nodes/register</code>. Set{" "}
-            <code className="font-mono text-xs">EREBRUS_PROFILE=shield|sentinel</code> on the node
-            for firewall sidecars.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <AccentButton type="button" onClick={mintRegistrationToken}>
-              Mint token (24h)
-            </AccentButton>
-            {regToken && (
-              <ActionButton type="button" onClick={copyToken}>
-                {tokenCopied ? "Copied" : "Copy token"}
-              </ActionButton>
-            )}
-          </div>
-          {regToken && (
-            <div className="mt-3 rounded-xl border border-white/[0.08] bg-[#08080A] px-3.5 py-3 font-mono text-xs break-all">
-              {regToken}
-            </div>
-          )}
-        </Card>
-      )}
-
       <Tabs defaultValue="nodes">
         <TabsList className={v3TabsListClass}>
           <TabsTrigger value="nodes" className={v3TabsTriggerClass}>
@@ -305,6 +327,11 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           {isPrivileged && (
             <TabsTrigger value="apikeys" className={v3TabsTriggerClass}>
               API keys
+            </TabsTrigger>
+          )}
+          {isPrivileged && (
+            <TabsTrigger value="settings" className={v3TabsTriggerClass}>
+              Settings
             </TabsTrigger>
           )}
         </TabsList>
@@ -343,6 +370,14 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           >
                             {profileLabel(node.deployment_profile)}
                           </span>
+                          <span className="rounded bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase text-[var(--text-3)]">
+                            {visibilityLabel(node.visibility)}
+                          </span>
+                          {node.managed_by === "erebrus" && (
+                            <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium uppercase text-amber-300/90">
+                              Managed
+                            </span>
+                          )}
                         </div>
                         <div className="font-mono text-[11px] text-[var(--text-3)]">
                           {node.node_id}
@@ -549,6 +584,75 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         </TabsContent>
 
         {isPrivileged && (
+          <TabsContent value="settings" className="mt-4">
+            <Card className="space-y-4 p-5">
+              <div>
+                <MonoLabel>Workspace settings</MonoLabel>
+                <p className="mt-1 text-sm text-[var(--text-2)]">
+                  Name and profile shown in the dashboard; public fields appear when the workspace profile is enabled.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label>Workspace name</Label>
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                  />
+                </div>
+                <div>
+                  <Label>Slug</Label>
+                  <Input
+                    value={editSlug}
+                    onChange={(e) => setEditSlug(e.target.value)}
+                    className="mt-1 border-white/10 bg-[var(--surface-2)] font-mono text-sm"
+                  />
+                </div>
+                <div>
+                  <Label>Display name</Label>
+                  <Input
+                    value={editDisplayName}
+                    onChange={(e) => setEditDisplayName(e.target.value)}
+                    placeholder={orgProfile?.display_name ?? org.name}
+                    className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                  />
+                </div>
+                <div>
+                  <Label>Website</Label>
+                  <Input
+                    value={editWebsite}
+                    onChange={(e) => setEditWebsite(e.target.value)}
+                    placeholder="https://"
+                    className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Input
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-[var(--text-2)]">
+                <input
+                  type="checkbox"
+                  checked={editPublicProfile}
+                  onChange={(e) => setEditPublicProfile(e.target.checked)}
+                  className="rounded border-white/20"
+                />
+                Public workspace profile
+              </label>
+              <AccentButton type="button" onClick={saveOrgSettings}>
+                Save settings
+              </AccentButton>
+            </Card>
+          </TabsContent>
+        )}
+
+        {isPrivileged && (
           <TabsContent value="apikeys" className="mt-4 space-y-4">
             <AccentButton onClick={issueKey}>+ Issue API key</AccentButton>
             {newKeySecret && (
@@ -584,6 +688,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           </TabsContent>
         )}
       </Tabs>
+      </div>
     </div>
   );
 }

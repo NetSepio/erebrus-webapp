@@ -189,6 +189,23 @@ export interface GatewayOrg {
   updated_at?: string;
 }
 
+/** Workspace profile (`GET/PATCH /orgs/:id/profile`). */
+export interface GatewayOrgProfile {
+  org_id: string;
+  legal_name?: string;
+  display_name?: string;
+  description?: string;
+  logo_url?: string;
+  website_url?: string;
+  public_email?: string;
+  billing_email?: string;
+  support_email?: string;
+  country?: string;
+  timezone?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface GatewayOrgMember {
   id?: string;
   user_id: string;

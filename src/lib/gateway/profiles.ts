@@ -1,9 +1,14 @@
 import type { DeploymentProfile } from "./types";
 
 export const PROFILE_LABELS: Record<string, string> = {
-  erebrus: "Erebrus VPN",
-  shield: "Erebrus Shield",
-  sentinel: "Erebrus Sentinel",
+  erebrus: "Standard",
+  shield: "Shield",
+  sentinel: "Sentinel",
+};
+
+export const VISIBILITY_LABELS: Record<string, string> = {
+  public_network: "Public",
+  private_org: "Private",
 };
 
 export const SERVICE_STATUS_LABELS: Record<string, string> = {
@@ -17,8 +22,13 @@ export const SERVICE_STATUS_LABELS: Record<string, string> = {
 };
 
 export function profileLabel(profile: string | undefined): string {
-  if (!profile) return "Erebrus VPN";
+  if (!profile) return "Standard";
   return PROFILE_LABELS[profile] ?? profile;
+}
+
+export function visibilityLabel(visibility: string | undefined): string {
+  if (!visibility) return "Private";
+  return VISIBILITY_LABELS[visibility] ?? visibility;
 }
 
 export function serviceStatusLabel(status: string | undefined): string {
