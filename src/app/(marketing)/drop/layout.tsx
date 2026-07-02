@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     image: null,
   }),
   icons: {
-    icon: [{ url: "/brand/erebrus-drop.png", type: "image/png" }],
-    shortcut: "/brand/erebrus-drop.png",
-    apple: "/brand/erebrus-drop.png",
+    icon: [{ url: "/drop/logo.png", type: "image/png", sizes: "1024x1024" }],
+    shortcut: "/drop/logo.png",
+    apple: "/drop/logo.png",
   },
 };
 
