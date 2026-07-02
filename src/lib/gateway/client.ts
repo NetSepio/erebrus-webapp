@@ -27,6 +27,7 @@ import type {
   GatewayFirewallStatus,
   GatewayFirewallSyncResult,
   GatewayOrg,
+  GatewayOrgProfile,
   GatewayOrgEntitlements,
   GatewayOrgMember,
   GatewayOrgNode,
@@ -254,13 +255,61 @@ export async function createOrg(body: {
 
 export async function updateOrg(
   id: string,
-  body: Partial<Pick<GatewayOrg, "name" | "description" | "website">>
+  body: {
+    name?: string;
+    slug?: string;
+    public_profile_enabled?: boolean;
+  }
 ): Promise<GatewayOrg> {
   const data = await gatewayFetch<Record<string, unknown>>(`orgs/${id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
   return normalizeOrg(data);
+}
+
+export async function fetchOrgProfile(id: string): Promise<GatewayOrgProfile> {
+  const data = await gatewayFetch<Record<string, unknown>>(`orgs/${id}/profile`);
+  return {
+    org_id: String(data.org_id ?? id),
+    legal_name: data.legal_name as string | undefined,
+    display_name: data.display_name as string | undefined,
+    description: data.description as string | undefined,
+    logo_url: data.logo_url as string | undefined,
+    website_url: data.website_url as string | undefined,
+    public_email: data.public_email as string | undefined,
+    billing_email: data.billing_email as string | undefined,
+    support_email: data.support_email as string | undefined,
+    country: data.country as string | undefined,
+    timezone: data.timezone as string | undefined,
+    created_at: data.created_at as string | undefined,
+    updated_at: data.updated_at as string | undefined,
+  };
+}
+
+export async function updateOrgProfile(
+  id: string,
+  body: Partial<
+    Pick<
+      GatewayOrgProfile,
+      | "legal_name"
+      | "display_name"
+      | "description"
+      | "logo_url"
+      | "website_url"
+      | "public_email"
+      | "billing_email"
+      | "support_email"
+      | "country"
+      | "timezone"
+    >
+  >
+): Promise<GatewayOrgProfile> {
+  await gatewayFetch(`orgs/${id}/profile`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+  return fetchOrgProfile(id);
 }
 
 export async function fetchOrgMembers(id: string): Promise<GatewayOrgMember[]> {
