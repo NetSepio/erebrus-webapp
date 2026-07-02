@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { pageMetadata } from "@/lib/seo";
 import { LegalPageShell } from "@/components/v3/marketing/LegalPageShell";
 import { ContactForm } from "@/components/v3/marketing/ContactForm";
@@ -17,7 +18,9 @@ export default function ContactPage() {
       summary="Submit a support request for Erebrus VPN, Drop, Wallet Access, Subscriptions, or Account questions. We typically respond by email."
       lastUpdated="June 26, 2026"
     >
-      <ContactForm />
+      <Suspense fallback={<div className="mx-auto max-w-2xl text-sm text-[var(--text-3)]">Loading form…</div>}>
+        <ContactForm />
+      </Suspense>
     </LegalPageShell>
   );
 }

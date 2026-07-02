@@ -26,6 +26,7 @@ function Social({ href, label, children }: { href: string; label: string; childr
 }
 
 const legalLinks = [
+  { href: "/pricing", label: "Pricing" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
   { href: "/contact", label: "Contact" },

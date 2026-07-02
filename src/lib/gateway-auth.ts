@@ -80,6 +80,48 @@ async function completeAuth(
   return { token, userId, role, walletAddress: publicKey };
 }
 
+/** Browser → `/api/gateway/<path>`; server → `<gateway>/api/v2/<path>`. */
+function gatewayAuthUrl(path: string): string {
+  const base = authBase();
+  return typeof window !== "undefined" ? `${base}${path}` : `${base}api/v2/${path}`;
+}
+
+function parseSession(data: unknown): AuthSession {
+  const d = (data ?? {}) as Record<string, unknown>;
+  const token = (d.token ?? "").toString();
+  const userId = (d.user_id ?? "").toString();
+  const role = (d.role ?? "user").toString();
+  if (!token || !userId) {
+    throw new Error("Gateway did not return a session token");
+  }
+  return { token, userId, role, walletAddress: "" };
+}
+
+// ── Passwordless / OIDC login (wallet-optional accounts) ─────────────────────
+
+/** Sends a one-time login code to the email. */
+export async function emailLoginStart(email: string): Promise<void> {
+  await axios.post(gatewayAuthUrl("auth/email/login/start"), { email });
+}
+
+/** Verifies the code and returns a session for the resolved/created account. */
+export async function emailLoginVerify(email: string, code: string): Promise<AuthSession> {
+  const { data } = await axios.post(gatewayAuthUrl("auth/email/login/verify"), { email, code });
+  return parseSession(data);
+}
+
+/** Exchanges a Google ID token for a session. */
+export async function googleLogin(idToken: string): Promise<AuthSession> {
+  const { data } = await axios.post(gatewayAuthUrl("auth/google"), { id_token: idToken });
+  return parseSession(data);
+}
+
+/** Exchanges an Apple ID token for a session. */
+export async function appleLogin(idToken: string): Promise<AuthSession> {
+  const { data } = await axios.post(gatewayAuthUrl("auth/apple"), { id_token: idToken });
+  return parseSession(data);
+}
+
 function signatureBytesToHex(signature: ArrayLike<number>): string {
   return Array.from(signature)
     .map((b) => b.toString(16).padStart(2, "0"))

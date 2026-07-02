@@ -1,5 +1,8 @@
 import { pageMetadata } from "@/lib/seo";
-import { LegalPageShell, LegalSection } from "@/components/v3/marketing/LegalPageShell";
+import {
+  LegalPageShell,
+  LegalSection,
+} from "@/components/v3/marketing/LegalPageShell";
 
 export const metadata = pageMetadata({
   title: "Terms and Conditions",
@@ -187,7 +190,7 @@ const sections: TermsSection[] = [
     title: "20. Contact",
     body: [
       "Questions about these Terms can be sent to support@netsepio.com.",
-      "Postal contact, if required: Lazarus Network Inc., 2209 SW 58th Way, West Park, Florida 33023, United States.",
+      "Postal contact, if required: NetSepio LLC, Georgia, Tbilisi, Krtsanisi District, Nino and Ilia Nakashidzeebi Str., N1, (formerly Avlev), Bl. N3, Apt. N3.",
     ],
   },
 ];

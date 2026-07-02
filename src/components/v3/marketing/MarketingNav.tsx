@@ -14,6 +14,7 @@ const navLinks: Record<NavVariant, Array<{ label: string; href: string; external
   platform: [
     { label: "VPN", href: "/vpn" },
     { label: "Drop", href: "/drop" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Docs", href: "https://docs.netsepio.com/erebrus/", external: true },
   ],
   vpn: [

@@ -9,22 +9,36 @@ import {
   fetchOrgApiKeys,
   fetchOrgUsage,
   fetchOrgClients,
-  fetchOperatorNodeMetrics,
+  fetchOrgEntitlements,
+  fetchOrgNodeServices,
+  createNodeRegistrationToken,
   createOrgApiKey,
   revokeOrgApiKey,
-  addOrgMember,
+  inviteOrgMember,
   removeOrgMember,
   patchOrgMember,
   transferOrgOwnership,
+  assignOrgSeat,
+  revokeOrgSeat,
+  deleteOrg,
   updateOrg,
+  GatewayApiError,
 } from "@/lib/gateway/client";
 import type {
   GatewayApiKey,
-  GatewayNode,
   GatewayOrg,
+  GatewayOrgEntitlements,
   GatewayOrgMember,
+  GatewayOrgNode,
+  GatewayOrgNodeService,
   GatewayVpnClient,
 } from "@/lib/gateway/types";
+import {
+  profileBadgeClass,
+  profileLabel,
+  serviceStatusLabel,
+} from "@/lib/gateway/profiles";
+import { NodeFirewallPanel } from "@/components/v3/workspace/NodeFirewallPanel";
 import {
   AccentButton,
   ActionButton,
@@ -41,19 +55,61 @@ import { toast } from "sonner";
 
 export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [org, setOrg] = useState<GatewayOrg | null>(null);
-  const [nodes, setNodes] = useState<GatewayNode[]>([]);
+  const [nodes, setNodes] = useState<GatewayOrgNode[]>([]);
+  const [nodeServices, setNodeServices] = useState<Record<string, GatewayOrgNodeService[]>>({});
   const [members, setMembers] = useState<GatewayOrgMember[]>([]);
   const [apiKeys, setApiKeys] = useState<GatewayApiKey[]>([]);
   const [usage, setUsage] = useState<Record<string, number>>({});
-  const [copied, setCopied] = useState(false);
+  const [entitlements, setEntitlements] = useState<GatewayOrgEntitlements | null>(null);
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null);
   const [memberWallet, setMemberWallet] = useState("");
+  const [memberEmail, setMemberEmail] = useState("");
   const [memberChain, setMemberChain] = useState("sol");
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [editName, setEditName] = useState("");
-  const [nodeMetrics, setNodeMetrics] = useState<Record<string, string>>({});
+  const [regToken, setRegToken] = useState<string | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [tokenCopied, setTokenCopied] = useState(false);
+
   const isPrivileged = org?.role === "owner" || org?.role === "admin";
   const isOwner = org?.role === "owner";
+  const canManageNodes =
+    org?.role === "owner" || org?.role === "admin" || org?.role === "node_operator";
+
+  // Seats: a paid plan's tier is also the seat tier to assign. Seats used = the
+  // owner + members holding a non-free seat (== VPN-entitled members).
+  const PLAN_SEAT_TIER: Record<string, string> = {
+    starter: "starter",
+    pro: "pro",
+    business: "business",
+    enterprise: "enterprise",
+  };
+  const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
+  const seatsUsed = members.filter((m) => m.seat_tier && m.seat_tier !== "free").length;
+  const seatsIncluded = entitlements?.paid_seats_included ?? 0;
+
+  const handleDeleteOrg = async () => {
+    if (!confirm(`Delete "${org?.name}"? This removes the workspace, its members and seats. Nodes are detached and keep running. This cannot be undone.`)) {
+      return;
+    }
+    try {
+      await deleteOrg(orgId);
+      toast.success("Organization deleted");
+      window.location.href = "/workspace";
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to delete org");
+    }
+  };
+
+  const loadNodeServices = async (nodeList: GatewayOrgNode[]) => {
+    const entries = await Promise.all(
+      nodeList.map(async (n) => {
+        const svcs = await fetchOrgNodeServices(orgId, n.node_id).catch(() => []);
+        return [n.node_id, svcs] as const;
+      })
+    );
+    setNodeServices(Object.fromEntries(entries));
+  };
 
   const reload = () => {
     Promise.all([
@@ -63,7 +119,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
       isPrivileged ? fetchOrgApiKeys(orgId).catch(() => []) : Promise.resolve([]),
       fetchOrgUsage(orgId).catch(() => ({})),
       fetchOrgClients(orgId).catch(() => []),
-    ]).then(([o, n, m, keys, u, c]) => {
+      fetchOrgEntitlements(orgId).catch(() => null),
+    ]).then(([o, n, m, keys, u, c, ent]) => {
       setOrg(o);
       setEditName(o.name);
       setNodes(n);
@@ -71,40 +128,35 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
       setApiKeys(keys as GatewayApiKey[]);
       setUsage(u as Record<string, number>);
       setClients(c as GatewayVpnClient[]);
+      setEntitlements(ent);
+      if (n.length > 0) {
+        setSelectedNodeId((prev) => prev ?? n[0].node_id);
+        void loadNodeServices(n);
+      }
     });
   };
 
   useEffect(() => {
-    fetchOrg(orgId)
-      .then((o) => {
-        setOrg(o);
-        setEditName(o.name);
-        return Promise.all([
-          fetchOrgNodes(orgId).catch(() => []),
-          fetchOrgMembers(orgId).catch(() => []),
-          o.role === "owner" || o.role === "admin"
-            ? fetchOrgApiKeys(orgId).catch(() => [])
-            : Promise.resolve([]),
-          fetchOrgUsage(orgId).catch(() => ({})),
-          fetchOrgClients(orgId).catch(() => []),
-        ]);
-      })
-      .then(([n, m, keys, u, c]) => {
-        setNodes(n);
-        setMembers(m);
-        setApiKeys(keys as GatewayApiKey[]);
-        setUsage(u as Record<string, number>);
-        setClients(c as GatewayVpnClient[]);
-      })
-      .catch(() => toast.error("Failed to load workspace"));
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId]);
 
-  const copySecret = async () => {
-    if (!org?.enrollment_secret) return;
-    await navigator.clipboard.writeText(org.enrollment_secret);
-    setCopied(true);
-    toast.success("Enrollment secret copied");
-    setTimeout(() => setCopied(false), 2000);
+  const mintRegistrationToken = async () => {
+    try {
+      const res = await createNodeRegistrationToken(orgId, { ttl_hours: 24 });
+      setRegToken(res.token);
+      toast.success("Registration token minted — copy now");
+    } catch {
+      toast.error("Failed to mint registration token");
+    }
+  };
+
+  const copyToken = async () => {
+    if (!regToken) return;
+    await navigator.clipboard.writeText(regToken);
+    setTokenCopied(true);
+    toast.success("Token copied");
+    setTimeout(() => setTokenCopied(false), 2000);
   };
 
   const issueKey = async () => {
@@ -129,35 +181,21 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     }
   };
 
-  const loadNodeMetrics = async (nodeId: string) => {
+  const inviteMember = async () => {
+    if (!memberWallet.trim() && !memberEmail.trim()) return;
     try {
-      const data = await fetchOperatorNodeMetrics(nodeId, { range: "24h" });
-      const points = data.buckets ?? [];
-      const last = points[points.length - 1];
-      setNodeMetrics((m) => ({
-        ...m,
-        [nodeId]: last
-          ? `Peers ${last.wg_peers ?? 0} · RX ${Math.round((last.rx_bytes ?? 0) / 1024)}KB`
-          : "No data",
-      }));
-    } catch {
-      toast.error("Failed to load node metrics");
-    }
-  };
-
-  const addMember = async () => {
-    if (!memberWallet.trim()) return;
-    try {
-      await addOrgMember(orgId, {
-        wallet_address: memberWallet.trim(),
+      await inviteOrgMember(orgId, {
+        wallet_address: memberWallet.trim() || undefined,
+        email: memberEmail.trim() || undefined,
         chain: memberChain,
         role: "member",
       });
       setMemberWallet("");
+      setMemberEmail("");
       reload();
-      toast.success("Member added");
+      toast.success("Invite sent");
     } catch {
-      toast.error("Failed to add member");
+      toast.error("Failed to invite member");
     }
   };
 
@@ -165,7 +203,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     return <div className="py-20 text-center text-[var(--text-2)]">Loading workspace…</div>;
   }
 
-  const online = nodes.filter((n) => n.status === "online").length;
+  const online = nodes.filter((n) => n.status === "active" || n.status === "online").length;
+  const selectedNode = nodes.find((n) => n.node_id === selectedNodeId) ?? null;
 
   return (
     <div className="space-y-5">
@@ -194,7 +233,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         <div className="flex-1">
           <h2 className="text-2xl font-bold tracking-tight">{org.name}</h2>
           <p className="text-sm text-[var(--text-3)]">
-            {org.kind} · {members.length} members · {nodes.length} nodes
+            {org.plan ?? org.kind} · {members.length} members · {nodes.length} nodes
+            {entitlements ? ` · ${entitlements.shield_instances_included} Shield · ${entitlements.sentinel_licenses_included} Sentinel` : ""}
           </p>
         </div>
         {org.role && (
@@ -202,32 +242,46 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
             {org.role}
           </span>
         )}
+        {isOwner && (
+          <ActionButton type="button" variant="danger" onClick={handleDeleteOrg}>
+            Delete org
+          </ActionButton>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Nodes online" value={online} />
         <StatCard label="Total nodes" value={nodes.length} />
         <StatCard label="Members" value={members.length} />
+        <StatCard label="Seats (VPN)" value={planSeatTier ? `${seatsUsed}/${seatsIncluded}` : "—"} />
         <StatCard label="VPN clients" value={clients.length} />
         <StatCard label="API calls (30d)" value={usage.api_calls ?? "—"} />
       </div>
 
       {isPrivileged && (
         <Card className="p-6">
-          <div className="font-semibold">Enroll a new node</div>
+          <div className="font-semibold">Register a node</div>
           <p className="mt-1 text-sm text-[var(--text-2)]">
-            Register machines with this enrollment secret via{" "}
-            <code className="font-mono text-xs">POST /api/v2/nodes/register</code>
+            Mint a scoped token for{" "}
+            <code className="font-mono text-xs">EREBRUS_NODE_REGISTRATION_TOKEN</code> /{" "}
+            <code className="font-mono text-xs">POST /api/v2/nodes/register</code>. Set{" "}
+            <code className="font-mono text-xs">EREBRUS_PROFILE=shield|sentinel</code> on the node
+            for firewall sidecars.
           </p>
-          {org.enrollment_secret ? (
-            <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#08080A] px-3.5 py-3 font-mono text-xs">
-              <span className="flex-1 truncate">{org.enrollment_secret}</span>
-              <ActionButton type="button" onClick={copySecret}>
-                {copied ? "Copied" : "Copy"}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <AccentButton type="button" onClick={mintRegistrationToken}>
+              Mint token (24h)
+            </AccentButton>
+            {regToken && (
+              <ActionButton type="button" onClick={copyToken}>
+                {tokenCopied ? "Copied" : "Copy token"}
               </ActionButton>
+            )}
+          </div>
+          {regToken && (
+            <div className="mt-3 rounded-xl border border-white/[0.08] bg-[#08080A] px-3.5 py-3 font-mono text-xs break-all">
+              {regToken}
             </div>
-          ) : (
-            <p className="mt-3 text-sm text-[var(--text-3)]">Secret visible to owners/admins only.</p>
           )}
         </Card>
       )}
@@ -237,6 +291,11 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           <TabsTrigger value="nodes" className={v3TabsTriggerClass}>
             Nodes
           </TabsTrigger>
+          {canManageNodes && (
+            <TabsTrigger value="firewall" className={v3TabsTriggerClass}>
+              Firewall
+            </TabsTrigger>
+          )}
           <TabsTrigger value="members" className={v3TabsTriggerClass}>
             Members
           </TabsTrigger>
@@ -255,54 +314,110 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
             {nodes.length === 0 ? (
               <p className="px-5 py-8 text-sm text-[var(--text-2)]">No nodes enrolled yet.</p>
             ) : (
-              nodes.map((node) => (
-                <div
-                  key={node.id}
-                  className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{
-                        background: node.status === "online" ? "var(--success)" : "var(--text-3)",
-                        boxShadow: node.status === "online" ? "0 0 8px var(--success)" : undefined,
-                      }}
-                    />
-                    <div>
-                      <div className="font-semibold">{node.name || node.region}</div>
-                      <div className="font-mono text-[11px] text-[var(--text-3)]">{node.did}</div>
+              nodes.map((node) => {
+                const svcs = nodeServices[node.node_id] ?? [];
+                return (
+                  <div
+                    key={node.id}
+                    className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{
+                          background:
+                            node.status === "active" || node.status === "online"
+                              ? "var(--success)"
+                              : "var(--text-3)",
+                          boxShadow:
+                            node.status === "active" || node.status === "online"
+                              ? "0 0 8px var(--success)"
+                              : undefined,
+                        }}
+                      />
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-semibold">{node.node_name || node.region}</span>
+                          <span
+                            className={`rounded px-2 py-0.5 text-[10px] font-medium uppercase ${profileBadgeClass(node.deployment_profile)}`}
+                          >
+                            {profileLabel(node.deployment_profile)}
+                          </span>
+                        </div>
+                        <div className="font-mono text-[11px] text-[var(--text-3)]">
+                          {node.node_id}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1 text-sm text-[var(--text-2)]">
+                      <span className="capitalize">{node.status}</span>
+                      {svcs.length > 0 && (
+                        <div className="flex flex-wrap gap-2 font-mono text-[10px] text-[var(--text-3)]">
+                          {svcs.map((s) => (
+                            <span key={s.id}>
+                              {s.service_type}: {serviceStatusLabel(s.service_status)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-4 font-mono text-sm capitalize text-[var(--text-2)]">
-                    <span>{node.load_pct?.toFixed(0) ?? 0}% load</span>
-                    <span>{node.access_mode}</span>
-                    {nodeMetrics[node.id] ? (
-                      <span className="font-mono text-[11px] text-[var(--text-3)]">
-                        {nodeMetrics[node.id]}
-                      </span>
-                    ) : (
-                      <ActionButton type="button" onClick={() => loadNodeMetrics(node.id)}>
-                        24h stats
-                      </ActionButton>
-                    )}
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </Card>
         </TabsContent>
 
+        {canManageNodes && (
+          <TabsContent value="firewall" className="mt-4 space-y-4">
+            {nodes.length === 0 ? (
+              <Card className="p-5 text-sm text-[var(--text-2)]">Enroll a node first.</Card>
+            ) : (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  {nodes.map((n) => (
+                    <ActionButton
+                      key={n.node_id}
+                      type="button"
+                      onClick={() => setSelectedNodeId(n.node_id)}
+                      className={
+                        selectedNodeId === n.node_id
+                          ? "border-[var(--accent)]/40 text-[var(--accent-hi)]"
+                          : undefined
+                      }
+                    >
+                      {n.node_name || n.node_id.slice(0, 12)}
+                    </ActionButton>
+                  ))}
+                </div>
+                {selectedNode && (
+                  <NodeFirewallPanel orgId={orgId} node={selectedNode} canManage={canManageNodes} />
+                )}
+              </>
+            )}
+          </TabsContent>
+        )}
+
         <TabsContent value="members" className="mt-4 space-y-4">
           {isPrivileged && (
-            <Card className="p-5">
-              <Label>Add member by wallet</Label>
-              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+            <Card className="p-5 space-y-3">
+              <MonoLabel>Invite member</MonoLabel>
+              <div className="grid gap-2 sm:grid-cols-2">
                 <Input
-                  placeholder="Wallet address"
+                  placeholder="Wallet address (optional)"
                   value={memberWallet}
                   onChange={(e) => setMemberWallet(e.target.value)}
                   className="border-white/10 bg-[var(--surface-2)]"
                 />
+                <Input
+                  placeholder="Email (optional)"
+                  type="email"
+                  value={memberEmail}
+                  onChange={(e) => setMemberEmail(e.target.value)}
+                  className="border-white/10 bg-[var(--surface-2)]"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <select
                   value={memberChain}
                   onChange={(e) => setMemberChain(e.target.value)}
@@ -311,7 +426,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                   <option value="sol">Solana</option>
                   <option value="evm">EVM</option>
                 </select>
-                <AccentButton onClick={addMember}>Add</AccentButton>
+                <AccentButton onClick={inviteMember}>Send invite</AccentButton>
               </div>
             </Card>
           )}
@@ -322,15 +437,53 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                 className="flex items-center justify-between border-b border-white/[0.04] px-5 py-3"
               >
                 <div>
-                  <div className="font-mono text-sm">{m.wallet_address.slice(0, 12)}…</div>
-                  <MonoLabel>{m.role}</MonoLabel>
+                  <div className="font-mono text-sm">
+                    {m.wallet_address ? `${m.wallet_address.slice(0, 12)}…` : m.status ?? "pending"}
+                  </div>
+                  <MonoLabel>
+                    {m.role}
+                    {m.seat_tier ? ` · ${m.seat_tier}` : ""}
+                  </MonoLabel>
                 </div>
                 <div className="flex items-center gap-2">
+                  {isPrivileged && planSeatTier && m.role !== "owner" &&
+                    (m.seat_tier && m.seat_tier !== "free" ? (
+                      <ActionButton
+                        type="button"
+                        onClick={() =>
+                          revokeOrgSeat(orgId, m.user_id)
+                            .then(reload)
+                            .catch((e) =>
+                              toast.error(e instanceof GatewayApiError ? e.message : "Failed to revoke seat")
+                            )
+                        }
+                      >
+                        Revoke seat
+                      </ActionButton>
+                    ) : (
+                      <ActionButton
+                        type="button"
+                        variant="accent"
+                        onClick={() =>
+                          assignOrgSeat(orgId, m.user_id, planSeatTier)
+                            .then(reload)
+                            .catch((e) =>
+                              toast.error(e instanceof GatewayApiError ? e.message : "No seats remaining")
+                            )
+                        }
+                      >
+                        Give seat
+                      </ActionButton>
+                    ))}
                   {isPrivileged && m.role !== "owner" && (
                     <select
                       value={m.role}
                       onChange={(e) =>
-                        patchOrgMember(orgId, m.user_id, e.target.value as "admin" | "member")
+                        patchOrgMember(
+                          orgId,
+                          m.user_id,
+                          e.target.value as "admin" | "member" | "node_operator"
+                        )
                           .then(reload)
                           .catch(() => toast.error("Failed to update role"))
                       }
@@ -338,6 +491,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     >
                       <option value="member">member</option>
                       <option value="admin">admin</option>
+                      <option value="node_operator">node_operator</option>
                     </select>
                   )}
                   {isOwner && m.role === "admin" && (

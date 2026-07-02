@@ -1,12 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { generateKeyPair } from "curve25519-js";
 import { saveAs } from "file-saver";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  generateWgKeyPair,
+  injectPrivateKey,
+  storeClientPrivateKey,
+  getClientPrivateKey,
+  removeClientPrivateKey,
+} from "@/lib/wireguard";
 import {
   fetchSubscription,
   fetchVpnClients,
   fetchPlans,
+  fetchOrgs,
+  fetchOrgVpnNodes,
   provisionVpnClient,
   deleteVpnClient,
   fetchVpnClientConfig,
@@ -16,7 +25,7 @@ import {
 import { useOnlineNodes } from "@/context/online-nodes";
 import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
-import type { GatewayNode, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import type { GatewayNode, GatewayOrg, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
@@ -37,20 +46,52 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp } from "lucide-react";
+import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode, BadgeCheck } from "lucide-react";
 import Link from "next/link";
+
+function ScopeChip({
+  label,
+  active,
+  onClick,
+  verified = false,
+  count,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  verified?: boolean;
+  count?: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-[11px] tracking-wide transition ${
+        active
+          ? "border-[var(--accent)]/50 bg-[var(--accent)]/15 text-[var(--accent-hi)]"
+          : "border-white/[0.08] text-[var(--text-3)] hover:bg-white/[0.04]"
+      }`}
+    >
+      <span className="normal-case">{label}</span>
+      {verified && <BadgeCheck size={13} className="text-[var(--accent-hi)]" />}
+      {count != null && (
+        <span className="rounded bg-white/[0.06] px-1.5 text-[10px] text-[var(--text-3)]">{count}</span>
+      )}
+    </button>
+  );
+}
 
 type VpnState = "disconnected" | "connecting" | "connected";
 
-function bytesToBase64(bytes: Uint8Array): string {
-  return btoa(String.fromCharCode(...bytes));
-}
-
 export function VpnConnectPanel() {
-  const { nodes, loading: nodesLoading } = useOnlineNodes();
+  const { nodes: publicNodes, loading: nodesLoading } = useOnlineNodes();
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [sub, setSub] = useState<GatewaySubscription | null>(null);
   const [plans, setPlans] = useState<GatewayPlan[]>([]);
+  const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
+  const [orgNodes, setOrgNodes] = useState<GatewayNode[]>([]);
+  // Active node scope: null = Public network, otherwise an org slug.
+  const [scope, setScope] = useState<string | null>(null);
   const [selected, setSelected] = useState<GatewayNode | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [state, setState] = useState<VpnState>("disconnected");
@@ -58,16 +99,25 @@ export function VpnConnectPanel() {
   const [provisioning, setProvisioning] = useState(false);
   const [nameDialog, setNameDialog] = useState(false);
   const [deviceName, setDeviceName] = useState("");
+  const [configModal, setConfigModal] = useState<{
+    name: string;
+    config: string;
+    hasKey: boolean;
+  } | null>(null);
 
   const refresh = useCallback(async () => {
-    const [c, s, p] = await Promise.all([
+    const [c, s, p, o, on] = await Promise.all([
       fetchVpnClients().catch(() => []),
       fetchSubscription().catch(() => null),
       fetchPlans().catch(() => []),
+      fetchOrgs().catch(() => []),
+      fetchOrgVpnNodes().catch(() => []),
     ]);
     setClients(c);
     setSub(s);
     setPlans(p);
+    setOrgs(o);
+    setOrgNodes(on);
     setState(c.length > 0 ? "connected" : "disconnected");
     setLoading(false);
   }, []);
@@ -75,6 +125,60 @@ export function VpnConnectPanel() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Org-scoped nodes grouped by org slug (incl. private nodes).
+  const orgNodesBySlug = useMemo(() => {
+    const map = new Map<string, GatewayNode[]>();
+    for (const n of orgNodes) {
+      const slug = n.org?.slug;
+      if (!slug) continue;
+      const arr = map.get(slug) ?? [];
+      arr.push(n);
+      map.set(slug, arr);
+    }
+    return map;
+  }, [orgNodes]);
+
+  // Scope options: orgs from /orgs (incl. empty), plus any org that has nodes
+  // but wasn't returned by /orgs (synthesized from the node's org block).
+  const scopeOrgs = useMemo(() => {
+    const bySlug = new Map<string, { slug: string; name: string; verified: boolean }>();
+    for (const o of orgs) {
+      if (o.slug) bySlug.set(o.slug, { slug: o.slug, name: o.name, verified: o.verified });
+    }
+    for (const [slug, ns] of orgNodesBySlug) {
+      if (!bySlug.has(slug)) {
+        const org = ns[0]?.org;
+        bySlug.set(slug, { slug, name: org?.name ?? slug, verified: org?.verified ?? false });
+      }
+    }
+    return [...bySlug.values()];
+  }, [orgs, orgNodesBySlug]);
+
+  // Drop a stale scope whose org is no longer available.
+  useEffect(() => {
+    if (scope && !scopeOrgs.some((o) => o.slug === scope)) setScope(null);
+  }, [scope, scopeOrgs]);
+
+  // The active, scope-filtered node list (sorted lightest-load first).
+  const nodes = useMemo(() => {
+    const source = scope ? (orgNodesBySlug.get(scope) ?? []) : publicNodes;
+    return [...source].sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99));
+  }, [scope, orgNodesBySlug, publicNodes]);
+
+  const scopeLabel = useMemo(
+    () => (scope ? scopeOrgs.find((o) => o.slug === scope)?.name ?? "Organization" : "Public network"),
+    [scope, scopeOrgs]
+  );
+
+  // Node name lookup spanning public + org nodes (for the VPN-clients list).
+  const nodeNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const n of [...publicNodes, ...orgNodes]) {
+      if (n.name) m.set(n.id, n.name);
+    }
+    return m;
+  }, [publicNodes, orgNodes]);
 
   useEffect(() => {
     setSelected((prev) => {
@@ -146,23 +250,25 @@ export function VpnConnectPanel() {
     setProvisioning(true);
     setState("connecting");
     try {
-      const seed = new Uint8Array(32);
-      crypto.getRandomValues(seed);
-      const { public: wgPublicKeyBytes } = generateKeyPair(seed);
-      const wgPublicKey = bytesToBase64(wgPublicKeyBytes);
+      const { privateKey, publicKey } = generateWgKeyPair();
 
       const client = await provisionVpnClient({
         name,
         node_id: selected.id,
-        wg_public_key: wgPublicKey,
+        wg_public_key: publicKey,
         idempotency_key: `${selected.id}-${Date.now()}`,
       });
 
-      const configRes = await fetchVpnClientConfig(client.id);
-      saveAs(new Blob([configRes.config], { type: "text/plain" }), `erebrus-${selected.region}.conf`);
+      // The node builds the config from our public key only — inject the
+      // client-held private key to make it usable, and persist it so this
+      // device's config can be re-downloaded or shown as a QR later.
+      storeClientPrivateKey(client.id, privateKey);
+      const { config: rawConfig } = await fetchVpnClientConfig(client.id);
+      const config = injectPrivateKey(rawConfig, privateKey);
 
       setState("connected");
-      toast.success("VPN client provisioned — config downloaded");
+      setConfigModal({ name: client.name || name, config, hasKey: true });
+      toast.success("VPN client provisioned");
       await refresh();
     } catch (err) {
       setState("disconnected");
@@ -218,11 +324,36 @@ export function VpnConnectPanel() {
       {!entitled && (
         <Card className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <p className="text-sm text-[var(--text-2)]">
-            Start your free 7-day trial to provision WireGuard clients on the network.
+            {sub?.trial_consumed
+              ? "Your 7-day trial has ended. Contact support to upgrade your plan, or hold the access NFT to extend to 30 days."
+              : "Start your free 7-day trial to provision WireGuard clients on the network."}
           </p>
-          <AccentButton onClick={startFreeTrial} disabled={sub?.trial_consumed}>
-            {sub?.trial_consumed ? "Trial used" : "Start trial"}
-          </AccentButton>
+          {sub?.trial_consumed ? (
+            <Link href="/contact">
+              <AccentButton>Contact support</AccentButton>
+            </Link>
+          ) : (
+            <AccentButton onClick={startFreeTrial}>Start trial</AccentButton>
+          )}
+        </Card>
+      )}
+
+      {scopeOrgs.length > 0 && (
+        <Card className="flex flex-wrap items-center gap-2 p-3">
+          <span className="mr-1 pl-1 font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">
+            VPN source
+          </span>
+          <ScopeChip label="Public network" active={scope === null} onClick={() => setScope(null)} />
+          {scopeOrgs.map((o) => (
+            <ScopeChip
+              key={o.slug}
+              label={o.name}
+              verified={o.verified}
+              count={orgNodesBySlug.get(o.slug)?.length ?? 0}
+              active={scope === o.slug}
+              onClick={() => setScope(o.slug)}
+            />
+          ))}
         </Card>
       )}
 
@@ -235,13 +366,15 @@ export function VpnConnectPanel() {
         >
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4 md:px-[22px]">
             <div className="flex items-center gap-2.5">
-              <MonoLabel>Global Network</MonoLabel>
+              <MonoLabel>{scope ? scopeLabel : "Global Network"}</MonoLabel>
               <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--success)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
                 {nodes.length} online
               </span>
             </div>
-            <span className="font-mono text-[11px] text-[var(--text-3)]">Auto-rotating</span>
+            <span className="font-mono text-[11px] text-[var(--text-3)]">
+              {scope ? "Org nodes" : "Auto-rotating"}
+            </span>
           </div>
           <div className="relative h-[360px] md:h-[470px]">
             <NodeGlobe
@@ -460,8 +593,9 @@ export function VpnConnectPanel() {
         ) : (
           clients.map((client) => {
             const activity = clientActivity(client.last_handshake);
-            const nodeRegion =
-              nodes.find((n) => n.id === client.node_id)?.name ?? client.node_region;
+            // Look across all known nodes (public + org) so a client's node name
+            // resolves regardless of the currently selected scope.
+            const nodeRegion = nodeNameById.get(client.node_id) ?? client.node_region;
             return (
               <div
                 key={client.id}
@@ -512,14 +646,19 @@ export function VpnConnectPanel() {
                     className="!px-2.5"
                     onClick={async () => {
                       try {
-                        const { config } = await fetchVpnClientConfig(client.id);
-                        saveAs(new Blob([config]), `${client.name}.conf`);
+                        const { config: raw } = await fetchVpnClientConfig(client.id);
+                        const pk = getClientPrivateKey(client.id);
+                        setConfigModal({
+                          name: client.name,
+                          config: pk ? injectPrivateKey(raw, pk) : raw,
+                          hasKey: !!pk,
+                        });
                       } catch {
                         toast.error("Could not fetch config");
                       }
                     }}
                   >
-                    <Download size={14} />
+                    <QrCode size={14} />
                     Config
                   </ActionButton>
                   <ActionButton
@@ -528,6 +667,7 @@ export function VpnConnectPanel() {
                     onClick={async () => {
                       try {
                         await deleteVpnClient(client.id);
+                        removeClientPrivateKey(client.id);
                         toast.success("Device removed");
                         await refresh();
                       } catch {
@@ -571,8 +711,49 @@ export function VpnConnectPanel() {
             onClick={() => runProvision(deviceName.trim() || "My device")}
             disabled={provisioning}
           >
-            Provision & download
+            {provisioning ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
+              </>
+            ) : (
+              "Provision device"
+            )}
           </AccentButton>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!configModal} onOpenChange={(o) => !o && setConfigModal(null)}>
+        <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{configModal?.name} — WireGuard config</DialogTitle>
+          </DialogHeader>
+          {configModal?.hasKey ? (
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-center text-sm text-[var(--text-2)]">
+                Scan this with the WireGuard app, or download the <code>.conf</code> and import it.
+              </p>
+              <div className="rounded-2xl bg-white p-4">
+                <QRCodeSVG value={configModal.config} size={208} level="M" marginSize={0} />
+              </div>
+              <AccentButton
+                className="w-full"
+                onClick={() =>
+                  saveAs(
+                    new Blob([configModal.config], { type: "text/plain" }),
+                    `${configModal.name.replace(/[^a-z0-9-_]+/gi, "-") || "erebrus"}.conf`
+                  )
+                }
+              >
+                <Download size={16} /> Download .conf
+              </AccentButton>
+            </div>
+          ) : (
+            <p className="rounded-lg bg-[var(--warn)]/10 px-3 py-3 text-center text-sm text-[var(--warn)]">
+              The private key for this device isn’t available in this browser, so an installable
+              config can’t be rebuilt. Remove this device and add it again to get a fresh config you
+              can download or scan.
+            </p>
+          )}
         </DialogContent>
       </Dialog>
     </div>

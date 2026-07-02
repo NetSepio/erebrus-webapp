@@ -22,6 +22,13 @@ import { useAppKitAccount, useAppKitNetworkCore } from "@reown/appkit/react";
 import Image from "next/image";
 import type { HeliusNft } from "@/lib/helius";
 
+const PROVIDER_LABEL: Record<string, string> = {
+  google: "Google",
+  apple: "Apple",
+  x: "X",
+  telegram: "Telegram",
+};
+
 export default function ProfilePage() {
   const { address } = useAppKitAccount();
   const { caipNetworkId } = useAppKitNetworkCore();
@@ -122,23 +129,40 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-5 space-y-2.5">
-            <Row label="Wallet" value="Connected" ok />
+            <Row
+              label="Wallet"
+              value={address || profile?.wallet_address ? "Connected" : "Not linked"}
+              ok={!!(address || profile?.wallet_address)}
+            />
             {profile?.role === "admin" && <Row label="Platform role" value="Admin" ok />}
-            {socials.length > 0 && (
-              <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
-                <span className="text-sm text-[var(--text-2)]">Linked accounts</span>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {socials.map((s) => (
-                    <span
-                      key={s.provider}
-                      className="rounded-md bg-white/[0.06] px-2 py-1 font-mono text-[11px] capitalize"
-                    >
-                      {s.provider}: @{s.handle}
-                    </span>
-                  ))}
-                </div>
+            <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
+              <span className="text-sm text-[var(--text-2)]">Connections</span>
+              <div className="mt-2 space-y-1.5">
+                {(["google", "apple", "x", "telegram"] as const).map((p) => {
+                  const s = socials.find((acct) => acct.provider === p);
+                  return (
+                    <div key={p} className="flex items-center justify-between">
+                      <span className="font-mono text-[12px] text-[var(--text-2)]">
+                        {PROVIDER_LABEL[p]}
+                      </span>
+                      {s ? (
+                        <span className="flex items-center gap-1.5 font-mono text-[11px] text-[var(--success)]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
+                          {s.handle ? `@${s.handle}` : "connected"}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[11px] text-[var(--text-3)]">
+                          not connected
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            )}
+              <p className="mt-2 font-mono text-[10px] text-[var(--text-3)]">
+                Sign in with Google/Apple using a verified email to auto-link it here.
+              </p>
+            </div>
             <div className="flex items-center justify-between rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
               <span className="text-sm text-[var(--text-2)]">Display name</span>
               <div className="flex gap-2">
