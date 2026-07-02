@@ -315,6 +315,9 @@ export interface GatewayActivity {
   id: string;
   action: string;
   target?: string;
+  /** Present on fleet-wide admin audit entries. */
+  user_id?: string;
+  wallet?: string;
   ip?: string;
   device?: string;
   app?: string;

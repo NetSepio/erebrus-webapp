@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createOrg, fetchOrgs, GatewayApiError } from "@/lib/gateway/client";
+import { createOrg, fetchOrgsWithStats, GatewayApiError } from "@/lib/gateway/client";
 import type { GatewayOrg } from "@/lib/gateway/types";
 import { AccentButton, Card } from "@/components/v3/ui";
 import {
@@ -34,7 +34,7 @@ export default function WorkspacePage() {
 
   const load = () => {
     setLoadError(null);
-    fetchOrgs()
+    fetchOrgsWithStats()
       .then(setOrgs)
       .catch((err) => {
         setOrgs([]);
