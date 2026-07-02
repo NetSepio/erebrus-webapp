@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchAdminActivity,
   fetchAdminNodeMetrics,
@@ -101,7 +101,10 @@ export function AdminConsole() {
   const [subs, setSubs] = useState<Record<string, number>>({});
   const [settings, setSettings] = useState<GatewayPlatformSetting[]>([]);
   const [settingsDraft, setSettingsDraft] = useState<Record<string, string>>({});
-  const [verifyOrgId, setVerifyOrgId] = useState("");
+  const [orgSearch, setOrgSearch] = useState("");
+  const [orgOffset, setOrgOffset] = useState(0);
+  const [orgHasMore, setOrgHasMore] = useState(false);
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
   const [grantPerkId, setGrantPerkId] = useState("");
   const [grantWallet, setGrantWallet] = useState("");
   const [loading, setLoading] = useState(true);
@@ -125,9 +128,11 @@ export function AdminConsole() {
     setNodes(data.nodes);
   }, [nodeFilter]);
 
-  const loadOrgs = useCallback(async () => {
-    const data = await fetchAdminOrgs({ limit: 50, offset: 0 });
-    setOrgs(data.orgs);
+  const loadOrgs = useCallback(async (offset = 0, append = false) => {
+    const data = await fetchAdminOrgs({ limit: 50, offset });
+    setOrgs((prev) => (append ? [...prev, ...data.orgs] : data.orgs));
+    setOrgOffset(offset);
+    setOrgHasMore(data.orgs.length === 50);
   }, []);
 
   const loadActivity = useCallback(async (cursor?: string, append = false) => {
@@ -177,20 +182,6 @@ export function AdminConsole() {
     }
   };
 
-  const toggleOrgVerified = async (verified: boolean) => {
-    if (!verifyOrgId.trim()) {
-      toast.error("Enter org UUID (from workspace URL)");
-      return;
-    }
-    try {
-      await patchAdminOrg(verifyOrgId.trim(), verified);
-      toast.success(verified ? "Org verified" : "Org unverified");
-      loadOrgs();
-    } catch (e) {
-      toast.error(e instanceof GatewayApiError ? e.message : "Failed to update org");
-    }
-  };
-
   const verifyOrg = async (id: string, verified: boolean) => {
     try {
       await patchAdminOrg(id, verified);
@@ -225,12 +216,42 @@ export function AdminConsole() {
     }
   };
 
+  const orgSearchNorm = orgSearch.trim().toLowerCase();
+  const filteredOrgs = useMemo(() => {
+    if (!orgSearchNorm) return orgs;
+    return orgs.filter((o) => {
+      const name = o.name?.toLowerCase() ?? "";
+      const slug = o.slug?.toLowerCase() ?? "";
+      const id = o.id?.toLowerCase() ?? "";
+      return (
+        name.includes(orgSearchNorm) ||
+        slug.includes(orgSearchNorm) ||
+        id.includes(orgSearchNorm)
+      );
+    });
+  }, [orgSearchNorm, orgs]);
+
+  const selectedOrg =
+    filteredOrgs.find((o) => o.id === selectedOrgId) ??
+    (filteredOrgs.length === 1 ? filteredOrgs[0] : null);
+
   if (loading) {
     return <div className="py-20 text-center text-[var(--text-2)]">Loading admin console…</div>;
   }
 
   const onlineNodes =
     stats?.nodes.by_status?.online ?? stats?.nodes.connected ?? 0;
+
+  const showOrgUsage = async (orgId: string) => {
+    try {
+      const u = await fetchAdminOrgUsage(orgId);
+      toast.success(
+        `30d: ${u.clients ?? u.vpn_clients ?? 0} clients · ${u.api_calls ?? 0} API calls · ${formatBytes(u.bandwidth_total ?? 0)} bandwidth`
+      );
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Usage lookup failed");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -390,57 +411,92 @@ export function AdminConsole() {
 
         <TabsContent value="orgs" className="mt-4 space-y-4">
           <Card className="p-5">
-            <Label>Verify org by UUID</Label>
+            <Label htmlFor="org-search">Find organization</Label>
             <p className="mt-1 text-xs text-[var(--text-3)]">
-              Copy the org id from a workspace URL (/workspace/[id]).
+              Search by name, slug, or id — then verify status or assign a plan.
             </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <Input
-                value={verifyOrgId}
-                onChange={(e) => setVerifyOrgId(e.target.value)}
-                placeholder="Org UUID"
-                className="border-white/10 bg-[var(--surface-2)]"
-              />
-              <AccentButton type="button" onClick={() => toggleOrgVerified(true)}>
-                Verify
-              </AccentButton>
-              <AccentButton type="button" variant="ghost" onClick={() => toggleOrgVerified(false)}>
-                Unverify
-              </AccentButton>
-              <AccentButton
-                type="button"
-                variant="ghost"
-                onClick={async () => {
-                  if (!verifyOrgId.trim()) return;
-                  try {
-                    const u = await fetchAdminOrgUsage(verifyOrgId.trim());
-                    toast.success(
-                      `30d: ${u.clients ?? u.vpn_clients ?? 0} clients · ${u.api_calls ?? 0} API calls · ${formatBytes(u.bandwidth_total ?? 0)} bandwidth`
-                    );
-                  } catch (e) {
-                    toast.error(e instanceof GatewayApiError ? e.message : "Usage lookup failed");
-                  }
-                }}
-              >
-                Usage
-              </AccentButton>
-            </div>
+            <Input
+              id="org-search"
+              value={orgSearch}
+              onChange={(e) => {
+                setOrgSearch(e.target.value);
+                setSelectedOrgId(null);
+              }}
+              placeholder="e.g. Acme Corp"
+              className="mt-3 border-white/10 bg-[var(--surface-2)]"
+            />
+            {orgSearchNorm && (
+              <p className="mt-2 font-mono text-[11px] text-[var(--text-3)]">
+                {filteredOrgs.length} match{filteredOrgs.length === 1 ? "" : "es"}
+                {filteredOrgs.length === 0 && orgHasMore
+                  ? " — load more orgs below if yours is not listed"
+                  : ""}
+              </p>
+            )}
           </Card>
+
+          {selectedOrg?.id && (
+            <Card className="space-y-4 p-5">
+              <div>
+                <div className="font-semibold">{selectedOrg.name}</div>
+                <div className="mt-1 font-mono text-[11px] text-[var(--text-3)]">
+                  {selectedOrg.id}
+                  {selectedOrg.slug ? ` · ${selectedOrg.slug}` : ""}
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={selectedOrg.plan ?? "basic"}
+                  onChange={(e) => assignOrgPlan(selectedOrg.id!, e.target.value)}
+                  className="rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1.5 text-xs capitalize text-[var(--text)]"
+                  aria-label={`Plan for ${selectedOrg.name}`}
+                >
+                  {ORG_PLANS.map((p) => (
+                    <option key={p} value={p} className="capitalize">
+                      {p}
+                    </option>
+                  ))}
+                </select>
+                <AccentButton
+                  type="button"
+                  variant="ghost"
+                  onClick={() => verifyOrg(selectedOrg.id!, !selectedOrg.verified)}
+                >
+                  {selectedOrg.verified ? "Unverify" : "Verify"}
+                </AccentButton>
+                <AccentButton
+                  type="button"
+                  variant="ghost"
+                  onClick={() => showOrgUsage(selectedOrg.id!)}
+                >
+                  30d usage
+                </AccentButton>
+              </div>
+            </Card>
+          )}
+
           <Card className="overflow-hidden">
-            {orgs.map((o, i) => (
-              <div
+            {filteredOrgs.map((o, i) => (
+              <button
                 key={o.id ?? `${o.name}-${i}`}
-                className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3"
+                type="button"
+                onClick={() => o.id && setSelectedOrgId(o.id)}
+                className={`flex w-full flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3 text-left transition-colors hover:bg-white/[0.03] ${
+                  o.id && selectedOrgId === o.id ? "bg-[var(--accent)]/8" : ""
+                }`}
               >
                 <div className="min-w-0">
                   <div className="font-semibold">{o.name}</div>
                   <div className="text-xs text-[var(--text-3)]">
                     <span className="uppercase text-[var(--accent-hi)]">{o.plan ?? o.kind}</span>
                     {o.slug ? ` · ${o.slug}` : ""}
+                    {o.id ? (
+                      <span className="ml-1 font-mono text-[10px]">· {o.id.slice(0, 8)}…</span>
+                    ) : null}
                   </div>
                 </div>
                 {o.id ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <select
                       value={o.plan ?? "basic"}
                       onChange={(e) => assignOrgPlan(o.id!, e.target.value)}
@@ -475,9 +531,32 @@ export function AdminConsole() {
                     {o.verified ? "Verified" : "Unverified"}
                   </span>
                 )}
-              </div>
+              </button>
             ))}
+            {filteredOrgs.length === 0 && (
+              <p className="px-5 py-8 text-sm text-[var(--text-2)]">
+                {orgSearchNorm ? "No organizations match that search." : "No organizations loaded."}
+              </p>
+            )}
           </Card>
+          <div className="flex gap-2">
+            <AccentButton
+              type="button"
+              variant="ghost"
+              disabled={orgOffset === 0}
+              onClick={() => loadOrgs(Math.max(0, orgOffset - 50))}
+            >
+              Previous
+            </AccentButton>
+            <AccentButton
+              type="button"
+              variant="ghost"
+              disabled={!orgHasMore}
+              onClick={() => loadOrgs(orgOffset + 50, true)}
+            >
+              Load more orgs
+            </AccentButton>
+          </div>
         </TabsContent>
 
         <TabsContent value="subs" className="mt-4">
@@ -490,19 +569,45 @@ export function AdminConsole() {
 
         <TabsContent value="activity" className="mt-4 space-y-3">
           <Card className="overflow-hidden">
-            {activity.map((a) => (
-              <div key={a.id} className="border-b border-white/[0.04] px-5 py-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-mono text-sm text-[var(--accent-hi)]">{a.action}</span>
-                  <span className="font-mono text-[10px] text-[var(--text-3)]">
-                    {new Date(a.created_at).toLocaleString()}
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+              <span className="font-semibold">Fleet audit log</span>
+              <span className="font-mono text-[11px] text-[var(--text-3)]">
+                All users · actor wallet shown
+              </span>
+            </div>
+            {activity.length === 0 ? (
+              <p className="px-5 py-8 text-sm text-[var(--text-2)]">No platform activity yet.</p>
+            ) : (
+              activity.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-start gap-3.5 border-b border-white/[0.04] px-5 py-3.5"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-[var(--accent)]/10 font-mono text-sm text-[var(--accent-hi)]">
+                    ◎
                   </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-sm font-medium">{a.action}</span>
+                      <span className="font-mono text-[10px] text-[var(--text-3)]">
+                        {new Date(a.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="mt-1 font-mono text-[11px] text-[var(--text-3)]">
+                      {[
+                        a.wallet ? `actor ${a.wallet}` : a.user_id ? `user ${a.user_id.slice(0, 8)}…` : null,
+                        a.target ? `target ${a.target}` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
+                    <div className="mt-0.5 font-mono text-[11px] text-[var(--text-3)]">
+                      {[a.ip, a.device, a.app].filter(Boolean).join(" · ")}
+                    </div>
+                  </div>
                 </div>
-                {a.target && (
-                  <div className="mt-1 font-mono text-[11px] text-[var(--text-3)]">{a.target}</div>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </Card>
           {activityCursor && (
             <AccentButton type="button" variant="ghost" onClick={() => loadActivity(activityCursor, true)}>

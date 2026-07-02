@@ -1,5 +1,7 @@
 import { getCurrentAuthToken } from "@/context/appkit";
+import { computeOrgStats } from "./org-stats";
 import {
+  normalizeActivity,
   normalizeClient,
   normalizeLeaderboardEntry,
   normalizeNode,
@@ -200,12 +202,13 @@ export async function fetchActivity(params?: {
   cursor?: string;
 }): Promise<{ items: GatewayActivity[]; next_cursor?: string }> {
   const data = await gatewayFetch<{
-    activity?: GatewayActivity[];
-    items?: GatewayActivity[];
+    activity?: Record<string, unknown>[];
+    items?: Record<string, unknown>[];
     next_cursor?: string;
   }>("account/activity", { params });
+  const rows = data.activity ?? data.items ?? [];
   return {
-    items: data.activity ?? data.items ?? [],
+    items: rows.map((row) => normalizeActivity(row)),
     next_cursor: data.next_cursor,
   };
 }
@@ -338,6 +341,31 @@ export async function fetchOrgClients(orgId: string): Promise<GatewayVpnClient[]
 export async function fetchOrgNodes(id: string): Promise<GatewayOrgNode[]> {
   const data = await gatewayFetch<unknown>(`orgs/${id}/nodes`);
   return asArray(data, normalizeOrgNode);
+}
+
+async function enrichOrgWithStats(org: GatewayOrg): Promise<GatewayOrg> {
+  if (!org.id) return org;
+  if (
+    org.member_count != null &&
+    org.node_count != null &&
+    org.online_nodes != null
+  ) {
+    return org;
+  }
+
+  const [members, nodes] = await Promise.all([
+    fetchOrgMembers(org.id).catch(() => []),
+    fetchOrgNodes(org.id).catch(() => []),
+  ]);
+
+  return { ...org, ...computeOrgStats(members, nodes) };
+}
+
+/** Org list with member/node counts (gateway list omits aggregates). */
+export async function fetchOrgsWithStats(): Promise<GatewayOrg[]> {
+  const orgs = await fetchOrgs();
+  if (orgs.length === 0) return [];
+  return Promise.all(orgs.map(enrichOrgWithStats));
 }
 
 export async function fetchOrgEntitlements(id: string): Promise<GatewayOrgEntitlements> {
@@ -575,7 +603,14 @@ export async function fetchAdminActivity(params?: {
   cursor?: string;
   limit?: number;
 }): Promise<{ activity: GatewayActivity[]; next_cursor?: string }> {
-  return gatewayFetch("admin/activity", { params });
+  const data = await gatewayFetch<{
+    activity?: Record<string, unknown>[];
+    next_cursor?: string;
+  }>("admin/activity", { params });
+  return {
+    activity: (data.activity ?? []).map((row) => normalizeActivity(row)),
+    next_cursor: data.next_cursor,
+  };
 }
 
 export async function fetchAdminUsers(params?: {

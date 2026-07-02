@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  fetchOrgs,
+  fetchOrgsWithStats,
   fetchSubscription,
   fetchVpnClients,
 } from "@/lib/gateway/client";
@@ -23,7 +23,7 @@ export default function DashboardPage() {
     Promise.all([
       fetchSubscription().catch(() => null),
       fetchVpnClients().catch(() => []),
-      fetchOrgs().catch(() => []),
+      fetchOrgsWithStats().catch(() => []),
     ]).then(([s, c, o]) => {
       setSub(s);
       setClients(c);

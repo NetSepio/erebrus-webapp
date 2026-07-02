@@ -1,5 +1,6 @@
 import { regionCoords } from "@/lib/regions";
 import type {
+  GatewayActivity,
   GatewayLeaderboardEntry,
   GatewayNode,
   GatewayNodeCapabilities,
@@ -134,9 +135,29 @@ export function normalizeClient(raw: Record<string, unknown>): GatewayVpnClient 
   };
 }
 
+export function normalizeActivity(raw: Record<string, unknown>): GatewayActivity {
+  return {
+    id: String(raw.id ?? ""),
+    action: String(raw.action ?? ""),
+    target: optStr(raw.target),
+    user_id: optStr(raw.user_id),
+    wallet: optStr(raw.wallet),
+    ip: optStr(raw.ip),
+    device: optStr(raw.device),
+    app: optStr(raw.app),
+    user_agent: optStr(raw.user_agent),
+    created_at: String(raw.created_at ?? new Date().toISOString()),
+  };
+}
+
 export function normalizeOrg(raw: Record<string, unknown>): GatewayOrg {
   const plan = optStr(raw.plan);
   const verification = optStr(raw.verification_status);
+  const stats =
+    raw.stats && typeof raw.stats === "object"
+      ? (raw.stats as Record<string, unknown>)
+      : null;
+
   return {
     id: String(raw.id ?? ""),
     name: String(raw.name ?? ""),
@@ -152,6 +173,21 @@ export function normalizeOrg(raw: Record<string, unknown>): GatewayOrg {
     verified:
       raw.verified === true ||
       verification === "verified",
+    member_count:
+      optNum(raw.member_count) ??
+      optNum(raw.members_count) ??
+      optNum(stats?.member_count) ??
+      optNum(stats?.members),
+    node_count:
+      optNum(raw.node_count) ??
+      optNum(raw.nodes_count) ??
+      optNum(stats?.node_count) ??
+      optNum(stats?.nodes),
+    online_nodes:
+      optNum(raw.online_nodes) ??
+      optNum(raw.nodes_online) ??
+      optNum(stats?.online_nodes) ??
+      optNum(stats?.nodes_online),
     enrollment_secret: raw.enrollment_secret as string | undefined,
     created_at: raw.created_at as string | undefined,
     updated_at: optStr(raw.updated_at),
