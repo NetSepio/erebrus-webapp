@@ -7,8 +7,12 @@ import {
   fetchFirewallRules,
   fetchFirewallService,
   fetchFirewallStatus,
+  fetchFirewallCredentials,
+  updateFirewallCredentials,
   restartFirewall,
   syncFirewall,
+  GatewayApiError,
+  type GatewayFirewallCredentials,
 } from "@/lib/gateway/client";
 import type { GatewayFirewallRule, GatewayOrgNode } from "@/lib/gateway/types";
 import { profileLabel, serviceStatusLabel } from "@/lib/gateway/profiles";
@@ -163,6 +167,8 @@ export function NodeFirewallPanel({
         )}
       </Card>
 
+      {kind === "shield" && <ShieldCredentialsCard orgId={orgId} nodeId={node.node_id} />}
+
       {isSentinel ? (
         <>
           {canManage && (
@@ -243,5 +249,119 @@ export function NodeFirewallPanel({
         </Card>
       )}
     </div>
+  );
+}
+
+function ShieldCredentialsCard({ orgId, nodeId }: { orgId: string; nodeId: string }) {
+  const [creds, setCreds] = useState<GatewayFirewallCredentials | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [updating, setUpdating] = useState(false);
+
+  const reveal = useCallback(async () => {
+    setLoading(true);
+    try {
+      const c = await fetchFirewallCredentials(orgId, nodeId);
+      setCreds(c);
+      setRevealed(true);
+    } catch (e) {
+      if (e instanceof GatewayApiError) {
+        if (e.status === 403) toast.error("Requires a paid seat in this org");
+        else if (e.status === 404) toast.error("The node hasn't reported an admin login yet");
+        else toast.error(e.message);
+      } else {
+        toast.error("Could not load credentials");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [orgId, nodeId]);
+
+  const rotate = async () => {
+    if (newPassword.trim().length < 8) {
+      toast.error("Use at least 8 characters");
+      return;
+    }
+    setUpdating(true);
+    try {
+      await updateFirewallCredentials(orgId, nodeId, newPassword.trim());
+      toast.success("Password updated — the node will apply it");
+      setNewPassword("");
+      await reveal();
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Could not update password");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <MonoLabel>AdGuard admin login</MonoLabel>
+        {!revealed && (
+          <ActionButton type="button" onClick={reveal} disabled={loading}>
+            {loading ? "Loading…" : "Reveal"}
+          </ActionButton>
+        )}
+      </div>
+      {revealed && creds ? (
+        <>
+          <div className="space-y-1.5 rounded-[11px] border border-white/[0.06] bg-white/[0.015] p-3 font-mono text-sm">
+            {creds.admin_url && (
+              <div className="flex justify-between gap-3">
+                <span className="text-[var(--text-3)]">Console</span>
+                <a
+                  href={creds.admin_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="truncate text-[var(--accent-hi)] hover:underline"
+                >
+                  {creds.admin_url}
+                </a>
+              </div>
+            )}
+            <div className="flex justify-between gap-3">
+              <span className="text-[var(--text-3)]">User</span>
+              <span>{creds.admin_user}</span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span className="text-[var(--text-3)]">Password</span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(creds.admin_password);
+                  toast.success("Password copied");
+                }}
+                className="truncate text-left hover:text-[var(--accent-hi)]"
+                title="Click to copy"
+              >
+                {creds.admin_password}
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="flex-1">
+              <Label>New password</Label>
+              <Input
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Rotate the admin password"
+                className="mt-1 border-white/10 bg-[var(--surface-2)]"
+              />
+            </div>
+            <AccentButton type="button" onClick={rotate} disabled={updating || !newPassword.trim()}>
+              {updating ? "Updating…" : "Update"}
+            </AccentButton>
+          </div>
+        </>
+      ) : (
+        <p className="text-sm text-[var(--text-2)]">
+          The Shield node&apos;s AdGuard admin login is stored encrypted. Org paid seats can reveal and
+          rotate it here.
+        </p>
+      )}
+    </Card>
   );
 }
