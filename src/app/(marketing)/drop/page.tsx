@@ -52,7 +52,13 @@ export default function DropMarketingPage() {
           }}
         >
           <div className="text-center">
-            <Image src="/brand/erebrus-drop.png" alt="" width={72} height={72} className="mx-auto" />
+            <Image
+              src="/drop/logo.png"
+              alt=""
+              width={72}
+              height={72}
+              className="mx-auto h-[72px] w-[72px] object-contain"
+            />
             <div className="mt-6 font-mono text-[11px] tracking-[0.2em] text-[var(--text-3)]">
               DROP ROOM
             </div>

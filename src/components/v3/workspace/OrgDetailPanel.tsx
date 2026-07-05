@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   fetchOrg,
@@ -18,6 +19,7 @@ import {
   createOrgApiKey,
   revokeOrgApiKey,
   inviteOrgMember,
+  revokeOrgInvite,
   removeOrgMember,
   patchOrgMember,
   transferOrgOwnership,
@@ -61,10 +63,28 @@ import {
   v3TabsListClass,
   v3TabsTriggerClass,
 } from "@/components/v3/ui";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+
+const INVITE_ROLES = [
+  { value: "member", label: "Member" },
+  { value: "admin", label: "Admin" },
+  { value: "node_operator", label: "Node operator" },
+] as const;
+
+type InviteRole = (typeof INVITE_ROLES)[number]["value"];
 
 export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [org, setOrg] = useState<GatewayOrg | null>(null);
@@ -78,6 +98,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null);
   const [inviteMode, setInviteMode] = useState<"email" | "wallet">("email");
   const [inviteValue, setInviteValue] = useState("");
+  const [inviteRole, setInviteRole] = useState<InviteRole>("member");
   const [memberChain, setMemberChain] = useState<"sol" | "evm">("sol");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
@@ -87,10 +108,15 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [editDisplayName, setEditDisplayName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editWebsite, setEditWebsite] = useState("");
+  const [editLogoUrl, setEditLogoUrl] = useState("");
+  const [editPublicEmail, setEditPublicEmail] = useState("");
+  const [editCountry, setEditCountry] = useState("");
   const [editPublicProfile, setEditPublicProfile] = useState(false);
   const [regToken, setRegToken] = useState<string | null>(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [expandedFirewallNodeId, setExpandedFirewallNodeId] = useState<string | null>(null);
   const [tokenCopied, setTokenCopied] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
 
   const isPrivileged = org?.role === "owner" || org?.role === "admin";
   const isOwner = org?.role === "owner";
@@ -110,9 +136,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const seatsIncluded = entitlements?.paid_seats_included ?? 0;
 
   const handleDeleteOrg = async () => {
-    if (!confirm(`Delete "${org?.name}"? This removes the workspace, its members and seats. Nodes are detached and keep running. This cannot be undone.`)) {
-      return;
-    }
+    if (deleteConfirmName.trim() !== org?.name) return;
     try {
       await deleteOrg(orgId);
       toast.success("Organization deleted");
@@ -155,6 +179,9 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           setEditDisplayName(profile.display_name ?? "");
           setEditDescription(profile.description ?? "");
           setEditWebsite(profile.website_url ?? "");
+          setEditLogoUrl(profile.logo_url ?? "");
+          setEditPublicEmail(profile.public_email ?? "");
+          setEditCountry(profile.country ?? "");
         }
         setNodes(n);
         setMembers(m);
@@ -164,7 +191,6 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         setClients(c as GatewayVpnClient[]);
         setEntitlements(ent);
         if (n.length > 0) {
-          setSelectedNodeId((prev) => prev ?? n[0].node_id);
           void loadNodeServices(n);
         }
       });
@@ -230,7 +256,10 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
       await updateOrgProfile(orgId, {
         display_name: editDisplayName.trim() || editName.trim(),
         description: editDescription.trim() || undefined,
+        logo_url: editLogoUrl.trim() || undefined,
         website_url: editWebsite.trim() || undefined,
+        public_email: editPublicEmail.trim() || undefined,
+        country: editCountry.trim() || undefined,
       });
       reload();
       toast.success("Workspace settings saved");
@@ -264,7 +293,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         wallet_address: inviteMode === "wallet" ? value : undefined,
         email: inviteMode === "email" ? value : undefined,
         chain: memberChain,
-        role: "member",
+        role: inviteRole,
       });
       setInviteValue("");
       reload();
@@ -279,8 +308,9 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   }
 
   const online = nodes.filter((n) => n.status === "active" || n.status === "online").length;
-  const selectedNode = nodes.find((n) => n.node_id === selectedNodeId) ?? null;
   const displayedPendingInvites = visiblePendingInvites(members, pendingInvites);
+  const orgAvatarUrl = editLogoUrl.trim() || orgProfile?.logo_url?.trim();
+  const publicProfileUrl = editSlug.trim() || org.slug;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,17rem)_1fr] lg:items-start">
@@ -336,7 +366,20 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
 
       <div className="min-w-0 space-y-5">
       <div className="flex flex-wrap items-center gap-4">
-        <div className="h-[52px] w-[52px] rounded-[14px] bg-gradient-to-br from-[var(--solana)] to-[var(--accent)]" />
+        {orgAvatarUrl ? (
+          <Image
+            src={orgAvatarUrl}
+            alt=""
+            width={52}
+            height={52}
+            unoptimized
+            className="h-[52px] w-[52px] rounded-[14px] border border-white/10 object-cover"
+          />
+        ) : (
+          <div className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-gradient-to-br from-[var(--solana)] to-[var(--accent)] text-lg font-bold">
+            {org.name.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className="flex-1">
           <h2 className="text-2xl font-bold tracking-tight">{org.name}</h2>
           <p className="text-sm text-[var(--text-3)]">
@@ -348,11 +391,6 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           <span className="rounded-lg bg-[var(--accent)]/12 px-3 py-1 font-mono text-xs uppercase text-[var(--accent-hi)]">
             {org.role}
           </span>
-        )}
-        {isOwner && (
-          <ActionButton type="button" variant="danger" onClick={handleDeleteOrg}>
-            Delete org
-          </ActionButton>
         )}
       </div>
 
@@ -370,11 +408,6 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           <TabsTrigger value="nodes" className={v3TabsTriggerClass}>
             Nodes
           </TabsTrigger>
-          {canManageNodes && (
-            <TabsTrigger value="firewall" className={v3TabsTriggerClass}>
-              Firewall
-            </TabsTrigger>
-          )}
           <TabsTrigger value="members" className={v3TabsTriggerClass}>
             Members
           </TabsTrigger>
@@ -400,95 +433,90 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
             ) : (
               nodes.map((node) => {
                 const svcs = nodeServices[node.node_id] ?? [];
+                const isShield = node.deployment_profile === "shield";
+                const firewallOpen = expandedFirewallNodeId === node.node_id;
                 return (
-                  <div
-                    key={node.id}
-                    className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{
-                          background:
-                            node.status === "active" || node.status === "online"
-                              ? "var(--success)"
-                              : "var(--text-3)",
-                          boxShadow:
-                            node.status === "active" || node.status === "online"
-                              ? "0 0 8px var(--success)"
-                              : undefined,
-                        }}
-                      />
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-semibold">{node.node_name || node.region}</span>
-                          <span
-                            className={`rounded px-2 py-0.5 text-[10px] font-medium uppercase ${profileBadgeClass(node.deployment_profile)}`}
-                          >
-                            {profileLabel(node.deployment_profile)}
-                          </span>
-                          <span className="rounded bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase text-[var(--text-3)]">
-                            {visibilityLabel(node.visibility)}
-                          </span>
-                          {node.managed_by === "erebrus" && (
-                            <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium uppercase text-amber-300/90">
-                              Managed
+                  <div key={node.id} className="border-b border-white/[0.04]">
+                    <div className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="h-2 w-2 rounded-full"
+                          style={{
+                            background:
+                              node.status === "active" || node.status === "online"
+                                ? "var(--success)"
+                                : "var(--text-3)",
+                            boxShadow:
+                              node.status === "active" || node.status === "online"
+                                ? "0 0 8px var(--success)"
+                                : undefined,
+                          }}
+                        />
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-semibold">{node.node_name || node.region}</span>
+                            <span
+                              className={`rounded px-2 py-0.5 text-[10px] font-medium uppercase ${profileBadgeClass(node.deployment_profile)}`}
+                            >
+                              {profileLabel(node.deployment_profile)}
                             </span>
-                          )}
-                        </div>
-                        <div className="font-mono text-[11px] text-[var(--text-3)]">
-                          {node.node_id}
+                            <span className="rounded bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase text-[var(--text-3)]">
+                              {visibilityLabel(node.visibility)}
+                            </span>
+                            {node.managed_by === "erebrus" && (
+                              <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium uppercase text-amber-300/90">
+                                Managed
+                              </span>
+                            )}
+                          </div>
+                          <div className="font-mono text-[11px] text-[var(--text-3)]">
+                            {node.node_id}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-1 text-sm text-[var(--text-2)]">
-                      <span className="capitalize">{node.status}</span>
-                      {svcs.length > 0 && (
-                        <div className="flex flex-wrap gap-2 font-mono text-[10px] text-[var(--text-3)]">
-                          {svcs.map((s) => (
-                            <span key={s.id}>
-                              {s.service_type}: {serviceStatusLabel(s.service_status)}
-                            </span>
-                          ))}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-col gap-1 text-sm text-[var(--text-2)]">
+                          <span className="capitalize">{node.status}</span>
+                          {svcs.length > 0 && (
+                            <div className="flex flex-wrap gap-2 font-mono text-[10px] text-[var(--text-3)]">
+                              {svcs.map((s) => (
+                                <span key={s.id}>
+                                  {s.service_type}: {serviceStatusLabel(s.service_status)}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
+                        {canManageNodes && isShield && (
+                          <ActionButton
+                            type="button"
+                            onClick={() =>
+                              setExpandedFirewallNodeId((prev) =>
+                                prev === node.node_id ? null : node.node_id
+                              )
+                            }
+                            className={
+                              firewallOpen
+                                ? "border-[var(--accent)]/40 text-[var(--accent-hi)]"
+                                : undefined
+                            }
+                          >
+                            {firewallOpen ? "Hide firewall" : "Firewall"}
+                          </ActionButton>
+                        )}
+                      </div>
                     </div>
+                    {canManageNodes && isShield && firewallOpen && (
+                      <div className="border-t border-white/[0.04] bg-[#08080A]/60 px-5 py-4">
+                        <NodeFirewallPanel orgId={orgId} node={node} canManage={canManageNodes} />
+                      </div>
+                    )}
                   </div>
                 );
               })
             )}
           </Card>
         </TabsContent>
-
-        {canManageNodes && (
-          <TabsContent value="firewall" className="mt-4 space-y-4">
-            {nodes.length === 0 ? (
-              <Card className="p-5 text-sm text-[var(--text-2)]">Enroll a node first.</Card>
-            ) : (
-              <>
-                <div className="flex flex-wrap gap-2">
-                  {nodes.map((n) => (
-                    <ActionButton
-                      key={n.node_id}
-                      type="button"
-                      onClick={() => setSelectedNodeId(n.node_id)}
-                      className={
-                        selectedNodeId === n.node_id
-                          ? "border-[var(--accent)]/40 text-[var(--accent-hi)]"
-                          : undefined
-                      }
-                    >
-                      {n.node_name || n.node_id.slice(0, 12)}
-                    </ActionButton>
-                  ))}
-                </div>
-                {selectedNode && (
-                  <NodeFirewallPanel orgId={orgId} node={selectedNode} canManage={canManageNodes} />
-                )}
-              </>
-            )}
-          </TabsContent>
-        )}
 
         <TabsContent value="members" className="mt-4 space-y-4">
           {isPrivileged && (
@@ -573,6 +601,20 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                   className="border-white/10 bg-[var(--surface-2)] font-mono text-sm"
                 />
               </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Label className="shrink-0 text-[var(--text-2)]">Role</Label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value as InviteRole)}
+                  className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-2 text-sm"
+                >
+                  {INVITE_ROLES.map((r) => (
+                    <option key={r.value} value={r.value}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               {inviteError && <p className="text-xs text-red-400">{inviteError}</p>}
               <AccentButton onClick={inviteMember}>Send invitation</AccentButton>
             </Card>
@@ -635,7 +677,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                             Assign seat
                           </ActionButton>
                         ))}
-                      {isPrivileged && m.role !== "owner" && m.status !== "invited" && (
+                      {isPrivileged && m.role !== "owner" && (
                         <select
                           value={m.role}
                           onChange={(e) =>
@@ -654,6 +696,20 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           <option value="node_operator">Node operator</option>
                         </select>
                       )}
+                      {isPrivileged && m.role !== "owner" && m.status === "invited" && (
+                        <ActionButton
+                          type="button"
+                          variant="danger"
+                          onClick={() =>
+                            removeOrgMember(orgId, m.user_id)
+                              .then(reload)
+                              .then(() => toast.success("Invitation revoked"))
+                              .catch(() => toast.error("Failed to revoke invitation"))
+                          }
+                        >
+                          Revoke invite
+                        </ActionButton>
+                      )}
                       {isOwner && m.role === "admin" && (
                         <ActionButton
                           type="button"
@@ -666,7 +722,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           Transfer ownership
                         </ActionButton>
                       )}
-                      {isPrivileged && m.role !== "owner" && (
+                      {isPrivileged && m.role !== "owner" && m.status !== "invited" && (
                         <ActionButton
                           type="button"
                           variant="danger"
@@ -685,10 +741,10 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                 {displayedPendingInvites.map((inv) => (
                   <div
                     key={inv.id}
-                    className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
-                      <div className="text-sm">{inv.email}</div>
+                      <div className="text-sm font-medium">{inv.email}</div>
                       <MonoLabel>
                         {memberRoleLabel(inv.role)}
                         {inv.seat_tier && inv.seat_tier !== "free" ? ` · ${inv.seat_tier} seat` : ""}
@@ -696,9 +752,56 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                         {memberStatusLabel("pending")}
                       </MonoLabel>
                     </div>
-                    <span className="rounded-lg bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-300/90">
-                      Awaiting sign-in
-                    </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-lg bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-300/90">
+                        Awaiting sign-in
+                      </span>
+                      {isPrivileged && (
+                        <>
+                          <select
+                            value={inv.role}
+                            onChange={(e) =>
+                              inviteOrgMember(orgId, {
+                                email: inv.email,
+                                role: e.target.value,
+                              })
+                                .then(reload)
+                                .then(() => toast.success("Invite role updated"))
+                                .catch((err) =>
+                                  toast.error(
+                                    err instanceof GatewayApiError
+                                      ? err.message
+                                      : "Failed to update invite role"
+                                  )
+                                )
+                            }
+                            className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-1.5 text-xs"
+                          >
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                            <option value="node_operator">Node operator</option>
+                          </select>
+                          <ActionButton
+                            type="button"
+                            variant="danger"
+                            onClick={() =>
+                              revokeOrgInvite(orgId, inv.id)
+                                .then(reload)
+                                .then(() => toast.success("Invitation revoked"))
+                                .catch((err) =>
+                                  toast.error(
+                                    err instanceof GatewayApiError
+                                      ? err.message
+                                      : "Failed to revoke invitation"
+                                  )
+                                )
+                            }
+                          >
+                            Revoke
+                          </ActionButton>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </>
@@ -730,71 +833,175 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         </TabsContent>
 
         {isPrivileged && (
-          <TabsContent value="settings" className="mt-4">
-            <Card className="space-y-4 p-5">
-              <div>
+          <TabsContent value="settings" className="mt-4 space-y-4">
+            <Card
+              className="overflow-hidden"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 60% at 0% 0%, rgba(255,107,53,0.08), transparent 55%), var(--surface)",
+              }}
+            >
+              <div className="border-b border-white/[0.06] px-6 py-5">
                 <MonoLabel>Workspace settings</MonoLabel>
-                <p className="mt-1 text-sm text-[var(--text-2)]">
-                  Name and profile shown in the dashboard; public fields appear when the workspace profile is enabled.
+                <p className="mt-1 max-w-2xl text-sm text-[var(--text-2)]">
+                  Configure how this workspace appears in the dashboard and on its public profile page.
                 </p>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Workspace name</Label>
-                  <Input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="mt-1 border-white/10 bg-[var(--surface-2)]"
-                  />
-                </div>
-                <div>
-                  <Label>Slug</Label>
-                  <Input
-                    value={editSlug}
-                    onChange={(e) => setEditSlug(e.target.value)}
-                    className="mt-1 border-white/10 bg-[var(--surface-2)] font-mono text-sm"
-                  />
-                </div>
-                <div>
-                  <Label>Display name</Label>
-                  <Input
-                    value={editDisplayName}
-                    onChange={(e) => setEditDisplayName(e.target.value)}
-                    placeholder={orgProfile?.display_name ?? org.name}
-                    className="mt-1 border-white/10 bg-[var(--surface-2)]"
-                  />
-                </div>
-                <div>
-                  <Label>Website</Label>
-                  <Input
-                    value={editWebsite}
-                    onChange={(e) => setEditWebsite(e.target.value)}
-                    placeholder="https://"
-                    className="mt-1 border-white/10 bg-[var(--surface-2)]"
-                  />
+
+              <div className="space-y-8 px-6 py-6">
+                <section className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                  <div className="shrink-0">
+                    {editLogoUrl.trim() ? (
+                      <Image
+                        src={editLogoUrl.trim()}
+                        alt=""
+                        width={80}
+                        height={80}
+                        unoptimized
+                        className="h-20 w-20 rounded-2xl border border-white/10 object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--solana)] to-[var(--accent)] text-2xl font-bold">
+                        {(editDisplayName || editName).charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid flex-1 gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <Label>Logo URL</Label>
+                      <Input
+                        value={editLogoUrl}
+                        onChange={(e) => setEditLogoUrl(e.target.value)}
+                        placeholder="https://…/logo.png"
+                        className="mt-1 border-white/10 bg-[var(--surface-2)] font-mono text-sm"
+                      />
+                      <p className="mt-1.5 text-xs text-[var(--text-3)]">
+                        Stored in your org profile via the gateway. Use a square image with a transparent background.
+                      </p>
+                    </div>
+                    <div>
+                      <Label>Workspace name</Label>
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                      />
+                    </div>
+                    <div>
+                      <Label>Slug</Label>
+                      <Input
+                        value={editSlug}
+                        onChange={(e) => setEditSlug(e.target.value)}
+                        className="mt-1 border-white/10 bg-[var(--surface-2)] font-mono text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label>Display name</Label>
+                      <Input
+                        value={editDisplayName}
+                        onChange={(e) => setEditDisplayName(e.target.value)}
+                        placeholder={orgProfile?.display_name ?? org.name}
+                        className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                      />
+                    </div>
+                    <div>
+                      <Label>Website</Label>
+                      <Input
+                        value={editWebsite}
+                        onChange={(e) => setEditWebsite(e.target.value)}
+                        placeholder="https://"
+                        className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label>Description</Label>
+                      <Input
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                      />
+                    </div>
+                    <div>
+                      <Label>Public email</Label>
+                      <Input
+                        value={editPublicEmail}
+                        onChange={(e) => setEditPublicEmail(e.target.value)}
+                        placeholder="contact@company.com"
+                        className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                      />
+                    </div>
+                    <div>
+                      <Label>Country</Label>
+                      <Input
+                        value={editCountry}
+                        onChange={(e) => setEditCountry(e.target.value)}
+                        placeholder="United States"
+                        className="mt-1 border-white/10 bg-[var(--surface-2)]"
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <section className="rounded-xl border border-white/[0.06] bg-[var(--surface-2)]/40 p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="font-medium">Public profile</div>
+                      <p className="mt-1 text-sm text-[var(--text-2)]">
+                        When enabled, your org is listed at{" "}
+                        <span className="font-mono text-[var(--text)]">
+                          erebrus.io/org/{publicProfileUrl || "your-slug"}
+                        </span>
+                      </p>
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-sm text-[var(--text-2)]">
+                      <input
+                        type="checkbox"
+                        checked={editPublicProfile}
+                        onChange={(e) => setEditPublicProfile(e.target.checked)}
+                        className="rounded border-white/20"
+                      />
+                      Enable public page
+                    </label>
+                  </div>
+                  {editPublicProfile && publicProfileUrl && (
+                    <Link
+                      href={`/org/${publicProfileUrl}`}
+                      className="mt-3 inline-flex text-sm text-[var(--accent-hi)] hover:underline"
+                      target="_blank"
+                    >
+                      Preview public page →
+                    </Link>
+                  )}
+                </section>
+
+                <div className="flex flex-wrap gap-3">
+                  <AccentButton type="button" onClick={saveOrgSettings}>
+                    Save settings
+                  </AccentButton>
                 </div>
               </div>
-              <div>
-                <Label>Description</Label>
-                <Input
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className="mt-1 border-white/10 bg-[var(--surface-2)]"
-                />
-              </div>
-              <label className="flex items-center gap-2 text-sm text-[var(--text-2)]">
-                <input
-                  type="checkbox"
-                  checked={editPublicProfile}
-                  onChange={(e) => setEditPublicProfile(e.target.checked)}
-                  className="rounded border-white/20"
-                />
-                Public workspace profile
-              </label>
-              <AccentButton type="button" onClick={saveOrgSettings}>
-                Save settings
-              </AccentButton>
             </Card>
+
+            {isOwner && (
+              <Card className="border-red-500/20 bg-red-500/[0.03] p-6">
+                <MonoLabel className="text-red-300/90">Danger zone</MonoLabel>
+                <p className="mt-2 max-w-2xl text-sm text-[var(--text-2)]">
+                  Deleting this workspace removes members, seats, and API keys. Enrolled nodes are
+                  detached and keep running. This action cannot be undone.
+                </p>
+                <ActionButton
+                  type="button"
+                  variant="danger"
+                  className="mt-4"
+                  onClick={() => {
+                    setDeleteConfirmName("");
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  Delete organization
+                </ActionButton>
+              </Card>
+            )}
           </TabsContent>
         )}
 
@@ -834,6 +1041,39 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           </TabsContent>
         )}
       </Tabs>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {org.name}?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--text-2)]">
+              This permanently removes the workspace, its members, seats, and API keys. Nodes are
+              detached and keep running. Type the workspace name to confirm.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            value={deleteConfirmName}
+            onChange={(e) => setDeleteConfirmName(e.target.value)}
+            placeholder={org.name}
+            className="border-white/10 bg-[var(--surface-2)]"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/10 bg-transparent text-[var(--text)]">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteConfirmName.trim() !== org.name}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDeleteOrg();
+              }}
+              className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-40"
+            >
+              Delete permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       </div>
     </div>
   );

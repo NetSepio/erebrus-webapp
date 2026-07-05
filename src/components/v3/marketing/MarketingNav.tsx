@@ -35,7 +35,7 @@ const brand: Record<
 > = {
   platform: { icon: "/brand/erebrus-mark.png", title: "Erebrus" },
   vpn: { icon: "/brand/erebrus-vpn.png", title: "Erebrus", subtitle: "VPN", back: "/" },
-  drop: { icon: "/brand/erebrus-drop.png", title: "Erebrus", subtitle: "Drop", back: "/" },
+  drop: { icon: "/drop/logo.png", title: "Erebrus", subtitle: "Drop", back: "/" },
 };
 
 export function MarketingNav({ variant = "platform" }: { variant?: NavVariant }) {
@@ -58,7 +58,11 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
               alt=""
               width={40}
               height={40}
-              className="h-10 w-10 shrink-0 rounded-[10px] shadow-[0_4px_16px_rgba(255,107,53,0.35)]"
+              className={
+                variant === "drop"
+                  ? "h-10 w-10 shrink-0 object-contain"
+                  : "h-10 w-10 shrink-0 rounded-[10px] shadow-[0_4px_16px_rgba(255,107,53,0.35)]"
+              }
               priority
             />
             <span className="text-xl font-bold tracking-tight md:text-[22px]">

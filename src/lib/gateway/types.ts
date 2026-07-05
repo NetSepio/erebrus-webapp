@@ -235,6 +235,18 @@ export interface GatewayOrgInvitePreview {
   slug: string;
 }
 
+/** Public org profile (`GET /public/orgs/:slug`). */
+export interface GatewayPublicOrgProfile {
+  slug: string;
+  name: string;
+  display_name?: string;
+  description?: string;
+  logo_url?: string;
+  website_url?: string;
+  public_email?: string;
+  country?: string;
+}
+
 /** Control-plane org node (`GET /orgs/:id/nodes`). */
 export interface GatewayOrgNode {
   id: string;
