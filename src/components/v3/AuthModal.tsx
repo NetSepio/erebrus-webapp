@@ -25,13 +25,25 @@ import {
   emailLoginVerify,
   googleLogin,
 } from "@/lib/gateway-auth";
+import { useAuthMethods } from "@/hooks/use-auth-methods";
+import axios from "axios";
 import { AccentButton, ActionButton } from "@/components/v3/ui";
 import { Input } from "@/components/ui/input";
 import { Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
+function socialLoginErrorMessage(provider: "google" | "apple", error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const body = error.response?.data as { error?: string } | undefined;
+    if (body?.error) return body.error;
+    if (error.response?.status === 503) {
+      return provider === "google"
+        ? "Google sign-in is not enabled on the gateway — add this web client ID to GOOGLE_CLIENT_IDS"
+        : "Apple sign-in is not enabled on the gateway — add your client ID to APPLE_CLIENT_IDS";
+    }
+  }
+  return provider === "google" ? "Google sign-in failed — try again" : "Apple sign-in failed — try again";
+}
 
 const AuthModalContext = createContext<{ open: () => void }>({ open: () => {} });
 
@@ -47,6 +59,8 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [codeSent, setCodeSent] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [socialBusy, setSocialBusy] = useState(false);
+  const { googleClientId, appleClientId, googleEnabled, appleEnabled, emailEnabled } =
+    useAuthMethods();
 
   const completeSocialLogin = useCallback(
     async (provider: "google" | "apple", idToken: string) => {
@@ -59,12 +73,8 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
         setWebSession(session.token, session.userId, provider);
         setVisible(false);
         router.push("/dashboard");
-      } catch {
-        toast.error(
-          provider === "google"
-            ? "Google sign-in failed — try again"
-            : "Apple sign-in failed — try again"
-        );
+      } catch (error) {
+        toast.error(socialLoginErrorMessage(provider, error));
       } finally {
         setSocialBusy(false);
       }
@@ -73,12 +83,12 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   );
 
   const { ready: googleReady, signIn: signInWithGoogle, btnRef: googleBtnRef } =
-    useGoogleSignIn(GOOGLE_CLIENT_ID, (token) => void completeSocialLogin("google", token), visible);
+    useGoogleSignIn(googleClientId, (token) => void completeSocialLogin("google", token), visible && googleEnabled);
 
   const { ready: appleReady, signIn: signInWithApple } = useAppleSignIn(
-    APPLE_CLIENT_ID,
+    appleClientId,
     (token) => void completeSocialLogin("apple", token),
-    visible
+    visible && appleEnabled
   );
 
   const handleLaunch = useCallback(async () => {
@@ -233,7 +243,7 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
                 type="button"
                 variant="neutral"
                 className="!py-2.5"
-                disabled={!GOOGLE_CLIENT_ID || !googleReady || socialBusy}
+                disabled={!googleEnabled || !googleReady || socialBusy}
                 onClick={() => {
                   if (!signInWithGoogle()) {
                     toast.error("Google sign-in is not ready yet — try again in a moment");
@@ -247,7 +257,7 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
                 type="button"
                 variant="neutral"
                 className="!py-2.5"
-                disabled={!APPLE_CLIENT_ID || !appleReady || socialBusy}
+                disabled={!appleEnabled || !appleReady || socialBusy}
                 onClick={() => {
                   void signInWithApple().then((started) => {
                     if (!started) {
@@ -265,13 +275,22 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
               className="sr-only absolute h-0 w-0 overflow-hidden"
               aria-hidden
             />
-            {(!GOOGLE_CLIENT_ID || !APPLE_CLIENT_ID) && (
+            {(!googleEnabled || !appleEnabled) && (
               <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
-                {!GOOGLE_CLIENT_ID && !APPLE_CLIENT_ID
-                  ? "Google / Apple unlock once their client IDs are configured"
-                  : !GOOGLE_CLIENT_ID
-                    ? "Google unlocks once NEXT_PUBLIC_GOOGLE_CLIENT_ID is configured"
-                    : "Apple unlocks once NEXT_PUBLIC_APPLE_CLIENT_ID is configured"}
+                {!googleClientId && !appleClientId
+                  ? "Set NEXT_PUBLIC_GOOGLE_CLIENT_ID / NEXT_PUBLIC_APPLE_CLIENT_ID in the webapp, and matching GOOGLE_CLIENT_IDS / APPLE_CLIENT_IDS on the gateway"
+                  : !googleEnabled && googleClientId
+                    ? "Google: add this web client ID to gateway GOOGLE_CLIENT_IDS and authorized origins in Google Cloud Console"
+                    : !appleEnabled && appleClientId
+                      ? "Apple: add this client ID to gateway APPLE_CLIENT_IDS"
+                      : !googleClientId
+                        ? "Google unlocks once NEXT_PUBLIC_GOOGLE_CLIENT_ID is configured"
+                        : "Apple unlocks once NEXT_PUBLIC_APPLE_CLIENT_ID is configured"}
+              </p>
+            )}
+            {!emailEnabled && (
+              <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
+                Email sign-in requires RESEND_API_KEY on the gateway
               </p>
             )}
           </div>
