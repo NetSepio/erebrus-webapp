@@ -14,8 +14,9 @@ import type {
   GatewayReferral,
   GatewaySocialAccount,
 } from "@/lib/gateway/types";
-import { truncateAddress } from "@/lib/design";
+import { responsiveWalletAddress, userDisplayName } from "@/lib/display-name";
 import { AccentButton, Card } from "@/components/v3/ui";
+import { ChainBadge } from "@/components/v3/app/ChainBadge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAppKitAccount, useAppKitNetworkCore } from "@reown/appkit/react";
@@ -104,6 +105,11 @@ export default function ProfilePage() {
     setTimeout(() => setRefCopied(false), 2000);
   };
 
+  const walletAddress = (address || profile?.wallet_address || "").trim();
+  const walletDisplay = walletAddress
+    ? responsiveWalletAddress(walletAddress)
+    : null;
+
   return (
     <div className="mx-auto max-w-3xl space-y-5">
         <Card className="p-6">
@@ -112,12 +118,15 @@ export default function ProfilePage() {
               className="h-14 w-14 rounded-[15px]"
               style={{ background: "linear-gradient(135deg, #9945FF, #FF6B35)" }}
             />
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="text-lg font-semibold">
-                {truncateAddress(address ?? profile?.wallet_address ?? "")}
+                {userDisplayName(profile, walletAddress)}
               </div>
-              <div className="font-mono text-xs capitalize text-[var(--text-3)]">
-                {profile?.chain ?? "wallet"} · joined{" "}
+              <div className="mt-1">
+                <ChainBadge chain={profile?.chain} size="md" />
+              </div>
+              <div className="mt-1 font-mono text-xs text-[var(--text-3)]">
+                Joined{" "}
                 {profile?.created_at
                   ? new Date(profile.created_at).toLocaleDateString("en", {
                       month: "short",
@@ -129,11 +138,23 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-5 space-y-2.5">
-            <Row
-              label="Wallet"
-              value={address || profile?.wallet_address ? "Connected" : "Not linked"}
-              ok={!!(address || profile?.wallet_address)}
-            />
+            <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
+              <span className="text-sm text-[var(--text-2)]">Wallet</span>
+              {walletDisplay ? (
+                <div className="mt-2 space-y-1">
+                  <div className="hidden break-all font-mono text-sm md:block">
+                    {walletDisplay.desktop}
+                  </div>
+                  <div className="font-mono text-sm md:hidden">{walletDisplay.mobile}</div>
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--success)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
+                    Connected
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-2 text-sm text-[var(--text-3)]">Not linked</div>
+              )}
+            </div>
             {profile?.role === "admin" && <Row label="Platform role" value="Admin" ok />}
             <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
               <span className="text-sm text-[var(--text-2)]">Connections</span>
