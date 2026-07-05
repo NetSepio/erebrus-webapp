@@ -247,13 +247,15 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
 
   const saveOrgSettings = async () => {
     if (!editName.trim() || !isPrivileged) return;
+    const trimmedSlug = editSlug.trim();
+    const slugChanged = trimmedSlug !== (org?.slug ?? "");
     try {
       await updateOrg(orgId, {
         name: editName.trim(),
-        slug: editSlug.trim() || undefined,
+        ...(slugChanged && trimmedSlug ? { slug: trimmedSlug } : {}),
         public_profile_enabled: editPublicProfile,
       });
-      await updateOrgProfile(orgId, {
+      const profile = await updateOrgProfile(orgId, {
         display_name: editDisplayName.trim() || editName.trim(),
         description: editDescription.trim() || undefined,
         logo_url: editLogoUrl.trim() || undefined,
@@ -261,10 +263,22 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         public_email: editPublicEmail.trim() || undefined,
         country: editCountry.trim() || undefined,
       });
-      reload();
+      setOrgProfile(profile);
+      setEditWebsite(profile.website_url ?? "");
+      setEditPublicEmail(profile.public_email ?? "");
+      setEditLogoUrl(profile.logo_url ?? "");
+      setEditCountry(profile.country ?? "");
+      setEditDisplayName(profile.display_name ?? "");
+      setEditDescription(profile.description ?? "");
+      fetchOrg(orgId).then((o) => {
+        setOrg(o);
+        setEditName(o.name);
+        setEditSlug(o.slug ?? "");
+        setEditPublicProfile(o.public_profile_enabled ?? false);
+      });
       toast.success("Workspace settings saved");
-    } catch {
-      toast.error("Failed to save workspace settings");
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to save workspace settings");
     }
   };
 
