@@ -218,6 +218,10 @@ export async function fetchAccountOrgInvites(): Promise<GatewayUserOrgInvite[]> 
   return Array.isArray(data) ? (data as GatewayUserOrgInvite[]) : [];
 }
 
+export async function fetchAccountOrgInvite(orgId: string): Promise<GatewayUserOrgInvite> {
+  return gatewayFetch(`account/org-invites/${orgId}`);
+}
+
 export async function acceptAccountOrgInvite(orgId: string): Promise<void> {
   await gatewayFetch(`account/org-invites/${orgId}/accept`, { method: "POST" });
 }

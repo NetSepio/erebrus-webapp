@@ -241,9 +241,19 @@ export interface GatewayUserOrgInvite {
   org_id: string;
   org_name: string;
   org_slug?: string;
+  org_display_name?: string;
+  org_plan?: string;
+  org_description?: string;
+  org_logo_url?: string;
+  member_count?: number;
+  node_count?: number;
   role: string;
   seat_tier?: string;
   source: "membership" | "email" | string;
+  invite_channel?: "wallet" | "email" | string;
+  invited_by_id?: string;
+  invited_by_name?: string;
+  invited_by_email?: string;
   created_at: string;
 }
 
