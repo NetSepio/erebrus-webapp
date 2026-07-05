@@ -41,6 +41,7 @@ import type {
   GatewayPlan,
   GatewayPlatformSetting,
   GatewayProfile,
+  GatewayUserOrgInvite,
   GatewayRank,
   GatewayReferral,
   GatewaySocialAccount,
@@ -210,6 +211,19 @@ export async function updateProfile(body: { name: string }): Promise<GatewayProf
     body: JSON.stringify(body),
   });
   return normalizeProfile(data);
+}
+
+export async function fetchAccountOrgInvites(): Promise<GatewayUserOrgInvite[]> {
+  const data = await gatewayFetch<unknown>("account/org-invites");
+  return Array.isArray(data) ? (data as GatewayUserOrgInvite[]) : [];
+}
+
+export async function acceptAccountOrgInvite(orgId: string): Promise<void> {
+  await gatewayFetch(`account/org-invites/${orgId}/accept`, { method: "POST" });
+}
+
+export async function declineAccountOrgInvite(orgId: string): Promise<void> {
+  await gatewayFetch(`account/org-invites/${orgId}/decline`, { method: "POST" });
 }
 
 export async function fetchActivity(params?: {

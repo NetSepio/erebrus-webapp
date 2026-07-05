@@ -7,6 +7,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuroraBackground } from "@/components/v3/AuroraBackground";
+import { NotificationBell } from "@/components/v3/app/NotificationBell";
 import { WalletMenu } from "@/components/v3/app/WalletMenu";
 import { AccentButton, iconButtonClass } from "@/components/v3/ui";
 import { useWalletAuth } from "@/context/appkit";
@@ -173,7 +174,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   )}
                 </div>
               </div>
-              <WalletMenu subscription={sub} />
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <WalletMenu subscription={sub} />
+              </div>
             </header>
             <main className="flex-1 px-4 py-6 pb-16 md:px-8">{children}</main>
           </div>

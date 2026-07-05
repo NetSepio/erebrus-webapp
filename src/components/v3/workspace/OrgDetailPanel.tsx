@@ -76,6 +76,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isUpgradeablePlan, orgPlanLabel } from "@/lib/org-plans";
 import { toast } from "sonner";
 
 const INVITE_ROLES = [
@@ -394,12 +395,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
             {org.name.charAt(0).toUpperCase()}
           </div>
         )}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold tracking-tight">{org.name}</h2>
-          <p className="text-sm text-[var(--text-3)]">
-            {org.plan ?? org.kind} · {members.length + displayedPendingInvites.length} members · {nodes.length} nodes
-            {entitlements ? ` · ${entitlements.shield_instances_included} Shield · ${entitlements.sentinel_licenses_included} Sentinel` : ""}
-          </p>
         </div>
         {org.role && (
           <span className="rounded-lg bg-[var(--accent)]/12 px-3 py-1 font-mono text-xs uppercase text-[var(--accent-hi)]">
@@ -407,6 +404,49 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           </span>
         )}
       </div>
+
+      <Card
+        className="overflow-hidden"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 80% at 100% 0%, rgba(255,107,53,0.14), transparent 55%), linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
+        }}
+      >
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-xl border border-[var(--accent)]/35 bg-[var(--accent)]/12 px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--accent-hi)]">
+              {orgPlanLabel(org.plan ?? org.kind)}
+            </span>
+            <div className="flex flex-wrap gap-2 text-sm text-[var(--text-2)]">
+              <span className="rounded-lg bg-white/[0.04] px-2.5 py-1">
+                <span className="font-semibold text-[var(--text)]">
+                  {entitlements?.shield_instances_included ?? 0}
+                </span>{" "}
+                Shield
+              </span>
+              <span className="rounded-lg bg-white/[0.04] px-2.5 py-1">
+                <span className="font-semibold text-[var(--text)]">
+                  {entitlements?.sentinel_licenses_included ?? 0}
+                </span>{" "}
+                Sentinel
+              </span>
+              <span className="rounded-lg bg-white/[0.04] px-2.5 py-1">
+                <span className="font-semibold text-[var(--text)]">
+                  {members.length + displayedPendingInvites.length}
+                </span>{" "}
+                members
+              </span>
+            </div>
+          </div>
+          {isUpgradeablePlan(org.plan) && (
+            <a href="/pricing" target="_blank" rel="noopener noreferrer">
+              <AccentButton type="button" variant="ghost" className="!px-4 !py-2.5">
+                Upgrade plan ↗
+              </AccentButton>
+            </a>
+          )}
+        </div>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Nodes online" value={online} />

@@ -235,6 +235,18 @@ export interface GatewayOrgInvitePreview {
   slug: string;
 }
 
+/** Pending workspace invite for the authenticated user (`GET /account/org-invites`). */
+export interface GatewayUserOrgInvite {
+  id: string;
+  org_id: string;
+  org_name: string;
+  org_slug?: string;
+  role: string;
+  seat_tier?: string;
+  source: "membership" | "email" | string;
+  created_at: string;
+}
+
 /** Public org profile (`GET /public/orgs/:slug`). */
 export interface GatewayPublicOrgProfile {
   slug: string;
