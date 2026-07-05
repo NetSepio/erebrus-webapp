@@ -30,6 +30,8 @@ import type {
   GatewayOrgProfile,
   GatewayOrgEntitlements,
   GatewayOrgMember,
+  GatewayOrgInvite,
+  GatewayOrgInvitePreview,
   GatewayOrgNode,
   GatewayOrgNodeService,
   GatewayOrgUsage,
@@ -328,6 +330,15 @@ export async function fetchOrgMembers(id: string): Promise<GatewayOrgMember[]> {
   return Array.isArray(data) ? (data as GatewayOrgMember[]) : [];
 }
 
+export async function fetchOrgInvites(id: string): Promise<GatewayOrgInvite[]> {
+  const data = await gatewayFetch<unknown>(`orgs/${id}/invites`);
+  return Array.isArray(data) ? (data as GatewayOrgInvite[]) : [];
+}
+
+export async function fetchOrgInvitePreview(slug: string): Promise<GatewayOrgInvitePreview> {
+  return gatewayFetch(`public/orgs/${encodeURIComponent(slug)}/invite`, { auth: false });
+}
+
 export async function addOrgMember(
   orgId: string,
   body: { wallet_address: string; chain: string; role: string }
@@ -462,6 +473,34 @@ export async function fetchFirewallStatus(
   nodeId: string
 ): Promise<GatewayFirewallStatus> {
   return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/status`);
+}
+
+export interface GatewayFirewallCredentials {
+  node_id: string;
+  admin_user: string;
+  admin_password: string;
+  admin_url?: string;
+  updated_at?: string;
+}
+
+/** Reveal a Shield node's AdGuard admin login (org paid seats only). */
+export async function fetchFirewallCredentials(
+  orgId: string,
+  nodeId: string
+): Promise<GatewayFirewallCredentials> {
+  return gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/credentials`);
+}
+
+/** Rotate the AdGuard admin password (org paid seats only). */
+export async function updateFirewallCredentials(
+  orgId: string,
+  nodeId: string,
+  adminPassword: string
+): Promise<void> {
+  await gatewayFetch(`orgs/${orgId}/nodes/${nodeId}/firewall/credentials`, {
+    method: "POST",
+    body: JSON.stringify({ admin_password: adminPassword }),
+  });
 }
 
 export async function fetchFirewallRules(

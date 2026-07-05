@@ -6,6 +6,7 @@ import {
   fetchOrg,
   fetchOrgNodes,
   fetchOrgMembers,
+  fetchOrgInvites,
   fetchOrgApiKeys,
   fetchOrgUsage,
   fetchOrgClients,
@@ -26,16 +27,19 @@ import {
   updateOrg,
   GatewayApiError,
 } from "@/lib/gateway/client";
+import { memberRoleLabel, memberStatusLabel } from "@/lib/gateway/member-labels";
 import type {
   GatewayApiKey,
   GatewayOrg,
   GatewayOrgEntitlements,
   GatewayOrgProfile,
   GatewayOrgMember,
+  GatewayOrgInvite,
   GatewayOrgNode,
   GatewayOrgNodeService,
   GatewayVpnClient,
 } from "@/lib/gateway/types";
+import { isValidEmail, isValidWalletAddress } from "@/lib/validation";
 import {
   profileBadgeClass,
   profileLabel,
@@ -62,13 +66,15 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [nodes, setNodes] = useState<GatewayOrgNode[]>([]);
   const [nodeServices, setNodeServices] = useState<Record<string, GatewayOrgNodeService[]>>({});
   const [members, setMembers] = useState<GatewayOrgMember[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<GatewayOrgInvite[]>([]);
   const [apiKeys, setApiKeys] = useState<GatewayApiKey[]>([]);
   const [usage, setUsage] = useState<Record<string, number>>({});
   const [entitlements, setEntitlements] = useState<GatewayOrgEntitlements | null>(null);
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null);
-  const [memberWallet, setMemberWallet] = useState("");
-  const [memberEmail, setMemberEmail] = useState("");
-  const [memberChain, setMemberChain] = useState("sol");
+  const [inviteMode, setInviteMode] = useState<"email" | "wallet">("email");
+  const [inviteValue, setInviteValue] = useState("");
+  const [memberChain, setMemberChain] = useState<"sol" | "evm">("sol");
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [orgProfile, setOrgProfile] = useState<GatewayOrgProfile | null>(null);
   const [editName, setEditName] = useState("");
@@ -128,12 +134,13 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         Promise.resolve(o),
         fetchOrgNodes(orgId).catch(() => []),
         fetchOrgMembers(orgId).catch(() => []),
+        privileged ? fetchOrgInvites(orgId).catch(() => []) : Promise.resolve([]),
         privileged ? fetchOrgApiKeys(orgId).catch(() => []) : Promise.resolve([]),
         fetchOrgUsage(orgId).catch(() => ({})),
         fetchOrgClients(orgId).catch(() => []),
         fetchOrgEntitlements(orgId).catch(() => null),
         privileged ? fetchOrgProfile(orgId).catch(() => null) : Promise.resolve(null),
-      ]).then(([orgData, n, m, keys, u, c, ent, profile]) => {
+      ]).then(([orgData, n, m, invites, keys, u, c, ent, profile]) => {
         setOrg(orgData);
         setEditName(orgData.name);
         setEditSlug(orgData.slug ?? "");
@@ -146,6 +153,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         }
         setNodes(n);
         setMembers(m);
+        setPendingInvites(invites as GatewayOrgInvite[]);
         setApiKeys(keys as GatewayApiKey[]);
         setUsage(u as Record<string, number>);
         setClients(c as GatewayVpnClient[]);
@@ -163,15 +171,25 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId]);
 
-  const mintRegistrationToken = async () => {
+  const createRegistrationCode = async () => {
     try {
       const res = await createNodeRegistrationToken(orgId, { ttl_hours: 24 });
       setRegToken(res.token);
-      toast.success("Registration token minted — copy now");
+      toast.success("Setup code created — copy it before it expires");
     } catch {
-      toast.error("Failed to mint registration token");
+      toast.error("Failed to create setup code");
     }
   };
+
+  const canUseSentinelProfile =
+    org?.plan === "business" ||
+    org?.plan === "enterprise" ||
+    (entitlements?.sentinel_licenses_included ?? 0) > 0;
+  const canUseShieldProfile =
+    canUseSentinelProfile ||
+    org?.plan === "pro" ||
+    org?.plan === "starter" ||
+    (entitlements?.shield_instances_included ?? 0) > 0;
 
   const registrationEnvLine = regToken
     ? `EREBRUS_NODE_REGISTRATION_TOKEN=${regToken}`
@@ -205,7 +223,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         public_profile_enabled: editPublicProfile,
       });
       await updateOrgProfile(orgId, {
-        display_name: editDisplayName.trim() || undefined,
+        display_name: editDisplayName.trim() || editName.trim(),
         description: editDescription.trim() || undefined,
         website_url: editWebsite.trim() || undefined,
       });
@@ -217,20 +235,37 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   };
 
   const inviteMember = async () => {
-    if (!memberWallet.trim() && !memberEmail.trim()) return;
+    const value = inviteValue.trim();
+    if (!value) {
+      setInviteError(inviteMode === "email" ? "Enter an email address" : "Enter a wallet address");
+      return;
+    }
+    if (inviteMode === "email") {
+      if (!isValidEmail(value)) {
+        setInviteError("Enter a valid email address");
+        return;
+      }
+    } else if (!isValidWalletAddress(value, memberChain)) {
+      setInviteError(
+        memberChain === "evm"
+          ? "Enter a valid Ethereum address (0x…)"
+          : "Enter a valid Solana address"
+      );
+      return;
+    }
+    setInviteError(null);
     try {
       await inviteOrgMember(orgId, {
-        wallet_address: memberWallet.trim() || undefined,
-        email: memberEmail.trim() || undefined,
+        wallet_address: inviteMode === "wallet" ? value : undefined,
+        email: inviteMode === "email" ? value : undefined,
         chain: memberChain,
         role: "member",
       });
-      setMemberWallet("");
-      setMemberEmail("");
+      setInviteValue("");
       reload();
       toast.success("Invite sent");
-    } catch {
-      toast.error("Failed to invite member");
+    } catch (e) {
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to invite member");
     }
   };
 
@@ -250,17 +285,18 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
 
         {isPrivileged && (
           <Card className="p-4">
-            <div className="font-semibold">Connect a node</div>
+            <div className="font-semibold">Register a node</div>
             <p className="mt-1 text-sm text-[var(--text-2)]">
-              Mint a setup token, then add it to your node&apos;s environment before install or restart.
+              Create a one-time setup code, then enter it on your node during install or restart to
+              attach it to this workspace.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <AccentButton type="button" onClick={mintRegistrationToken}>
-                Mint token (24h)
+              <AccentButton type="button" onClick={createRegistrationCode}>
+                Create setup code (24h)
               </AccentButton>
               {registrationEnvLine && (
                 <ActionButton type="button" onClick={copyRegistrationEnv}>
-                  {tokenCopied ? "Copied" : "Copy env"}
+                  {tokenCopied ? "Copied" : "Copy env line"}
                 </ActionButton>
               )}
             </div>
@@ -269,10 +305,25 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                 {registrationEnvLine}
               </div>
             )}
-            <p className="mt-3 text-[11px] leading-relaxed text-[var(--text-3)]">
-              Optional: set <code className="font-mono">EREBRUS_PROFILE=shield</code> or{" "}
-              <code className="font-mono">sentinel</code> for AdGuard or firewall add-ons.
-            </p>
+            {(canUseShieldProfile || canUseSentinelProfile) && (
+              <p className="mt-3 text-[11px] leading-relaxed text-[var(--text-3)]">
+                Optional:
+                {canUseShieldProfile && (
+                  <>
+                    {" "}
+                    set <code className="font-mono">EREBRUS_PROFILE=shield</code> for AdGuard DNS
+                  </>
+                )}
+                {canUseShieldProfile && canUseSentinelProfile ? " or " : ""}
+                {canUseSentinelProfile && (
+                  <>
+                    set <code className="font-mono">EREBRUS_PROFILE=sentinel</code> for firewall
+                    add-ons
+                  </>
+                )}
+                .
+              </p>
+            )}
           </Card>
         )}
       </aside>
@@ -283,7 +334,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         <div className="flex-1">
           <h2 className="text-2xl font-bold tracking-tight">{org.name}</h2>
           <p className="text-sm text-[var(--text-3)]">
-            {org.plan ?? org.kind} · {members.length} members · {nodes.length} nodes
+            {org.plan ?? org.kind} · {members.length + pendingInvites.length} members · {nodes.length} nodes
             {entitlements ? ` · ${entitlements.shield_instances_included} Shield · ${entitlements.sentinel_licenses_included} Sentinel` : ""}
           </p>
         </div>
@@ -302,7 +353,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Nodes online" value={online} />
         <StatCard label="Total nodes" value={nodes.length} />
-        <StatCard label="Members" value={members.length} />
+        <StatCard label="Members" value={members.length + pendingInvites.length} />
         <StatCard label="Seats (VPN)" value={planSeatTier ? `${seatsUsed}/${seatsIncluded}` : "—"} />
         <StatCard label="VPN clients" value={clients.length} />
         <StatCard label="API calls (30d)" value={usage.api_calls ?? "—"} />
@@ -435,128 +486,216 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
 
         <TabsContent value="members" className="mt-4 space-y-4">
           {isPrivileged && (
-            <Card className="p-5 space-y-3">
-              <MonoLabel>Invite member</MonoLabel>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Input
-                  placeholder="Wallet address (optional)"
-                  value={memberWallet}
-                  onChange={(e) => setMemberWallet(e.target.value)}
-                  className="border-white/10 bg-[var(--surface-2)]"
-                />
-                <Input
-                  placeholder="Email (optional)"
-                  type="email"
-                  value={memberEmail}
-                  onChange={(e) => setMemberEmail(e.target.value)}
-                  className="border-white/10 bg-[var(--surface-2)]"
-                />
+            <Card className="p-5 space-y-4">
+              <div>
+                <MonoLabel>Invite member</MonoLabel>
+                <p className="mt-1 text-sm text-[var(--text-2)]">
+                  Send an invitation by email or wallet address. They&apos;ll receive a link to join
+                  this workspace.
+                </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <select
-                  value={memberChain}
-                  onChange={(e) => setMemberChain(e.target.value)}
-                  className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 text-sm"
+                <ActionButton
+                  type="button"
+                  onClick={() => {
+                    setInviteMode("email");
+                    setInviteValue("");
+                    setInviteError(null);
+                  }}
+                  className={
+                    inviteMode === "email"
+                      ? "border-[var(--accent)]/40 text-[var(--accent-hi)]"
+                      : undefined
+                  }
                 >
-                  <option value="sol">Solana</option>
-                  <option value="evm">EVM</option>
-                </select>
-                <AccentButton onClick={inviteMember}>Send invite</AccentButton>
+                  Email
+                </ActionButton>
+                <ActionButton
+                  type="button"
+                  onClick={() => {
+                    setInviteMode("wallet");
+                    setInviteValue("");
+                    setInviteError(null);
+                  }}
+                  className={
+                    inviteMode === "wallet"
+                      ? "border-[var(--accent)]/40 text-[var(--accent-hi)]"
+                      : undefined
+                  }
+                >
+                  Wallet address
+                </ActionButton>
               </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                {inviteMode === "wallet" && (
+                  <div className="flex shrink-0 rounded-lg border border-white/10 bg-[var(--surface-2)] p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setMemberChain("sol")}
+                      className={`rounded-md px-3 py-2 text-xs font-medium transition-colors ${
+                        memberChain === "sol"
+                          ? "bg-[var(--accent)]/15 text-[var(--accent-hi)]"
+                          : "text-[var(--text-2)]"
+                      }`}
+                    >
+                      Solana
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMemberChain("evm")}
+                      className={`rounded-md px-3 py-2 text-xs font-medium transition-colors ${
+                        memberChain === "evm"
+                          ? "bg-[var(--accent)]/15 text-[var(--accent-hi)]"
+                          : "text-[var(--text-2)]"
+                      }`}
+                    >
+                      Ethereum
+                    </button>
+                  </div>
+                )}
+                <Input
+                  placeholder={
+                    inviteMode === "email" ? "name@company.com" : "Wallet address"
+                  }
+                  type={inviteMode === "email" ? "email" : "text"}
+                  value={inviteValue}
+                  onChange={(e) => {
+                    setInviteValue(e.target.value);
+                    setInviteError(null);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && inviteMember()}
+                  className="border-white/10 bg-[var(--surface-2)] font-mono text-sm"
+                />
+              </div>
+              {inviteError && <p className="text-xs text-red-400">{inviteError}</p>}
+              <AccentButton onClick={inviteMember}>Send invitation</AccentButton>
             </Card>
           )}
           <Card className="overflow-hidden">
-            {members.map((m) => (
-              <div
-                key={m.user_id}
-                className="flex items-center justify-between border-b border-white/[0.04] px-5 py-3"
-              >
-                <div>
-                  <div className="font-mono text-sm">
-                    {m.wallet_address ? `${m.wallet_address.slice(0, 12)}…` : m.status ?? "pending"}
+            {members.length === 0 && pendingInvites.length === 0 ? (
+              <p className="px-5 py-8 text-sm text-[var(--text-2)]">No members yet.</p>
+            ) : (
+              <>
+                {members.map((m) => (
+                  <div
+                    key={m.user_id}
+                    className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <div className="font-mono text-sm">
+                        {m.wallet_address
+                          ? `${m.wallet_address.slice(0, 8)}…${m.wallet_address.slice(-6)}`
+                          : m.email ?? "Member"}
+                      </div>
+                      <MonoLabel>
+                        {memberRoleLabel(m.role)}
+                        {m.seat_tier && m.seat_tier !== "free" ? ` · ${m.seat_tier} seat` : ""}
+                        {" · "}
+                        {memberStatusLabel(m.status)}
+                      </MonoLabel>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {isPrivileged && planSeatTier && m.role !== "owner" && m.status !== "invited" &&
+                        (m.seat_tier && m.seat_tier !== "free" ? (
+                          <ActionButton
+                            type="button"
+                            onClick={() =>
+                              revokeOrgSeat(orgId, m.user_id)
+                                .then(reload)
+                                .catch((e) =>
+                                  toast.error(
+                                    e instanceof GatewayApiError ? e.message : "Failed to revoke seat"
+                                  )
+                                )
+                            }
+                          >
+                            Revoke seat
+                          </ActionButton>
+                        ) : (
+                          <ActionButton
+                            type="button"
+                            variant="accent"
+                            onClick={() =>
+                              assignOrgSeat(orgId, m.user_id, planSeatTier)
+                                .then(reload)
+                                .catch((e) =>
+                                  toast.error(
+                                    e instanceof GatewayApiError ? e.message : "No seats remaining"
+                                  )
+                                )
+                            }
+                          >
+                            Assign seat
+                          </ActionButton>
+                        ))}
+                      {isPrivileged && m.role !== "owner" && m.status !== "invited" && (
+                        <select
+                          value={m.role}
+                          onChange={(e) =>
+                            patchOrgMember(
+                              orgId,
+                              m.user_id,
+                              e.target.value as "admin" | "member" | "node_operator"
+                            )
+                              .then(reload)
+                              .catch(() => toast.error("Failed to update role"))
+                          }
+                          className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-1.5 text-xs"
+                        >
+                          <option value="member">Member</option>
+                          <option value="admin">Admin</option>
+                          <option value="node_operator">Node operator</option>
+                        </select>
+                      )}
+                      {isOwner && m.role === "admin" && (
+                        <ActionButton
+                          type="button"
+                          onClick={() =>
+                            transferOrgOwnership(orgId, m.user_id)
+                              .then(reload)
+                              .catch(() => toast.error("Transfer failed — target must be admin"))
+                          }
+                        >
+                          Transfer ownership
+                        </ActionButton>
+                      )}
+                      {isPrivileged && m.role !== "owner" && (
+                        <ActionButton
+                          type="button"
+                          variant="danger"
+                          onClick={() =>
+                            removeOrgMember(orgId, m.user_id).then(reload).catch(() =>
+                              toast.error("Failed to remove member")
+                            )
+                          }
+                        >
+                          Remove
+                        </ActionButton>
+                      )}
+                    </div>
                   </div>
-                  <MonoLabel>
-                    {m.role}
-                    {m.seat_tier ? ` · ${m.seat_tier}` : ""}
-                  </MonoLabel>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isPrivileged && planSeatTier && m.role !== "owner" &&
-                    (m.seat_tier && m.seat_tier !== "free" ? (
-                      <ActionButton
-                        type="button"
-                        onClick={() =>
-                          revokeOrgSeat(orgId, m.user_id)
-                            .then(reload)
-                            .catch((e) =>
-                              toast.error(e instanceof GatewayApiError ? e.message : "Failed to revoke seat")
-                            )
-                        }
-                      >
-                        Revoke seat
-                      </ActionButton>
-                    ) : (
-                      <ActionButton
-                        type="button"
-                        variant="accent"
-                        onClick={() =>
-                          assignOrgSeat(orgId, m.user_id, planSeatTier)
-                            .then(reload)
-                            .catch((e) =>
-                              toast.error(e instanceof GatewayApiError ? e.message : "No seats remaining")
-                            )
-                        }
-                      >
-                        Give seat
-                      </ActionButton>
-                    ))}
-                  {isPrivileged && m.role !== "owner" && (
-                    <select
-                      value={m.role}
-                      onChange={(e) =>
-                        patchOrgMember(
-                          orgId,
-                          m.user_id,
-                          e.target.value as "admin" | "member" | "node_operator"
-                        )
-                          .then(reload)
-                          .catch(() => toast.error("Failed to update role"))
-                      }
-                      className="rounded border border-white/10 bg-[var(--surface-2)] px-2 py-1 text-xs"
-                    >
-                      <option value="member">member</option>
-                      <option value="admin">admin</option>
-                      <option value="node_operator">node_operator</option>
-                    </select>
-                  )}
-                  {isOwner && m.role === "admin" && (
-                    <ActionButton
-                      type="button"
-                      onClick={() =>
-                        transferOrgOwnership(orgId, m.user_id)
-                          .then(reload)
-                          .catch(() => toast.error("Transfer failed — target must be admin"))
-                      }
-                    >
-                      Make owner
-                    </ActionButton>
-                  )}
-                  {isPrivileged && m.role !== "owner" && (
-                    <ActionButton
-                      type="button"
-                      variant="danger"
-                      onClick={() =>
-                        removeOrgMember(orgId, m.user_id).then(reload).catch(() =>
-                          toast.error("Failed to remove member")
-                        )
-                      }
-                    >
-                      Remove
-                    </ActionButton>
-                  )}
-                </div>
-              </div>
-            ))}
+                ))}
+                {pendingInvites.map((inv) => (
+                  <div
+                    key={inv.id}
+                    className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <div className="text-sm">{inv.email}</div>
+                      <MonoLabel>
+                        {memberRoleLabel(inv.role)}
+                        {inv.seat_tier && inv.seat_tier !== "free" ? ` · ${inv.seat_tier} seat` : ""}
+                        {" · "}
+                        {memberStatusLabel("pending")}
+                      </MonoLabel>
+                    </div>
+                    <span className="rounded-lg bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-300/90">
+                      Awaiting sign-in
+                    </span>
+                  </div>
+                ))}
+              </>
+            )}
           </Card>
         </TabsContent>
 
