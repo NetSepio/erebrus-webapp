@@ -28,6 +28,11 @@ import {
   GatewayApiError,
 } from "@/lib/gateway/client";
 import { memberRoleLabel, memberStatusLabel } from "@/lib/gateway/member-labels";
+import {
+  memberPrimaryLabel,
+  memberSecondaryLabel,
+  visiblePendingInvites,
+} from "@/lib/gateway/member-display";
 import type {
   GatewayApiKey,
   GatewayOrg,
@@ -275,6 +280,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
 
   const online = nodes.filter((n) => n.status === "active" || n.status === "online").length;
   const selectedNode = nodes.find((n) => n.node_id === selectedNodeId) ?? null;
+  const displayedPendingInvites = visiblePendingInvites(members, pendingInvites);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,17rem)_1fr] lg:items-start">
@@ -334,7 +340,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
         <div className="flex-1">
           <h2 className="text-2xl font-bold tracking-tight">{org.name}</h2>
           <p className="text-sm text-[var(--text-3)]">
-            {org.plan ?? org.kind} · {members.length + pendingInvites.length} members · {nodes.length} nodes
+            {org.plan ?? org.kind} · {members.length + displayedPendingInvites.length} members · {nodes.length} nodes
             {entitlements ? ` · ${entitlements.shield_instances_included} Shield · ${entitlements.sentinel_licenses_included} Sentinel` : ""}
           </p>
         </div>
@@ -353,7 +359,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Nodes online" value={online} />
         <StatCard label="Total nodes" value={nodes.length} />
-        <StatCard label="Members" value={members.length + pendingInvites.length} />
+        <StatCard label="Members" value={members.length + displayedPendingInvites.length} />
         <StatCard label="Seats (VPN)" value={planSeatTier ? `${seatsUsed}/${seatsIncluded}` : "—"} />
         <StatCard label="VPN clients" value={clients.length} />
         <StatCard label="API calls (30d)" value={usage.api_calls ?? "—"} />
@@ -572,7 +578,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
             </Card>
           )}
           <Card className="overflow-hidden">
-            {members.length === 0 && pendingInvites.length === 0 ? (
+            {members.length === 0 && displayedPendingInvites.length === 0 ? (
               <p className="px-5 py-8 text-sm text-[var(--text-2)]">No members yet.</p>
             ) : (
               <>
@@ -582,11 +588,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
-                      <div className="font-mono text-sm">
-                        {m.wallet_address
-                          ? `${m.wallet_address.slice(0, 8)}…${m.wallet_address.slice(-6)}`
-                          : m.email ?? "Member"}
-                      </div>
+                      <div className="text-sm font-medium">{memberPrimaryLabel(m)}</div>
+                      {memberSecondaryLabel(m) && (
+                        <div className="font-mono text-[11px] text-[var(--text-3)]">
+                          {memberSecondaryLabel(m)}
+                        </div>
+                      )}
                       <MonoLabel>
                         {memberRoleLabel(m.role)}
                         {m.seat_tier && m.seat_tier !== "free" ? ` · ${m.seat_tier} seat` : ""}
@@ -675,7 +682,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     </div>
                   </div>
                 ))}
-                {pendingInvites.map((inv) => (
+                {displayedPendingInvites.map((inv) => (
                   <div
                     key={inv.id}
                     className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"

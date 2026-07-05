@@ -14,9 +14,8 @@ export function memberRoleLabel(role: OrgMemberRole | string | undefined): strin
 }
 
 export function memberStatusLabel(status: string | undefined): string {
-  if (!status) return "Active";
-  if (status === "invited") return "Invite pending";
+  if (!status || status === "active") return "Active";
+  if (status === "invited") return "Invite pending — awaiting first sign-in";
   if (status === "pending") return "Awaiting sign-in";
-  if (status === "active") return "Active";
   return status;
 }

@@ -110,6 +110,25 @@ export async function emailLoginVerify(email: string, code: string): Promise<Aut
   return parseSession(data);
 }
 
+export type AuthMethods = {
+  wallet: boolean;
+  email: boolean;
+  google: boolean;
+  apple: boolean;
+};
+
+/** Reports which login methods the gateway has configured. */
+export async function fetchAuthMethods(): Promise<AuthMethods> {
+  const { data } = await axios.get(gatewayAuthUrl("auth/methods"));
+  const d = (data ?? {}) as Record<string, unknown>;
+  return {
+    wallet: d.wallet !== false,
+    email: d.email === true,
+    google: d.google === true,
+    apple: d.apple === true,
+  };
+}
+
 /** Exchanges a Google ID token for a session. */
 export async function googleLogin(idToken: string): Promise<AuthSession> {
   const { data } = await axios.post(gatewayAuthUrl("auth/google"), { id_token: idToken });
