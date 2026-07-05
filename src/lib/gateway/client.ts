@@ -30,6 +30,8 @@ import type {
   GatewayOrgProfile,
   GatewayOrgEntitlements,
   GatewayOrgMember,
+  GatewayOrgInvite,
+  GatewayOrgInvitePreview,
   GatewayOrgNode,
   GatewayOrgNodeService,
   GatewayOrgUsage,
@@ -326,6 +328,15 @@ export async function updateOrgProfile(
 export async function fetchOrgMembers(id: string): Promise<GatewayOrgMember[]> {
   const data = await gatewayFetch<unknown>(`orgs/${id}/members`);
   return Array.isArray(data) ? (data as GatewayOrgMember[]) : [];
+}
+
+export async function fetchOrgInvites(id: string): Promise<GatewayOrgInvite[]> {
+  const data = await gatewayFetch<unknown>(`orgs/${id}/invites`);
+  return Array.isArray(data) ? (data as GatewayOrgInvite[]) : [];
+}
+
+export async function fetchOrgInvitePreview(slug: string): Promise<GatewayOrgInvitePreview> {
+  return gatewayFetch(`public/orgs/${encodeURIComponent(slug)}/invite`, { auth: false });
 }
 
 export async function addOrgMember(

@@ -215,7 +215,24 @@ export interface GatewayOrgMember {
   seat_tier?: string;
   status?: string;
   name?: string;
+  email?: string;
   created_at?: string;
+}
+
+export interface GatewayOrgInvite {
+  id: string;
+  org_id: string;
+  email: string;
+  role: OrgMemberRole | string;
+  seat_tier?: string;
+  invited_by?: string;
+  status: string;
+}
+
+export interface GatewayOrgInvitePreview {
+  org_id: string;
+  name: string;
+  slug: string;
 }
 
 /** Control-plane org node (`GET /orgs/:id/nodes`). */
