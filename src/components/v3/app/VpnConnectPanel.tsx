@@ -195,7 +195,11 @@ export function VpnConnectPanel() {
   const deviceLimit = subscriptionDeviceLimit(sub, plans);
   const atLimit = clients.length >= deviceLimit;
   const entitled = sub?.entitled ?? false;
-  const canProvision = entitled && !atLimit;
+  const orgMember = sub?.org_member ?? false;
+  const selectedIsPrivateOrg =
+    selected?.access_mode === "private" &&
+    (scope != null || orgNodes.some((n) => n.id === selected.id));
+  const canProvision = (entitled || (orgMember && selectedIsPrivateOrg)) && !atLimit;
 
   const detailNode = useMemo(
     () => (detailId ? nodes.find((n) => n.id === detailId) ?? null : null),
@@ -299,8 +303,12 @@ export function VpnConnectPanel() {
 
   const provision = () => {
     if (!selected) return;
-    if (!entitled) {
-      toast.error("No active entitlement. Start a trial or get an access pass.");
+    if (!entitled && !(orgMember && selectedIsPrivateOrg)) {
+      toast.error(
+        selectedIsPrivateOrg
+          ? "Accept your workspace invite to connect to private org nodes."
+          : "No active entitlement. Start a trial or get an access pass."
+      );
       return;
     }
     if (atLimit) {
@@ -332,12 +340,12 @@ export function VpnConnectPanel() {
 
   return (
     <div className="space-y-5">
-      {!entitled && (
+      {!entitled && !(orgMember && scope) && (
         <Card className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <p className="text-sm text-[var(--text-2)]">
             {sub?.trial_consumed
               ? "Your 7-day trial has ended. Contact support to upgrade your plan, or hold the access NFT to extend to 30 days."
-              : "Start your free 7-day trial to provision WireGuard clients on the network."}
+              : "Start your free 7-day trial to provision WireGuard clients on the public network."}
           </p>
           {sub?.trial_consumed ? (
             <Link href="/contact">
@@ -569,7 +577,7 @@ export function VpnConnectPanel() {
           <ActionButton
             variant="accent"
             onClick={provision}
-            disabled={provisioning || !selected || atLimit || !entitled}
+            disabled={provisioning || !selected || atLimit || !canProvision}
           >
             <Plus size={14} />
             Add device
@@ -601,7 +609,7 @@ export function VpnConnectPanel() {
             <AccentButton
               className="mx-auto mt-4 !py-2.5 !text-[13px]"
               onClick={provision}
-              disabled={provisioning || !selected || !entitled}
+              disabled={provisioning || !selected || !canProvision}
             >
               <Plus size={14} /> Create your first client
             </AccentButton>

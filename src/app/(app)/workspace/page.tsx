@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createOrg, fetchOrgsWithStats, GatewayApiError } from "@/lib/gateway/client";
-import type { GatewayOrg } from "@/lib/gateway/types";
-import { AccentButton, Card } from "@/components/v3/ui";
+import {
+  createOrg,
+  fetchAccountOrgInvites,
+  fetchOrgsWithStats,
+  GatewayApiError,
+} from "@/lib/gateway/client";
+import type { GatewayOrg, GatewayUserOrgInvite } from "@/lib/gateway/types";
+import { inviteOrgTitle } from "@/lib/invite-notifications";
+import { memberRoleLabel } from "@/lib/gateway/member-labels";
+import { AccentButton, ActionButton, Card } from "@/components/v3/ui";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +32,7 @@ import { toast } from "sonner";
 
 export default function WorkspacePage() {
   const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<GatewayUserOrgInvite[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -34,15 +42,20 @@ export default function WorkspacePage() {
 
   const load = () => {
     setLoadError(null);
-    fetchOrgsWithStats()
-      .then(setOrgs)
-      .catch((err) => {
-        setOrgs([]);
+    Promise.all([
+      fetchOrgsWithStats().catch((err) => {
         const message =
           err instanceof GatewayApiError
             ? err.message
             : "Could not load workspaces";
         setLoadError(message);
+        return [] as GatewayOrg[];
+      }),
+      fetchAccountOrgInvites().catch(() => [] as GatewayUserOrgInvite[]),
+    ])
+      .then(([loadedOrgs, invites]) => {
+        setOrgs(loadedOrgs);
+        setPendingInvites(invites);
       })
       .finally(() => setLoading(false));
   };
@@ -138,6 +151,35 @@ export default function WorkspacePage() {
       {loadError && (
         <Card className="mb-4 border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4 text-sm text-[var(--danger)]">
           {loadError}
+        </Card>
+      )}
+
+      {pendingInvites.length > 0 && (
+        <Card className="mb-4 border-[var(--accent)]/25 bg-[var(--accent)]/5 p-5">
+          <div className="font-semibold">Pending workspace invitations</div>
+          <p className="mt-1 text-sm text-[var(--text-2)]">
+            Accept an invitation to access the workspace, its nodes, and VPN clients.
+          </p>
+          <div className="mt-4 space-y-3">
+            {pendingInvites.map((inv) => (
+              <div
+                key={inv.org_id}
+                className="flex flex-col gap-3 rounded-xl border border-white/[0.06] bg-black/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <div className="font-medium">{inviteOrgTitle(inv)}</div>
+                  <div className="text-sm text-[var(--text-3)]">
+                    Role: {memberRoleLabel(inv.role)}
+                  </div>
+                </div>
+                <Link href={`/notifications/invite/${inv.org_id}`}>
+                  <ActionButton type="button" variant="accent">
+                    Review &amp; accept
+                  </ActionButton>
+                </Link>
+              </div>
+            ))}
+          </div>
         </Card>
       )}
 

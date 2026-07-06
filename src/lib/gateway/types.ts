@@ -151,6 +151,8 @@ export interface GatewaySubscription {
   device_limit?: number;
   max_clients?: number;
   nft_gating?: boolean;
+  /** Active member of at least one workspace (private org nodes). */
+  org_member?: boolean;
 }
 
 export interface GatewayPlan {

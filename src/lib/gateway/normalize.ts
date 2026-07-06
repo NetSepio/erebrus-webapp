@@ -108,6 +108,7 @@ export function normalizeSubscription(raw: Record<string, unknown>): GatewaySubs
     current_period_end: end,
     expires_at: end,
     nft_gating: Boolean(raw.nft_gating),
+    org_member: Boolean(raw.org_member),
   };
 }
 
