@@ -27,7 +27,12 @@ import {
   emailLoginVerify,
   googleLogin,
 } from "@/lib/gateway-auth";
-import { fetchOrgInvitePreview, fetchOrgs } from "@/lib/gateway/client";
+import {
+  acceptAccountOrgInvite,
+  fetchOrgInvitePreview,
+  fetchOrgs,
+  GatewayApiError,
+} from "@/lib/gateway/client";
 import type { GatewayOrgInvitePreview } from "@/lib/gateway/types";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -71,7 +76,18 @@ export function OrgJoinPanel({ slug }: { slug: string }) {
       await redirectToWorkspace(joined.id);
       return true;
     }
-    return false;
+    try {
+      await acceptAccountOrgInvite(preview.org_id);
+      toast.success(`Joined ${preview.name}`);
+      await redirectToWorkspace(preview.org_id);
+      return true;
+    } catch (e) {
+      if (e instanceof GatewayApiError && e.status === 404) {
+        return false;
+      }
+      toast.error(e instanceof GatewayApiError ? e.message : "Could not accept invitation");
+      return false;
+    }
   }, [preview, redirectToWorkspace]);
 
   useEffect(() => {

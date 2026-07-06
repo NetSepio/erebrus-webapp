@@ -334,7 +334,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
           ← All workspaces
         </Link>
 
-        {isPrivileged && (
+        {canManageNodes && (
           <Card className="p-4">
             <div className="font-semibold">Register a node</div>
             <p className="mt-1 text-sm text-[var(--text-2)]">
