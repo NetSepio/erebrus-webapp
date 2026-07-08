@@ -78,6 +78,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isUpgradeablePlan, orgPlanLabel } from "@/lib/org-plans";
 import { orgEntitlementBadges } from "@/lib/org-entitlements";
+import { isOrgNodeOnline, orgNodeStatusLabel } from "@/lib/gateway/org-stats";
 import { toast } from "sonner";
 
 const INVITE_ROLES = [
@@ -356,7 +357,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     );
   }
 
-  const online = nodes.filter((n) => n.status === "active" || n.status === "online").length;
+  const online = nodes.filter((n) => isOrgNodeOnline(n)).length;
   const displayedPendingInvites = visiblePendingInvites(members, pendingInvites);
   const orgAvatarUrl = editLogoUrl.trim() || orgProfile?.logo_url?.trim();
   const publicProfileUrl = editSlug.trim() || org.slug;
@@ -524,14 +525,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                         <span
                           className="h-2 w-2 rounded-full"
                           style={{
-                            background:
-                              node.status === "active" || node.status === "online"
-                                ? "var(--success)"
-                                : "var(--text-3)",
-                            boxShadow:
-                              node.status === "active" || node.status === "online"
-                                ? "0 0 8px var(--success)"
-                                : undefined,
+                            background: isOrgNodeOnline(node)
+                              ? "var(--success)"
+                              : "var(--text-3)",
+                            boxShadow: isOrgNodeOnline(node)
+                              ? "0 0 8px var(--success)"
+                              : undefined,
                           }}
                         />
                         <div>
@@ -558,7 +557,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         <div className="flex flex-col gap-1 text-sm text-[var(--text-2)]">
-                          <span className="capitalize">{node.status}</span>
+                          <span>{orgNodeStatusLabel(node)}</span>
+                          {node.access_mode && (
+                            <span className="font-mono text-[10px] text-[var(--text-3)]">
+                              {node.access_mode} · {node.runtime_status ?? node.status}
+                            </span>
+                          )}
                           {svcs.length > 0 && (
                             <div className="flex flex-wrap gap-2 font-mono text-[10px] text-[var(--text-3)]">
                               {svcs.map((s) => (
