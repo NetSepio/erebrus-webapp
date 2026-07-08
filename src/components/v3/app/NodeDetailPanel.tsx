@@ -6,6 +6,8 @@ import { AccentButton } from "@/components/v3/ui";
 import { formatRelativeTime, nodeActivityDisplay } from "@/lib/format";
 import { useRelativeTimeTick } from "@/hooks/use-relative-time-tick";
 import { nodeGeoLabel, regionFlag } from "@/lib/regions";
+import { ShieldCredentialsCard } from "@/components/v3/workspace/ShieldCredentialsCard";
+import { profileLabel } from "@/lib/gateway/profiles";
 import {
   X,
   Download,
@@ -72,6 +74,7 @@ function CopyRow({ label, value, display }: { label: string; value: string; disp
 /** Compact detail card for a node selected on the globe. Floats over the canvas. */
 export function NodeDetailPanel({
   node,
+  orgId,
   isSelectedEgress = false,
   provisioning = false,
   canProvision = false,
@@ -80,6 +83,8 @@ export function NodeDetailPanel({
   showAction = true,
 }: {
   node: GatewayNode;
+  /** Workspace org id — required to reveal Shield / AdGuard credentials. */
+  orgId?: string;
   isSelectedEgress?: boolean;
   provisioning?: boolean;
   canProvision?: boolean;
@@ -89,7 +94,7 @@ export function NodeDetailPanel({
   showAction?: boolean;
 }) {
   useRelativeTimeTick();
-  const online = node.status === "online";
+  const online = node.status === "online" || node.status === "active";
   const mbps = (v?: number) => (v != null ? `${v >= 100 ? v.toFixed(0) : v.toFixed(1)} Mbps` : "—");
   const flag = regionFlag(node.region);
   const activity = nodeActivityDisplay(node);
@@ -104,9 +109,15 @@ export function NodeDetailPanel({
     ? new Date(node.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })
     : null;
   const version = node.version ? `v${node.version.replace(/^v/, "")}` : null;
+  const isShield = node.deployment_profile === "shield";
+  const nodePeerId = node.node_id ?? node.id;
 
   return (
-    <div className="pointer-events-auto absolute right-3 top-3 z-10 flex max-h-[calc(100%-1.5rem)] w-[244px] max-w-[calc(100%-1.5rem)] flex-col overflow-y-auto overscroll-contain rounded-xl border border-white/[0.1] bg-[var(--elevated)]/95 p-3 shadow-2xl backdrop-blur-xl md:right-[16px] md:top-[16px]">
+    <div
+      className={`pointer-events-auto absolute right-3 top-3 z-10 flex max-h-[calc(100%-1.5rem)] ${
+        isShield && orgId ? "w-[min(100%-1.5rem,300px)]" : "w-[244px]"
+      } max-w-[calc(100%-1.5rem)] flex-col overflow-y-auto overscroll-contain rounded-xl border border-white/[0.1] bg-[var(--elevated)]/95 p-3 shadow-2xl backdrop-blur-xl md:right-[16px] md:top-[16px]`}
+    >
       {/* Header: node name + close */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
@@ -118,6 +129,11 @@ export function NodeDetailPanel({
             }}
           />
           <span className="truncate text-[14px] font-semibold">{node.name || node.region}</span>
+          {node.deployment_profile && node.deployment_profile !== "erebrus" && (
+            <span className="shrink-0 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[9px] uppercase text-[var(--text-3)]">
+              {profileLabel(node.deployment_profile)}
+            </span>
+          )}
         </div>
         <button
           type="button"
@@ -233,6 +249,18 @@ export function NodeDetailPanel({
           </div>
         )}
       </div>
+
+      {isShield && orgId && nodePeerId && (
+        <div className="mt-2.5">
+          <ShieldCredentialsCard
+            orgId={orgId}
+            nodeId={nodePeerId}
+            nodeName={node.name}
+            compact
+            canRotate={false}
+          />
+        </div>
+      )}
 
       {showAction && onUse && (
         <AccentButton

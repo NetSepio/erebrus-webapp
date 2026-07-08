@@ -1,4 +1,24 @@
-/** Approximate map coordinates for gateway node `region` strings. */
+/** ISO 3166-1 alpha-2 country codes from node `region` (e.g. SG, US). */
+const COUNTRY_COORDS: Record<string, { lat: number; lng: number; label: string }> = {
+  sg: { lat: 1.35, lng: 103.82, label: "Singapore" },
+  us: { lat: 39.83, lng: -98.58, label: "United States" },
+  gb: { lat: 51.51, lng: -0.13, label: "United Kingdom" },
+  uk: { lat: 51.51, lng: -0.13, label: "United Kingdom" },
+  de: { lat: 50.11, lng: 8.68, label: "Germany" },
+  fr: { lat: 48.86, lng: 2.35, label: "France" },
+  nl: { lat: 52.37, lng: 4.9, label: "Netherlands" },
+  jp: { lat: 35.68, lng: 139.69, label: "Japan" },
+  kr: { lat: 37.57, lng: 126.98, label: "South Korea" },
+  in: { lat: 19.08, lng: 72.88, label: "India" },
+  au: { lat: -33.87, lng: 151.21, label: "Australia" },
+  ca: { lat: 43.65, lng: -79.38, label: "Canada" },
+  br: { lat: -23.55, lng: -46.63, label: "Brazil" },
+  ae: { lat: 25.2, lng: 55.27, label: "United Arab Emirates" },
+  hk: { lat: 22.32, lng: 114.17, label: "Hong Kong" },
+  tw: { lat: 25.03, lng: 121.56, label: "Taiwan" },
+};
+
+/** Macro regions and cloud-style zone slugs. */
 const REGION_COORDS: Record<string, { lat: number; lng: number; label: string }> = {
   us: { lat: 39.83, lng: -98.58, label: "United States" },
   eu: { lat: 50.11, lng: 8.68, label: "Europe" },
@@ -30,15 +50,32 @@ function slug(s: string): string {
   return s.toLowerCase().trim().replace(/\s+/g, "-");
 }
 
+function zoneHintsCountry(base: string, zoneSlug: string): string | null {
+  if (base.length === 2 && COUNTRY_COORDS[base]) return base;
+  if (/^sg\d*/.test(zoneSlug) || zoneSlug.includes("singapore")) return "sg";
+  if (/^us\d*/.test(zoneSlug) || zoneSlug.includes("america")) return "us";
+  if (/^eu\d*/.test(zoneSlug)) return "eu";
+  if (/^ap-?s(ea|outh)?/.test(zoneSlug) || zoneSlug.includes("singapore")) return "sg";
+  return null;
+}
+
 export function regionCoords(
   region: string,
   zone?: string
 ): { lat: number; lng: number; label: string } {
   const base = slug(region);
+  const zoneSlug = zone ? slug(zone) : "";
   // Prefer the precise region+zone coordinate (e.g. "us-east" → New York),
-  // then fall back to the region centroid, then a stable hash.
-  const combined = zone ? `${base}-${slug(zone)}` : base;
-  const hit = REGION_COORDS[combined] ?? REGION_COORDS[base];
+  // then ISO country code (e.g. "SG" → Singapore), then macro region, then hash.
+  const combined = zoneSlug ? `${base}-${zoneSlug}` : base;
+  const hit =
+    REGION_COORDS[combined] ??
+    REGION_COORDS[base] ??
+    COUNTRY_COORDS[base] ??
+    (() => {
+      const hinted = zoneSlug ? zoneHintsCountry(base, zoneSlug) : null;
+      return hinted ? COUNTRY_COORDS[hinted] : undefined;
+    })();
   if (hit) return hit;
   const { lat, lng } = hashRegion(combined);
   return { lat, lng, label: regionZoneLabel(region, zone) };

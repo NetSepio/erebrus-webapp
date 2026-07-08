@@ -77,6 +77,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isUpgradeablePlan, orgPlanLabel } from "@/lib/org-plans";
+import { orgEntitlementBadges } from "@/lib/org-entitlements";
 import { toast } from "sonner";
 
 const INVITE_ROLES = [
@@ -451,18 +452,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
               {orgPlanLabel(org.plan ?? org.kind)}
             </span>
             <div className="flex flex-wrap gap-2 text-sm text-[var(--text-2)]">
-              <span className="rounded-lg bg-white/[0.04] px-2.5 py-1">
-                <span className="font-semibold text-[var(--text)]">
-                  {entitlements?.shield_instances_included ?? 0}
-                </span>{" "}
-                Shield
-              </span>
-              <span className="rounded-lg bg-white/[0.04] px-2.5 py-1">
-                <span className="font-semibold text-[var(--text)]">
-                  {entitlements?.sentinel_licenses_included ?? 0}
-                </span>{" "}
-                Sentinel
-              </span>
+              {orgEntitlementBadges(org.plan, entitlements).map((badge) => (
+                <span key={badge.key} className="rounded-lg bg-white/[0.04] px-2.5 py-1">
+                  <span className="font-semibold text-[var(--text)]">{badge.count}</span>{" "}
+                  {badge.label}
+                </span>
+              ))}
               <span className="rounded-lg bg-white/[0.04] px-2.5 py-1">
                 <span className="font-semibold text-[var(--text)]">
                   {members.length + displayedPendingInvites.length}

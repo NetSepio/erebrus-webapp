@@ -2,6 +2,7 @@ export type GatewayChain = "evm" | "sol";
 
 /** Org projection on public node discovery (`GET /api/v2/nodes`). */
 export interface GatewayNodeOrgSummary {
+  id?: string;
   name: string;
   kind?: string;
   /** Always present when `org` is set; `false` is meaningful for dashboards. */
@@ -125,6 +126,8 @@ export interface GatewayNode {
   wallet_address?: string;
   /** Operating org workspace (from gateway `org` block). */
   org?: GatewayNodeOrgSummary;
+  org_id?: string;
+  deployment_profile?: string;
 }
 
 export interface GatewayVpnClient {
