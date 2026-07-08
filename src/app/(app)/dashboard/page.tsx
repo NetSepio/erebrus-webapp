@@ -119,7 +119,7 @@ export default function DashboardPage() {
             orgs.slice(0, 3).map((org) => (
               <Link
                 key={org.id}
-                href={`/workspace/${org.id}`}
+                href={org.id ? `/workspace/${org.id}` : "/workspace"}
                 className="flex items-center gap-3.5 border-b border-white/[0.04] px-5 py-4 transition-colors hover:bg-white/[0.02]"
               >
                 <div
