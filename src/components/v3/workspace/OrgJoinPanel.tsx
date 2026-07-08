@@ -73,7 +73,7 @@ export function OrgJoinPanel({ slug }: { slug: string }) {
     const orgs = await fetchOrgs().catch(() => []);
     const joined = orgs.find((o) => o.id === preview.org_id || o.slug === preview.slug);
     if (joined) {
-      await redirectToWorkspace(joined.id);
+      await redirectToWorkspace(joined.id || preview.org_id);
       return true;
     }
     try {

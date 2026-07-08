@@ -184,7 +184,7 @@ export default function WorkspacePage() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        {orgs.map((org) => (
+        {orgs.filter((org) => org.id).map((org) => (
           <Link key={org.id} href={`/workspace/${org.id}`}>
             <Card className="h-full p-5 transition-colors hover:border-[var(--accent)]/25">
               <div className="mb-4 flex items-center gap-3.5">
@@ -224,7 +224,7 @@ export default function WorkspacePage() {
         ))}
       </div>
 
-      {orgs.length === 0 && (
+      {orgs.filter((org) => org.id).length === 0 && (
         <Card className="p-10 text-center text-[var(--text-2)]">
           No workspaces yet. Create one to start operating nodes.
         </Card>

@@ -118,6 +118,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [tokenCopied, setTokenCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const isPrivileged = org?.role === "owner" || org?.role === "admin";
   const isOwner = org?.role === "owner";
@@ -158,44 +160,58 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   };
 
   const reload = () => {
-    fetchOrg(orgId).then((o) => {
-      const privileged = o.role === "owner" || o.role === "admin";
-      return Promise.all([
-        Promise.resolve(o),
-        fetchOrgNodes(orgId).catch(() => []),
-        fetchOrgMembers(orgId).catch(() => []),
-        privileged ? fetchOrgInvites(orgId).catch(() => []) : Promise.resolve([]),
-        privileged ? fetchOrgApiKeys(orgId).catch(() => []) : Promise.resolve([]),
-        fetchOrgUsage(orgId).catch(() => ({})),
-        fetchOrgClients(orgId).catch(() => []),
-        fetchOrgEntitlements(orgId).catch(() => null),
-        privileged ? fetchOrgProfile(orgId).catch(() => null) : Promise.resolve(null),
-      ]).then(([orgData, n, m, invites, keys, u, c, ent, profile]) => {
-        setOrg(orgData);
-        setEditName(orgData.name);
-        setEditSlug(orgData.slug ?? "");
-        setEditPublicProfile(orgData.public_profile_enabled ?? false);
-        if (profile) {
-          setOrgProfile(profile);
-          setEditDisplayName(profile.display_name ?? "");
-          setEditDescription(profile.description ?? "");
-          setEditWebsite(profile.website_url ?? "");
-          setEditLogoUrl(profile.logo_url ?? "");
-          setEditPublicEmail(profile.public_email ?? "");
-          setEditCountry(profile.country ?? "");
-        }
-        setNodes(n);
-        setMembers(m);
-        setPendingInvites(invites as GatewayOrgInvite[]);
-        setApiKeys(keys as GatewayApiKey[]);
-        setUsage(u as Record<string, number>);
-        setClients(c as GatewayVpnClient[]);
-        setEntitlements(ent);
-        if (n.length > 0) {
-          void loadNodeServices(n);
-        }
-      });
-    });
+    setLoading(true);
+    setLoadError(null);
+    fetchOrg(orgId)
+      .then((o) => {
+        const privileged = o.role === "owner" || o.role === "admin";
+        return Promise.all([
+          Promise.resolve(o),
+          fetchOrgNodes(orgId).catch(() => []),
+          fetchOrgMembers(orgId).catch(() => []),
+          privileged ? fetchOrgInvites(orgId).catch(() => []) : Promise.resolve([]),
+          privileged ? fetchOrgApiKeys(orgId).catch(() => []) : Promise.resolve([]),
+          fetchOrgUsage(orgId).catch(() => ({})),
+          fetchOrgClients(orgId).catch(() => []),
+          fetchOrgEntitlements(orgId).catch(() => null),
+          privileged ? fetchOrgProfile(orgId).catch(() => null) : Promise.resolve(null),
+        ]).then(([orgData, n, m, invites, keys, u, c, ent, profile]) => {
+          setOrg(orgData);
+          setEditName(orgData.name);
+          setEditSlug(orgData.slug ?? "");
+          setEditPublicProfile(orgData.public_profile_enabled ?? false);
+          if (profile) {
+            setOrgProfile(profile);
+            setEditDisplayName(profile.display_name ?? "");
+            setEditDescription(profile.description ?? "");
+            setEditWebsite(profile.website_url ?? "");
+            setEditLogoUrl(profile.logo_url ?? "");
+            setEditPublicEmail(profile.public_email ?? "");
+            setEditCountry(profile.country ?? "");
+          }
+          setNodes(n);
+          setMembers(m);
+          setPendingInvites(invites as GatewayOrgInvite[]);
+          setApiKeys(keys as GatewayApiKey[]);
+          setUsage(u as Record<string, number>);
+          setClients(c as GatewayVpnClient[]);
+          setEntitlements(ent);
+          if (n.length > 0) {
+            void loadNodeServices(n);
+          }
+        });
+      })
+      .catch((e) => {
+        setOrg(null);
+        const message =
+          e instanceof GatewayApiError
+            ? e.status === 403
+              ? "You don't have access to this workspace. Accept the invite with the same account you signed in with, or ask the owner to re-invite you."
+              : e.message
+            : "Could not load this workspace";
+        setLoadError(message);
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -318,8 +334,25 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     }
   };
 
-  if (!org) {
+  if (loading && !org) {
     return <div className="py-20 text-center text-[var(--text-2)]">Loading workspace…</div>;
+  }
+
+  if (loadError || !org) {
+    return (
+      <div className="mx-auto max-w-lg py-20 text-center">
+        <h2 className="text-xl font-bold tracking-tight">Workspace unavailable</h2>
+        <p className="mt-3 text-sm text-[var(--text-2)]">
+          {loadError ?? "This workspace could not be loaded."}
+        </p>
+        <Link
+          href="/workspace"
+          className="mt-6 inline-flex text-sm font-semibold text-[var(--accent-hi)]"
+        >
+          ← Back to workspaces
+        </Link>
+      </div>
+    );
   }
 
   const online = nodes.filter((n) => n.status === "active" || n.status === "online").length;

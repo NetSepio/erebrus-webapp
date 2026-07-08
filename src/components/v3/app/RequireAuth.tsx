@@ -31,7 +31,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-md py-20 text-center">
           <h2 className="text-2xl font-bold tracking-tight">Connect to continue</h2>
           <p className="mt-3 text-sm text-[var(--text-2)]">
-            Sign in with your wallet to access the Erebrus app.
+            Sign in with your wallet, email, Google, or Apple to access the Erebrus app.
           </p>
           <div className="mt-6 flex flex-col gap-3">
             <AuthModalTrigger>
