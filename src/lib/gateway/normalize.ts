@@ -29,6 +29,7 @@ function normalizeNodeOrg(raw: unknown): GatewayNodeOrgSummary | undefined {
   const name = optStr(o.name);
   if (!name) return undefined;
   return {
+    id: optStr(o.id),
     name,
     kind: optStr(o.kind),
     verified: o.verified === true,
@@ -92,6 +93,8 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     tx_bytes: optNum(raw.tx_bytes),
     capabilities: normalizeCapabilities(raw.capabilities),
     org: normalizeNodeOrg(raw.org),
+    org_id: optStr(raw.org_id) ?? normalizeNodeOrg(raw.org)?.id,
+    deployment_profile: optStr(raw.deployment_profile),
     protocols: Array.isArray(raw.protocols) ? (raw.protocols as string[]) : [],
   };
 }

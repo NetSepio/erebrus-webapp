@@ -49,6 +49,10 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 
+function isNodeOnline(status: string): boolean {
+  return status === "online" || status === "active";
+}
+
 function ScopeChip({
   label,
   active,
@@ -131,10 +135,33 @@ export function VpnConnectPanel() {
     return () => clearInterval(t);
   }, []);
 
+  const onlineOrgNodes = useMemo(
+    () => orgNodes.filter((n) => isNodeOnline(n.status)),
+    [orgNodes]
+  );
+
+  const onlinePublicNodes = useMemo(
+    () => publicNodes.filter((n) => isNodeOnline(n.status)),
+    [publicNodes]
+  );
+
+  const orgIdBySlug = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const o of orgs) {
+      if (o.slug && o.id) map.set(o.slug, o.id);
+    }
+    for (const n of orgNodes) {
+      const slug = n.org?.slug;
+      const id = n.org_id ?? n.org?.id;
+      if (slug && id) map.set(slug, id);
+    }
+    return map;
+  }, [orgs, orgNodes]);
+
   // Org-scoped nodes grouped by org slug (incl. private nodes).
   const orgNodesBySlug = useMemo(() => {
     const map = new Map<string, GatewayNode[]>();
-    for (const n of orgNodes) {
+    for (const n of onlineOrgNodes) {
       const slug = n.org?.slug;
       if (!slug) continue;
       const arr = map.get(slug) ?? [];
@@ -142,7 +169,7 @@ export function VpnConnectPanel() {
       map.set(slug, arr);
     }
     return map;
-  }, [orgNodes]);
+  }, [onlineOrgNodes]);
 
   // Scope options: orgs from /orgs (incl. empty), plus any org that has nodes
   // but wasn't returned by /orgs (synthesized from the node's org block).
@@ -165,11 +192,11 @@ export function VpnConnectPanel() {
     if (scope && !scopeOrgs.some((o) => o.slug === scope)) setScope(null);
   }, [scope, scopeOrgs]);
 
-  // The active, scope-filtered node list (sorted lightest-load first).
+  // The active, scope-filtered node list (online only, sorted lightest-load first).
   const nodes = useMemo(() => {
-    const source = scope ? (orgNodesBySlug.get(scope) ?? []) : publicNodes;
+    const source = scope ? (orgNodesBySlug.get(scope) ?? []) : onlinePublicNodes;
     return [...source].sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99));
-  }, [scope, orgNodesBySlug, publicNodes]);
+  }, [scope, orgNodesBySlug, onlinePublicNodes]);
 
   const scopeLabel = useMemo(
     () => (scope ? scopeOrgs.find((o) => o.slug === scope)?.name ?? "Organization" : "Public network"),
@@ -357,12 +384,25 @@ export function VpnConnectPanel() {
         </Card>
       )}
 
+      {scope === null && onlinePublicNodes.length === 0 && (
+        <Card className="border-white/[0.06] bg-white/[0.02] p-4 text-sm text-[var(--text-2)]">
+          No public nodes are online right now. Public nodes only appear when operators keep them
+          online with <span className="font-mono text-xs">access_mode=public</span>. Switch to a
+          workspace below for private org nodes, or check back when the public network recovers.
+        </Card>
+      )}
+
       {scopeOrgs.length > 0 && (
         <Card className="flex flex-wrap items-center gap-2 p-3">
           <span className="mr-1 pl-1 font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">
             VPN source
           </span>
-          <ScopeChip label="Public network" active={scope === null} onClick={() => setScope(null)} />
+          <ScopeChip
+            label="Public network"
+            active={scope === null}
+            onClick={() => setScope(null)}
+            count={onlinePublicNodes.length || undefined}
+          />
           {scopeOrgs.map((o) => (
             <ScopeChip
               key={o.slug}
@@ -422,6 +462,11 @@ export function VpnConnectPanel() {
             {detailNode && (
               <NodeDetailPanel
                 node={detailNode}
+                orgId={
+                  scope
+                    ? orgIdBySlug.get(scope)
+                    : detailNode.org_id ?? detailNode.org?.id
+                }
                 isSelectedEgress={selected?.id === detailNode.id}
                 provisioning={provisioning}
                 canProvision={canProvision}
