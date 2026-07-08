@@ -286,7 +286,12 @@ export interface GatewayOrgNode {
   managed_by?: string;
   region?: string;
   zone?: string;
+  /** Control-plane enrollment status (active, degraded, disabled, …). */
   status: string;
+  /** Runtime connectivity from `nodes.status` (online, offline, draining). */
+  runtime_status?: string;
+  access_mode?: string;
+  last_heartbeat?: string;
   api_public_url?: string;
   last_seen_at?: string;
   created_at?: string;
