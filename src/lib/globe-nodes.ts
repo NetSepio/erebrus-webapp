@@ -4,41 +4,56 @@ export type GlobeNodePoint = {
   id: string;
   lat: number;
   lng: number;
+  /** 0-based slot among the nodes sharing this exact coordinate. */
+  groupIndex: number;
+  /** How many nodes share this exact coordinate. */
+  groupSize: number;
 };
 
-/**
- * Deterministic small offset (degrees) derived from the node id. Gateway nodes
- * only carry a coarse `region` (e.g. "US"), so every same-region node collapses
- * onto one coordinate. Fanning them out a few degrees keeps each node visible
- * and individually clickable on the globe without moving them off their region.
- */
-function jitter(id: string): { dLat: number; dLng: number } {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  const a = (h % 360) * (Math.PI / 180);
-  const mag = 2.6 + (Math.abs(h >> 9) % 18) * 0.2; // ~2.6–6.2°
-  return { dLat: Math.sin(a) * mag, dLng: Math.cos(a) * mag };
-}
+const coordKey = (n: GatewayNode) => `${n.latitude},${n.longitude}`;
 
+/**
+ * Gateway nodes only carry a coarse region, so every node in a region collapses
+ * onto one centroid coordinate. Coordinates stay exact — nudging them by map
+ * degrees moves a node hundreds of km (a "Singapore" node would render over
+ * Malaysia). Instead each node gets a slot within its co-located group and the
+ * renderer fans slots out a few *pixels* on screen.
+ */
 export function toGlobeNodes(nodes: GatewayNode[]): GlobeNodePoint[] {
-  // Spread out only when more than one node shares the same coordinate.
-  const counts = new Map<string, number>();
-  for (const n of nodes) {
-    if (n.latitude == null || n.longitude == null) continue;
-    const key = `${n.latitude},${n.longitude}`;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+  const located = nodes.filter((n) => n.latitude != null && n.longitude != null);
+
+  // Slots are assigned in id order so a node keeps its ring position across
+  // refetches regardless of how the API happens to order the list.
+  const slots = new Map<string, number>();
+  const byCoord = new Map<string, GatewayNode[]>();
+  for (const n of located) {
+    const group = byCoord.get(coordKey(n));
+    if (group) group.push(n);
+    else byCoord.set(coordKey(n), [n]);
+  }
+  for (const group of byCoord.values()) {
+    [...group]
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .forEach((n, i) => slots.set(n.id, i));
   }
 
-  return nodes
-    .filter((n) => n.latitude != null && n.longitude != null)
-    .map((n) => {
-      const key = `${n.latitude},${n.longitude}`;
-      const crowded = (counts.get(key) ?? 0) > 1;
-      const j = crowded ? jitter(n.id) : { dLat: 0, dLng: 0 };
-      return {
-        id: n.id,
-        lat: Math.max(-85, Math.min(85, n.latitude! + j.dLat)),
-        lng: n.longitude! + j.dLng,
-      };
-    });
+  return located.map((n) => ({
+    id: n.id,
+    lat: n.latitude!,
+    lng: n.longitude!,
+    groupIndex: slots.get(n.id) ?? 0,
+    groupSize: byCoord.get(coordKey(n))?.length ?? 1,
+  }));
+}
+
+/**
+ * The nodes sharing `node`'s exact map coordinate (including itself), in the
+ * same order the globe rings them — feeds the detail panel's ‹ › pager.
+ */
+export function coLocatedNodes(nodes: GatewayNode[], node: GatewayNode): GatewayNode[] {
+  if (node.latitude == null || node.longitude == null) return [node];
+  const stack = nodes
+    .filter((n) => n.latitude === node.latitude && n.longitude === node.longitude)
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return stack.some((n) => n.id === node.id) ? stack : [node];
 }

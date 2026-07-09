@@ -26,6 +26,8 @@ import type { Provider } from "@reown/appkit-adapter-solana/react";
 import {
   authenticateEvm as gatewayAuthenticateEvm,
   authenticateSolana as gatewayAuthenticateSolana,
+  linkWalletEvm,
+  linkWalletSolana,
 } from "@/lib/gateway-auth";
 
 declare global {
@@ -487,6 +489,52 @@ export function useWalletAuth() {
     }
   };
 
+  // Attach the connected wallet to the CURRENT (email / social) account via
+  // POST /account/wallet. Unlike authenticate(), this never swaps the session —
+  // the signed-in identity stays, the wallet becomes part of it.
+  const linkWallet = async (): Promise<boolean> => {
+    if (!isConnected || !address) {
+      toast.error("Connect a wallet first");
+      return false;
+    }
+    const sessionToken = getCurrentAuthToken();
+    if (!sessionToken) {
+      toast.error("Sign in before linking a wallet");
+      return false;
+    }
+    if (authInFlight.current) return false;
+    authInFlight.current = true;
+    setIsAuthenticating(true);
+    try {
+      const isSolanaChain =
+        caipNetworkId?.startsWith("solana:") ||
+        chainId === NETWORK_IDS.SOLANA ||
+        chainId === Number(solanaDevnet.id) ||
+        chainId === Number(solanaTestnet.id);
+      if (isSolanaChain) {
+        if (!solanaWalletProvider) {
+          throw new Error("Solana wallet provider not available");
+        }
+        await linkWalletSolana(sessionToken, address, solanaWalletProvider);
+      } else {
+        if (!evmWalletProvider) {
+          throw new Error("EVM wallet provider not available");
+        }
+        await linkWalletEvm(sessionToken, address, evmWalletProvider);
+      }
+      toast.success("Wallet linked to your account");
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to link wallet";
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setIsAuthenticating(false);
+      authInFlight.current = false;
+    }
+  };
+
   // Cleanup on disconnection - but be more careful about clearing on refresh
   useEffect(() => {
     if (!isConnected) {
@@ -513,6 +561,7 @@ export function useWalletAuth() {
     authError,
     authSuccess,
     authenticate,
+    linkWallet,
     signOut: () => {
       clearWebSession();
       (["solana", "evm"] as const).forEach((c) => clearAuthCookies(c));

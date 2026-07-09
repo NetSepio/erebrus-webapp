@@ -30,6 +30,7 @@ import { canRevealShieldCredentials } from "@/lib/gateway/org-permissions";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
+import { coLocatedNodes } from "@/lib/globe-nodes";
 import { formatBytes, formatRelativeTime, clientActivity } from "@/lib/format";
 import { toast } from "sonner";
 import {
@@ -463,6 +464,8 @@ export function VpnConnectPanel() {
             {detailNode && (
               <NodeDetailPanel
                 node={detailNode}
+                siblings={coLocatedNodes(nodes, detailNode)}
+                onSelectSibling={handleNodeSelect}
                 orgId={
                   scope
                     ? orgIdBySlug.get(scope)

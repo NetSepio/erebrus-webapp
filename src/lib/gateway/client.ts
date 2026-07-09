@@ -205,7 +205,11 @@ export async function fetchProfile(): Promise<GatewayProfile> {
   return normalizeProfile(data);
 }
 
-export async function updateProfile(body: { name: string }): Promise<GatewayProfile> {
+export async function updateProfile(body: {
+  name?: string;
+  /** Bare IPFS CID of the uploaded profile image. */
+  profile_picture?: string;
+}): Promise<GatewayProfile> {
   const data = await gatewayFetch<Record<string, unknown>>("account/profile", {
     method: "PATCH",
     body: JSON.stringify(body),
@@ -655,6 +659,14 @@ export async function updateOperatorNode(
 
 export async function fetchReferrals(): Promise<GatewayReferral> {
   return gatewayFetch("referrals/me");
+}
+
+/** Applies an invite code to the signed-in account (one referrer, ever). */
+export async function redeemReferralCode(code: string): Promise<GatewayReferral> {
+  return gatewayFetch("referrals/redeem", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
 }
 
 export async function fetchRank(): Promise<GatewayRank> {

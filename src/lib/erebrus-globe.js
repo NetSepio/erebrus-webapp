@@ -18,8 +18,9 @@ export const DEFAULT_NODES = [
 function project(lat, lng, rr, rot) {
   const phi = (90 - lat) * Math.PI / 180;
   const th  = (lng + rot) * Math.PI / 180;
+  // Screen x must grow eastward (+lng → right) or the globe renders mirrored.
   return {
-    x: rr * Math.sin(phi) * Math.cos(th),
+    x: -rr * Math.sin(phi) * Math.cos(th),
     y: rr * Math.cos(phi),
     z: rr * Math.sin(phi) * Math.sin(th),
   };
@@ -147,17 +148,64 @@ export function createNodeGlobe(canvas, opts = {}) {
     const selId = getSelectedId();
     const sel = nodes.find(n => n.id === selId) || nodes[0];
 
+    // Co-located nodes (same coarse region → same centroid) fan out a few
+    // pixels on screen — never map degrees — and big stacks collapse into a
+    // single badge with a count so a busy region doesn't turn to dot soup.
+    const RING_MAX = 4;
+
     hot = [];
     nodes.forEach(n => {
+      const size = n.groupSize || 1;
+      const slot = n.groupIndex || 0;
+      const asBadge = size > RING_MAX;
+      if (asBadge && slot > 0) return; // whole stack draws once, via slot 0
       const p = project(n.lat, n.lng, R, rot);
       const front = p.z > -R * 0.15;
-      const sx = cx + p.x, sy = cy - p.y;
-      const isSel = sel && n.id === sel.id;
+      let sx = cx + p.x, sy = cy - p.y;
+      if (!asBadge && size > 1) {
+        const a = (slot / size) * Math.PI * 2 - Math.PI / 2;
+        const ringR = (5.5 + size * 1.7) * dpr;
+        sx += Math.cos(a) * ringR;
+        sy += Math.sin(a) * ringR;
+      }
+      const isSel = asBadge
+        ? !!(sel && sel.lat === n.lat && sel.lng === n.lng)
+        : !!(sel && n.id === sel.id);
       if (front) hot.push({ id: n.id, sx, sy });
       if (!front && !isSel) return;
       const depth = Math.max(0, (p.z + R) / (2 * R));
       const baseA = front ? (0.5 + depth * 0.5) : 0.25;
       const isHover = n.id === hoveredId;
+
+      if (asBadge) {
+        const r = 8 * dpr;
+        if (isSel && front) {
+          const pulse = (Math.sin(Date.now() / 350) + 1) / 2;
+          ctx.beginPath();
+          ctx.arc(sx, sy, r + (3 + pulse * 6) * dpr, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,107,53,${0.5 * (1 - pulse)})`;
+          ctx.lineWidth = 1.5 * dpr;
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.arc(sx, sy, r, 0, Math.PI * 2);
+        ctx.fillStyle = isSel ? `rgba(255,107,53,${baseA})` : `rgba(255,150,90,${baseA * 0.8})`;
+        ctx.fill();
+        if (isHover && !isSel && front) {
+          ctx.beginPath();
+          ctx.arc(sx, sy, r + 2.5 * dpr, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255,180,130,0.6)';
+          ctx.lineWidth = 1.2 * dpr;
+          ctx.stroke();
+        }
+        ctx.fillStyle = `rgba(11,11,14,${front ? 0.95 : 0.6})`;
+        ctx.font = `700 ${9.5 * dpr}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(size), sx, sy + 0.5 * dpr);
+        return;
+      }
+
       const rad = (isSel ? 4.5 : isHover ? 3.6 : 2.6) * dpr;
 
       ctx.beginPath();
