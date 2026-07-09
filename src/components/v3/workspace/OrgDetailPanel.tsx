@@ -33,6 +33,7 @@ import { memberRoleLabel, memberStatusLabel } from "@/lib/gateway/member-labels"
 import {
   canManageOrgNodes,
   canRevealShieldCredentials,
+  managerSeatsAvailable,
 } from "@/lib/gateway/org-permissions";
 import {
   memberPrimaryLabel,
@@ -143,7 +144,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
   const seatsUsed = members.filter((m) => m.seat_tier && m.seat_tier !== "free").length;
   const seatsIncluded = entitlements?.paid_seats_included ?? 0;
-  const seatsAvailable = planSeatTier ? seatsUsed < seatsIncluded : false;
+  const seatsAvailable = managerSeatsAvailable(seatsUsed, seatsIncluded, Boolean(planSeatTier));
   const inviteRoles = INVITE_ROLES.filter(
     (r) => r.value !== "node_operator" || seatsAvailable
   );
@@ -798,7 +799,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                         >
                           <option value="member">Member</option>
                           <option value="admin">Admin</option>
-                          {(seatsAvailable || (m.seat_tier && m.seat_tier !== "free")) && (
+                          {(seatsAvailable || m.role === "node_operator") && (
                             <option value="node_operator">Manager</option>
                           )}
                         </select>
