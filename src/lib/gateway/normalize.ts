@@ -176,6 +176,8 @@ export function normalizeOrg(raw: Record<string, unknown>): GatewayOrg {
     description: raw.description as string | undefined,
     website: raw.website as string | undefined,
     role: raw.role as string | undefined,
+    seat_tier: optStr(raw.seat_tier),
+    has_paid_seat: raw.has_paid_seat === true,
     verified:
       raw.verified === true ||
       verification === "verified",

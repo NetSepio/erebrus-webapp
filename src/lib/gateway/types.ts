@@ -183,6 +183,9 @@ export interface GatewayOrg {
   description?: string;
   website?: string;
   role?: OrgMemberRole | string;
+  seat_tier?: string;
+  /** Caller holds a paid seat (owner always does). */
+  has_paid_seat?: boolean;
   /** Always present on org API responses; `false` is meaningful. */
   verified: boolean;
   member_count?: number;

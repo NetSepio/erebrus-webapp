@@ -19,12 +19,14 @@ export function ShieldCredentialsCard({
   nodeName,
   compact = false,
   canRotate = true,
+  canReveal = true,
 }: {
   orgId: string;
   nodeId: string;
   nodeName?: string;
   compact?: boolean;
   canRotate?: boolean;
+  canReveal?: boolean;
 }) {
   const [creds, setCreds] = useState<GatewayFirewallCredentials | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -76,6 +78,10 @@ export function ShieldCredentialsCard({
   const access = creds
     ? resolveShieldAdminUrl(creds.admin_url, nodeName)
     : null;
+
+  if (!canReveal) {
+    return null;
+  }
 
   return (
     <Card className={compact ? "space-y-2.5 p-3" : "space-y-3 p-4"}>

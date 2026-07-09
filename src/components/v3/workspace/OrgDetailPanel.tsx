@@ -31,6 +31,10 @@ import {
 } from "@/lib/gateway/client";
 import { memberRoleLabel, memberStatusLabel } from "@/lib/gateway/member-labels";
 import {
+  canManageOrgNodes,
+  canRevealShieldCredentials,
+} from "@/lib/gateway/org-permissions";
+import {
   memberPrimaryLabel,
   memberSecondaryLabel,
   visiblePendingInvites,
@@ -84,7 +88,7 @@ import { toast } from "sonner";
 const INVITE_ROLES = [
   { value: "member", label: "Member" },
   { value: "admin", label: "Admin" },
-  { value: "node_operator", label: "Node operator" },
+  { value: "node_operator", label: "Manager" },
 ] as const;
 
 type InviteRole = (typeof INVITE_ROLES)[number]["value"];
@@ -125,8 +129,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
 
   const isPrivileged = org?.role === "owner" || org?.role === "admin";
   const isOwner = org?.role === "owner";
-  const canManageNodes =
-    org?.role === "owner" || org?.role === "admin" || org?.role === "node_operator";
+  const canManageNodes = canManageOrgNodes(org);
+  const canRevealShield = canRevealShieldCredentials(org);
 
   // Seats: a paid plan's tier is also the seat tier to assign. Seats used = the
   // owner + members holding a non-free seat (== VPN-entitled members).
@@ -139,6 +143,16 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
   const seatsUsed = members.filter((m) => m.seat_tier && m.seat_tier !== "free").length;
   const seatsIncluded = entitlements?.paid_seats_included ?? 0;
+  const seatsAvailable = planSeatTier ? seatsUsed < seatsIncluded : false;
+  const inviteRoles = INVITE_ROLES.filter(
+    (r) => r.value !== "node_operator" || seatsAvailable
+  );
+
+  useEffect(() => {
+    if (inviteRole === "node_operator" && !seatsAvailable) {
+      setInviteRole("member");
+    }
+  }, [inviteRole, seatsAvailable]);
 
   const handleDeleteOrg = async () => {
     if (deleteConfirmName.trim() !== org?.name) return;
@@ -594,7 +608,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     </div>
                     {canManageNodes && isShield && firewallOpen && (
                       <div className="border-t border-white/[0.04] bg-[#08080A]/60 px-5 py-4">
-                        <NodeFirewallPanel orgId={orgId} node={node} canManage={canManageNodes} />
+                        <NodeFirewallPanel
+                          orgId={orgId}
+                          node={node}
+                          canManage={canManageNodes}
+                          canRevealShield={canRevealShield}
+                        />
                       </div>
                     )}
                   </div>
@@ -694,7 +713,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                   onChange={(e) => setInviteRole(e.target.value as InviteRole)}
                   className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-2 text-sm"
                 >
-                  {INVITE_ROLES.map((r) => (
+                  {inviteRoles.map((r) => (
                     <option key={r.value} value={r.value}>
                       {r.label}
                     </option>
@@ -779,7 +798,9 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                         >
                           <option value="member">Member</option>
                           <option value="admin">Admin</option>
-                          <option value="node_operator">Node operator</option>
+                          {(seatsAvailable || (m.seat_tier && m.seat_tier !== "free")) && (
+                            <option value="node_operator">Manager</option>
+                          )}
                         </select>
                       )}
                       {isPrivileged && m.role !== "owner" && m.status === "invited" && (
@@ -865,7 +886,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           >
                             <option value="member">Member</option>
                             <option value="admin">Admin</option>
-                            <option value="node_operator">Node operator</option>
+                            {seatsAvailable && <option value="node_operator">Manager</option>}
                           </select>
                           <ActionButton
                             type="button"

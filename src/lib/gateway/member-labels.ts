@@ -4,7 +4,7 @@ const ROLE_LABELS: Record<string, string> = {
   owner: "Owner",
   admin: "Admin",
   member: "Member",
-  node_operator: "Node operator",
+  node_operator: "Manager",
   viewer: "Viewer",
 };
 
