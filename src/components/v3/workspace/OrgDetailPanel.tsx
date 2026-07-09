@@ -33,6 +33,8 @@ import { memberRoleLabel, memberStatusLabel } from "@/lib/gateway/member-labels"
 import {
   canManageOrgNodes,
   canRevealShieldCredentials,
+  countSeatsUsed,
+  isOrgOwner,
   managerSeatsAvailable,
 } from "@/lib/gateway/org-permissions";
 import {
@@ -88,7 +90,6 @@ import { toast } from "sonner";
 
 const INVITE_ROLES = [
   { value: "member", label: "Member" },
-  { value: "admin", label: "Admin" },
   { value: "node_operator", label: "Manager" },
 ] as const;
 
@@ -128,8 +129,8 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isPrivileged = org?.role === "owner" || org?.role === "admin";
-  const isOwner = org?.role === "owner";
+  const isOwner = isOrgOwner(org);
+  const isPrivileged = isOwner;
   const canManageNodes = canManageOrgNodes(org);
   const canRevealShield = canRevealShieldCredentials(org);
 
@@ -142,7 +143,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     enterprise: "enterprise",
   };
   const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
-  const seatsUsed = members.filter((m) => m.seat_tier && m.seat_tier !== "free").length;
+  const seatsUsed = countSeatsUsed(members);
   const seatsIncluded = entitlements?.paid_seats_included ?? 0;
   const seatsAvailable = managerSeatsAvailable(seatsUsed, seatsIncluded, Boolean(planSeatTier));
   const inviteRoles = INVITE_ROLES.filter(
@@ -181,7 +182,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     setLoadError(null);
     fetchOrg(orgId)
       .then((o) => {
-        const privileged = o.role === "owner" || o.role === "admin";
+        const privileged = o.role === "owner";
         return Promise.all([
           Promise.resolve(o),
           fetchOrgNodes(orgId).catch(() => []),
@@ -790,7 +791,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                             patchOrgMember(
                               orgId,
                               m.user_id,
-                              e.target.value as "admin" | "member" | "node_operator"
+                              e.target.value as "member" | "node_operator"
                             )
                               .then(reload)
                               .catch(() => toast.error("Failed to update role"))
@@ -798,7 +799,6 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-1.5 text-xs"
                         >
                           <option value="member">Member</option>
-                          <option value="admin">Admin</option>
                           {(seatsAvailable || m.role === "node_operator") && (
                             <option value="node_operator">Manager</option>
                           )}
@@ -818,13 +818,13 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           Revoke invite
                         </ActionButton>
                       )}
-                      {isOwner && m.role === "admin" && (
+                      {isOwner && m.role === "node_operator" && (
                         <ActionButton
                           type="button"
                           onClick={() =>
                             transferOrgOwnership(orgId, m.user_id)
                               .then(reload)
-                              .catch(() => toast.error("Transfer failed — target must be admin"))
+                              .catch(() => toast.error("Transfer failed — target must be a manager"))
                           }
                         >
                           Transfer ownership
@@ -886,7 +886,6 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                             className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-1.5 text-xs"
                           >
                             <option value="member">Member</option>
-                            <option value="admin">Admin</option>
                             {seatsAvailable && <option value="node_operator">Manager</option>}
                           </select>
                           <ActionButton

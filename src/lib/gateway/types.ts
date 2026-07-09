@@ -166,7 +166,7 @@ export interface GatewayPlan {
   device_limit?: number;
 }
 
-export type OrgMemberRole = "owner" | "admin" | "node_operator" | "member" | "viewer";
+export type OrgMemberRole = "owner" | "node_operator" | "member";
 
 export type DeploymentProfile = "erebrus" | "shield" | "sentinel";
 
