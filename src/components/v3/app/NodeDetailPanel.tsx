@@ -75,6 +75,7 @@ function CopyRow({ label, value, display }: { label: string; value: string; disp
 export function NodeDetailPanel({
   node,
   orgId,
+  canRevealShield = false,
   isSelectedEgress = false,
   provisioning = false,
   canProvision = false,
@@ -85,6 +86,7 @@ export function NodeDetailPanel({
   node: GatewayNode;
   /** Workspace org id — required to reveal Shield / AdGuard credentials. */
   orgId?: string;
+  canRevealShield?: boolean;
   isSelectedEgress?: boolean;
   provisioning?: boolean;
   canProvision?: boolean;
@@ -250,7 +252,7 @@ export function NodeDetailPanel({
         )}
       </div>
 
-      {isShield && orgId && nodePeerId && (
+      {isShield && orgId && nodePeerId && canRevealShield && (
         <div className="mt-2.5">
           <ShieldCredentialsCard
             orgId={orgId}
@@ -258,6 +260,7 @@ export function NodeDetailPanel({
             nodeName={node.name}
             compact
             canRotate={false}
+            canReveal={canRevealShield}
           />
         </div>
       )}

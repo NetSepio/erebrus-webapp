@@ -31,10 +31,12 @@ export function NodeFirewallPanel({
   orgId,
   node,
   canManage,
+  canRevealShield = true,
 }: {
   orgId: string;
   node: GatewayOrgNode;
   canManage: boolean;
+  canRevealShield?: boolean;
 }) {
   const [kind, setKind] = useState<string>("");
   const [status, setStatus] = useState<string>("");
@@ -165,7 +167,7 @@ export function NodeFirewallPanel({
         )}
       </Card>
 
-      {kind === "shield" && (
+      {kind === "shield" && canRevealShield && (
         <ShieldCredentialsCard orgId={orgId} nodeId={node.node_id} nodeName={node.node_name} />
       )}
 

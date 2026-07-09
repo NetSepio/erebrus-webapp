@@ -26,6 +26,7 @@ import { useOnlineNodes } from "@/context/online-nodes";
 import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
 import type { GatewayNode, GatewayOrg, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import { canRevealShieldCredentials } from "@/lib/gateway/org-permissions";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
@@ -467,6 +468,15 @@ export function VpnConnectPanel() {
                     ? orgIdBySlug.get(scope)
                     : detailNode.org_id ?? detailNode.org?.id
                 }
+                canRevealShield={canRevealShieldCredentials(
+                  orgs.find(
+                    (o) =>
+                      o.id ===
+                      (scope
+                        ? orgIdBySlug.get(scope)
+                        : detailNode.org_id ?? detailNode.org?.id)
+                  )
+                )}
                 isSelectedEgress={selected?.id === detailNode.id}
                 provisioning={provisioning}
                 canProvision={canProvision}

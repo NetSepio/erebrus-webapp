@@ -31,6 +31,13 @@ import {
 } from "@/lib/gateway/client";
 import { memberRoleLabel, memberStatusLabel } from "@/lib/gateway/member-labels";
 import {
+  canManageOrgNodes,
+  canRevealShieldCredentials,
+  countSeatsUsed,
+  isOrgOwner,
+  managerSeatsAvailable,
+} from "@/lib/gateway/org-permissions";
+import {
   memberPrimaryLabel,
   memberSecondaryLabel,
   visiblePendingInvites,
@@ -83,8 +90,7 @@ import { toast } from "sonner";
 
 const INVITE_ROLES = [
   { value: "member", label: "Member" },
-  { value: "admin", label: "Admin" },
-  { value: "node_operator", label: "Node operator" },
+  { value: "node_operator", label: "Manager" },
 ] as const;
 
 type InviteRole = (typeof INVITE_ROLES)[number]["value"];
@@ -123,10 +129,10 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isPrivileged = org?.role === "owner" || org?.role === "admin";
-  const isOwner = org?.role === "owner";
-  const canManageNodes =
-    org?.role === "owner" || org?.role === "admin" || org?.role === "node_operator";
+  const isOwner = isOrgOwner(org);
+  const isPrivileged = isOwner;
+  const canManageNodes = canManageOrgNodes(org);
+  const canRevealShield = canRevealShieldCredentials(org);
 
   // Seats: a paid plan's tier is also the seat tier to assign. Seats used = the
   // owner + members holding a non-free seat (== VPN-entitled members).
@@ -137,8 +143,18 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     enterprise: "enterprise",
   };
   const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
-  const seatsUsed = members.filter((m) => m.seat_tier && m.seat_tier !== "free").length;
+  const seatsUsed = countSeatsUsed(members);
   const seatsIncluded = entitlements?.paid_seats_included ?? 0;
+  const seatsAvailable = managerSeatsAvailable(seatsUsed, seatsIncluded, Boolean(planSeatTier));
+  const inviteRoles = INVITE_ROLES.filter(
+    (r) => r.value !== "node_operator" || seatsAvailable
+  );
+
+  useEffect(() => {
+    if (inviteRole === "node_operator" && !seatsAvailable) {
+      setInviteRole("member");
+    }
+  }, [inviteRole, seatsAvailable]);
 
   const handleDeleteOrg = async () => {
     if (deleteConfirmName.trim() !== org?.name) return;
@@ -166,7 +182,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
     setLoadError(null);
     fetchOrg(orgId)
       .then((o) => {
-        const privileged = o.role === "owner" || o.role === "admin";
+        const privileged = o.role === "owner";
         return Promise.all([
           Promise.resolve(o),
           fetchOrgNodes(orgId).catch(() => []),
@@ -594,7 +610,12 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                     </div>
                     {canManageNodes && isShield && firewallOpen && (
                       <div className="border-t border-white/[0.04] bg-[#08080A]/60 px-5 py-4">
-                        <NodeFirewallPanel orgId={orgId} node={node} canManage={canManageNodes} />
+                        <NodeFirewallPanel
+                          orgId={orgId}
+                          node={node}
+                          canManage={canManageNodes}
+                          canRevealShield={canRevealShield}
+                        />
                       </div>
                     )}
                   </div>
@@ -694,7 +715,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                   onChange={(e) => setInviteRole(e.target.value as InviteRole)}
                   className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-2 text-sm"
                 >
-                  {INVITE_ROLES.map((r) => (
+                  {inviteRoles.map((r) => (
                     <option key={r.value} value={r.value}>
                       {r.label}
                     </option>
@@ -770,7 +791,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                             patchOrgMember(
                               orgId,
                               m.user_id,
-                              e.target.value as "admin" | "member" | "node_operator"
+                              e.target.value as "member" | "node_operator"
                             )
                               .then(reload)
                               .catch(() => toast.error("Failed to update role"))
@@ -778,8 +799,9 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-1.5 text-xs"
                         >
                           <option value="member">Member</option>
-                          <option value="admin">Admin</option>
-                          <option value="node_operator">Node operator</option>
+                          {(seatsAvailable || m.role === "node_operator") && (
+                            <option value="node_operator">Manager</option>
+                          )}
                         </select>
                       )}
                       {isPrivileged && m.role !== "owner" && m.status === "invited" && (
@@ -796,13 +818,13 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                           Revoke invite
                         </ActionButton>
                       )}
-                      {isOwner && m.role === "admin" && (
+                      {isOwner && m.role === "node_operator" && (
                         <ActionButton
                           type="button"
                           onClick={() =>
                             transferOrgOwnership(orgId, m.user_id)
                               .then(reload)
-                              .catch(() => toast.error("Transfer failed — target must be admin"))
+                              .catch(() => toast.error("Transfer failed — target must be a manager"))
                           }
                         >
                           Transfer ownership
@@ -864,8 +886,7 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
                             className="rounded-lg border border-white/10 bg-[var(--surface-2)] px-3 py-1.5 text-xs"
                           >
                             <option value="member">Member</option>
-                            <option value="admin">Admin</option>
-                            <option value="node_operator">Node operator</option>
+                            {seatsAvailable && <option value="node_operator">Manager</option>}
                           </select>
                           <ActionButton
                             type="button"

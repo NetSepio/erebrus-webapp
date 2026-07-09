@@ -2,10 +2,10 @@ import type { OrgMemberRole } from "./types";
 
 const ROLE_LABELS: Record<string, string> = {
   owner: "Owner",
-  admin: "Admin",
   member: "Member",
-  node_operator: "Node operator",
-  viewer: "Viewer",
+  node_operator: "Manager",
+  admin: "Member",
+  viewer: "Member",
 };
 
 export function memberRoleLabel(role: OrgMemberRole | string | undefined): string {

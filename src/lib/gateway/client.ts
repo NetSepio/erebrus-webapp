@@ -396,7 +396,7 @@ export async function removeOrgMember(orgId: string, userId: string): Promise<vo
 export async function patchOrgMember(
   orgId: string,
   userId: string,
-  role: "admin" | "member" | "node_operator"
+  role: "member" | "node_operator"
 ): Promise<void> {
   await gatewayFetch(`orgs/${orgId}/members/${userId}`, {
     method: "PATCH",
