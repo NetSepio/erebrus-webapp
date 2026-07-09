@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -26,6 +27,11 @@ import {
   googleLogin,
 } from "@/lib/gateway-auth";
 import { useAuthMethods } from "@/hooks/use-auth-methods";
+import {
+  captureReferralCode,
+  setStoredReferralCode,
+  storedReferralCode,
+} from "@/lib/referral";
 import axios from "axios";
 import { AccentButton, ActionButton } from "@/components/v3/ui";
 import { Input } from "@/components/ui/input";
@@ -59,6 +65,24 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [codeSent, setCodeSent] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [socialBusy, setSocialBusy] = useState(false);
+  const [invite, setInvite] = useState("");
+  const [showInvite, setShowInvite] = useState(false);
+
+  // Referral attribution: remember ?ref=CODE from the URL; a code (captured or
+  // typed below) rides along with whichever sign-in method completes first.
+  useEffect(() => {
+    captureReferralCode();
+    const stored = storedReferralCode();
+    if (stored) {
+      setInvite(stored);
+      setShowInvite(true);
+    }
+  }, []);
+
+  const updateInvite = (value: string) => {
+    setInvite(value.toUpperCase());
+    setStoredReferralCode(value);
+  };
   const { googleClientId, appleClientId, googleEnabled, appleEnabled, emailEnabled } =
     useAuthMethods();
 
@@ -269,6 +293,27 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
                 Apple
               </ActionButton>
             </div>
+            {!showInvite ? (
+              <button
+                type="button"
+                onClick={() => setShowInvite(true)}
+                className="text-center font-mono text-[11px] text-[var(--text-3)] hover:text-[var(--text-2)]"
+              >
+                Have an invite code?
+              </button>
+            ) : (
+              <div className="flex flex-col gap-1">
+                <Input
+                  placeholder="Invite code (optional)"
+                  value={invite}
+                  onChange={(e) => updateInvite(e.target.value)}
+                  className="border-white/10 bg-[var(--surface-2)] text-center font-mono uppercase tracking-widest"
+                />
+                <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
+                  Applied at sign-in — you and your inviter both earn XP.
+                </p>
+              </div>
+            )}
             {/* GIS renders its own button here; we proxy clicks from our custom button above. */}
             <div
               ref={googleBtnRef}

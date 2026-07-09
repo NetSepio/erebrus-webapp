@@ -384,10 +384,13 @@ export interface GatewayProfile {
   id: string;
   user_id?: string;
   wallet_address: string;
-  chain: GatewayChain;
+  /** Absent for wallet-less accounts (email / Google / Apple sessions). */
+  chain?: GatewayChain;
   name?: string;
   email?: string;
   email_verified?: boolean;
+  /** IPFS CID of the profile image (bare hash, no gateway prefix). */
+  profile_picture?: string;
   role?: string;
   created_at?: string;
 }
@@ -416,10 +419,13 @@ export interface GatewayRank {
   breakdown_by_kind?: Record<string, number>;
 }
 
+/** GET /referrals/me and POST /referrals/redeem response. */
 export interface GatewayReferral {
   code: string;
-  referrer_wallet?: string;
-  referees?: Array<{ wallet_address: string; qualified: boolean; created_at: string }>;
+  referred_count: number;
+  /** Truncated wallet of whoever invited this account, when bound. */
+  referred_by?: string;
+  recent?: Array<{ wallet: string; qualified: boolean; joined_at: string }>;
 }
 
 export interface GatewayLeaderboardEntry {

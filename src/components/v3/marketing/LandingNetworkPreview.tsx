@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
 import { useOnlineNodes } from "@/context/online-nodes";
+import { coLocatedNodes } from "@/lib/globe-nodes";
 import { uniqueCountries } from "@/lib/regions";
 
 export function LandingNetworkPreview() {
@@ -64,6 +65,8 @@ export function LandingNetworkPreview() {
         {detailNode && (
           <NodeDetailPanel
             node={detailNode}
+            siblings={coLocatedNodes(nodes, detailNode)}
+            onSelectSibling={handleSelect}
             showAction={false}
             onClose={() => setDetailId(null)}
           />

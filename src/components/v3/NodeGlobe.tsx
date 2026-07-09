@@ -27,7 +27,7 @@ export function NodeGlobe({
 
   const globeNodes = useMemo(() => toGlobeNodes(nodes), [nodes]);
   const nodesKey = useMemo(
-    () => globeNodes.map((n) => `${n.id}:${n.lat}:${n.lng}`).join("|"),
+    () => globeNodes.map((n) => `${n.id}:${n.lat}:${n.lng}:${n.groupIndex}/${n.groupSize}`).join("|"),
     [globeNodes]
   );
 

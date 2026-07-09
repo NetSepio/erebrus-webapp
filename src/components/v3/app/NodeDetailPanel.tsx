@@ -13,6 +13,8 @@ import {
   Download,
   Loader2,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Copy,
   Globe,
   BadgeCheck,
@@ -74,6 +76,8 @@ function CopyRow({ label, value, display }: { label: string; value: string; disp
 /** Compact detail card for a node selected on the globe. Floats over the canvas. */
 export function NodeDetailPanel({
   node,
+  siblings,
+  onSelectSibling,
   orgId,
   canRevealShield = false,
   isSelectedEgress = false,
@@ -84,6 +88,10 @@ export function NodeDetailPanel({
   showAction = true,
 }: {
   node: GatewayNode;
+  /** Nodes sharing this node's map coordinate (incl. itself), in globe ring order. */
+  siblings?: GatewayNode[];
+  /** Called with a sibling's id when paging through co-located nodes. */
+  onSelectSibling?: (id: string) => void;
   /** Workspace org id — required to reveal Shield / AdGuard credentials. */
   orgId?: string;
   canRevealShield?: boolean;
@@ -113,6 +121,19 @@ export function NodeDetailPanel({
   const version = node.version ? `v${node.version.replace(/^v/, "")}` : null;
   const isShield = node.deployment_profile === "shield";
   const nodePeerId = node.node_id ?? node.id;
+
+  // ‹ › pager across nodes stacked on the same map coordinate (coarse regions
+  // collapse same-region nodes onto one point; the globe fans them out).
+  const stack = siblings ?? [];
+  const stackIndex = stack.findIndex((s) => s.id === node.id);
+  const pager =
+    onSelectSibling && stack.length > 1 && stackIndex >= 0
+      ? {
+          label: `${stackIndex + 1} of ${stack.length} at this location`,
+          prev: () => onSelectSibling(stack[(stackIndex - 1 + stack.length) % stack.length].id),
+          next: () => onSelectSibling(stack[(stackIndex + 1) % stack.length].id),
+        }
+      : null;
 
   return (
     <div
@@ -159,6 +180,28 @@ export function NodeDetailPanel({
           <span className="text-[var(--text-3)]/70"> · {node.access_mode}</span>
         </span>
       </div>
+
+      {pager && (
+        <div className="mt-2 flex items-center justify-between gap-1 rounded-lg border border-white/[0.06] bg-white/[0.02] px-1 py-0.5">
+          <button
+            type="button"
+            onClick={pager.prev}
+            aria-label="Previous node at this location"
+            className="rounded-md p-1 text-[var(--text-3)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text)]"
+          >
+            <ChevronLeft size={13} />
+          </button>
+          <span className="font-mono text-[10px] text-[var(--text-3)]">{pager.label}</span>
+          <button
+            type="button"
+            onClick={pager.next}
+            aria-label="Next node at this location"
+            className="rounded-md p-1 text-[var(--text-3)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text)]"
+          >
+            <ChevronRight size={13} />
+          </button>
+        </div>
+      )}
 
       {/* Operating org: kind icon + name + verified */}
       {org?.name && (

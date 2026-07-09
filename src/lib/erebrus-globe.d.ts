@@ -2,6 +2,10 @@ export type ErebrusGlobeNode = {
   id: string;
   lat: number;
   lng: number;
+  /** Slot within a stack of co-located nodes (see globe-nodes.ts). */
+  groupIndex?: number;
+  /** Size of that stack; >1 fans out on screen, >4 renders as a count badge. */
+  groupSize?: number;
 };
 
 export type GlobeController = {

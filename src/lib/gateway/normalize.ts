@@ -227,14 +227,24 @@ export function normalizeOrgNode(raw: Record<string, unknown>): GatewayOrgNode {
 }
 
 export function normalizeProfile(raw: Record<string, unknown>): GatewayProfile {
+  const wallet = String(raw.wallet_address ?? "");
+  // No forced default: wallet-less (email/social) accounts have no chain at
+  // all, and when the gateway omits it for wallet users the address format is
+  // authoritative (EVM addresses are 0x-hex; Solana base58 never starts 0x).
+  const chain =
+    (raw.chain as GatewayProfile["chain"]) ??
+    (wallet ? (wallet.startsWith("0x") ? "evm" : "sol") : undefined);
   return {
     id: String(raw.id ?? raw.user_id ?? ""),
     user_id: String(raw.id ?? raw.user_id ?? ""),
-    wallet_address: String(raw.wallet_address ?? ""),
-    chain: (raw.chain as GatewayProfile["chain"]) ?? "sol",
+    wallet_address: wallet,
+    chain,
     name: raw.name as string | undefined,
     email: raw.email as string | undefined,
     email_verified: Boolean(raw.email_verified),
+    profile_picture: (raw.profile_picture ?? raw.profile_picture_url ?? raw.avatar) as
+      | string
+      | undefined,
     role: raw.role as string | undefined,
     created_at: raw.created_at as string | undefined,
   };
