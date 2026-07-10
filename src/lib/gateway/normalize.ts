@@ -1,4 +1,5 @@
 import { regionCoords } from "@/lib/regions";
+import { normalizeDeploymentProfile } from "./profiles";
 import type {
   GatewayActivity,
   GatewayLeaderboardEntry,
@@ -94,7 +95,7 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     capabilities: normalizeCapabilities(raw.capabilities),
     org: normalizeNodeOrg(raw.org),
     org_id: optStr(raw.org_id) ?? normalizeNodeOrg(raw.org)?.id,
-    deployment_profile: optStr(raw.deployment_profile),
+    deployment_profile: normalizeDeploymentProfile(optStr(raw.deployment_profile)),
     protocols: Array.isArray(raw.protocols) ? (raw.protocols as string[]) : [],
   };
 }
@@ -209,7 +210,7 @@ export function normalizeOrgNode(raw: Record<string, unknown>): GatewayOrgNode {
     org_id: String(raw.org_id ?? ""),
     node_id: String(raw.node_id ?? ""),
     node_name: optStr(raw.node_name),
-    deployment_profile: String(raw.deployment_profile ?? "erebrus"),
+    deployment_profile: normalizeDeploymentProfile(String(raw.deployment_profile ?? "standard")),
     node_type: optStr(raw.node_type),
     visibility: optStr(raw.visibility),
     managed_by: optStr(raw.managed_by),

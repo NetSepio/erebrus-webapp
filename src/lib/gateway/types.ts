@@ -168,7 +168,7 @@ export interface GatewayPlan {
 
 export type OrgMemberRole = "owner" | "node_operator" | "member";
 
-export type DeploymentProfile = "erebrus" | "shield" | "sentinel";
+export type DeploymentProfile = "standard" | "shield" | "sentinel";
 
 export interface GatewayOrg {
   id: string;

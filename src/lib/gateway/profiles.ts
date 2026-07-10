@@ -1,6 +1,7 @@
 import type { DeploymentProfile } from "./types";
 
 export const PROFILE_LABELS: Record<string, string> = {
+  standard: "Standard",
   erebrus: "Standard",
   shield: "Shield",
   sentinel: "Sentinel",
@@ -20,6 +21,11 @@ export const SERVICE_STATUS_LABELS: Record<string, string> = {
   pending: "Pending",
   provisioning: "Provisioning",
 };
+
+export function normalizeDeploymentProfile(profile: string | undefined): string {
+  const p = (profile ?? "standard").toLowerCase();
+  return p === "erebrus" ? "standard" : p;
+}
 
 export function profileLabel(profile: string | undefined): string {
   if (!profile) return "Standard";
