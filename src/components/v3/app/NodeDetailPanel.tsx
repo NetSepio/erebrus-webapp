@@ -152,7 +152,7 @@ export function NodeDetailPanel({
             }}
           />
           <span className="truncate text-[14px] font-semibold">{node.name || node.region}</span>
-          {node.deployment_profile && node.deployment_profile !== "erebrus" && (
+          {node.deployment_profile && node.deployment_profile !== "standard" && (
             <span className="shrink-0 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[9px] uppercase text-[var(--text-3)]">
               {profileLabel(node.deployment_profile)}
             </span>

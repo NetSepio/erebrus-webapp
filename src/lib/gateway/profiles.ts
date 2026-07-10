@@ -1,7 +1,7 @@
 import type { DeploymentProfile } from "./types";
 
-export const PROFILE_LABELS: Record<string, string> = {
-  erebrus: "Standard",
+export const PROFILE_LABELS: Record<DeploymentProfile, string> = {
+  standard: "Standard",
   shield: "Shield",
   sentinel: "Sentinel",
 };
@@ -23,7 +23,7 @@ export const SERVICE_STATUS_LABELS: Record<string, string> = {
 
 export function profileLabel(profile: string | undefined): string {
   if (!profile) return "Standard";
-  return PROFILE_LABELS[profile] ?? profile;
+  return PROFILE_LABELS[profile as DeploymentProfile] ?? profile;
 }
 
 export function visibilityLabel(visibility: string | undefined): string {

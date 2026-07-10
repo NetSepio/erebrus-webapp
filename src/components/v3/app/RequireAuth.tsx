@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useWalletAuth } from "@/context/appkit";
 import { AuthModalProvider, AuthModalTrigger } from "@/components/v3/AuthModal";
@@ -8,16 +8,21 @@ import { AccentButton, ActionButton } from "@/components/v3/ui";
 import { Loader2 } from "lucide-react";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { isConnected, isAuthenticated, isAuthenticating } = useWalletAuth();
+  const { isAuthenticated, isAuthenticating } = useWalletAuth();
   const router = useRouter();
+  // Auth lives in cookies the server render can't see, so SSR always produces the
+  // signed-out gate while a signed-in client's first render produces the app shell.
+  // That mismatch makes React throw away the SSR DOM and regenerate the segment
+  // client-side (logging "Encountered a script tag…" in dev). Render the same
+  // loading state on the server and the first client pass, and only branch on
+  // auth after mount.
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!isConnected && !isAuthenticating) {
-      // stay on page — show gate UI
-    }
-  }, [isConnected, isAuthenticating]);
+    setMounted(true);
+  }, []);
 
-  if (isAuthenticating) {
+  if (!mounted || isAuthenticating) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--accent)]" />
