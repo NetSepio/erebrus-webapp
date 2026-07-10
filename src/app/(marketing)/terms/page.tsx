@@ -29,7 +29,7 @@ type TermsSection = {
   }>;
 };
 
-const lastUpdated = "June 7, 2026";
+const lastUpdated = "July 10, 2026";
 
 const sections: TermsSection[] = [
   {
