@@ -30,6 +30,7 @@ export interface DropNode {
   capacity: DropNodeCapacity;
   /** False when the node is not currently accepting new pins. */
   accepting: boolean;
+  webui_available: boolean;
 }
 
 /**
@@ -70,6 +71,7 @@ export interface DropFile {
   node_id: string;
   org_id?: string;
   encrypted: boolean;
+  can_decrypt: boolean;
   status: DropFileStatus;
   created_at?: string;
   updated_at?: string;
@@ -92,6 +94,7 @@ export interface DropUsage {
 export interface DropUploadInit {
   node_id: string;
   org_id: string | null;
+  scope: DropScope;
   filename: string;
   content_type: string;
   size_bytes: number;
@@ -128,5 +131,6 @@ export interface DropPublicFile {
 export interface DropWebuiSession {
   /** Same-origin gateway proxy URL. Never a raw Kubo RPC endpoint. */
   url: string;
-  expires_at?: string;
+  session_id: string;
+  expires_in: number;
 }

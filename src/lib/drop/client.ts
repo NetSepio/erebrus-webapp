@@ -16,6 +16,7 @@ import type {
   DropUpload,
   DropUploadInit,
   DropUsage,
+  DropWebuiSession,
 } from "./types";
 
 const CLIENT_HEADER = "webapp";
@@ -78,8 +79,16 @@ async function toApiError(res: Response): Promise<GatewayApiError> {
   return new GatewayApiError(message, res.status, body);
 }
 
-function asArray<T>(data: unknown, map: (r: Record<string, unknown>) => T): T[] {
-  return Array.isArray(data) ? data.map((d) => map(d as Record<string, unknown>)) : [];
+function asArray<T>(
+  data: unknown,
+  key: "nodes" | "files",
+  map: (r: Record<string, unknown>) => T
+): T[] {
+  const value =
+    data && typeof data === "object" && key in data
+      ? (data as Record<string, unknown>)[key]
+      : data;
+  return Array.isArray(value) ? value.map((d) => map(d as Record<string, unknown>)) : [];
 }
 
 // ── Node discovery ───────────────────────────────────────────────────────────
@@ -88,7 +97,7 @@ export async function fetchDropNodes(scope: DropScope, orgId?: string): Promise<
   const data = await dropJson<unknown>("drop/nodes", {
     params: { scope, org_id: scope === "private" ? orgId : undefined },
   });
-  return asArray(data, normalizeDropNode);
+  return asArray(data, "nodes", normalizeDropNode);
 }
 
 // ── Usage ──────────────────────────────────────────────────────────────────
@@ -102,7 +111,7 @@ export async function fetchDropUsage(orgId?: string): Promise<DropUsage> {
 
 export async function fetchDropFiles(orgId?: string): Promise<DropFile[]> {
   const path = orgId ? `orgs/${orgId}/drop/files` : "drop/files";
-  return asArray(await dropJson<unknown>(path), normalizeDropFile);
+  return asArray(await dropJson<unknown>(path), "files", normalizeDropFile);
 }
 
 export async function fetchDropFile(fileId: string): Promise<DropFile> {
@@ -236,4 +245,24 @@ export async function fetchPublicDropFile(fileId: string): Promise<DropPublicFil
 
 export function publicDropContentUrl(fileId: string): string {
   return dropUrl(`drop/public/${fileId}/content`);
+}
+
+// ── Private node WebUI ──────────────────────────────────────────────────────
+
+export async function createDropWebuiSession(
+  orgId: string,
+  nodeId: string
+): Promise<DropWebuiSession> {
+  const data = await dropJson<{ session_path: string; expires_in: number }>(
+    `orgs/${orgId}/nodes/${nodeId}/drop/webui/session`,
+    { method: "POST" }
+  );
+  const match = data.session_path.match(/\/drop\/webui\/([A-Fa-f0-9]+)\/?$/);
+  if (!match) throw new Error("Gateway returned an invalid WebUI session.");
+  const sessionId = match[1];
+  return {
+    session_id: sessionId,
+    expires_in: data.expires_in,
+    url: dropUrl(`drop/webui/${sessionId}/webui`),
+  };
 }

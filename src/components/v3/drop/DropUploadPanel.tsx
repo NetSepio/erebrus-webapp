@@ -35,6 +35,7 @@ export function DropUploadPanel({
   disabled,
   disabledReason,
   visibility,
+  publicAllowed = true,
   onVisibilityChange,
   onFiles,
   items,
@@ -46,6 +47,7 @@ export function DropUploadPanel({
   disabled: boolean;
   disabledReason?: string;
   visibility: DropVisibility;
+  publicAllowed?: boolean;
   onVisibilityChange: (v: DropVisibility) => void;
   onFiles: (files: File[]) => void;
   items: UploadItem[];
@@ -84,6 +86,7 @@ export function DropUploadPanel({
           />
           <VisibilityToggle
             active={visibility === "public"}
+            disabled={!publicAllowed}
             onClick={() => onVisibilityChange("public")}
             icon={<Globe size={13} />}
             label="Public"
@@ -121,7 +124,7 @@ export function DropUploadPanel({
         <p className="mt-3 text-[11px] text-[var(--text-3)]">
           {visibility === "private"
             ? "Private files are encrypted in your browser before upload."
-            : "Public files are stored as plaintext and shareable by link or CID."}
+            : "Public files are plaintext; anyone with the link or CID may retrieve them."}
         </p>
       </div>
 
@@ -217,20 +220,25 @@ function VisibilityToggle({
   onClick,
   icon,
   label,
+  disabled = false,
 }: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={active}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-        active
+        disabled
+          ? "cursor-not-allowed text-[var(--text-3)] opacity-40"
+          : active
           ? "bg-[var(--accent)]/15 text-[var(--accent-hi)]"
           : "text-[var(--text-3)] hover:text-[var(--text)]"
       )}

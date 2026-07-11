@@ -113,6 +113,7 @@ export function useDropUploads(
         const upload = await createDropUpload({
           node_id: item.nodeId,
           org_id: item.orgId,
+          scope: item.scope,
           filename: item.filename,
           content_type: prepared.contentType,
           size_bytes: prepared.blob.size,

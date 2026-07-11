@@ -18,11 +18,13 @@ import {
   fetchDropUsage,
   fetchDropFiles,
   deleteDropFile,
+  createDropWebuiSession,
 } from "@/lib/drop/client";
 import { downloadDropFile } from "@/lib/drop/download";
 import { useDropUploads, type PrepareContent } from "@/hooks/use-drop-uploads";
 import { useDropVault } from "@/hooks/use-drop-vault";
 import { makeDecryptor, makeEncryptingPrepare } from "@/lib/drop/encrypt-upload";
+import { hashFileInWorker } from "@/lib/drop/crypto-worker-client";
 import type { GatewayOrg } from "@/lib/gateway/types";
 import type {
   DropFile,
@@ -54,6 +56,7 @@ export function DropDashboard() {
   const [filesLoading, setFilesLoading] = useState(true);
   const [visibility, setVisibility] = useState<DropVisibility>("private");
   const [busyFileId, setBusyFileId] = useState<string | null>(null);
+  const [webuiBusy, setWebuiBusy] = useState(false);
 
   const scopeChoices = useMemo<ScopeChoice[]>(() => {
     const choices: ScopeChoice[] = [
@@ -76,6 +79,13 @@ export function DropDashboard() {
   );
 
   const entitlement = useMemo(() => resolveEffectiveEntitlement(orgs), [orgs]);
+  const activeOrg = useMemo(
+    () => orgs.find((org) => org.id === activeScope?.orgId) ?? null,
+    [orgs, activeScope]
+  );
+  const canOpenWebui =
+    activeScope?.scope === "private" &&
+    (activeOrg?.role === "owner" || activeOrg?.role === "node_operator");
 
   const vault = useDropVault();
   const { getVaultKey } = vault;
@@ -105,6 +115,7 @@ export function DropDashboard() {
         blob: item.file,
         contentType: item.file.type || "application/octet-stream",
         encrypted: false,
+        sha256: await hashFileInWorker(item.file),
       };
     };
   }, [getVaultKey]);
@@ -233,6 +244,33 @@ export function DropDashboard() {
     toast.success("Share link copied");
   }, []);
 
+  const handleOpenWebui = useCallback(async () => {
+    if (!activeScope?.orgId || !selectedNode) return;
+    const popup = window.open("about:blank", "_blank");
+    setWebuiBusy(true);
+    try {
+      const session = await createDropWebuiSession(activeScope.orgId, selectedNode.id);
+      document.cookie = [
+        `erebrus_drop_webui=${encodeURIComponent(session.session_id)}`,
+        "Path=/api/v0",
+        `Max-Age=${session.expires_in}`,
+        "SameSite=Strict",
+        "Secure",
+      ].join("; ");
+      if (popup) {
+        popup.opener = null;
+        popup.location.replace(session.url);
+      } else {
+        window.location.assign(session.url);
+      }
+    } catch (err) {
+      popup?.close();
+      toast.error(err instanceof Error ? err.message : "Could not open Kubo WebUI");
+    } finally {
+      setWebuiBusy(false);
+    }
+  }, [activeScope, selectedNode]);
+
   if (!isAuthenticated) {
     return (
       <Card className="p-8 text-center">
@@ -275,10 +313,32 @@ export function DropDashboard() {
             loading={nodesLoading}
           />
 
+          {canOpenWebui && selectedNode?.webui_available && (
+            <Card className="p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <MonoLabel>Node WebUI</MonoLabel>
+                  <p className="mt-2 max-w-xl text-xs leading-relaxed text-[var(--text-3)]">
+                    Opens a five-minute gateway-proxied Kubo session. Pins created
+                    directly in Kubo are unmanaged and do not appear in Drop usage or files.
+                  </p>
+                </div>
+                <AccentButton
+                  disabled={webuiBusy}
+                  onClick={handleOpenWebui}
+                  className="!py-2 !text-[13px]"
+                >
+                  {webuiBusy ? "Opening…" : "Open Kubo WebUI"}
+                </AccentButton>
+              </div>
+            </Card>
+          )}
+
           <DropUploadPanel
             disabled={uploadDisabled}
             disabledReason={uploadDisabledReason}
             visibility={visibility}
+            publicAllowed={activeScope?.scope === "public"}
             onVisibilityChange={setVisibility}
             onFiles={handleFiles}
             items={uploads.items}

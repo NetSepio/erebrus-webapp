@@ -18,7 +18,7 @@ async function proxy(request: NextRequest, pathSegments: string[]) {
   });
 
   const headers = new Headers();
-  headers.set("Accept", "application/json");
+  headers.set("Accept", request.headers.get("accept") || "application/json");
   headers.set("X-Erebrus-Client", "webapp");
 
   const auth = request.headers.get("authorization");
@@ -55,9 +55,18 @@ async function proxy(request: NextRequest, pathSegments: string[]) {
   // forward the headers a client needs to interpret the payload.
   const outHeaders = new Headers();
   outHeaders.set("Content-Type", res.headers.get("Content-Type") || "application/json");
-  for (const h of ["Content-Length", "Content-Disposition", "ETag", "Cache-Control", "Content-Range", "Accept-Ranges"]) {
+  for (const h of ["Content-Length", "Content-Disposition", "ETag", "Cache-Control", "Content-Range", "Accept-Ranges", "Content-Security-Policy", "X-Content-Type-Options"]) {
     const v = res.headers.get(h);
     if (v) outHeaders.set(h, v);
+  }
+  const location = res.headers.get("Location");
+  if (location) {
+    outHeaders.set(
+      "Location",
+      location.startsWith("/api/v2/")
+        ? `/api/gateway/${location.slice("/api/v2/".length)}`
+        : location
+    );
   }
 
   return new NextResponse(nullBody ? null : res.body, {

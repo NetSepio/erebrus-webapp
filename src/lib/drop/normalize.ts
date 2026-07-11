@@ -48,11 +48,13 @@ const FILE_STATUSES: DropFileStatus[] = [
 
 function fileStatus(v: unknown): DropFileStatus {
   const s = String(v ?? "").toLowerCase();
+  if (s === "active" || s === "committed") return "available";
   return (FILE_STATUSES as string[]).includes(s) ? (s as DropFileStatus) : "reserved";
 }
 
 function capacity(v: unknown): DropNodeCapacity {
   const s = String(v ?? "").toLowerCase();
+  if (s === "available") return "ok";
   if (s === "ok" || s === "limited" || s === "full") return s;
   return "unknown";
 }
@@ -84,10 +86,17 @@ export function normalizeDropNode(raw: Raw): DropNode {
     name: str(raw.name) ?? String(raw.node_id ?? raw.id ?? "node"),
     region: str(raw.region),
     scope: s,
-    online: bool(raw.online) || String(raw.status ?? "").toLowerCase() === "online",
+    online:
+      raw.online == null
+        ? String(raw.status ?? raw.state ?? "").toLowerCase() === "online"
+        : bool(raw.online),
     org_id: str(raw.org_id),
     capacity: capacity(raw.capacity ?? raw.capacity_state),
-    accepting: raw.accepting === false ? false : true,
+    accepting:
+      raw.accepting_uploads == null
+        ? raw.accepting !== false
+        : bool(raw.accepting_uploads),
+    webui_available: bool(raw.webui_available),
   };
 }
 
@@ -103,6 +112,7 @@ export function normalizeDropFile(raw: Raw): DropFile {
     node_id: String(raw.node_id ?? ""),
     org_id: str(raw.org_id),
     encrypted: bool(raw.encrypted),
+    can_decrypt: raw.can_decrypt == null ? true : bool(raw.can_decrypt),
     status: fileStatus(raw.status),
     created_at: str(raw.created_at),
     updated_at: str(raw.updated_at),

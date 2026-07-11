@@ -63,7 +63,8 @@ export function DropFileList({
         <ul className="divide-y divide-white/[0.05]">
           {files.map((file) => {
             const status = STATUS_META[file.status];
-            const canDownload = file.status === "available";
+            const canDownload =
+              file.status === "available" && (!file.encrypted || file.can_decrypt);
             const busy = busyId === file.id;
             return (
               <li key={file.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5">
@@ -94,6 +95,12 @@ export function DropFileList({
                         <>
                           <span>·</span>
                           <span className="text-[var(--accent-hi)]">encrypted</span>
+                        </>
+                      )}
+                      {file.encrypted && !file.can_decrypt && (
+                        <>
+                          <span>·</span>
+                          <span>owner-only decryption</span>
                         </>
                       )}
                     </div>
