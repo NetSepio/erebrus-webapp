@@ -86,6 +86,7 @@ export function NodeDetailPanel({
   onUse,
   onClose,
   showAction = true,
+  showLatency = true,
 }: {
   node: GatewayNode;
   /** Nodes sharing this node's map coordinate (incl. itself), in globe ring order. */
@@ -102,6 +103,8 @@ export function NodeDetailPanel({
   onClose: () => void;
   /** Hide the provision/download action (e.g. on the public landing map). */
   showAction?: boolean;
+  /** Hide latency (e.g. on public landing map; keep for authenticated app). */
+  showLatency?: boolean;
 }) {
   useRelativeTimeTick();
   const online = node.status === "online" || node.status === "active";
@@ -237,7 +240,9 @@ export function NodeDetailPanel({
 
       {/* Key metrics */}
       <div className="mt-2 grid grid-cols-2 gap-1.5">
-        <Stat label="Latency" value={formatLatency(node.latency_ms)} color={latencyColor(node.latency_ms)} />
+        {showLatency && (
+          <Stat label="Latency" value={formatLatency(node.latency_ms)} color={latencyColor(node.latency_ms)} />
+        )}
         <Stat
           label="Load"
           value={node.load_pct != null ? `${node.load_pct.toFixed(0)}%` : "—"}
