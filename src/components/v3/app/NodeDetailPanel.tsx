@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { GatewayNode } from "@/lib/gateway/types";
 import { AccentButton } from "@/components/v3/ui";
-import { formatRelativeTime, nodeActivityDisplay } from "@/lib/format";
+import { formatRelativeTime, nodeActivityDisplay, formatLatency, latencyColor } from "@/lib/format";
 import { useRelativeTimeTick } from "@/hooks/use-relative-time-tick";
 import { nodeGeoLabel, regionFlag } from "@/lib/regions";
 import { ShieldCredentialsCard } from "@/components/v3/workspace/ShieldCredentialsCard";
@@ -237,7 +237,7 @@ export function NodeDetailPanel({
 
       {/* Key metrics */}
       <div className="mt-2 grid grid-cols-2 gap-1.5">
-        <Stat label="Latency" value={node.latency_ms != null ? `${node.latency_ms} ms` : "—"} />
+        <Stat label="Latency" value={formatLatency(node.latency_ms)} color={latencyColor(node.latency_ms)} />
         <Stat
           label="Load"
           value={node.load_pct != null ? `${node.load_pct.toFixed(0)}%` : "—"}

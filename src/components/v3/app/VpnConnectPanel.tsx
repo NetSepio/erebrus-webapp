@@ -31,7 +31,7 @@ import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui"
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
 import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
 import { coLocatedNodes } from "@/lib/globe-nodes";
-import { formatBytes, formatRelativeTime, clientActivity } from "@/lib/format";
+import { formatBytes, formatRelativeTime, clientActivity, formatLatency, latencyColor } from "@/lib/format";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -194,10 +194,15 @@ export function VpnConnectPanel() {
     if (scope && !scopeOrgs.some((o) => o.slug === scope)) setScope(null);
   }, [scope, scopeOrgs]);
 
-  // The active, scope-filtered node list (online only, sorted lightest-load first).
+  // The active, scope-filtered node list (online only, sorted by latency then load).
   const nodes = useMemo(() => {
     const source = scope ? (orgNodesBySlug.get(scope) ?? []) : onlinePublicNodes;
-    return [...source].sort((a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99));
+    return [...source].sort((a, b) => {
+      const latA = a.latency_ms ?? Infinity;
+      const latB = b.latency_ms ?? Infinity;
+      if (latA !== latB) return latA - latB;
+      return (a.load_pct ?? 99) - (b.load_pct ?? 99);
+    });
   }, [scope, orgNodesBySlug, onlinePublicNodes]);
 
   const scopeLabel = useMemo(
@@ -283,6 +288,11 @@ export function VpnConnectPanel() {
         label: "Total transfer",
         value: hasBandwidth ? `↓${formatBytes(totals.rx)} · ↑${formatBytes(totals.tx)}` : "—",
         color: "var(--text)",
+      },
+      {
+        label: "Latency",
+        value: formatLatency(selected?.latency_ms),
+        color: latencyColor(selected?.latency_ms),
       },
       {
         label: "Node load",
@@ -564,7 +574,7 @@ export function VpnConnectPanel() {
               >
                 <span>
                   <span className="block text-sm font-semibold">Change location</span>
-                  <span className="text-xs text-[var(--text-3)]">{nodes.length} nodes available</span>
+                  <span className="text-xs text-[var(--text-3)]">{nodes.length} nodes available · sorted by latency</span>
                 </span>
                 <span className="text-[var(--text-3)]">→</span>
               </button>
@@ -605,13 +615,16 @@ export function VpnConnectPanel() {
                         )}
                       </div>
                       <div className="mt-0.5 truncate font-mono text-[11px] text-[var(--text-3)]">
-                        {[regionZoneLabel(node.region, node.zone), node.latency_ms != null ? `${node.latency_ms}ms` : null]
+                        {[regionZoneLabel(node.region, node.zone), node.city, node.country]
                           .filter(Boolean)
                           .join(" · ")}
                       </div>
                     </div>
-                    <span className="shrink-0 font-mono text-sm text-[var(--success)]">
-                      {node.load_pct?.toFixed(0) ?? 0}%
+                    <span
+                      className="shrink-0 font-mono text-sm"
+                      style={{ color: latencyColor(node.latency_ms) }}
+                    >
+                      {formatLatency(node.latency_ms)}
                     </span>
                   </button>
                 ))}
