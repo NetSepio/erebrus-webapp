@@ -37,7 +37,7 @@ export default function DropMarketingPage() {
             Encrypt private files in your browser, or share public files by link or CID.
           </p>
           <div className="mt-8 flex flex-wrap gap-3.5">
-            <Link href="/drop" className="contents">
+            <Link href="/storage" className="contents">
               <AccentButton className="!px-6 !py-4">Open Drop</AccentButton>
             </Link>
             <Link href="/vpn">
@@ -108,7 +108,7 @@ export default function DropMarketingPage() {
             </p>
           </div>
           <div className="mt-6 flex flex-wrap gap-3 md:mt-0">
-            <Link href="/drop">
+            <Link href="/storage">
               <AccentButton>Open Drop</AccentButton>
             </Link>
           </div>

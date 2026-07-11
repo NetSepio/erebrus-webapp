@@ -29,29 +29,40 @@ async function proxy(request: NextRequest, pathSegments: string[]) {
 
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("Content-Type", contentType);
+  const contentLength = request.headers.get("content-length");
+  if (contentLength) headers.set("Content-Length", contentLength);
 
-  const init: RequestInit = {
+  const init: RequestInit & { duplex?: "half" } = {
     method: request.method,
     headers,
     cache: "no-store",
   };
 
   if (request.method !== "GET" && request.method !== "HEAD") {
-    init.body = await request.text();
+    // Stream the request body straight through so large Drop uploads never get
+    // buffered entirely in memory here. `duplex: "half"` is required by fetch
+    // when the body is a stream.
+    init.body = request.body;
+    init.duplex = "half";
   }
 
-  const res = await fetch(target.toString(), init);
+  const res = await fetch(target.toString(), init as RequestInit);
   // 204/205/304 are null-body statuses — constructing a Response with a body
-  // (even an empty string) for them throws, turning successful DELETEs into 500s.
-  const body = res.status === 204 || res.status === 205 || res.status === 304
-    ? null
-    : await res.text();
+  // for them throws, turning successful DELETEs into 500s.
+  const nullBody = res.status === 204 || res.status === 205 || res.status === 304;
 
-  return new NextResponse(body, {
+  // Stream the response body through unchanged (Drop downloads are large), and
+  // forward the headers a client needs to interpret the payload.
+  const outHeaders = new Headers();
+  outHeaders.set("Content-Type", res.headers.get("Content-Type") || "application/json");
+  for (const h of ["Content-Length", "Content-Disposition", "ETag", "Cache-Control", "Content-Range", "Accept-Ranges"]) {
+    const v = res.headers.get(h);
+    if (v) outHeaders.set(h, v);
+  }
+
+  return new NextResponse(nullBody ? null : res.body, {
     status: res.status,
-    headers: {
-      "Content-Type": res.headers.get("Content-Type") || "application/json",
-    },
+    headers: outHeaders,
   });
 }
 
@@ -64,6 +75,14 @@ export async function GET(
 }
 
 export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return proxy(request, path);
+}
+
+export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {

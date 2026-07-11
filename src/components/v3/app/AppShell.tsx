@@ -18,6 +18,7 @@ import type { EffectiveEntitlement } from "@/lib/entitlements";
 const NAV = [
   { href: "/dashboard", label: "Dashboard", glyph: "◈" },
   { href: "/connect", label: "VPN", glyph: "◎" },
+  { href: "/storage", label: "Drop", glyph: "⇲" },
   { href: "/workspace", label: "Workspace", glyph: "⬡" },
 ] as const;
 
@@ -28,6 +29,7 @@ const SCREEN_META: Record<string, { title: string; subtitle: string }> = {
   "/profile": { title: "Profile", subtitle: "Account settings" },
   "/profile/activity": { title: "Activity", subtitle: "Your account activity log" },
   "/rewards": { title: "Rewards & XP", subtitle: "Earn, claim, and climb tiers" },
+  "/storage": { title: "Drop", subtitle: "Decentralized IPFS storage" },
   "/subscribe": { title: "Plan", subtitle: "Your organization entitlements" },
   "/admin": { title: "Admin Console", subtitle: "Platform administration" },
 };
