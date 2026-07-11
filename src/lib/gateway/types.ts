@@ -74,6 +74,9 @@ export interface GatewayNodePublic {
   endpoints?: GatewayNodeEndpoints;
   speedtest?: GatewayNodeSpeedtest;
   load_pct: number;
+  wg_peers_registered?: number;
+  wg_peers_connected?: number;
+  accepting_clients?: boolean;
   ip_hash?: string;
   version?: string;
   rx_bytes?: number;
@@ -105,6 +108,9 @@ export interface GatewayNode {
   load_pct?: number;
   latency_ms?: number;
   uptime_pct?: number;
+  wg_peers_registered?: number;
+  wg_peers_connected?: number;
+  accepting_clients?: boolean;
   ip_hash?: string;
   version?: string;
   rx_bytes?: number;
@@ -460,6 +466,9 @@ export interface GatewayOperatorNode {
   access_mode: string;
   min_tier?: number;
   load_pct?: number;
+  wg_peers_registered?: number;
+  wg_peers_connected?: number;
+  accepting_clients?: boolean;
   rx_bytes?: number;
   tx_bytes?: number;
   speedtest?: GatewayNodeSpeedtest;

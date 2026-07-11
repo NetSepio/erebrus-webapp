@@ -23,7 +23,7 @@ import {
   GatewayApiError,
 } from "@/lib/gateway/client";
 import { useOnlineNodes } from "@/context/online-nodes";
-import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
+import { subscriptionDeviceLimit, sortNodesForPicker } from "@/lib/gateway/normalize";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
 import type { GatewayNode, GatewayOrg, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
 import { canRevealShieldCredentials } from "@/lib/gateway/org-permissions";
@@ -200,15 +200,10 @@ export function VpnConnectPanel() {
     if (scope && !scopeOrgs.some((o) => o.slug === scope)) setScope(null);
   }, [scope, scopeOrgs]);
 
-  // The active, scope-filtered node list (online only, sorted by latency then load).
+  // The active, scope-filtered node list (online only, sorted by capacity, load, latency).
   const nodes = useMemo(() => {
     const source = scope ? (orgNodesBySlug.get(scope) ?? []) : onlinePublicNodes;
-    return [...source].sort((a, b) => {
-      const latA = a.latency_ms ?? Infinity;
-      const latB = b.latency_ms ?? Infinity;
-      if (latA !== latB) return latA - latB;
-      return (a.load_pct ?? 99) - (b.load_pct ?? 99);
-    });
+    return [...source].sort(sortNodesForPicker);
   }, [scope, orgNodesBySlug, onlinePublicNodes]);
 
   const scopeLabel = useMemo(
@@ -239,7 +234,8 @@ export function VpnConnectPanel() {
   const selectedIsPrivateOrg =
     selected?.access_mode === "private" &&
     (scope != null || orgNodes.some((n) => n.id === selected.id));
-  const canProvision = (entitled || (orgMember && selectedIsPrivateOrg)) && !atLimit;
+  const canProvision =
+    (entitled || (orgMember && selectedIsPrivateOrg)) && !atLimit && selected?.accepting_clients !== false;
 
   const detailNode = useMemo(
     () => (detailId ? nodes.find((n) => n.id === detailId) ?? null : null),
@@ -305,6 +301,14 @@ export function VpnConnectPanel() {
         value: selected?.load_pct != null ? `${selected.load_pct.toFixed(0)}%` : "—",
         color: (selected?.load_pct ?? 0) > 80 ? "var(--warn)" : "var(--success)",
       },
+      {
+        label: "Peers",
+        value:
+          selected?.wg_peers_connected != null && selected?.wg_peers_registered != null
+            ? `${selected.wg_peers_connected} / ${selected.wg_peers_registered}`
+            : "—",
+        color: selected?.accepting_clients === false ? "var(--warn)" : "var(--success)",
+      },
     ];
   }, [clients, selected, hasBandwidth, totals]);
 
@@ -348,6 +352,10 @@ export function VpnConnectPanel() {
 
   const provision = () => {
     if (!selected) return;
+    if (selected.accepting_clients === false) {
+      toast.error("Selected node is at capacity — pick another node.");
+      return;
+    }
     if (!entitled && !(orgMember && selectedIsPrivateOrg)) {
       toast.error(
         selectedIsPrivateOrg
@@ -524,7 +532,7 @@ export function VpnConnectPanel() {
               <button
                 type="button"
                 onClick={provision}
-                disabled={provisioning || !selected || nodes.length === 0}
+                disabled={provisioning || !canProvision || nodes.length === 0}
                 className="absolute inset-7 flex items-center justify-center rounded-full border-0 transition-transform hover:scale-105 disabled:opacity-60"
                 style={{
                   background: tunnelActive ? "var(--success)" : "var(--accent)",
@@ -547,7 +555,7 @@ export function VpnConnectPanel() {
                 tunnel handshakes.
               </p>
             )}
-            <AccentButton className="mt-5 w-full" onClick={provision} disabled={provisioning || !selected}>
+            <AccentButton className="mt-5 w-full" onClick={provision} disabled={provisioning || !canProvision}>
               {provisioning ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
@@ -617,6 +625,11 @@ export function VpnConnectPanel() {
                         {node.access_mode === "private" && (
                           <span className="rounded bg-[var(--warn)]/15 px-1.5 font-mono text-[10px] text-[var(--warn)]">
                             private
+                          </span>
+                        )}
+                        {node.accepting_clients === false && (
+                          <span className="rounded bg-[var(--warn)]/15 px-1.5 font-mono text-[10px] text-[var(--warn)]">
+                            full
                           </span>
                         )}
                       </div>

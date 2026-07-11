@@ -10,6 +10,7 @@ import {
   useOnlineNodesPoller,
   type OnlineNodesSnapshot,
 } from "@/hooks/use-online-nodes";
+import { sortNodesForPicker } from "@/lib/gateway/normalize";
 const OnlineNodesContext = createContext<OnlineNodesSnapshot | null>(null);
 
 export function OnlineNodesProvider({ children }: { children: ReactNode }) {
@@ -37,9 +38,7 @@ export function useOnlineNodes(
 
   const nodes = useMemo(() => {
     if (!sortByLoad) return ctx.nodes;
-    return [...ctx.nodes].sort(
-      (a, b) => (a.load_pct ?? 99) - (b.load_pct ?? 99),
-    );
+    return [...ctx.nodes].sort(sortNodesForPicker);
   }, [ctx.nodes, sortByLoad]);
 
   return { nodes, loading: ctx.loading, refresh: ctx.refresh };

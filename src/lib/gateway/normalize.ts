@@ -75,6 +75,9 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     access_mode: String(raw.access_mode ?? "public"),
     min_tier: Number(raw.min_tier ?? 0),
     load_pct: optNum(raw.load_pct) ?? 0,
+    wg_peers_registered: optNum(raw.wg_peers_registered),
+    wg_peers_connected: optNum(raw.wg_peers_connected),
+    accepting_clients: raw.accepting_clients === true ? true : undefined,
     latency_ms: optNum(speedtest.latency_ms),
     download_mbps: optNum(speedtest.download_mbps),
     upload_mbps: optNum(speedtest.upload_mbps),
@@ -248,6 +251,21 @@ export function normalizeProfile(raw: Record<string, unknown>): GatewayProfile {
     role: raw.role as string | undefined,
     created_at: raw.created_at as string | undefined,
   };
+}
+
+export function sortNodesForPicker(
+  a: GatewayNode,
+  b: GatewayNode,
+): number {
+  // Prefer nodes that are actively accepting new clients.
+  const aa = a.accepting_clients !== false ? 1 : 0;
+  const bb = b.accepting_clients !== false ? 1 : 0;
+  if (aa !== bb) return bb - aa;
+  // Then by load, then latency.
+  const la = a.load_pct ?? 99;
+  const lb = b.load_pct ?? 99;
+  if (la !== lb) return la - lb;
+  return (a.latency_ms ?? Infinity) - (b.latency_ms ?? Infinity);
 }
 
 export function normalizeLeaderboardEntry(raw: Record<string, unknown>): GatewayLeaderboardEntry {
