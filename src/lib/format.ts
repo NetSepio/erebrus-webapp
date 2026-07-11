@@ -88,3 +88,17 @@ export function clientActivity(lastHandshake?: string | null): ClientActivity {
     ? { label: "Active", color: "var(--success)", online: true }
     : { label: "Idle", color: "var(--warn)", online: false };
 }
+
+/** Color token for a latency value (green <60ms, yellow <150ms, red above). */
+export function latencyColor(ms?: number | null): string {
+  if (ms == null || Number.isNaN(ms)) return "var(--text-3)";
+  if (ms < 60) return "var(--success)";
+  if (ms < 150) return "var(--warn)";
+  return "var(--danger)";
+}
+
+/** Format a latency value as "—" when unknown, otherwise "<ms> ms". */
+export function formatLatency(ms?: number | null): string {
+  if (ms == null || Number.isNaN(ms)) return "—";
+  return `${Math.round(ms)} ms`;
+}
