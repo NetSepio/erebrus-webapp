@@ -109,18 +109,24 @@ export function VpnConnectPanel() {
   } | null>(null);
 
   const refresh = useCallback(async () => {
-    const [c, s, p, o, on] = await Promise.all([
+    const [c, s, p, o] = await Promise.all([
       fetchVpnClients().catch(() => []),
       fetchSubscription().catch(() => null),
       fetchPlans().catch(() => []),
       fetchOrgs().catch(() => []),
-      fetchOrgVpnNodes().catch(() => []),
     ]);
+
+    const onStart = performance.now();
+    const on = await fetchOrgVpnNodes().catch(() => []);
+    const onLatency = performance.now() - onStart;
+
+    const onWithLatency = on.map((node) => ({ ...node, latency_ms: onLatency }));
+
     setClients(c);
     setSub(s);
     setPlans(p);
     setOrgs(o);
-    setOrgNodes(on);
+    setOrgNodes(onWithLatency);
     setLoading(false);
   }, []);
 
