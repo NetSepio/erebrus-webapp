@@ -6,6 +6,11 @@ function gatewayBase(): string {
 }
 
 async function proxy(request: NextRequest, pathSegments: string[]) {
+  // Reject traversal segments so a crafted path can't resolve outside `api/v2/`
+  // on the gateway host.
+  if (pathSegments.some((seg) => seg === ".." || seg === ".")) {
+    return NextResponse.json({ error: "Invalid path" }, { status: 400 });
+  }
   const path = pathSegments.join("/");
   const target = new URL(`api/v2/${path}`, gatewayBase());
   request.nextUrl.searchParams.forEach((value, key) => {
