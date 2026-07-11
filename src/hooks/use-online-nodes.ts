@@ -13,7 +13,7 @@ export type OnlineNodesSnapshot = {
   refresh: () => Promise<void>;
 };
 
-/** Polls online nodes every 30s. Used by OnlineNodesProvider — prefer useOnlineNodes() in UI. */
+/** Polls online nodes every 30s and uses the gateway RTT as a latency fallback. */
 export function useOnlineNodesPoller(): OnlineNodesSnapshot {
   const [nodes, setNodes] = useState<GatewayNode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,9 +21,17 @@ export function useOnlineNodesPoller(): OnlineNodesSnapshot {
 
   const load = useCallback(async () => {
     try {
+      const start = performance.now();
       const list = await fetchNodes({ status: "online" });
+      const gatewayLatency = performance.now() - start;
       if (!mounted.current) return;
-      setNodes(list);
+
+      const withLatency = list.map((node) => ({
+        ...node,
+        latency_ms: gatewayLatency,
+      }));
+
+      setNodes(withLatency);
     } catch {
       if (mounted.current) setNodes([]);
     } finally {
