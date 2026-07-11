@@ -26,6 +26,7 @@ export function useDropVault() {
 
   const refresh = useCallback(async () => {
     if (!isAuthenticated) {
+      keyRef.current?.fill(0);
       keyRef.current = null;
       setStatus("locked");
       return;
@@ -49,11 +50,17 @@ export function useDropVault() {
     const recoverySecret = generateRecoverySecret();
     const rawVaultKey = generateVaultKeyRaw();
     const backup = await wrapVaultKey(rawVaultKey, recoverySecret);
-    await putDropVault(backup);
-    keyRef.current = rawVaultKey;
-    setHasBackup(true);
-    setStatus("unlocked");
-    return recoverySecret;
+    try {
+      await putDropVault(backup);
+      keyRef.current?.fill(0);
+      keyRef.current = rawVaultKey;
+      setHasBackup(true);
+      setStatus("unlocked");
+      return recoverySecret;
+    } catch (error) {
+      rawVaultKey.fill(0);
+      throw error;
+    }
   }, []);
 
   const unlockVault = useCallback(async (recoverySecret: string): Promise<void> => {
@@ -65,12 +72,14 @@ export function useDropVault() {
     } catch {
       throw new Error("Incorrect recovery secret.");
     }
+    keyRef.current?.fill(0);
     keyRef.current = rawVaultKey;
     setHasBackup(true);
     setStatus("unlocked");
   }, []);
 
   const lockVault = useCallback(() => {
+    keyRef.current?.fill(0);
     keyRef.current = null;
     setStatus(hasBackup ? "locked" : "absent");
   }, [hasBackup]);

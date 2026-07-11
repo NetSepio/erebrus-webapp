@@ -85,6 +85,18 @@ export async function encryptFileInWorker(
   );
 }
 
+export async function hashFileInWorker(
+  file: File,
+  onProgress?: ProgressCb
+): Promise<string> {
+  return call<string>(
+    { type: "hash", file, chunkSize: DEFAULT_CHUNK_SIZE },
+    onProgress,
+    "hashed",
+    (data) => String(data.sha256)
+  );
+}
+
 export async function decryptDataInWorker(
   data: ArrayBuffer,
   dataKey: Uint8Array,

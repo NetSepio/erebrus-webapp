@@ -13,6 +13,7 @@ import {
   encryptedChunkLength,
   type ChunkCryptoParams,
 } from "./crypto";
+import CryptoJS from "crypto-js";
 
 type EncryptRequest = {
   id: string;
@@ -34,7 +35,14 @@ type DecryptRequest = {
   version: number;
 };
 
-type WorkerRequest = EncryptRequest | DecryptRequest;
+type HashRequest = {
+  id: string;
+  type: "hash";
+  file: File;
+  chunkSize: number;
+};
+
+type WorkerRequest = EncryptRequest | DecryptRequest | HashRequest;
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -45,15 +53,22 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   return out;
 }
 
-function toHex(bytes: Uint8Array): string {
-  let out = "";
-  for (let i = 0; i < bytes.length; i += 1) out += bytes[i].toString(16).padStart(2, "0");
-  return out;
+function updateSHA256(
+  hasher: ReturnType<typeof CryptoJS.algo.SHA256.create>,
+  bytes: Uint8Array
+) {
+  hasher.update(CryptoJS.lib.WordArray.create(bytes as unknown as number[]));
 }
 
-async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes as BufferSource);
-  return toHex(new Uint8Array(digest));
+async function handleHash(req: HashRequest) {
+  const hasher = CryptoJS.algo.SHA256.create();
+  const chunkSize = req.chunkSize || DEFAULT_CHUNK_SIZE;
+  for (let offset = 0; offset < req.file.size; offset += chunkSize) {
+    const end = Math.min(offset + chunkSize, req.file.size);
+    updateSHA256(hasher, new Uint8Array(await req.file.slice(offset, end).arrayBuffer()));
+    ctx.postMessage({ id: req.id, type: "progress", processed: end, total: req.file.size });
+  }
+  ctx.postMessage({ id: req.id, type: "hashed", sha256: hasher.finalize().toString() });
 }
 
 async function handleEncrypt(req: EncryptRequest) {
@@ -63,19 +78,19 @@ async function handleEncrypt(req: EncryptRequest) {
     noncePrefix: new Uint8Array(req.noncePrefix),
   };
   const dataKey = new Uint8Array(req.dataKey);
-  const plaintext = new Uint8Array(await req.file.arrayBuffer());
-  const sha256 = await sha256Hex(plaintext);
+  const hasher = CryptoJS.algo.SHA256.create();
 
   const parts: BlobPart[] = [];
-  const total = plaintext.length;
+  const total = req.file.size;
   let counter = 0;
   let offset = 0;
   // A zero-length file still produces exactly one authenticated (final) chunk.
   do {
     const end = Math.min(offset + params.chunkSize, total);
     const isFinal = end >= total;
-    const chunk = plaintext.subarray(offset, end);
+    const chunk = new Uint8Array(await req.file.slice(offset, end).arrayBuffer());
     const ct = await encryptChunk(dataKey, params, counter, chunk, isFinal);
+    updateSHA256(hasher, ct);
     parts.push(toArrayBuffer(ct));
     offset = end;
     counter += 1;
@@ -87,7 +102,7 @@ async function handleEncrypt(req: EncryptRequest) {
     id: req.id,
     type: "encrypted",
     blob,
-    sha256,
+    sha256: hasher.finalize().toString(),
     plaintextSize: total,
     ciphertextSize: blob.size,
   });
@@ -127,11 +142,16 @@ ctx.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   try {
     if (req.type === "encrypt") await handleEncrypt(req);
     else if (req.type === "decrypt") await handleDecrypt(req);
+    else await handleHash(req);
   } catch (err) {
     ctx.postMessage({
       id: req.id,
       type: "error",
       message: err instanceof Error ? err.message : "Crypto worker error",
     });
+  } finally {
+    if (req.type === "encrypt" || req.type === "decrypt") {
+      new Uint8Array(req.dataKey).fill(0);
+    }
   }
 };

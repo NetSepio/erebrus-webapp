@@ -18,6 +18,7 @@ export async function downloadDropFile(
   file: DropFile,
   opts: { decrypt?: DecryptContent; signal?: AbortSignal } = {}
 ): Promise<void> {
+  const directSink = file.encrypted ? null : await openDirectSaveSink(file);
   const res = await fetchDropContent(file.id, { signal: opts.signal });
   if (!res.body) throw new Error("Empty response body");
 
@@ -28,6 +29,11 @@ export async function downloadDropFile(
     const ciphertext = await res.arrayBuffer();
     const plaintext = await opts.decrypt(file, ciphertext);
     saveAs(new Blob([plaintext], { type: file.content_type }), file.filename);
+    return;
+  }
+
+  if (directSink) {
+    await res.body.pipeTo(directSink);
     return;
   }
 
@@ -44,4 +50,39 @@ export async function downloadDropFile(
   }
 
   saveAs(new Blob(parts, { type: file.content_type }), file.filename);
+}
+
+interface DropSaveFileHandle {
+  createWritable(): Promise<WritableStream<Uint8Array>>;
+}
+
+type DropSaveFilePicker = (options: {
+  suggestedName: string;
+  types: Array<{ description: string; accept: Record<string, string[]> }>;
+}) => Promise<DropSaveFileHandle>;
+
+async function openDirectSaveSink(
+  file: DropFile
+): Promise<WritableStream<Uint8Array> | null> {
+  const picker = (
+    window as Window & { showSaveFilePicker?: DropSaveFilePicker }
+  ).showSaveFilePicker;
+  if (!picker) return null;
+  try {
+    const handle = await picker({
+      suggestedName: file.filename,
+      types: [
+        {
+          description: file.content_type || "File",
+          accept: { [file.content_type || "application/octet-stream"]: [".bin"] },
+        },
+      ],
+    });
+    return handle.createWritable();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new DOMException("Download canceled", "AbortError");
+    }
+    return null;
+  }
 }

@@ -28,27 +28,30 @@ export function makeEncryptingPrepare(getVaultKey: VaultKeyGetter): PrepareConte
     }
     const dataKey = generateDataKeyRaw();
     const params = makeChunkParams();
-    const result = await encryptFileInWorker(item.file, dataKey, params);
-    const wrappedDataKey = await wrapDataKey(dataKey, vaultKey);
+    try {
+      const result = await encryptFileInWorker(item.file, dataKey, params);
+      const wrappedDataKey = await wrapDataKey(dataKey, vaultKey);
+      const encryptionMetadata: DropEncryptionMetadata = {
+        version: params.version,
+        algorithm: "AES-256-GCM",
+        chunk_size: params.chunkSize,
+        nonce_prefix: toBase64(params.noncePrefix),
+        plaintext_size: result.plaintextSize,
+        ciphertext_size: result.ciphertextSize,
+        wrapped_data_key: wrappedDataKey,
+        key_context: "vault-v1",
+      };
 
-    const encryptionMetadata: DropEncryptionMetadata = {
-      version: params.version,
-      algorithm: "AES-256-GCM",
-      chunk_size: params.chunkSize,
-      nonce_prefix: toBase64(params.noncePrefix),
-      plaintext_size: result.plaintextSize,
-      ciphertext_size: result.ciphertextSize,
-      wrapped_data_key: wrappedDataKey,
-      key_context: "vault-v1",
-    };
-
-    return {
-      blob: result.blob,
-      contentType: "application/octet-stream",
-      encrypted: true,
-      encryptionMetadata,
-      sha256: result.sha256,
-    };
+      return {
+        blob: result.blob,
+        contentType: "application/octet-stream",
+        encrypted: true,
+        encryptionMetadata,
+        sha256: result.sha256,
+      };
+    } finally {
+      dataKey.fill(0);
+    }
   };
 }
 
@@ -61,10 +64,14 @@ export function makeDecryptor(getVaultKey: VaultKeyGetter): DecryptContent {
     if (!vaultKey) throw new Error("Drop vault is locked — unlock it to download.");
 
     const dataKey = await unwrapDataKey(meta.wrapped_data_key, vaultKey);
-    return decryptDataInWorker(ciphertext, dataKey, {
-      version: meta.version,
-      chunkSize: meta.chunk_size,
-      noncePrefix: fromBase64(meta.nonce_prefix),
-    });
+    try {
+      return await decryptDataInWorker(ciphertext, dataKey, {
+        version: meta.version,
+        chunkSize: meta.chunk_size,
+        noncePrefix: fromBase64(meta.nonce_prefix),
+      });
+    } finally {
+      dataKey.fill(0);
+    }
   };
 }
