@@ -21,14 +21,14 @@ We believe the internet should be **private by default**, **portable across devi
 Connect through a worldwide network of community-operated nodes — not a corporate VPN farm.
 
 - Sign in with your **Solana or EVM wallet** (no passwords stored)
-- Start with a **free trial**, or extend access with an **NFT pass**
+- Every account starts on the **Free** tier; upgrade a **workspace plan** for more access and seats
 - Choose a node, get a **WireGuard** config, and use it on phone, laptop, or desktop
 - Browse a **live network map** — see where nodes are and how the mesh is doing
-- Manage your **profile**, devices, and subscription from one place
+- Manage your **profile**, devices, and workspace plan from one place
 
 ### Erebrus Drop
 
-Share files **device-to-device on local Wi‑Fi**. Nothing uploads to the cloud; transfers stay on your network.
+**Decentralized file storage on IPFS**, served by community-run Erebrus nodes. Store on the public network or on private nodes your organization operates. Private files are **encrypted in your browser** before upload, so node operators can never read them; public files can be shared by opaque link or by CID.
 
 ### For operators & teams
 
@@ -41,7 +41,7 @@ Share files **device-to-device on local Wi‑Fi**. Nothing uploads to the cloud;
 ## How it works (in plain terms)
 
 1. **Connect your wallet** — that’s your account.
-2. **Get access** — trial, NFT, or subscription.
+2. **Get access** — every account starts free; upgrade a workspace plan for more.
 3. **Pick a node & connect** — we provision a secure tunnel to your device.
 4. **Go** — use the VPN client you already trust (WireGuard).
 

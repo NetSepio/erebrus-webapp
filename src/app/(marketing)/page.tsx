@@ -56,8 +56,8 @@ const steps = [
   },
   {
     num: "02",
-    title: "Start your trial",
-    desc: "7-day free access, no card. Hold an NFT? Get 30 days automatically.",
+    title: "Pick your plan",
+    desc: "Every account starts free. Upgrade a workspace plan for more access and seats.",
   },
   {
     num: "03",

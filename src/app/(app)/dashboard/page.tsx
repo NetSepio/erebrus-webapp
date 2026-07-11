@@ -4,28 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   fetchOrgsWithStats,
-  fetchSubscription,
   fetchVpnClients,
 } from "@/lib/gateway/client";
 import { useOnlineNodes } from "@/context/online-nodes";
-import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
+import { resolveEffectiveEntitlement, tierLabel } from "@/lib/entitlements";
 import { AccentButton, Card, StatCard, StatusDot } from "@/components/v3/ui";
-import type { GatewayOrg, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import type { GatewayOrg, GatewayVpnClient } from "@/lib/gateway/types";
 
 export default function DashboardPage() {
   const { nodes, loading: nodesLoading } = useOnlineNodes({ sortByLoad: false });
-  const [sub, setSub] = useState<GatewaySubscription | null>(null);
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      fetchSubscription().catch(() => null),
       fetchVpnClients().catch(() => []),
       fetchOrgsWithStats().catch(() => []),
-    ]).then(([s, c, o]) => {
-      setSub(s);
+    ]).then(([c, o]) => {
       setClients(c);
       setOrgs(o);
       setLoading(false);
@@ -33,9 +29,8 @@ export default function DashboardPage() {
   }, []);
 
   const onlineCount = nodes.length;
-  const end = subscriptionEndDate(sub ?? undefined);
-  const days = daysRemaining(end);
-  const pct = planProgress(end, trialTotalDays(sub?.source));
+  const entitlement = resolveEffectiveEntitlement(orgs);
+  const isFree = entitlement.tier === "free";
 
   if (loading || nodesLoading) {
     return (
@@ -64,32 +59,20 @@ export default function DashboardPage() {
           </div>
           <div>
             <div className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--accent-hi)]">
-              Current plan · {sub?.plan_id ?? sub?.plan ?? (sub?.entitled ? sub.source : "None")}
+              Current plan · {tierLabel(entitlement.tier)}
             </div>
             <div className="mt-1.5 text-xl font-bold tracking-tight md:text-[22px]">
-              {sub?.entitled
-                ? days !== null
-                  ? `${days} days remaining`
-                  : "Active access"
-                : "No active entitlement"}
+              {isFree ? "Free tier" : `${tierLabel(entitlement.tier)} plan`}
             </div>
-            {sub?.entitled && (
-              <div className="mt-3 h-1.5 w-full max-w-[260px] overflow-hidden rounded-full bg-white/[0.08]">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${100 - pct}%`,
-                    background: "linear-gradient(90deg, #FF7E44, #E0531F)",
-                  }}
-                />
-              </div>
-            )}
+            <div className="mt-1 text-sm text-[var(--text-2)]">
+              {entitlement.org?.name
+                ? `via ${entitlement.org.name}`
+                : "Organization membership sets your tier"}
+            </div>
           </div>
         </div>
-        <Link href="/subscribe">
-          <AccentButton>
-            {sub?.entitled ? "Manage access" : "Get access pass"}
-          </AccentButton>
+        <Link href={isFree ? "/subscribe" : "/workspace"}>
+          <AccentButton>{isFree ? "Upgrade plan" : "Manage plan"}</AccentButton>
         </Link>
       </Card>
 

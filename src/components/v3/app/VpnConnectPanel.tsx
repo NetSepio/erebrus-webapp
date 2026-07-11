@@ -11,21 +11,19 @@ import {
   removeClientPrivateKey,
 } from "@/lib/wireguard";
 import {
-  fetchSubscription,
   fetchVpnClients,
-  fetchPlans,
   fetchOrgs,
   fetchOrgVpnNodes,
   provisionVpnClient,
   deleteVpnClient,
   fetchVpnClientConfig,
-  startTrial,
   GatewayApiError,
 } from "@/lib/gateway/client";
 import { useOnlineNodes } from "@/context/online-nodes";
-import { subscriptionDeviceLimit, sortNodesForPicker } from "@/lib/gateway/normalize";
+import { sortNodesForPicker } from "@/lib/gateway/normalize";
+import { resolveEffectiveEntitlement, deviceLimitForTier } from "@/lib/entitlements";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
-import type { GatewayNode, GatewayOrg, GatewayPlan, GatewaySubscription, GatewayVpnClient } from "@/lib/gateway/types";
+import type { GatewayNode, GatewayOrg, GatewayVpnClient } from "@/lib/gateway/types";
 import { canRevealShieldCredentials } from "@/lib/gateway/org-permissions";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
@@ -90,8 +88,6 @@ function ScopeChip({
 export function VpnConnectPanel() {
   const { nodes: publicNodes, loading: nodesLoading } = useOnlineNodes();
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
-  const [sub, setSub] = useState<GatewaySubscription | null>(null);
-  const [plans, setPlans] = useState<GatewayPlan[]>([]);
   const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
   const [orgNodes, setOrgNodes] = useState<GatewayNode[]>([]);
   // Active node scope: null = Public network, otherwise an org slug.
@@ -109,10 +105,8 @@ export function VpnConnectPanel() {
   } | null>(null);
 
   const refresh = useCallback(async () => {
-    const [c, s, p, o] = await Promise.all([
+    const [c, o] = await Promise.all([
       fetchVpnClients().catch(() => []),
-      fetchSubscription().catch(() => null),
-      fetchPlans().catch(() => []),
       fetchOrgs().catch(() => []),
     ]);
 
@@ -123,8 +117,6 @@ export function VpnConnectPanel() {
     const onWithLatency = on.map((node) => ({ ...node, latency_ms: onLatency }));
 
     setClients(c);
-    setSub(s);
-    setPlans(p);
     setOrgs(o);
     setOrgNodes(onWithLatency);
     setLoading(false);
@@ -227,15 +219,13 @@ export function VpnConnectPanel() {
     });
   }, [nodes]);
 
-  const deviceLimit = subscriptionDeviceLimit(sub, plans);
+  const entitlement = useMemo(() => resolveEffectiveEntitlement(orgs), [orgs]);
+  const deviceLimit = deviceLimitForTier(entitlement.tier);
   const atLimit = clients.length >= deviceLimit;
-  const entitled = sub?.entitled ?? false;
-  const orgMember = sub?.org_member ?? false;
-  const selectedIsPrivateOrg =
-    selected?.access_mode === "private" &&
-    (scope != null || orgNodes.some((n) => n.id === selected.id));
-  const canProvision =
-    (entitled || (orgMember && selectedIsPrivateOrg)) && !atLimit && selected?.accepting_clients !== false;
+  // Public nodes are available to any authenticated account (Free tier); private
+  // org nodes only ever appear here for a member of that org. The gateway stays
+  // authoritative and enforces the real quota/eligibility on provision.
+  const canProvision = !atLimit && selected?.accepting_clients !== false;
 
   const detailNode = useMemo(
     () => (detailId ? nodes.find((n) => n.id === detailId) ?? null : null),
@@ -337,7 +327,8 @@ export function VpnConnectPanel() {
       await refresh();
     } catch (err) {
       if (err instanceof GatewayApiError) {
-        if (err.status === 402) toast.error("No entitlement — start trial or refresh NFT");
+        if (err.status === 402)
+          toast.error("This node needs a higher plan — upgrade your workspace.");
         else if (err.status === 409) toast.error("Device limit reached");
         else if (err.status === 403) toast.error(err.message);
         else toast.error(err.message);
@@ -356,31 +347,12 @@ export function VpnConnectPanel() {
       toast.error("Selected node is at capacity — pick another node.");
       return;
     }
-    if (!entitled && !(orgMember && selectedIsPrivateOrg)) {
-      toast.error(
-        selectedIsPrivateOrg
-          ? "Accept your workspace invite to connect to private org nodes."
-          : "No active entitlement. Start a trial or get an access pass."
-      );
-      return;
-    }
     if (atLimit) {
-      toast.error(`Device limit reached (${deviceLimit}).`);
+      toast.error(`Device limit reached (${deviceLimit}). Upgrade your plan for more.`);
       return;
     }
     setDeviceName(`Device ${clients.length + 1}`);
     setNameDialog(true);
-  };
-
-  const startFreeTrial = async () => {
-    try {
-      await startTrial();
-      toast.success("7-day trial activated");
-      await refresh();
-    } catch (err) {
-      if (err instanceof GatewayApiError && err.status === 409) toast.error("Trial already used");
-      else toast.error("Could not start trial");
-    }
   };
 
   if (loading || nodesLoading) {
@@ -393,20 +365,15 @@ export function VpnConnectPanel() {
 
   return (
     <div className="space-y-5">
-      {!entitled && !(orgMember && scope) && (
+      {atLimit && (
         <Card className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <p className="text-sm text-[var(--text-2)]">
-            {sub?.trial_consumed
-              ? "Your 7-day trial has ended. Contact support to upgrade your plan, or hold the access NFT to extend to 30 days."
-              : "Start your free 7-day trial to provision WireGuard clients on the public network."}
+            You&apos;ve reached your device limit ({deviceLimit}) on the {entitlement.tier} tier.
+            Upgrade a workspace plan to connect more devices.
           </p>
-          {sub?.trial_consumed ? (
-            <Link href="/contact">
-              <AccentButton>Contact support</AccentButton>
-            </Link>
-          ) : (
-            <AccentButton onClick={startFreeTrial}>Start trial</AccentButton>
-          )}
+          <Link href="/subscribe">
+            <AccentButton>View plans</AccentButton>
+          </Link>
         </Card>
       )}
 
@@ -661,7 +628,7 @@ export function VpnConnectPanel() {
               {clients.length}/{deviceLimit}
             </span>
             <span className="rounded-md bg-[var(--accent)]/12 px-2.5 py-1 font-mono text-[11px] text-[var(--accent-hi)]">
-              {sub?.plan_id ?? sub?.plan ?? "free"} plan
+              {entitlement.tier} plan
             </span>
           </div>
           <ActionButton

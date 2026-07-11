@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { appPageMetadata } from "@/lib/seo";
 
 export const metadata = appPageMetadata({
-  title: "Subscribe",
-  description: "Get an Erebrus access pass — trials, NFT gating, and subscription plans.",
+  title: "Plan",
+  description: "Your Erebrus entitlements, set by organization membership and seats.",
   path: "/subscribe",
 });
 

@@ -3,18 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuroraBackground } from "@/components/v3/AuroraBackground";
 import { NotificationBell } from "@/components/v3/app/NotificationBell";
 import { WalletMenu } from "@/components/v3/app/WalletMenu";
 import { AccentButton, iconButtonClass } from "@/components/v3/ui";
-import { useWalletAuth } from "@/context/appkit";
 import { AuthModalProvider } from "@/components/v3/AuthModal";
-import { fetchSubscription } from "@/lib/gateway/client";
-import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
-import type { GatewaySubscription } from "@/lib/gateway/types";
+import { useEntitlement } from "@/hooks/use-entitlement";
+import { tierLabel } from "@/lib/entitlements";
+import type { EffectiveEntitlement } from "@/lib/entitlements";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", glyph: "◈" },
@@ -29,7 +28,7 @@ const SCREEN_META: Record<string, { title: string; subtitle: string }> = {
   "/profile": { title: "Profile", subtitle: "Account settings" },
   "/profile/activity": { title: "Activity", subtitle: "Your account activity log" },
   "/rewards": { title: "Rewards & XP", subtitle: "Earn, claim, and climb tiers" },
-  "/subscribe": { title: "Subscribe", subtitle: "Access pass and entitlements" },
+  "/subscribe": { title: "Plan", subtitle: "Your organization entitlements" },
   "/admin": { title: "Admin Console", subtitle: "Platform administration" },
 };
 
@@ -61,32 +60,27 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function TrialCard({ sub }: { sub: GatewaySubscription | null }) {
-  const end = subscriptionEndDate(sub ?? undefined);
-  const days = daysRemaining(end);
-  const pct = planProgress(end, trialTotalDays(sub?.source));
-
+function PlanCard({ entitlement }: { entitlement: EffectiveEntitlement }) {
+  const isFree = entitlement.tier === "free";
   return (
     <div className="mt-auto rounded-[14px] border border-white/[0.07] bg-white/[0.02] p-3.5">
       <div className="mb-2 flex items-center justify-between">
         <span className="font-mono text-[10.5px] uppercase tracking-wide text-[var(--text-3)]">
-          {sub?.entitled ? sub.source ?? "Plan" : "No plan"}
+          Plan
         </span>
-        {days !== null && (
-          <span className="font-mono text-[11px] text-[var(--accent-hi)]">{days}d left</span>
-        )}
+        <span className="font-mono text-[11px] text-[var(--accent-hi)]">
+          {tierLabel(entitlement.tier)}
+        </span>
       </div>
-      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${sub?.entitled ? 100 - pct : 0}%`,
-            background: "linear-gradient(90deg, #FF7E44, #E0531F)",
-          }}
-        />
-      </div>
-      <Link href="/subscribe">
-        <AccentButton className="w-full !py-2 !text-[13px]">Get access pass</AccentButton>
+      {entitlement.org?.name && (
+        <p className="mb-3 truncate text-[11px] text-[var(--text-3)]">
+          via {entitlement.org.name}
+        </p>
+      )}
+      <Link href={isFree ? "/subscribe" : "/workspace"}>
+        <AccentButton className="w-full !py-2 !text-[13px]">
+          {isFree ? "Upgrade plan" : "Manage plan"}
+        </AccentButton>
       </Link>
     </div>
   );
@@ -94,21 +88,13 @@ function TrialCard({ sub }: { sub: GatewaySubscription | null }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { isAuthenticated } = useWalletAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [sub, setSub] = useState<GatewaySubscription | null>(null);
+  const { entitlement } = useEntitlement();
 
   const orgDetail = pathname.match(/^\/workspace\/([^/]+)$/);
   const meta = orgDetail
     ? { title: "Workspace", subtitle: "Org detail and operator tools" }
     : SCREEN_META[pathname] ?? { title: "Erebrus", subtitle: "" };
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchSubscription()
-      .then(setSub)
-      .catch(() => setSub(null));
-  }, [isAuthenticated, pathname]);
 
   return (
     <AuthModalProvider>
@@ -128,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="text-lg font-bold tracking-tight">Erebrus</span>
             </Link>
             <SidebarNav />
-            <TrialCard sub={sub} />
+            <PlanCard entitlement={entitlement} />
           </aside>
 
           {/* Mobile drawer */}
@@ -151,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 </div>
                 <SidebarNav onNavigate={() => setMobileOpen(false)} />
-                <TrialCard sub={sub} />
+                <PlanCard entitlement={entitlement} />
               </aside>
             </div>
           )}
@@ -176,7 +162,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
               <div className="flex items-center gap-2">
                 <NotificationBell />
-                <WalletMenu subscription={sub} />
+                <WalletMenu entitlement={entitlement} />
               </div>
             </header>
             <main className="flex-1 px-4 py-6 pb-16 md:px-8">{children}</main>
