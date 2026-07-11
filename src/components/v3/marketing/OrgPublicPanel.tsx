@@ -4,7 +4,6 @@ import { fetchNodes, fetchPublicOrgProfile } from "@/lib/gateway/client";
 import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AccentButton, Card, Eyebrow, MonoLabel } from "@/components/v3/ui";
-import { formatLatency, latencyColor } from "@/lib/format";
 import { notFound } from "next/navigation";
 
 export async function OrgPublicPanel({ slug }: { slug: string }) {
@@ -154,11 +153,6 @@ export async function OrgPublicPanel({ slug }: { slug: string }) {
                     {typeof node.load_pct === "number" && (
                       <span className="font-mono text-[11px] text-[var(--text-3)]">
                         {Math.round(node.load_pct)}% load
-                      </span>
-                    )}
-                    {node.latency_ms != null && (
-                      <span className="font-mono text-[11px]" style={{ color: latencyColor(node.latency_ms) }}>
-                        {formatLatency(node.latency_ms)}
                       </span>
                     )}
                   </div>

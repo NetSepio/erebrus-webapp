@@ -6,7 +6,6 @@ import { NodeDetailPanel } from "@/components/v3/app/NodeDetailPanel";
 import { useOnlineNodes } from "@/context/online-nodes";
 import { coLocatedNodes } from "@/lib/globe-nodes";
 import { uniqueCountries } from "@/lib/regions";
-import { formatLatency } from "@/lib/format";
 
 export function LandingNetworkPreview() {
   const { nodes } = useOnlineNodes();
@@ -20,11 +19,6 @@ export function LandingNetworkPreview() {
   const detailNode = useMemo(
     () => (detailId ? (nodes.find((n) => n.id === detailId) ?? null) : null),
     [detailId, nodes],
-  );
-
-  const bestLatency = useMemo(
-    () => nodes.filter((n) => n.latency_ms != null).sort((a, b) => a.latency_ms! - b.latency_ms!)[0]?.latency_ms,
-    [nodes]
   );
 
   const handleSelect = useCallback((id: string) => {
@@ -66,7 +60,6 @@ export function LandingNetworkPreview() {
         <div className="pointer-events-none absolute bottom-5 left-5 flex gap-6">
           <Stat value={nodes.length} label="Nodes online" />
           <Stat value={uniqueCountries(nodes) || "—"} label="Regions" />
-          <Stat value={formatLatency(bestLatency)} label="Best latency" />
         </div>
 
         {detailNode && (
@@ -75,6 +68,7 @@ export function LandingNetworkPreview() {
             siblings={coLocatedNodes(nodes, detailNode)}
             onSelectSibling={handleSelect}
             showAction={false}
+            showLatency={false}
             onClose={() => setDetailId(null)}
           />
         )}
