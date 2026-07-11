@@ -28,7 +28,28 @@ Connect through a worldwide network of community-operated nodes — not a corpor
 
 ### Erebrus Drop
 
-**Decentralized file storage on IPFS**, served by community-run Erebrus nodes. Store on the public network or on private nodes your organization operates. Private files are **encrypted in your browser** before upload, so node operators can never read them; public files can be shared by opaque link or by CID.
+**Decentralized file storage on IPFS**, served by community-run Erebrus nodes. Store on the public network or on private nodes your organization operates. Private files are **encrypted in your browser** before upload, so node operators can never read them; public files can be shared by opaque link or by CID. Open it in the app at **/storage**.
+
+- **Scopes** — upload to the **public network** or to a **private organization** node. Storage quota comes from your effective workspace plan.
+- **Visibility** — files default to **private**. Private files are encrypted client-side; public files are stored as plaintext for open sharing.
+- **Transfers** — drag-and-drop or pick multiple files; uploads stream with progress and can be cancelled or retried. Downloads stream back to your device.
+- **Sharing** — public files get an **opaque share link** (`/s/<id>`). The link — not the raw CID — is the thing you hand out. You can still copy the CID for anyone who wants to fetch it directly over IPFS.
+
+#### Encryption & recovery
+
+Private files are protected by an **account encryption vault**:
+
+- The first time you use private storage, Drop generates a vault key **in your browser** and shows you a one-time **recovery secret**. Save it in a password manager — it is the only way to decrypt your files on a new device or after signing out, and **it cannot be reset or recovered for you**.
+- Each file gets a fresh random key; the file is encrypted with **AES-256-GCM** in a Web Worker. Only the *wrapped* (re-encrypted) file key is stored alongside the file. Plaintext keys and your recovery secret never leave your browser and are never logged or persisted.
+- On another device, open Drop and **unlock the vault** with your recovery secret to upload or download private files.
+
+#### Public files & CIDs
+
+> **A CID is an identifier, not a password.** Anyone who learns a public file's CID or share link can download it. Public files are **not encrypted** — never put sensitive content in a public file. Deleting a file removes it from your account and unpins it from managed nodes, but content already copied off the network cannot be recalled.
+
+#### Node operators (Drop)
+
+Operators of a **private organization node** (owner or node-operator role) can open the node's **Kubo WebUI** from the Drop dashboard. It launches through a short-lived, same-origin proxy session — the raw Kubo RPC endpoint is never exposed. Note that pinning content directly in the WebUI creates **unmanaged** pins that Drop does not track for quota, encryption, or sharing.
 
 Public storage is allocated per user from the highest active organization
 plan/seat: Free 500 MB, Starter 1 GB, Pro 5 GB, and Business 10 GB. Private
