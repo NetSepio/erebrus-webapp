@@ -9,6 +9,7 @@ import { DropUsageCard } from "./DropUsageCard";
 import { DropNodePicker } from "./DropNodePicker";
 import { DropUploadPanel } from "./DropUploadPanel";
 import { DropFileList } from "./DropFileList";
+import { DropVaultPanel } from "./DropVaultPanel";
 import { useWalletAuth } from "@/context/appkit";
 import { fetchOrgs, GatewayApiError } from "@/lib/gateway/client";
 import { resolveEffectiveEntitlement } from "@/lib/entitlements";
@@ -19,7 +20,9 @@ import {
   deleteDropFile,
 } from "@/lib/drop/client";
 import { downloadDropFile } from "@/lib/drop/download";
-import { useDropUploads } from "@/hooks/use-drop-uploads";
+import { useDropUploads, type PrepareContent } from "@/hooks/use-drop-uploads";
+import { useDropVault } from "@/hooks/use-drop-vault";
+import { makeDecryptor, makeEncryptingPrepare } from "@/lib/drop/encrypt-upload";
 import type { GatewayOrg } from "@/lib/gateway/types";
 import type {
   DropFile,
@@ -74,6 +77,9 @@ export function DropDashboard() {
 
   const entitlement = useMemo(() => resolveEffectiveEntitlement(orgs), [orgs]);
 
+  const vault = useDropVault();
+  const { getVaultKey } = vault;
+
   const refreshFiles = useCallback(async () => {
     if (!isAuthenticated || !activeScope) return;
     setFilesLoading(true);
@@ -89,7 +95,23 @@ export function DropDashboard() {
     }
   }, [isAuthenticated, activeScope]);
 
-  const uploads = useDropUploads({ onComplete: refreshFiles });
+  // Private files are encrypted client-side before upload; public files are
+  // sent as-is. The encryptor requires an unlocked vault.
+  const prepare = useMemo<PrepareContent>(() => {
+    const encrypt = makeEncryptingPrepare(getVaultKey);
+    return async (item, signal) => {
+      if (item.visibility === "private") return encrypt(item, signal);
+      return {
+        blob: item.file,
+        contentType: item.file.type || "application/octet-stream",
+        encrypted: false,
+      };
+    };
+  }, [getVaultKey]);
+
+  const decryptor = useMemo(() => makeDecryptor(getVaultKey), [getVaultKey]);
+
+  const uploads = useDropUploads({ prepare, onComplete: refreshFiles });
 
   // Load the caller's organizations once authenticated.
   useEffect(() => {
@@ -138,12 +160,17 @@ export function DropDashboard() {
     if (activeScope?.scope === "private") setVisibility("private");
   }, [activeScope]);
 
-  const uploadDisabled = !selectedNode;
+  const vaultLockedForPrivate = visibility === "private" && vault.status !== "unlocked";
+  const uploadDisabled = !selectedNode || vaultLockedForPrivate;
   const uploadDisabledReason = nodesLoading
     ? "Loading nodes…"
     : nodes.length === 0
       ? "No eligible nodes available in this scope."
-      : "Select an online node to upload.";
+      : !selectedNode
+        ? "Select an online node to upload."
+        : vaultLockedForPrivate
+          ? "Unlock your encryption vault to upload private files."
+          : undefined;
 
   const handleFiles = useCallback(
     (picked: File[]) => {
@@ -161,19 +188,26 @@ export function DropDashboard() {
     [selectedNode, activeScope, visibility, uploads]
   );
 
-  const handleDownload = useCallback(async (file: DropFile) => {
-    setBusyFileId(file.id);
-    try {
-      await downloadDropFile(file);
-      toast.success(`Downloaded ${file.filename}`);
-    } catch (err) {
-      toast.error(
-        err instanceof GatewayApiError ? err.message : `Could not download ${file.filename}`
-      );
-    } finally {
-      setBusyFileId(null);
-    }
-  }, []);
+  const handleDownload = useCallback(
+    async (file: DropFile) => {
+      if (file.encrypted && vault.status !== "unlocked") {
+        toast.error("Unlock your encryption vault to download this file.");
+        return;
+      }
+      setBusyFileId(file.id);
+      try {
+        await downloadDropFile(file, { decrypt: decryptor });
+        toast.success(`Downloaded ${file.filename}`);
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : `Could not download ${file.filename}`
+        );
+      } finally {
+        setBusyFileId(null);
+      }
+    },
+    [decryptor, vault.status]
+  );
 
   const handleDelete = useCallback(
     async (file: DropFile) => {
@@ -256,6 +290,12 @@ export function DropDashboard() {
         </div>
 
         <div className="space-y-5">
+          <DropVaultPanel
+            status={vault.status}
+            onSetup={vault.setupVault}
+            onUnlock={vault.unlockVault}
+            onLock={vault.lockVault}
+          />
           <DropUsageCard usage={usage} orgName={entitlement.org?.name} />
           {entitlement.tier === "free" && (
             <Card className="p-5">

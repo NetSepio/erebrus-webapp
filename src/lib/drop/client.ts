@@ -1,5 +1,6 @@
 import { getCurrentAuthToken } from "@/context/appkit";
 import { GatewayApiError } from "@/lib/gateway/client";
+import type { WrappedVaultBackup } from "./crypto";
 import {
   normalizeDropFile,
   normalizeDropNode,
@@ -203,6 +204,26 @@ export async function fetchDropContent(
   });
   if (!res.ok) throw await toApiError(res);
   return res;
+}
+
+// ── Encryption vault backup ──────────────────────────────────────────────────
+
+/**
+ * Fetch the account's wrapped Drop vault backup. Returns null when no vault has
+ * been set up yet. The gateway only ever stores the wrapped (encrypted) form.
+ */
+export async function fetchDropVault(): Promise<WrappedVaultBackup | null> {
+  try {
+    const data = await dropJson<WrappedVaultBackup | null>("drop/crypto/vault");
+    return data && typeof data === "object" && "ciphertext" in data ? data : null;
+  } catch (err) {
+    if (err instanceof GatewayApiError && err.status === 404) return null;
+    throw err;
+  }
+}
+
+export async function putDropVault(backup: WrappedVaultBackup): Promise<void> {
+  await dropJson<void>("drop/crypto/vault", { method: "PUT", body: backup });
 }
 
 // ── Public sharing ───────────────────────────────────────────────────────────
