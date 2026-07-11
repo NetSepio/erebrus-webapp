@@ -262,37 +262,48 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-2">
-              <ActionButton
-                type="button"
-                variant="neutral"
-                className="!py-2.5"
-                disabled={!googleEnabled || !googleReady || socialBusy}
-                onClick={() => {
-                  if (!signInWithGoogle()) {
-                    toast.error("Google sign-in is not ready yet — try again in a moment");
-                  }
-                }}
+            {(googleEnabled && googleReady) || (appleEnabled && appleReady) ? (
+              <div
+                className={cn(
+                  "grid gap-2",
+                  googleEnabled && googleReady && appleEnabled && appleReady ? "grid-cols-2" : "grid-cols-1"
+                )}
               >
-                {socialBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Google
-              </ActionButton>
-              <ActionButton
-                type="button"
-                variant="neutral"
-                className="!py-2.5"
-                disabled={!appleEnabled || !appleReady || socialBusy}
-                onClick={() => {
-                  void signInWithApple().then((started) => {
-                    if (!started) {
-                      toast.error("Apple sign-in is not ready yet — try again in a moment");
-                    }
-                  });
-                }}
-              >
-                Apple
-              </ActionButton>
-            </div>
+                {googleEnabled && googleReady && (
+                  <ActionButton
+                    type="button"
+                    variant="neutral"
+                    className="!py-2.5"
+                    disabled={socialBusy}
+                    onClick={() => {
+                      if (!signInWithGoogle()) {
+                        toast.error("Google sign-in is not ready yet — try again in a moment");
+                      }
+                    }}
+                  >
+                    {socialBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    Google
+                  </ActionButton>
+                )}
+                {appleEnabled && appleReady && (
+                  <ActionButton
+                    type="button"
+                    variant="neutral"
+                    className="!py-2.5"
+                    disabled={socialBusy}
+                    onClick={() => {
+                      void signInWithApple().then((started) => {
+                        if (!started) {
+                          toast.error("Apple sign-in is not ready yet — try again in a moment");
+                        }
+                      });
+                    }}
+                  >
+                    Apple
+                  </ActionButton>
+                )}
+              </div>
+            ) : null}
             {!showInvite ? (
               <button
                 type="button"
@@ -315,23 +326,12 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
               </div>
             )}
             {/* GIS renders its own button here; we proxy clicks from our custom button above. */}
-            <div
-              ref={googleBtnRef}
-              className="sr-only absolute h-0 w-0 overflow-hidden"
-              aria-hidden
-            />
-            {(!googleEnabled || !appleEnabled) && (
-              <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
-                {!googleClientId && !appleClientId
-                  ? "Set NEXT_PUBLIC_GOOGLE_CLIENT_ID / NEXT_PUBLIC_APPLE_CLIENT_ID in the webapp, and matching GOOGLE_CLIENT_IDS / APPLE_CLIENT_IDS on the gateway"
-                  : !googleEnabled && googleClientId
-                    ? "Google: add this web client ID to gateway GOOGLE_CLIENT_IDS and authorized origins in Google Cloud Console"
-                    : !appleEnabled && appleClientId
-                      ? "Apple: add this client ID to gateway APPLE_CLIENT_IDS"
-                      : !googleClientId
-                        ? "Google unlocks once NEXT_PUBLIC_GOOGLE_CLIENT_ID is configured"
-                        : "Apple unlocks once NEXT_PUBLIC_APPLE_CLIENT_ID is configured"}
-              </p>
+            {googleEnabled && (
+              <div
+                ref={googleBtnRef}
+                className="sr-only absolute h-0 w-0 overflow-hidden"
+                aria-hidden
+              />
             )}
             {!emailEnabled && (
               <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
