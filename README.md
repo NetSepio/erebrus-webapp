@@ -30,6 +30,12 @@ Connect through a worldwide network of community-operated nodes — not a corpor
 
 **Decentralized file storage on IPFS**, served by community-run Erebrus nodes. Store on the public network or on private nodes your organization operates. Private files are **encrypted in your browser** before upload, so node operators can never read them; public files can be shared by opaque link or by CID.
 
+Public storage is allocated per user from the highest active organization
+plan/seat: Free 500 MB, Starter 1 GB, Pro 5 GB, and Business 10 GB. Private
+organization nodes use their own configured capacity. The account recovery
+secret for private files is shown once and never sent to the gateway; losing it
+can make encrypted files permanently unreadable.
+
 ### For operators & teams
 
 - **Run a node** — contribute capacity, track uptime, earn rewards
@@ -64,5 +70,19 @@ Your traffic is meant to flow through independent operators. We don’t build a 
 ## For developers
 
 This repository powers the Erebrus website and web app. Branch flow: changes land on `main` (development deploy), then promote to `prod` for production.
+
+The authenticated Drop dashboard is `/storage`; `/drop` remains the public
+product page, and `/s/{file_id}` is the opaque public-share route. Upload and
+download bodies stream through the same-origin gateway proxy. Browsers with the
+File System Access API stream public downloads directly to disk; other browsers
+fall back to an in-memory Blob. Private downloads are decrypted in 1 MiB
+authenticated chunks in a worker, but the compatibility fallback assembles the
+result before saving, so available browser memory still limits very large
+encrypted downloads.
+
+Organization owners and node operators can open a five-minute, gateway-proxied
+Kubo WebUI session for private nodes. Raw Kubo RPC addresses are never displayed.
+Pins made directly in Kubo are unmanaged: they do not create Drop file metadata,
+consume managed quota, or appear in the Drop dashboard.
 
 Proprietary — © NetSepio. All rights reserved.
