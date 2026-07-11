@@ -148,7 +148,7 @@ const sections: PolicySection[] = [
     title: "9. Data Retention",
     items: [
       "Wallet authentication, organization, plan, payment, support, and operational records are retained as long as needed to provide the Services, resolve disputes, enforce Terms, maintain security, and comply with law.",
-      "VPN client metadata may be retained while your client, account, trial, or subscription is active and for a reasonable period after deletion for security, backup, audit, or legal reasons.",
+      "VPN client metadata may be retained while your client, account, or organization service is active and for a reasonable period after deletion for security, backup, audit, or legal reasons.",
       "Managed Drop files and metadata remain until deleted, expired, or removed under applicable policy. Public IPFS copies may remain outside NetSepio's control; encrypted private blocks may also persist as unreadable ciphertext on independent nodes or backups.",
       "Security logs may be retained for a limited period to detect abuse, investigate incidents, and protect the Services.",
     ],

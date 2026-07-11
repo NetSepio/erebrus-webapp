@@ -75,13 +75,13 @@ export interface EffectiveEntitlement {
  * higher-plan org still resolves to the org's free floor for that member.
  */
 function seatTierFor(org: GatewayOrg): EffectiveTier {
+  if (org.role === "owner" || org.role === "node_operator") {
+    return normalizeTier(org.plan);
+  }
   const paidSeat =
-    org.has_paid_seat === true ||
-    org.role === "owner" ||
-    org.role === "node_operator" ||
-    (!!org.seat_tier && org.seat_tier !== "free");
+    org.has_paid_seat === true || (!!org.seat_tier && org.seat_tier !== "free");
   if (!paidSeat) return "free";
-  return normalizeTier(org.seat_tier ?? org.plan);
+  return normalizeTier(org.seat_tier);
 }
 
 /**

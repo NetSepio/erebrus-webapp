@@ -124,9 +124,16 @@ export async function deleteDropFile(fileId: string): Promise<void> {
 
 // ── Upload lifecycle ───────────────────────────────────────────────────────
 
-export async function createDropUpload(init: DropUploadInit): Promise<DropUpload> {
+export async function createDropUpload(
+  init: DropUploadInit,
+  signal?: AbortSignal
+): Promise<DropUpload> {
   return normalizeDropUpload(
-    await dropJson<Record<string, unknown>>("drop/uploads", { method: "POST", body: init })
+    await dropJson<Record<string, unknown>>("drop/uploads", {
+      method: "POST",
+      body: init,
+      signal,
+    })
   );
 }
 

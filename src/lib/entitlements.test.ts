@@ -71,11 +71,11 @@ describe("resolveEffectiveEntitlement", () => {
 
   it("treats owners and node operators as holding a paid seat", () => {
     expect(
-      resolveEffectiveEntitlement([org({ plan: "starter", seat_tier: "starter", role: "owner" })]).tier
+      resolveEffectiveEntitlement([org({ plan: "starter", seat_tier: "free", role: "owner" })]).tier
     ).toBe("starter");
     expect(
       resolveEffectiveEntitlement([
-        org({ plan: "pro", seat_tier: "pro", role: "node_operator" }),
+        org({ plan: "pro", seat_tier: "free", role: "node_operator" }),
       ]).tier
     ).toBe("pro");
   });

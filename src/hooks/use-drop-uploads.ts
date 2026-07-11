@@ -81,6 +81,7 @@ export function useDropUploads(
   const [items, setItems] = useState<UploadItem[]>([]);
 
   const controllers = useRef(new Map<string, AbortController>());
+  const preparedContent = useRef(new Map<string, PreparedContent>());
   const activeCount = useRef(0);
   const itemsRef = useRef<UploadItem[]>([]);
   const optionsRef = useRef(options);
@@ -89,6 +90,15 @@ export function useDropUploads(
   useEffect(() => {
     itemsRef.current = items;
   }, [items]);
+
+  useEffect(
+    () => () => {
+      for (const controller of controllers.current.values()) controller.abort();
+      controllers.current.clear();
+      preparedContent.current.clear();
+    },
+    []
+  );
 
   const patch = useCallback((id: string, next: Partial<UploadItem>) => {
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...next } : it)));
@@ -107,22 +117,29 @@ export function useDropUploads(
       activeCount.current += 1;
       try {
         patch(item.id, { status: "preparing", error: undefined });
-        const prepared = await prepare(item, controller.signal);
+        let prepared = preparedContent.current.get(item.id);
+        if (!prepared) {
+          prepared = await prepare(item, controller.signal);
+          preparedContent.current.set(item.id, prepared);
+        }
 
         patch(item.id, { status: "reserving" });
-        const upload = await createDropUpload({
-          node_id: item.nodeId,
-          org_id: item.orgId,
-          scope: item.scope,
-          filename: item.filename,
-          content_type: prepared.contentType,
-          size_bytes: prepared.blob.size,
-          sha256: prepared.sha256,
-          visibility: item.visibility,
-          encrypted: prepared.encrypted,
-          encryption_metadata: prepared.encryptionMetadata,
-          idempotency_key: item.id,
-        });
+        const upload = await createDropUpload(
+          {
+            node_id: item.nodeId,
+            org_id: item.orgId,
+            scope: item.scope,
+            filename: item.filename,
+            content_type: prepared.contentType,
+            size_bytes: prepared.blob.size,
+            sha256: prepared.sha256,
+            visibility: item.visibility,
+            encrypted: prepared.encrypted,
+            encryption_metadata: prepared.encryptionMetadata,
+            idempotency_key: item.id,
+          },
+          controller.signal
+        );
 
         patch(item.id, {
           status: "uploading",
@@ -140,6 +157,7 @@ export function useDropUploads(
           fileId: result.file_id,
           sentBytes: prepared.blob.size,
         });
+        preparedContent.current.delete(item.id);
         optionsRef.current.onComplete?.();
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -221,10 +239,16 @@ export function useDropUploads(
 
   const remove = useCallback((id: string) => {
     controllers.current.get(id)?.abort();
+    preparedContent.current.delete(id);
     setItems((prev) => prev.filter((it) => it.id !== id));
   }, []);
 
   const clearFinished = useCallback(() => {
+    for (const item of itemsRef.current) {
+      if (item.status === "done" || item.status === "canceled") {
+        preparedContent.current.delete(item.id);
+      }
+    }
     setItems((prev) => prev.filter((it) => it.status !== "done" && it.status !== "canceled"));
   }, []);
 
@@ -233,7 +257,14 @@ export function useDropUploads(
 
 function errorMessage(err: unknown): string {
   if (err instanceof GatewayApiError) {
-    if (err.status === 402) return "Quota exceeded — free space or upgrade your plan.";
+    if (
+      err.status === 402 ||
+      (err.status === 409 && err.message.toLowerCase().includes("quota"))
+    ) {
+      return "Quota exceeded — free space or upgrade your plan.";
+    }
+    if (err.status === 507) return "The selected node does not have enough capacity.";
+    if (err.status === 503) return "The selected node is offline or unavailable.";
     if (err.status === 409) return "Reservation conflict — retry this file.";
     if (err.status === 403) return "Not authorized to upload to this node.";
     return err.message;

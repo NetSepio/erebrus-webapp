@@ -19,8 +19,14 @@ export async function downloadDropFile(
   opts: { decrypt?: DecryptContent; signal?: AbortSignal } = {}
 ): Promise<void> {
   const directSink = file.encrypted ? null : await openDirectSaveSink(file);
-  const res = await fetchDropContent(file.id, { signal: opts.signal });
-  if (!res.body) throw new Error("Empty response body");
+  let res: Response;
+  try {
+    res = await fetchDropContent(file.id, { signal: opts.signal });
+    if (!res.body) throw new Error("Empty response body");
+  } catch (error) {
+    await directSink?.abort(error);
+    throw error;
+  }
 
   if (file.encrypted) {
     if (!opts.decrypt) {
