@@ -10,9 +10,11 @@ import { DropNodePicker } from "./DropNodePicker";
 import { DropUploadPanel } from "./DropUploadPanel";
 import { DropFileList } from "./DropFileList";
 import { DropVaultPanel } from "./DropVaultPanel";
+import { DropWebuiLauncher } from "./DropWebuiLauncher";
 import { useWalletAuth } from "@/context/appkit";
 import { fetchOrgs, GatewayApiError } from "@/lib/gateway/client";
 import { resolveEffectiveEntitlement } from "@/lib/entitlements";
+import { canManageOrgNodes } from "@/lib/gateway/org-permissions";
 import {
   fetchDropNodes,
   fetchDropUsage,
@@ -76,6 +78,12 @@ export function DropDashboard() {
   );
 
   const entitlement = useMemo(() => resolveEffectiveEntitlement(orgs), [orgs]);
+
+  const activeOrg = useMemo(
+    () => (activeScope?.orgId ? orgs.find((o) => o.id === activeScope.orgId) ?? null : null),
+    [orgs, activeScope]
+  );
+  const canOperateNodes = !!activeOrg && canManageOrgNodes(activeOrg);
 
   const vault = useDropVault();
   const { getVaultKey } = vault;
@@ -297,6 +305,9 @@ export function DropDashboard() {
             onLock={vault.lockVault}
           />
           <DropUsageCard usage={usage} orgName={entitlement.org?.name} />
+          {activeScope?.scope === "private" && activeOrg && canOperateNodes && (
+            <DropWebuiLauncher orgId={activeOrg.id} nodes={nodes} />
+          )}
           {entitlement.tier === "free" && (
             <Card className="p-5">
               <p className="text-sm text-[var(--text-2)]">

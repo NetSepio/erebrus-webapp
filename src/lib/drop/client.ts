@@ -16,6 +16,7 @@ import type {
   DropUpload,
   DropUploadInit,
   DropUsage,
+  DropWebuiSession,
 } from "./types";
 
 const CLIENT_HEADER = "webapp";
@@ -224,6 +225,26 @@ export async function fetchDropVault(): Promise<WrappedVaultBackup | null> {
 
 export async function putDropVault(backup: WrappedVaultBackup): Promise<void> {
   await dropJson<void>("drop/crypto/vault", { method: "PUT", body: backup });
+}
+
+// ── Private-node Kubo WebUI ──────────────────────────────────────────────────
+
+/**
+ * Open a short-lived, same-origin gateway proxy session to a private node's
+ * Kubo WebUI. The gateway authorizes the caller as a node operator and returns
+ * only a proxy URL — the raw Kubo RPC endpoint is never exposed to the client.
+ */
+export async function createDropWebuiSession(
+  orgId: string,
+  nodeId: string
+): Promise<DropWebuiSession> {
+  const data = await dropJson<Record<string, unknown>>(
+    `orgs/${orgId}/nodes/${nodeId}/drop/webui/session`,
+    { method: "POST" }
+  );
+  const url = typeof data.url === "string" ? data.url : "";
+  if (!url) throw new GatewayApiError("No WebUI session URL returned", 502, data);
+  return { url, expires_at: typeof data.expires_at === "string" ? data.expires_at : undefined };
 }
 
 // ── Public sharing ───────────────────────────────────────────────────────────
