@@ -250,6 +250,15 @@ export function NodeDetailPanel({
         />
         <Stat label="↓ Down" value={mbps(node.download_mbps)} />
         <Stat label="↑ Up" value={mbps(node.upload_mbps)} />
+        <Stat
+          label="Peers"
+          value={
+            node.wg_peers_connected != null && node.wg_peers_registered != null
+              ? `${node.wg_peers_connected} / ${node.wg_peers_registered}`
+              : "—"
+          }
+          color={node.accepting_clients === false ? "var(--warn)" : "var(--success)"}
+        />
       </div>
 
       {/* Protocols */}
