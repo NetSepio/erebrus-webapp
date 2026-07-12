@@ -23,6 +23,7 @@ test.py
 
 # misc
 .DS_Store
+.vscode/
 *.pem
 
 # debug
