@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchAdminActivity,
+  fetchAdminDeletionRequests,
   fetchAdminNodeMetrics,
   fetchAdminNodes,
   fetchAdminOrgUsage,
@@ -11,6 +12,7 @@ import {
   fetchAdminStats,
   fetchAdminSubscriptions,
   fetchAdminUsers,
+  fulfillAdminDeletionRequest,
   grantAdminPerk,
   patchAdminOrg,
   setAdminOrgPlan,
@@ -23,8 +25,10 @@ import type {
   GatewayAdminOrg,
   GatewayAdminStats,
   GatewayAdminUser,
+  GatewayDeletionRequest,
   GatewayPlatformSetting,
 } from "@/lib/gateway/types";
+import { AdminUserProfile } from "./AdminUserProfile";
 import {
   AccentButton,
   ActionButton,
@@ -105,6 +109,9 @@ export function AdminConsole() {
   const [orgOffset, setOrgOffset] = useState(0);
   const [orgHasMore, setOrgHasMore] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [deletionRequests, setDeletionRequests] = useState<GatewayDeletionRequest[]>([]);
   const [grantPerkId, setGrantPerkId] = useState("");
   const [grantWallet, setGrantWallet] = useState("");
   const [loading, setLoading] = useState(true);
@@ -151,6 +158,11 @@ export function AdminConsole() {
     setSettingsDraft(draft);
   }, []);
 
+  const loadDeletionRequests = useCallback(async () => {
+    const data = await fetchAdminDeletionRequests({ status: "pending" });
+    setDeletionRequests(data.requests);
+  }, []);
+
   useEffect(() => {
     loadOverview()
       .catch((e) => toast.error(e instanceof GatewayApiError ? e.message : "Failed to load stats"))
@@ -165,6 +177,7 @@ export function AdminConsole() {
         if (tab === "orgs" && orgs.length === 0) await loadOrgs();
         if (tab === "activity" && activity.length === 0) await loadActivity();
         if (tab === "settings" && settings.length === 0) await loadSettings();
+        if (tab === "deletion-requests") await loadDeletionRequests();
       } catch (e) {
         toast.error(e instanceof GatewayApiError ? e.message : "Failed to load data");
       }
@@ -299,6 +312,9 @@ export function AdminConsole() {
           <TabsTrigger value="perks" className={v3TabsTriggerClass}>
             Perks
           </TabsTrigger>
+          <TabsTrigger value="deletion-requests" className={v3TabsTriggerClass}>
+            Deletion requests
+          </TabsTrigger>
           <TabsTrigger value="settings" className={v3TabsTriggerClass}>
             Settings
           </TabsTrigger>
@@ -307,9 +323,14 @@ export function AdminConsole() {
         <TabsContent value="users" className="mt-4 space-y-3">
           <Card className="overflow-hidden">
             {users.map((u) => (
-              <div
+              <button
                 key={u.id}
-                className="flex flex-col gap-1 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
+                type="button"
+                onClick={() => {
+                  setSelectedUserId(u.id);
+                  setProfileOpen(true);
+                }}
+                className="flex w-full flex-col gap-1 border-b border-white/[0.04] px-5 py-3 text-left transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <div className="font-mono text-sm">
@@ -320,6 +341,7 @@ export function AdminConsole() {
                     {u.created_at
                       ? new Date(u.created_at).toLocaleDateString()
                       : "—"}
+                    {u.deleted_at ? " · deleted" : ""}
                   </div>
                 </div>
                 <span
@@ -331,7 +353,7 @@ export function AdminConsole() {
                 >
                   {u.role}
                 </span>
-              </div>
+              </button>
             ))}
           </Card>
           <div className="flex gap-2">
@@ -643,6 +665,49 @@ export function AdminConsole() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="deletion-requests" className="mt-4 space-y-3">
+          <Card className="overflow-hidden">
+            {deletionRequests.length === 0 ? (
+              <p className="px-5 py-8 text-sm text-[var(--text-2)]">No pending deletion requests.</p>
+            ) : (
+              deletionRequests.map((r) => (
+                <div
+                  key={r.id}
+                  className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <div className="font-mono text-sm">
+                      {r.wallet_address ? truncateAddress(r.wallet_address) : r.user_id?.slice(0, 8) ?? "—"}
+                    </div>
+                    <div className="text-xs text-[var(--text-3)]">
+                      {r.name || r.email || "—"} · requested {new Date(r.requested_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <ActionButton
+                    variant="danger"
+                    onClick={async () => {
+                      if (!window.confirm("This will permanently delete the user account and any owned orgs. Continue?")) return;
+                      try {
+                        await fulfillAdminDeletionRequest(r.id);
+                        toast.success("Account deleted and confirmation email sent");
+                        await loadDeletionRequests();
+                        loadUsers();
+                      } catch (e) {
+                        toast.error(e instanceof GatewayApiError ? e.message : "Failed to fulfill request");
+                      }
+                    }}
+                  >
+                    Delete
+                  </ActionButton>
+                </div>
+              ))
+            )}
+          </Card>
+          <AccentButton type="button" variant="ghost" onClick={loadDeletionRequests}>
+            Refresh
+          </AccentButton>
+        </TabsContent>
+
         <TabsContent value="settings" className="mt-4 space-y-4">
           <Card className="divide-y divide-white/[0.04] overflow-hidden">
             {settings.map((s) => (
@@ -666,6 +731,19 @@ export function AdminConsole() {
           </AccentButton>
         </TabsContent>
       </Tabs>
+
+      <AdminUserProfile
+        userId={selectedUserId}
+        open={profileOpen}
+        onOpenChange={(open) => {
+          setProfileOpen(open);
+          if (!open) setSelectedUserId(null);
+        }}
+        onChanged={() => {
+          loadUsers();
+          loadDeletionRequests();
+        }}
+      />
     </div>
   );
 }

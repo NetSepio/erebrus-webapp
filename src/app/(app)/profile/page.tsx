@@ -6,9 +6,11 @@ import {
   fetchReferrals,
   fetchSocialAccounts,
   redeemReferralCode,
+  requestAccountDeletion,
   sendEmailOtp,
   verifyEmailOtp,
   updateProfile,
+  GatewayApiError,
 } from "@/lib/gateway/client";
 import type {
   GatewayProfile,
@@ -16,7 +18,7 @@ import type {
   GatewaySocialAccount,
 } from "@/lib/gateway/types";
 import { responsiveWalletAddress, userDisplayName } from "@/lib/display-name";
-import { AccentButton, Card } from "@/components/v3/ui";
+import { AccentButton, ActionButton, Card } from "@/components/v3/ui";
 import { ChainBadge } from "@/components/v3/app/ChainBadge";
 import { PROFILE_UPDATED_EVENT } from "@/components/v3/app/WalletMenu";
 import { ipfsImageUrl, MAX_PROFILE_IMAGE_BYTES } from "@/lib/ipfs";
@@ -55,6 +57,7 @@ export default function ProfilePage() {
   const [inviteCode, setInviteCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
   const [socials, setSocials] = useState<GatewaySocialAccount[]>([]);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   useEffect(() => {
     Promise.all([
       fetchProfile(),
@@ -192,6 +195,21 @@ export default function ProfilePage() {
       );
     } finally {
       setRedeeming(false);
+    }
+  };
+
+  const requestDeletion = async () => {
+    if (!window.confirm("Request account deletion? This will schedule your account for deletion; an admin will process it.")) return;
+    setDeletingAccount(true);
+    try {
+      const res = await requestAccountDeletion();
+      toast.success(res.message || "Account deletion request submitted");
+    } catch (err) {
+      toast.error(
+        err instanceof GatewayApiError ? err.message : "Failed to request account deletion"
+      );
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -416,6 +434,21 @@ export default function ProfilePage() {
                   )}
                 </div>
               )}
+            </div>
+
+            <div className="rounded-[11px] border border-white/[0.06] bg-white/[0.015] px-4 py-3">
+              <span className="text-sm text-[var(--text-2)]">Account deletion</span>
+              <p className="mt-1 text-xs text-[var(--text-3)]">
+                Request your account be deleted. You must have a verified email and no active org ownership or memberships.
+              </p>
+              <ActionButton
+                variant="danger"
+                className="mt-2"
+                onClick={requestDeletion}
+                disabled={deletingAccount}
+              >
+                {deletingAccount ? "Requesting…" : "Request account deletion"}
+              </ActionButton>
             </div>
           </div>
         </Card>

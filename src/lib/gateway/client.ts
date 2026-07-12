@@ -15,7 +15,9 @@ import type {
   GatewayAdminOrg,
   GatewayAdminStats,
   GatewayAdminUser,
+  GatewayAdminUserProfile,
   GatewayApiKey,
+  GatewayDeletionRequest,
   GatewayLeaderboardEntry,
   GatewayNode,
   GatewayNodeMetrics,
@@ -834,4 +836,48 @@ export async function grantAdminPerk(
     method: "POST",
     body: JSON.stringify(target),
   });
+}
+
+export async function requestAccountDeletion(): Promise<{ message: string }> {
+  return gatewayFetch("account/deletion-request", { method: "POST" });
+}
+
+export async function fetchAdminUser(id: string): Promise<GatewayAdminUserProfile> {
+  return gatewayFetch(`admin/users/${id}`);
+}
+
+export async function fetchAdminUserOrgs(id: string): Promise<GatewayAdminOrg[]> {
+  const data = await gatewayFetch<{ orgs?: Record<string, unknown>[] }>(`admin/users/${id}/orgs`);
+  return (data.orgs ?? []).map((raw) => {
+    const o = normalizeOrg(raw);
+    return {
+      id: o.id || undefined,
+      name: o.name,
+      kind: o.kind,
+      plan: o.plan,
+      verified: o.verified,
+      slug: o.slug,
+      description: o.description,
+      website: o.website,
+      created_at: o.created_at,
+      updated_at: o.updated_at,
+    };
+  });
+}
+
+export async function setAdminUserPlan(id: string, planId: string): Promise<void> {
+  await gatewayFetch(`admin/users/${id}/plan`, {
+    method: "POST",
+    body: JSON.stringify({ plan_id: planId }),
+  });
+}
+
+export async function fetchAdminDeletionRequests(params?: {
+  status?: "pending" | "fulfilled";
+}): Promise<{ requests: GatewayDeletionRequest[]; total: number; limit: number; offset: number }> {
+  return gatewayFetch("admin/deletion-requests", { params });
+}
+
+export async function fulfillAdminDeletionRequest(id: string): Promise<void> {
+  await gatewayFetch(`admin/deletion-requests/${id}/fulfill`, { method: "POST" });
 }

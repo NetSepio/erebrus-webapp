@@ -511,6 +511,23 @@ export interface GatewayAdminUser {
   email_verified?: boolean;
   name?: string;
   created_at?: string;
+  deleted_at?: string;
+}
+
+export interface GatewayDeletionRequest {
+  id: string;
+  user_id?: string;
+  wallet_address?: string;
+  email?: string;
+  name?: string;
+  status: "pending" | "fulfilled";
+  requested_at: string;
+  fulfilled_at?: string;
+}
+
+export interface GatewayAdminUserProfile extends GatewayAdminUser {
+  plan?: string;
+  deletion_request?: GatewayDeletionRequest | null;
 }
 
 export interface GatewayNodeLoad {
