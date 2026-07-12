@@ -32,40 +32,47 @@ describe("normalizeDropNode", () => {
     expect(node.accepting).toBe(false);
   });
 
-  it("defaults gateway_available to false when the node does not expose 8080", () => {
+  it("defaults gateway_available to false when the node publishes no gateway domain", () => {
     const node = normalizeDropNode({ id: "n" });
     expect(node.gateway_available).toBe(false);
     expect(node.gateway_url).toBeUndefined();
   });
 
-  it("reads gateway exposure from the flag and the nested drop capability", () => {
-    expect(normalizeDropNode({ id: "n", gateway_available: true }).gateway_available).toBe(true);
-    expect(
-      normalizeDropNode({ id: "n", capabilities: { drop: { gateway_available: true } } })
-        .gateway_available
-    ).toBe(true);
+  it("reads the HTTPS gateway domain from public_gateway_url and the drop capability", () => {
+    const top = normalizeDropNode({ id: "n", public_gateway_url: "https://drop-sg1.erebrus.io" });
+    expect(top.gateway_available).toBe(true);
+    expect(top.gateway_url).toBe("https://drop-sg1.erebrus.io");
+
+    const nested = normalizeDropNode({
+      id: "n",
+      capabilities: { drop: { public_gateway_url: "https://drop-sg1.erebrus.io/" } },
+    });
+    expect(nested.gateway_available).toBe(true);
+    expect(nested.gateway_url).toBe("https://drop-sg1.erebrus.io");
   });
 
-  it("infers gateway_available when a gateway_url is present", () => {
-    const node = normalizeDropNode({ id: "n", gateway_url: "https://node1.example:8080" });
-    expect(node.gateway_available).toBe(true);
-    expect(node.gateway_url).toBe("https://node1.example:8080");
+  it("rejects non-HTTPS and RPC gateway values so no insecure link reaches the UI", () => {
+    expect(normalizeDropNode({ id: "n", public_gateway_url: "http://node1.example" }).gateway_available).toBe(false);
+    expect(normalizeDropNode({ id: "n", public_gateway_url: "https://node1.example:5001" }).gateway_available).toBe(false);
+    expect(normalizeDropNode({ id: "n", public_gateway_url: "not-a-url" }).gateway_url).toBeUndefined();
   });
 });
 
 describe("normalizeDropFile", () => {
-  it("parses public gateway url and gateway_urls list", () => {
+  it("keeps only valid HTTPS gateway bases and drops http/invalid entries", () => {
     const file = normalizeDropFile({
       file_id: "f1",
       gateway_url: "https://node1.example/",
-      gateway_urls: ["https://node2.example", "", 123, "https://node3.example"],
+      gateway_urls: [
+        "https://node2.example",
+        "http://insecure.example",
+        "",
+        123,
+        "https://node3.example/",
+      ],
     });
-    expect(file.gateway_url).toBe("https://node1.example/");
-    expect(file.gateway_urls).toEqual([
-      "https://node2.example",
-      "123",
-      "https://node3.example",
-    ]);
+    expect(file.gateway_url).toBe("https://node1.example");
+    expect(file.gateway_urls).toEqual(["https://node2.example", "https://node3.example"]);
   });
 
   it("leaves gateway fields undefined when absent", () => {

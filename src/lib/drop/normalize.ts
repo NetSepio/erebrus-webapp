@@ -28,9 +28,33 @@ function bool(v: unknown): boolean {
   return v === true || v === "true";
 }
 
-function strArray(v: unknown): string[] | undefined {
+/**
+ * Validate and normalize a public IPFS gateway base. Nodes advertise their
+ * gateway as an HTTPS domain (TLS-terminating reverse proxy in front of Kubo
+ * 8080), so only `https://host` bases are accepted — any `http`, missing host,
+ * or malformed value is rejected so an insecure link can never reach the UI.
+ * The trailing slash is trimmed; the RPC endpoint (`:5001`) is refused.
+ */
+function httpsGatewayBase(v: unknown): string | undefined {
+  const s = str(v);
+  if (!s) return undefined;
+  try {
+    const url = new URL(s);
+    if (url.protocol !== "https:" || !url.hostname) return undefined;
+    if (url.port === "5001") return undefined;
+    return s.replace(/\/+$/, "");
+  } catch {
+    return undefined;
+  }
+}
+
+function httpsGatewayBases(v: unknown): string[] | undefined {
   if (!Array.isArray(v)) return undefined;
-  const out = v.map((item) => str(item)).filter((s): s is string => !!s);
+  const out: string[] = [];
+  for (const item of v) {
+    const base = httpsGatewayBase(item);
+    if (base && !out.includes(base)) out.push(base);
+  }
   return out.length ? out : undefined;
 }
 
@@ -91,17 +115,13 @@ export function normalizeDropNode(raw: Raw): DropNode {
     raw.capabilities && typeof raw.capabilities === "object"
       ? ((raw.capabilities as Raw).drop as Raw | undefined)
       : undefined;
-  const gatewayUrl = str(
-    raw.gateway_url ?? raw.public_gateway_url ?? dropCap?.gateway_url
+  // A node exposes its gateway purely by advertising an HTTPS domain in
+  // `public_gateway_url` (empty means unpublished). There is no separate boolean
+  // toggle: availability is derived solely from a valid HTTPS base being present.
+  const gatewayUrl = httpsGatewayBase(
+    raw.public_gateway_url ?? dropCap?.public_gateway_url ?? raw.gateway_url
   );
-  const gatewayAvailable =
-    bool(
-      raw.gateway_available ??
-        raw.gateway_enabled ??
-        raw.public_gateway ??
-        dropCap?.gateway_available ??
-        dropCap?.public_gateway
-    ) || !!gatewayUrl;
+  const gatewayAvailable = !!gatewayUrl;
   return {
     id: String(raw.node_id ?? raw.id ?? ""),
     name: str(raw.name) ?? String(raw.node_id ?? raw.id ?? "node"),
@@ -140,8 +160,8 @@ export function normalizeDropFile(raw: Raw): DropFile {
     created_at: str(raw.created_at),
     updated_at: str(raw.updated_at),
     encryption_metadata: normalizeDropEncryptionMetadata(raw.encryption_metadata),
-    gateway_url: str(raw.gateway_url ?? raw.public_gateway_url),
-    gateway_urls: strArray(raw.gateway_urls ?? raw.public_gateway_urls),
+    gateway_url: httpsGatewayBase(raw.gateway_url ?? raw.public_gateway_url),
+    gateway_urls: httpsGatewayBases(raw.gateway_urls ?? raw.public_gateway_urls),
   };
 }
 
@@ -178,8 +198,8 @@ export function normalizeDropPublicFile(raw: Raw): DropPublicFile {
     size_bytes: num(raw.size_bytes ?? raw.size),
     cid: str(raw.cid),
     created_at: str(raw.created_at),
-    gateway_url: str(raw.gateway_url ?? raw.public_gateway_url),
-    gateway_urls: strArray(raw.gateway_urls ?? raw.public_gateway_urls),
+    gateway_url: httpsGatewayBase(raw.gateway_url ?? raw.public_gateway_url),
+    gateway_urls: httpsGatewayBases(raw.gateway_urls ?? raw.public_gateway_urls),
   };
 }
 

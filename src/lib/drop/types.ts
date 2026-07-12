@@ -32,12 +32,17 @@ export interface DropNode {
   accepting: boolean;
   webui_available: boolean;
   /**
-   * True when the operator has exposed this node's public IPFS HTTP gateway
-   * (port 8080), enabling direct in-browser file viewing by CID. When false,
-   * content is only reachable through the Erebrus gateway proxy.
+   * True when the operator has published this node's public IPFS gateway under
+   * an HTTPS domain, enabling direct in-browser file viewing by CID. Derived
+   * solely from a valid `gateway_url`; when false, content is only reachable
+   * through the Erebrus gateway proxy.
    */
   gateway_available: boolean;
-  /** The node's public IPFS gateway base URL, present only when exposed. */
+  /**
+   * The node's public IPFS gateway base — always an HTTPS domain
+   * (e.g. `https://drop-sg1.erebrus.io`) that TLS-terminates in front of Kubo.
+   * Present only when the operator has published it.
+   */
   gateway_url?: string;
 }
 

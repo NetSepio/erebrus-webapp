@@ -81,8 +81,10 @@ export function DropNodePicker({
                     <span
                       title={
                         node.gateway_available
-                          ? "This node exposes its public IPFS gateway — files can be viewed directly in the browser by CID."
-                          : "This node's public gateway is not exposed — files are served through the Erebrus gateway proxy only."
+                          ? `This node publishes its IPFS gateway over HTTPS${
+                              node.gateway_url ? ` (${node.gateway_url})` : ""
+                            } — files can be viewed directly in the browser by CID.`
+                          : "This node has not published a public gateway — files are served through the Erebrus gateway proxy only."
                       }
                       className={cn(
                         "flex items-center gap-1 rounded px-1.5 font-mono text-[10px]",

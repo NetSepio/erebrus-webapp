@@ -256,9 +256,10 @@ export function publicDropContentUrl(fileId: string): string {
 
 /**
  * Build a direct node IPFS gateway URL (`{gateway}/ipfs/{cid}`) for a file's
- * CID. Returns null when the gateway base or CID is missing, or the base is not
- * a valid http(s) URL. A CID is content-addressed, so any node gateway that has
- * pinned it can serve identical bytes — enabling cross-node fallback.
+ * CID. Nodes publish their gateway as an HTTPS domain, so a non-HTTPS or
+ * malformed base (or the RPC endpoint) is rejected — an insecure link is never
+ * produced. A CID is content-addressed, so any node gateway that has pinned it
+ * can serve identical bytes, enabling cross-node fallback.
  */
 export function directGatewayUrl(
   gatewayBase: string | undefined,
@@ -267,7 +268,7 @@ export function directGatewayUrl(
   if (!gatewayBase || !cid) return null;
   try {
     const url = new URL(gatewayBase);
-    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (url.protocol !== "https:" || !url.hostname || url.port === "5001") return null;
     const base = gatewayBase.replace(/\/+$/, "");
     return `${base}/ipfs/${encodeURIComponent(cid)}`;
   } catch {

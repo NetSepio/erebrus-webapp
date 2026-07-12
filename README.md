@@ -34,7 +34,7 @@ Connect through a worldwide network of community-operated nodes — not a corpor
 - **Visibility** — files default to **private**. Private files are encrypted client-side; public files are stored as plaintext for open sharing.
 - **Transfers** — drag-and-drop or pick multiple files; uploads stream with progress and can be cancelled or retried. Downloads stream back to your device.
 - **Sharing** — public files get an **opaque share link** (`/s/<id>`). The link — not the raw CID — is the thing you hand out. You can still copy the CID for anyone who wants to fetch it directly over IPFS.
-- **Resilient retrieval** — public downloads try the **hosting node's IPFS gateway first**, then fall back to the **Erebrus gateway proxy**. Because content is addressed by CID, if a node is down the same bytes are fetched from any other node that has pinned it.
+- **Resilient retrieval** — when a node publishes its IPFS gateway on an **HTTPS domain**, public downloads try that gateway first, then fall back to the **Erebrus gateway proxy**. Because content is addressed by CID, if a node is down the same bytes are fetched from any other node that has pinned it. Nodes without a published gateway serve only through the proxy (only HTTPS gateway links are ever used — never plain HTTP or the Kubo RPC port).
 
 #### Encryption & recovery
 
