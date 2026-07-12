@@ -33,8 +33,8 @@ const features = [
   },
   {
     glyph: "↔",
-    title: "Drop — local-first",
-    desc: "Share files device-to-device on local Wi-Fi. Nothing touches the cloud.",
+    title: "Drop — decentralized storage",
+    desc: "Store files on community IPFS nodes; private content is encrypted in your browser.",
   },
   {
     glyph: "✦",
@@ -56,8 +56,8 @@ const steps = [
   },
   {
     num: "02",
-    title: "Start your trial",
-    desc: "7-day free access, no card. Hold an NFT? Get 30 days automatically.",
+    title: "Pick your plan",
+    desc: "Every account starts free. Upgrade a workspace plan for more access and seats.",
   },
   {
     num: "03",
@@ -89,7 +89,7 @@ export default function LandingPage() {
 
         <p className="mx-auto mt-6 max-w-[640px] text-base leading-relaxed text-[var(--text-2)] md:text-xl">
           Everything you do online is watched, tracked, and sold. Erebrus hands the controls back
-          to you — a no-logs VPN and device-to-device Drop, run by people, not the platforms that
+          to you — a no-logs VPN and decentralized Drop storage, run by people, not the platforms that
           profit from you.
         </p>
 
@@ -162,12 +162,12 @@ export default function LandingPage() {
                 <Image src="/brand/erebrus-drop.png" alt="" width={56} height={56} />
                 <div>
                   <div className="text-xl font-bold">Erebrus Drop</div>
-                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · local-first</div>
+                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · IPFS storage</div>
                 </div>
               </div>
               <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
-                Turn any phone into a temporary, secure file server on your local Wi-Fi or hotspot.
-                Nothing touches the cloud.
+                Store public or browser-encrypted private files on community-run IPFS nodes, then
+                retrieve or share them from anywhere.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
                 Explore Drop →

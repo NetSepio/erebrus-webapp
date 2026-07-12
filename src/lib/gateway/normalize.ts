@@ -7,9 +7,7 @@ import type {
   GatewayNodeOrgSummary,
   GatewayOrg,
   GatewayOrgNode,
-  GatewayPlan,
   GatewayProfile,
-  GatewaySubscription,
   GatewayVpnClient,
 } from "./types";
 
@@ -99,33 +97,6 @@ export function normalizeNode(raw: Record<string, unknown>): GatewayNode {
     org_id: optStr(raw.org_id) ?? normalizeNodeOrg(raw.org)?.id,
     deployment_profile: optStr(raw.deployment_profile) ?? "standard",
     protocols: Array.isArray(raw.protocols) ? (raw.protocols as string[]) : [],
-  };
-}
-
-export function normalizeSubscription(raw: Record<string, unknown>): GatewaySubscription {
-  const end = (raw.current_period_end ?? raw.expires_at) as string | undefined;
-  return {
-    status: raw.status as string | undefined,
-    entitled: Boolean(raw.entitled),
-    source: raw.source as string | undefined,
-    trial_consumed: Boolean(raw.trial_consumed),
-    plan_id: (raw.plan_id ?? raw.plan) as string | undefined,
-    plan: (raw.plan_id ?? raw.plan) as string | undefined,
-    current_period_end: end,
-    expires_at: end,
-    nft_gating: Boolean(raw.nft_gating),
-    org_member: Boolean(raw.org_member),
-  };
-}
-
-export function normalizePlan(raw: Record<string, unknown>): GatewayPlan {
-  const max = Number(raw.max_clients ?? raw.device_limit ?? 1);
-  return {
-    id: String(raw.id),
-    name: String(raw.name),
-    period_days: Number(raw.period_days ?? 30),
-    max_clients: max,
-    device_limit: max,
   };
 }
 
@@ -276,14 +247,4 @@ export function normalizeLeaderboardEntry(raw: Record<string, unknown>): Gateway
     value: Number(raw.value ?? 0),
     name: raw.name as string | undefined,
   };
-}
-
-export function subscriptionDeviceLimit(
-  sub: GatewaySubscription | null,
-  plans: GatewayPlan[]
-): number {
-  if (!sub?.entitled) return 1;
-  const planId = sub.plan_id ?? sub.plan ?? "free";
-  const plan = plans.find((p) => p.id === planId);
-  return plan?.max_clients ?? sub.max_clients ?? sub.device_limit ?? 3;
 }

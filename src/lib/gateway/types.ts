@@ -148,30 +148,6 @@ export interface GatewayVpnClient {
   last_handshake?: string;
 }
 
-export interface GatewaySubscription {
-  status?: string;
-  entitled: boolean;
-  source?: string;
-  trial_consumed?: boolean;
-  plan_id?: string;
-  plan?: string;
-  current_period_end?: string;
-  expires_at?: string;
-  device_limit?: number;
-  max_clients?: number;
-  nft_gating?: boolean;
-  /** Active member of at least one workspace (private org nodes). */
-  org_member?: boolean;
-}
-
-export interface GatewayPlan {
-  id: string;
-  name: string;
-  period_days?: number;
-  max_clients: number;
-  device_limit?: number;
-}
-
 export type OrgMemberRole = "owner" | "node_operator" | "member";
 
 export type DeploymentProfile = "standard" | "shield" | "sentinel";

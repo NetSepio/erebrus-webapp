@@ -7,12 +7,12 @@ import {
 export const metadata = pageMetadata({
   title: "Privacy Policy",
   description:
-    "Privacy Policy for Erebrus VPN and Erebrus Drop — how NetSepio handles wallet auth, VPN metadata, and local-first Drop transfers.",
+    "Privacy Policy for Erebrus VPN and Erebrus Drop — wallet authentication, VPN metadata, and decentralized file storage.",
   path: "/privacy",
   keywords: [
     "Erebrus privacy policy",
     "VPN privacy",
-    "local file sharing privacy",
+    "IPFS storage privacy",
     "wallet authentication",
     "NetSepio",
   ],
@@ -29,13 +29,13 @@ type PolicySection = {
   }>;
 };
 
-const lastUpdated = "July 10, 2026";
+const lastUpdated = "July 11, 2026";
 
 const privacyHighlights = [
-  "Erebrus Drop transfers are designed to move directly over your local Wi-Fi or hotspot, not through NetSepio cloud storage.",
-  "Erebrus Drop does not collect analytics, advertising identifiers, contact lists, account profiles, or location history.",
+  "Private Drop files are encrypted in your browser before upload; NetSepio and node operators store ciphertext and cannot recover your plaintext without your client-held keys.",
+  "Public Drop files are plaintext on IPFS and may be retrieved by anyone who has the opaque share link or learns the CID.",
   "Erebrus VPN may process wallet authentication, subscription, device, technical, and security metadata needed to provide VPN access.",
-  "NetSepio does not sell personal information and does not use Drop file contents for advertising.",
+  "NetSepio does not sell personal information or use Drop file contents for advertising.",
 ];
 
 const sections: PolicySection[] = [
@@ -53,7 +53,7 @@ const sections: PolicySection[] = [
         title: "Information common to Erebrus services",
         items: [
           "Wallet address, wallet network, signed authentication messages, and related wallet connection state.",
-          "Account or access status, such as free trial eligibility, subscription status, token-gated access status, or NFT-related access signals.",
+          "Organization membership, role, assigned seat tier, and organization plan data used to determine service access and storage quota.",
           "Cookies, local storage, authentication tokens, and session information needed to keep you signed in and secure.",
           "Device and browser metadata, such as user agent, operating system, app version, timestamps, IP address seen by our web servers, request logs, and diagnostics.",
           "Support messages, bug reports, survey responses, and feedback you choose to send us.",
@@ -72,24 +72,23 @@ const sections: PolicySection[] = [
       {
         title: "Erebrus Drop information",
         items: [
-          "Drop Room transfers are designed to happen over your local Wi-Fi or hotspot. File contents are not uploaded to NetSepio servers as part of the local Drop Room transfer flow.",
-          "A QR code or browser Drop link may contain temporary local room information needed for a nearby device to join the room.",
-          "Files, photos, pasted text, filenames, file sizes, thumbnails, and received-file metadata may be processed locally on your devices so the transfer and Library can work.",
-          "Received files may stay on your device or in the app Library until you view, share, export, or delete them.",
-          "Erebrus Drop does not collect analytics, advertising identifiers, contact lists, account profiles, or location history.",
+          "File metadata such as filename, content type, byte size, selected node, storage scope, visibility, CID, upload state, and timestamps.",
+          "Public file contents are sent as plaintext through the gateway to the selected Kubo/IPFS node.",
+          "Private file contents are encrypted in your browser. The gateway and node receive ciphertext, authenticated encryption metadata, and a wrapped per-file key, but not the plaintext file key.",
+          "An encrypted vault backup may be stored by the gateway. Your recovery secret and unwrapped vault key are not sent to the gateway and are not persisted by the web app.",
+          "Upload, download, quota, node-health, audit, rate-limit, and security events needed to operate and protect the storage service.",
         ],
       },
     ],
   },
   {
-    title: "3. Information We Do Not Collect for Erebrus Drop",
+    title: "3. Drop Keys and Secrets We Do Not Collect",
     items: [
-      "We do not upload Drop Room file contents to NetSepio servers for the local transfer flow.",
-      "We do not collect Drop analytics events.",
-      "We do not collect mobile advertising identifiers for Drop.",
-      "We do not collect your contact list or address book for Drop.",
-      "We do not create Drop account profiles.",
-      "We do not collect precise location history for Drop.",
+      "Your Drop recovery secret.",
+      "Your plaintext account vault key.",
+      "Plaintext per-file data keys.",
+      "Plaintext private file contents.",
+      "Your wallet seed phrase or private key.",
     ],
   },
   {
@@ -98,17 +97,18 @@ const sections: PolicySection[] = [
       "Provide, secure, maintain, and troubleshoot Erebrus VPN and Erebrus Drop.",
       "Authenticate wallets and sessions.",
       "Create, manage, and revoke VPN clients and access credentials.",
-      "Operate trials, subscriptions, NFT access, promotions, and payment-related workflows.",
+      "Apply organization membership, seat, plan, quota, and payment-related rules.",
       "Detect abuse, fraud, spam, malware, attacks, service misuse, and violations of our Terms.",
       "Respond to support requests and improve product reliability.",
       "Comply with legal obligations and enforce our rights.",
     ],
   },
   {
-    title: "5. How Erebrus Drop Works Locally",
+    title: "5. How Erebrus Drop Storage Works",
     body: [
-      "When you create a Drop Room, another nearby device can join by scanning a QR code or opening a browser Drop link. The transfer is designed to use the local network, such as Wi-Fi or hotspot, instead of NetSepio cloud storage.",
-      "Because Drop is local-first, your own device, the receiving device, the local router, hotspot, browser, operating system, and any security software you use may process technical information required for the transfer. People who control the local network may be able to observe network-level metadata. Do not use Drop on networks or with devices you do not trust.",
+      "The web app sends file bytes through the Erebrus gateway to the Kubo node you select. The gateway controls authorization, quota, metadata, and managed pin lifecycle. Kubo stores content-addressed blocks and participates in IPFS.",
+      "Private files are encrypted and decrypted in your browser using a random per-file key wrapped by your in-memory account vault key. Keep the recovery secret secure: NetSepio cannot reset it or decrypt your files if it is lost.",
+      "Public IPFS content should be treated as public and potentially durable. Deleting a managed Drop file removes the gateway record and its managed pin when safe, but cannot guarantee removal from other IPFS nodes, caches, recipients, or independent pins.",
     ],
   },
   {
@@ -119,17 +119,17 @@ const sections: PolicySection[] = [
     items: [
       "Service providers that help with hosting, security, support, payment processing, wallet connectivity, infrastructure, analytics for non-Drop services where used, and app operations.",
       "Blockchain networks, wallet providers, RPC providers, payment processors, or app stores when you choose to use those features.",
-      "VPN node operators or infrastructure providers as technically necessary to provide VPN routing and network operations.",
+      "VPN and Drop node operators or infrastructure providers as technically necessary to provide routing and storage. Drop operators may see metadata and stored bytes; private stored bytes are ciphertext.",
       "Legal, safety, or compliance recipients when we believe disclosure is required by law or necessary to protect rights, users, the Services, or the public.",
       "Business transfer recipients if NetSepio is involved in a merger, acquisition, financing, reorganization, or sale of assets.",
-      "Other people or services when you intentionally share information, such as sending files through Drop, exporting a Library item, using a share sheet, posting publicly, or contacting support.",
+      "Other people or services when you intentionally publish or share a Drop file, disclose its CID, export content, post publicly, or contact support.",
     ],
   },
   {
     title: "7. Cookies and Local Storage",
     body: [
       "We use cookies, local storage, and similar technologies to support authentication, wallet connection state, security, preferences, and product functionality. You can control cookies through your browser, but some features may stop working if cookies or local storage are disabled.",
-      "Erebrus Drop may use local device storage for room state, received files, previews, or Library functionality. Deleting app data or Library items may remove locally stored information.",
+      "The Drop vault key and recovery secret are not placed in localStorage or persisted app state. The raw vault key is held in memory only while unlocked and is cleared by refresh, navigation, or an explicit lock.",
     ],
   },
   {
@@ -147,9 +147,9 @@ const sections: PolicySection[] = [
   {
     title: "9. Data Retention",
     items: [
-      "Wallet authentication, account, subscription, payment, support, and operational records are retained as long as needed to provide the Services, resolve disputes, enforce Terms, maintain security, and comply with law.",
-      "VPN client metadata may be retained while your client, account, trial, or subscription is active and for a reasonable period after deletion for security, backup, audit, or legal reasons.",
-      "Drop Room file contents are not stored on NetSepio servers for the local transfer flow. Received files may remain locally on your device until you delete them or clear the relevant app/device storage.",
+      "Wallet authentication, organization, plan, payment, support, and operational records are retained as long as needed to provide the Services, resolve disputes, enforce Terms, maintain security, and comply with law.",
+      "VPN client metadata may be retained while your client, account, or organization service is active and for a reasonable period after deletion for security, backup, audit, or legal reasons.",
+      "Managed Drop files and metadata remain until deleted, expired, or removed under applicable policy. Public IPFS copies may remain outside NetSepio's control; encrypted private blocks may also persist as unreadable ciphertext on independent nodes or backups.",
       "Security logs may be retained for a limited period to detect abuse, investigate incidents, and protect the Services.",
     ],
   },
@@ -166,7 +166,7 @@ const sections: PolicySection[] = [
       "Depending on where you live, you may have rights to access, correct, delete, restrict, object to, or receive a copy of certain personal data. You may also have rights to appeal a privacy request decision or lodge a complaint with a regulator.",
     ],
     items: [
-      "You can disconnect wallets, clear browser cookies, delete local Drop Library files, or uninstall the app through your device controls.",
+      "You can disconnect wallets, clear browser cookies, lock the Drop vault, delete managed Drop files, or uninstall the app through your device controls.",
       "California residents may have rights to know, access, delete, correct, opt out of sale or sharing, limit use of sensitive personal information, and be free from discrimination for exercising privacy rights.",
       "European Economic Area, United Kingdom, and similar-region users may have GDPR-style rights, including access, rectification, erasure, restriction, objection, portability, and withdrawal of consent where processing is based on consent.",
       "To submit a request, contact support@netsepio.com. We may need to verify your request before acting on it.",
@@ -210,7 +210,7 @@ export default function PrivacyPage() {
     <LegalPageShell
       eyebrow="Erebrus legal"
       title="Privacy Policy"
-      summary="This policy covers Erebrus VPN and Erebrus Drop, including wallet authentication, VPN client management, local Drop Rooms, QR joins, browser Drop links, received files, and Library controls."
+      summary="This policy covers Erebrus VPN and Erebrus Drop, including wallet authentication, organization entitlements, VPN client management, IPFS storage, browser-side encryption, public shares, and key recovery."
       lastUpdated={lastUpdated}
     >
       <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2">

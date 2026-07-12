@@ -424,7 +424,7 @@ export default function ProfilePage() {
           <Card className="p-6">
             <div className="font-semibold">Solana NFTs</div>
             <p className="mt-1 text-xs text-[var(--text-2)]">
-              Holding a gating NFT? Refresh entitlement on Subscribe.
+              NFTs held by your connected wallet.
             </p>
             <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
               {nfts.slice(0, 8).map((nft) => (
@@ -464,8 +464,8 @@ export default function ProfilePage() {
           >
             <div className="font-semibold">Invite friends, earn XP</div>
             <p className="mt-1 text-xs leading-relaxed text-[var(--text-2)]">
-              Share your code — when a friend joins and starts their trial, you both earn XP.
-              Claim XP on the Rewards page for free days of access.
+              Share your code — when a friend joins, you both earn XP. Claim XP on the Rewards
+              page for perks.
             </p>
             <div className="mt-4 flex items-center gap-2 rounded-[11px] border border-dashed border-[var(--accent)]/35 bg-[var(--accent)]/5 px-3.5 py-3">
               <span className="flex-1 font-mono text-sm tracking-wide text-[var(--accent-hi)]">

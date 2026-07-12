@@ -562,7 +562,7 @@ export function AdminConsole() {
         <TabsContent value="subs" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {Object.entries({ ...stats?.subscriptions.by_plan, ...subs }).map(([plan, count]) => (
-              <StatCard key={plan} label={plan} value={count ?? 0} sub="active subscriptions" />
+              <StatCard key={plan} label={plan} value={count ?? 0} sub="legacy subscription rows" />
             ))}
           </div>
         </TabsContent>

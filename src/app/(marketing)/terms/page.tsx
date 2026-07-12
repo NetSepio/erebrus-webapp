@@ -7,7 +7,7 @@ import {
 export const metadata = pageMetadata({
   title: "Terms and Conditions",
   description:
-    "Terms and Conditions for Erebrus VPN and Erebrus Drop — wallet access, decentralized VPN usage, and local-first file sharing.",
+    "Terms and Conditions for Erebrus VPN and Erebrus Drop — wallet access, decentralized VPN usage, and IPFS storage.",
   path: "/terms",
   keywords: [
     "Erebrus terms",
@@ -29,7 +29,7 @@ type TermsSection = {
   }>;
 };
 
-const lastUpdated = "July 10, 2026";
+const lastUpdated = "July 11, 2026";
 
 const sections: TermsSection[] = [
   {
@@ -45,14 +45,14 @@ const sections: TermsSection[] = [
       {
         title: "Erebrus VPN",
         body: [
-          "Erebrus VPN provides wallet-authenticated access to decentralized VPN and DePIN network features. Depending on availability, you may browse nodes, create VPN clients, generate or download configuration files, manage subscriptions or trials, and access related network tools.",
+          "Erebrus VPN provides wallet-authenticated access to decentralized VPN and DePIN network features. Depending on availability, you may browse nodes, create VPN clients, generate or download configuration files, manage organization plans and seats, and access related network tools.",
         ],
       },
       {
         title: "Erebrus Drop",
         body: [
-          "Erebrus Drop helps you move files, photos, and text between nearby devices using a local Drop Room over Wi-Fi or hotspot. You can create a Drop Room, join by scanning a QR code or opening a browser Drop link, transfer directly through your local network, and manage received files from the Library.",
-          "Erebrus Drop is designed as a local-first transfer tool. Drop Room file contents are not uploaded to NetSepio servers as part of the local transfer flow.",
+          "Erebrus Drop stores files on selected community-operated or private-organization Kubo/IPFS nodes through the Erebrus gateway. The gateway manages authorization, quota, metadata, and managed pin lifecycle.",
+          "Private files are encrypted and decrypted in your browser. Public files are plaintext and may be shared by opaque link or retrieved by CID through IPFS.",
         ],
       },
     ],
@@ -84,14 +84,13 @@ const sections: TermsSection[] = [
     ],
   },
   {
-    title: "6. Drop Use and Local Transfer Responsibilities",
+    title: "6. Drop Storage Responsibilities",
     items: [
-      "Only create or join Drop Rooms with devices and people you trust.",
-      "A QR code or browser Drop link may allow another nearby device to join the room while the room is active. Protect room codes and links.",
-      "Your local Wi-Fi, hotspot, device firewall, browser permissions, or operating system settings may affect whether Drop works.",
-      "Files, photos, and text you send or receive may contain personal, confidential, copyrighted, malicious, or regulated content. You are responsible for what you choose to transfer.",
-      "Received files may remain on your device or in the app Library until you delete them, export them, or manage them through your device controls.",
-      "If you share a received file through another app, cloud service, operating system share sheet, or third-party tool, that separate service may process the file under its own terms.",
+      "You are responsible for files you upload, store, retrieve, publish, or share and for ensuring that you have all necessary rights and permissions.",
+      "Public files are plaintext. Anyone with the opaque link or CID may retrieve them, and deletion cannot guarantee removal from independent IPFS nodes, caches, recipients, or pins.",
+      "Keep your private-file recovery secret secure. NetSepio cannot recover your vault key or decrypt private files if the recovery secret is lost.",
+      "Node capacity, connectivity, pin state, browser memory, and IPFS availability may affect upload and retrieval. Keep independent backups of important files.",
+      "Organization owners and node operators may use the proxied Kubo WebUI. Pins created directly in Kubo are unmanaged and may not appear in Drop metadata, usage, quota, or deletion workflows.",
     ],
   },
   {
@@ -110,13 +109,13 @@ const sections: TermsSection[] = [
     title: "8. User Content and Transfers",
     body: [
       'You retain ownership of files, photos, text, wallet data, names, configuration labels, support messages, and other content you provide or transfer through the Services ("User Content").',
-      "For Erebrus Drop local transfers, NetSepio does not claim ownership of transferred file contents and does not need a license to host those file contents on NetSepio servers for the local transfer flow. If you provide content to NetSepio through support, feedback, bug reports, public channels, or hosted features, you grant NetSepio the limited rights necessary to operate, secure, improve, and support the Services.",
+      "You grant NetSepio and participating node operators the limited rights necessary to transmit, store, pin, retrieve, replicate, and delete User Content as directed by you and required to operate Drop. This license ends when no longer needed to provide the requested service, subject to backups, independent IPFS copies, legal obligations, and content outside NetSepio's control.",
     ],
   },
   {
-    title: "9. Fees, Trials, Subscriptions, NFTs, and Blockchain Features",
+    title: "9. Fees, Organization Plans, and Blockchain Features",
     items: [
-      "Free trials, paid plans, NFT-based access, token-gated access, or promotional offers may be changed, paused, or discontinued.",
+      "Service access and limits are determined by active organization membership, organization plans, and assigned seats. Personal trials and NFT holdings do not grant product access.",
       "Fees, taxes, gas costs, payment processor charges, and blockchain network fees are your responsibility unless stated otherwise.",
       "NFT minting or token features may be experimental, unavailable, delayed, or non-functional. Ownership of an NFT or token does not guarantee perpetual service access unless NetSepio expressly states that in writing.",
       "Blockchain assets are volatile and can involve risk. NetSepio does not provide financial, investment, tax, or legal advice.",
@@ -137,7 +136,7 @@ const sections: TermsSection[] = [
   {
     title: "12. Security",
     body: [
-      "NetSepio works to protect the Services, but no network, VPN, app, device, browser, blockchain, local transfer, or security measure is perfect. You are responsible for keeping your wallet credentials, devices, local network, operating system, browser, and received files secure.",
+      "NetSepio works to protect the Services, but no network, VPN, app, device, browser, blockchain, encryption implementation, node, or storage system is perfect. You are responsible for keeping your wallet credentials, Drop recovery secret, devices, operating system, browser, and files secure.",
       "Report suspected vulnerabilities or account abuse to support@netsepio.com. Do not publicly disclose a vulnerability before NetSepio has had a reasonable opportunity to investigate and remediate it.",
     ],
   },
@@ -200,7 +199,7 @@ export default function TermsPage() {
     <LegalPageShell
       eyebrow="Erebrus legal"
       title="Terms and Conditions"
-      summary="These Terms cover Erebrus VPN and Erebrus Drop, including wallet access, decentralized VPN usage, local Drop Rooms, QR joins, browser Drop links, file transfers, and Library management."
+      summary="These Terms cover Erebrus VPN and Erebrus Drop, including wallet access, organization plans, decentralized VPN usage, IPFS storage, browser-side encryption, public sharing, and recovery responsibilities."
       lastUpdated={lastUpdated}
     >
       <div className="space-y-5">
