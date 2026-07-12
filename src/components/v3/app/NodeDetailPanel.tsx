@@ -240,16 +240,11 @@ export function NodeDetailPanel({
 
       {/* Key metrics */}
       <div className="mt-2 grid grid-cols-2 gap-1.5">
-        {showLatency && (
-          <Stat label="Latency" value={formatLatency(node.latency_ms)} color={latencyColor(node.latency_ms)} />
-        )}
         <Stat
           label="Load"
           value={node.load_pct != null ? `${node.load_pct.toFixed(0)}%` : "—"}
           color={(node.load_pct ?? 0) > 80 ? "var(--warn)" : "var(--success)"}
         />
-        <Stat label="↓ Down" value={mbps(node.download_mbps)} />
-        <Stat label="↑ Up" value={mbps(node.upload_mbps)} />
         <Stat
           label="Peers"
           value={
@@ -259,6 +254,11 @@ export function NodeDetailPanel({
           }
           color={node.accepting_clients === false ? "var(--warn)" : "var(--success)"}
         />
+        <Stat label="↓ Down" value={mbps(node.download_mbps)} />
+        <Stat label="↑ Up" value={mbps(node.upload_mbps)} />
+        {showLatency && (
+          <Stat label="Latency" value={formatLatency(node.latency_ms)} color={latencyColor(node.latency_ms)} />
+        )}
       </div>
 
       {/* Protocols */}

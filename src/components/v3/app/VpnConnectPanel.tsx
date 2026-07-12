@@ -270,7 +270,32 @@ export function VpnConnectPanel() {
 
   const sessionStats = useMemo(() => {
     const active = clients[0];
+    const mbps = (v?: number) =>
+      v != null ? `${v >= 100 ? v.toFixed(0) : v.toFixed(1)} Mbps` : "—";
     return [
+      {
+        label: "Load",
+        value: selected?.load_pct != null ? `${selected.load_pct.toFixed(0)}%` : "—",
+        color: (selected?.load_pct ?? 0) > 80 ? "var(--warn)" : "var(--success)",
+      },
+      {
+        label: "Peers",
+        value:
+          selected?.wg_peers_connected != null && selected?.wg_peers_registered != null
+            ? `${selected.wg_peers_connected} / ${selected.wg_peers_registered}`
+            : "—",
+        color: selected?.accepting_clients === false ? "var(--warn)" : "var(--success)",
+      },
+      {
+        label: "↓ Down",
+        value: mbps(selected?.download_mbps),
+        color: "var(--text)",
+      },
+      {
+        label: "↑ Up",
+        value: mbps(selected?.upload_mbps),
+        color: "var(--text)",
+      },
       {
         label: "Last handshake",
         value: active?.last_handshake ? formatRelativeTime(active.last_handshake) : "—",
@@ -285,19 +310,6 @@ export function VpnConnectPanel() {
         label: "Latency",
         value: formatLatency(selected?.latency_ms),
         color: latencyColor(selected?.latency_ms),
-      },
-      {
-        label: "Node load",
-        value: selected?.load_pct != null ? `${selected.load_pct.toFixed(0)}%` : "—",
-        color: (selected?.load_pct ?? 0) > 80 ? "var(--warn)" : "var(--success)",
-      },
-      {
-        label: "Peers",
-        value:
-          selected?.wg_peers_connected != null && selected?.wg_peers_registered != null
-            ? `${selected.wg_peers_connected} / ${selected.wg_peers_registered}`
-            : "—",
-        color: selected?.accepting_clients === false ? "var(--warn)" : "var(--success)",
       },
     ];
   }, [clients, selected, hasBandwidth, totals]);
