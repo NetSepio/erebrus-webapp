@@ -5,10 +5,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useAppKit, useDisconnect, useAppKitAccount, useAppKitNetworkCore } from "@reown/appkit/react";
-import { truncateAddress, daysRemaining, subscriptionEndDate } from "@/lib/design";
+import { truncateAddress } from "@/lib/design";
 import { userDisplayName } from "@/lib/display-name";
 import { fetchProfile } from "@/lib/gateway/client";
-import type { GatewayProfile, GatewaySubscription } from "@/lib/gateway/types";
+import { tierLabel, type EffectiveEntitlement } from "@/lib/entitlements";
+import type { GatewayProfile } from "@/lib/gateway/types";
 import Cookies from "js-cookie";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { useWalletAuth, clearWebSession } from "@/context/appkit";
@@ -18,7 +19,7 @@ import { ipfsImageUrl } from "@/lib/ipfs";
 /** Other views (e.g. the profile page) dispatch this after a profile PATCH. */
 export const PROFILE_UPDATED_EVENT = "erebrus:profile-updated";
 
-export function WalletMenu({ subscription }: { subscription: GatewaySubscription | null }) {
+export function WalletMenu({ entitlement }: { entitlement: EffectiveEntitlement }) {
   const { isAdmin } = usePlatformAdmin();
   const [open, setOpen] = useState(false);
   const [profile, setProfile] = useState<GatewayProfile | null>(null);
@@ -29,7 +30,6 @@ export function WalletMenu({ subscription }: { subscription: GatewaySubscription
   const { disconnect } = useDisconnect();
   const router = useRouter();
 
-  const days = daysRemaining(subscriptionEndDate(subscription ?? undefined));
   // The account's wallet is gateway truth; before the profile loads, fall back
   // to the live connection so wallet users don't flash empty.
   const wallet = profile ? profile.wallet_address : address || "";
@@ -153,11 +153,10 @@ export function WalletMenu({ subscription }: { subscription: GatewaySubscription
                       : "⌁ Connect wallet"}
                 </button>
               )}
-              {subscription?.entitled && days !== null && (
-                <div className="mt-2 font-mono text-[11px] text-[var(--accent-hi)]">
-                  {subscription.source ?? "Trial"} · {days} days left
-                </div>
-              )}
+              <div className="mt-2 font-mono text-[11px] text-[var(--accent-hi)]">
+                {tierLabel(entitlement.tier)} plan
+                {entitlement.org?.name ? ` · ${entitlement.org.name}` : ""}
+              </div>
             </div>
             <MenuLink href="/profile" glyph="◆" onClick={() => setOpen(false)}>
               Profile

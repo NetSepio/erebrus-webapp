@@ -9,6 +9,6 @@ export default function OgImage() {
   return ogImageResponse({
     title: "The sovereign internet",
     subtitle:
-      "Decentralized VPN + local-first Drop. Privacy infrastructure owned by the people who run it.",
+      "Decentralized VPN + encrypted IPFS Drop storage. Infrastructure owned by the people who run it.",
   });
 }

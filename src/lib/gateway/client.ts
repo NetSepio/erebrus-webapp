@@ -7,9 +7,7 @@ import {
   normalizeNode,
   normalizeOrg,
   normalizeOrgNode,
-  normalizePlan,
   normalizeProfile,
-  normalizeSubscription,
 } from "./normalize";
 import type {
   GatewayActivity,
@@ -38,14 +36,12 @@ import type {
   GatewayOrgUsage,
   GatewayRegistrationTokenResult,
   GatewayPerk,
-  GatewayPlan,
   GatewayPlatformSetting,
   GatewayProfile,
   GatewayUserOrgInvite,
   GatewayRank,
   GatewayReferral,
   GatewaySocialAccount,
-  GatewaySubscription,
   GatewayVpnClient,
 } from "./types";
 
@@ -174,28 +170,6 @@ export async function fetchVpnClientConfig(id: string): Promise<{ config: string
   const config = bundleWgConfig(data);
   if (!config) throw new Error("Credential bundle has no WireGuard config");
   return { config };
-}
-
-// ── Subscriptions ──────────────────────────────────────────────────────────
-
-export async function fetchSubscription(): Promise<GatewaySubscription> {
-  const data = await gatewayFetch<Record<string, unknown>>("subscriptions");
-  return normalizeSubscription(data);
-}
-
-export async function fetchPlans(): Promise<GatewayPlan[]> {
-  const data = await gatewayFetch<unknown>("subscriptions/plans", { auth: false });
-  return asArray(data, normalizePlan);
-}
-
-export async function startTrial(): Promise<GatewaySubscription> {
-  const data = await gatewayFetch<Record<string, unknown>>("subscriptions/trial", { method: "POST" });
-  return normalizeSubscription(data);
-}
-
-export async function refreshNftEntitlement(): Promise<GatewaySubscription> {
-  const data = await gatewayFetch<Record<string, unknown>>("subscriptions/nft/refresh", { method: "POST" });
-  return normalizeSubscription(data);
 }
 
 // ── Account ────────────────────────────────────────────────────────────────

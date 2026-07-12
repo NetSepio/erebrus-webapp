@@ -3,7 +3,7 @@ import { appPageMetadata } from "@/lib/seo";
 
 export const metadata = appPageMetadata({
   title: "Dashboard",
-  description: "Your Erebrus network overview — VPN clients, nodes, and subscription status.",
+  description: "Your Erebrus network overview — VPN clients, nodes, and organization plan status.",
   path: "/dashboard",
 });
 

@@ -1,67 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { fetchOrgs } from "@/lib/gateway/client";
+import type { GatewayOrg } from "@/lib/gateway/types";
 import {
-  fetchSubscription,
-  fetchPlans,
-  startTrial,
-  refreshNftEntitlement,
-} from "@/lib/gateway/client";
-import type { GatewayPlan, GatewaySubscription } from "@/lib/gateway/types";
-import { daysRemaining, planProgress, subscriptionEndDate, trialTotalDays } from "@/lib/design";
-import { subscriptionDeviceLimit } from "@/lib/gateway/normalize";
+  resolveEffectiveEntitlement,
+  tierLabel,
+  deviceLimitForTier,
+} from "@/lib/entitlements";
+import { orgPlanLabel } from "@/lib/org-plans";
 import { AccentButton, Card, Eyebrow } from "@/components/v3/ui";
-import { toast } from "sonner";
 
 const benefits = [
-  "Full network access across all public nodes",
+  "Full network access across eligible public nodes",
   "WireGuard + stealth protocol bundles",
   "Multiple device configs",
   "Workspace operator tools",
+  "Decentralized Drop storage",
   "XP rewards and rank perks",
 ];
 
 export default function SubscribePage() {
-  const [sub, setSub] = useState<GatewaySubscription | null>(null);
-  const [plans, setPlans] = useState<GatewayPlan[]>([]);
+  const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const refresh = () => {
-    Promise.all([fetchSubscription(), fetchPlans()])
-      .then(([s, p]) => {
-        setSub(s);
-        setPlans(p);
-      })
-      .finally(() => setLoading(false));
-  };
-
   useEffect(() => {
-    refresh();
+    fetchOrgs()
+      .then(setOrgs)
+      .catch(() => setOrgs([]))
+      .finally(() => setLoading(false));
   }, []);
 
-  const end = subscriptionEndDate(sub ?? undefined);
-  const days = daysRemaining(end);
-  const pct = planProgress(end, trialTotalDays(sub?.source));
-
-  const startFreeTrial = async () => {
-    try {
-      await startTrial();
-      toast.success("7-day trial activated");
-      refresh();
-    } catch (err: unknown) {
-      toast.error("Trial unavailable — may already be used");
-    }
-  };
-
-  const refreshNft = async () => {
-    try {
-      await refreshNftEntitlement();
-      toast.success("NFT entitlement refreshed");
-      refresh();
-    } catch {
-      toast.error("No qualifying NFT found");
-    }
-  };
+  const entitlement = resolveEffectiveEntitlement(orgs);
+  const isFree = entitlement.tier === "free";
 
   if (loading) {
     return <div className="py-20 text-center text-[var(--text-2)]">Loading…</div>;
@@ -83,12 +55,20 @@ export default function SubscribePage() {
         >
           <div className="h-14 w-14 rotate-[-45deg] rounded-2xl border-[6px] border-[var(--on-accent)] border-r-transparent" />
         </div>
-        <Eyebrow>Erebrus Access Pass</Eyebrow>
-        <h2 className="mt-2 text-2xl font-bold tracking-tight">30 days of full access</h2>
+        <Eyebrow>Organization plans</Eyebrow>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight">Access follows your workspace</h2>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[var(--text-2)]">
-          An on-chain pass that unlocks the whole network. Ownable, portable, and renewable
-          whenever you choose.
+          Your tier is set by the organizations you belong to and the seats you hold. Upgrade a
+          workspace plan or add a paid seat to unlock more.
         </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link href="/pricing">
+            <AccentButton>View plans</AccentButton>
+          </Link>
+          <Link href="/workspace">
+            <AccentButton variant="ghost">Manage workspaces</AccentButton>
+          </Link>
+        </div>
       </Card>
 
       <div className="space-y-4">
@@ -97,24 +77,16 @@ export default function SubscribePage() {
             Current entitlement
           </div>
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-lg font-semibold capitalize">
-              {sub?.entitled ? (sub.source ?? sub.plan_id ?? "Active") : "None"}
+            <span className="text-lg font-semibold">{tierLabel(entitlement.tier)}</span>
+            <span className="font-mono text-xs text-[var(--text-3)]">
+              {deviceLimitForTier(entitlement.tier)} devices
             </span>
-            {days !== null && (
-              <span className="font-mono text-xs text-[var(--accent-hi)]">{days} days left</span>
-            )}
           </div>
-          {sub?.entitled && (
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${100 - pct}%`,
-                  background: "linear-gradient(90deg, #FF7E44, #E0531F)",
-                }}
-              />
-            </div>
-          )}
+          <p className="mt-2 text-xs text-[var(--text-3)]">
+            {entitlement.org?.name
+              ? `From your seat in ${entitlement.org.name}.`
+              : "Every account gets the Free tier from its personal organization."}
+          </p>
         </Card>
 
         <Card className="p-5">
@@ -127,40 +99,32 @@ export default function SubscribePage() {
         </Card>
 
         <Card className="p-5">
-          {!sub?.entitled && !sub?.trial_consumed && (
-            <AccentButton className="mb-3 w-full" onClick={startFreeTrial}>
-              Start 7-day free trial
-            </AccentButton>
-          )}
-          <AccentButton className="mb-3 w-full" variant="ghost" onClick={refreshNft}>
-            Refresh NFT entitlement
-          </AccentButton>
-          <AccentButton className="w-full" disabled>
-            Subscribe with SOL (coming soon)
-          </AccentButton>
-          <p className="mt-3 text-center font-mono text-[11px] text-[var(--text-3)]">
-            Already holding an IslandDAO NFT? Access is automatic.
-          </p>
-        </Card>
-
-        {plans.length > 0 && (
-          <Card className="p-5">
-            <div className="mb-3 font-semibold">Available plans</div>
-            {plans.map((plan) => (
-              <div key={plan.id} className="flex justify-between py-2 text-sm">
-                <span className="capitalize">{plan.name}</span>
+          <div className="mb-3 font-semibold">Your workspaces</div>
+          {orgs.length === 0 ? (
+            <p className="text-sm text-[var(--text-2)]">
+              No workspaces yet.{" "}
+              <Link href="/workspace" className="text-[var(--accent-hi)]">
+                Create one
+              </Link>{" "}
+              to manage plans and seats.
+            </p>
+          ) : (
+            orgs.map((org) => (
+              <div key={org.id} className="flex items-center justify-between py-2 text-sm">
+                <span className="truncate">{org.name}</span>
                 <span className="font-mono text-[var(--text-3)]">
-                  {plan.max_clients} devices · {plan.period_days}d
+                  {orgPlanLabel(org.plan ?? org.kind)}
+                  {org.has_paid_seat ? " · seat" : ""}
                 </span>
               </div>
-            ))}
-            {sub?.entitled && (
-              <p className="mt-2 text-xs text-[var(--text-3)]">
-                Your limit: {subscriptionDeviceLimit(sub, plans)} devices
-              </p>
-            )}
-          </Card>
-        )}
+            ))
+          )}
+          {isFree && (
+            <p className="mt-2 text-xs text-[var(--text-3)]">
+              Upgrade a workspace plan to raise your tier.
+            </p>
+          )}
+        </Card>
       </div>
     </div>
   );

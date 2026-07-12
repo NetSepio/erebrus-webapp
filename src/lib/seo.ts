@@ -5,7 +5,7 @@ export const SITE_NAME = "Erebrus";
 export const TWITTER_HANDLE = "@NetSepio";
 
 export const DEFAULT_DESCRIPTION =
-  "Take back your digital agency. Erebrus is a no-logs decentralized VPN and local-first Drop — privacy infrastructure run by the people who use it, not the platforms that profit from you.";
+  "Take back your digital agency. Erebrus combines a no-logs decentralized VPN with optional IPFS-backed Drop storage — privacy infrastructure run by the people who use it.";
 
 const DEFAULT_KEYWORDS = [
   "Erebrus",
