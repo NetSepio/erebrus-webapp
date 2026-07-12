@@ -76,6 +76,13 @@ export interface DropFile {
   created_at?: string;
   updated_at?: string;
   encryption_metadata?: DropEncryptionMetadata;
+  /** Direct public IPFS gateway base for the hosting node, when exposed. */
+  gateway_url?: string;
+  /**
+   * Additional public gateway bases for other nodes that have pinned this CID.
+   * Used to fall back across nodes if one is down (content is addressed by CID).
+   */
+  gateway_urls?: string[];
 }
 
 /** Per-user (public) or per-org (private) storage accounting. */
@@ -125,6 +132,10 @@ export interface DropPublicFile {
   size_bytes: number;
   cid?: string;
   created_at?: string;
+  /** Direct public IPFS gateway base for the hosting node, when exposed. */
+  gateway_url?: string;
+  /** Additional gateway bases for other nodes pinning this CID (fallback). */
+  gateway_urls?: string[];
 }
 
 /** Short-lived same-origin proxy session for a private node's Kubo WebUI. */

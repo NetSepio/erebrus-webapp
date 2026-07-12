@@ -28,6 +28,12 @@ function bool(v: unknown): boolean {
   return v === true || v === "true";
 }
 
+function strArray(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out = v.map((item) => str(item)).filter((s): s is string => !!s);
+  return out.length ? out : undefined;
+}
+
 function scope(v: unknown): DropScope {
   return String(v ?? "").toLowerCase() === "public" ? "public" : "private";
 }
@@ -117,6 +123,8 @@ export function normalizeDropFile(raw: Raw): DropFile {
     created_at: str(raw.created_at),
     updated_at: str(raw.updated_at),
     encryption_metadata: normalizeDropEncryptionMetadata(raw.encryption_metadata),
+    gateway_url: str(raw.gateway_url ?? raw.public_gateway_url),
+    gateway_urls: strArray(raw.gateway_urls ?? raw.public_gateway_urls),
   };
 }
 
@@ -153,6 +161,8 @@ export function normalizeDropPublicFile(raw: Raw): DropPublicFile {
     size_bytes: num(raw.size_bytes ?? raw.size),
     cid: str(raw.cid),
     created_at: str(raw.created_at),
+    gateway_url: str(raw.gateway_url ?? raw.public_gateway_url),
+    gateway_urls: strArray(raw.gateway_urls ?? raw.public_gateway_urls),
   };
 }
 

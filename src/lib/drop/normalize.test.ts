@@ -34,6 +34,26 @@ describe("normalizeDropNode", () => {
 });
 
 describe("normalizeDropFile", () => {
+  it("parses public gateway url and gateway_urls list", () => {
+    const file = normalizeDropFile({
+      file_id: "f1",
+      gateway_url: "https://node1.example/",
+      gateway_urls: ["https://node2.example", "", 123, "https://node3.example"],
+    });
+    expect(file.gateway_url).toBe("https://node1.example/");
+    expect(file.gateway_urls).toEqual([
+      "https://node2.example",
+      "123",
+      "https://node3.example",
+    ]);
+  });
+
+  it("leaves gateway fields undefined when absent", () => {
+    const file = normalizeDropFile({ file_id: "f1" });
+    expect(file.gateway_url).toBeUndefined();
+    expect(file.gateway_urls).toBeUndefined();
+  });
+
   it("defaults visibility to private and status to reserved", () => {
     const file = normalizeDropFile({ file_id: "f1", filename: "a.bin", size_bytes: 10 });
     expect(file.id).toBe("f1");
