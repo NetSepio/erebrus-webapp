@@ -19,6 +19,7 @@
 test.py
 # production
 /build
+/public/install.sh
 
 # misc
 .DS_Store
