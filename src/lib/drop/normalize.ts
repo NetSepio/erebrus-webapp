@@ -87,6 +87,21 @@ export function normalizeDropEncryptionMetadata(
 
 export function normalizeDropNode(raw: Raw): DropNode {
   const s = scope(raw.scope ?? (raw.access_mode === "public" ? "public" : "private"));
+  const dropCap =
+    raw.capabilities && typeof raw.capabilities === "object"
+      ? ((raw.capabilities as Raw).drop as Raw | undefined)
+      : undefined;
+  const gatewayUrl = str(
+    raw.gateway_url ?? raw.public_gateway_url ?? dropCap?.gateway_url
+  );
+  const gatewayAvailable =
+    bool(
+      raw.gateway_available ??
+        raw.gateway_enabled ??
+        raw.public_gateway ??
+        dropCap?.gateway_available ??
+        dropCap?.public_gateway
+    ) || !!gatewayUrl;
   return {
     id: String(raw.node_id ?? raw.id ?? ""),
     name: str(raw.name) ?? String(raw.node_id ?? raw.id ?? "node"),
@@ -102,7 +117,9 @@ export function normalizeDropNode(raw: Raw): DropNode {
       raw.accepting_uploads == null
         ? raw.accepting !== false
         : bool(raw.accepting_uploads),
-    webui_available: bool(raw.webui_available),
+    webui_available: bool(raw.webui_available ?? dropCap?.webui_available),
+    gateway_available: gatewayAvailable,
+    gateway_url: gatewayUrl,
   };
 }
 

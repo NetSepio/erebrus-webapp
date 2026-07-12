@@ -31,6 +31,14 @@ export interface DropNode {
   /** False when the node is not currently accepting new pins. */
   accepting: boolean;
   webui_available: boolean;
+  /**
+   * True when the operator has exposed this node's public IPFS HTTP gateway
+   * (port 8080), enabling direct in-browser file viewing by CID. When false,
+   * content is only reachable through the Erebrus gateway proxy.
+   */
+  gateway_available: boolean;
+  /** The node's public IPFS gateway base URL, present only when exposed. */
+  gateway_url?: string;
 }
 
 /**

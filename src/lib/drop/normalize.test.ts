@@ -31,6 +31,26 @@ describe("normalizeDropNode", () => {
     expect(node.capacity).toBe("unknown");
     expect(node.accepting).toBe(false);
   });
+
+  it("defaults gateway_available to false when the node does not expose 8080", () => {
+    const node = normalizeDropNode({ id: "n" });
+    expect(node.gateway_available).toBe(false);
+    expect(node.gateway_url).toBeUndefined();
+  });
+
+  it("reads gateway exposure from the flag and the nested drop capability", () => {
+    expect(normalizeDropNode({ id: "n", gateway_available: true }).gateway_available).toBe(true);
+    expect(
+      normalizeDropNode({ id: "n", capabilities: { drop: { gateway_available: true } } })
+        .gateway_available
+    ).toBe(true);
+  });
+
+  it("infers gateway_available when a gateway_url is present", () => {
+    const node = normalizeDropNode({ id: "n", gateway_url: "https://node1.example:8080" });
+    expect(node.gateway_available).toBe(true);
+    expect(node.gateway_url).toBe("https://node1.example:8080");
+  });
 });
 
 describe("normalizeDropFile", () => {
