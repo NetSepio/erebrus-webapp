@@ -40,13 +40,9 @@ function normalizeNodeOrg(raw: unknown): GatewayNodeOrgSummary | undefined {
 function normalizeCapabilities(raw: unknown): GatewayNodeCapabilities | undefined {
   if (!raw || typeof raw !== "object") return undefined;
   const caps = raw as Record<string, unknown>;
-  const out: GatewayNodeCapabilities = {};
   const accessMode = optStr(caps.access_mode);
-  if (accessMode) out.access_mode = accessMode;
-  if (caps.app_hosting === true) out.app_hosting = true;
-  const wildcard = optStr(caps.wildcard_domain);
-  if (wildcard) out.wildcard_domain = wildcard;
-  return Object.keys(out).length > 0 ? out : undefined;
+  if (!accessMode) return undefined;
+  return { access_mode: accessMode };
 }
 
 export function normalizeNode(raw: Record<string, unknown>): GatewayNode {

@@ -23,8 +23,6 @@ export interface GatewayNodeSpeedtest {
 /** Capability flags advertised by a node. */
 export interface GatewayNodeCapabilities {
   access_mode?: string;
-  app_hosting?: boolean;
-  wildcard_domain?: string;
 }
 
 /** WireGuard endpoint on a discovery node (dial host for client RTT probes). */

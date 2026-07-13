@@ -4,8 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Card, ActionButton } from "@/components/v3/ui";
 import { formatBytes, formatRelativeTime } from "@/lib/format";
-import { Download, Trash2, Copy, Share2, Lock, Globe, Check, ExternalLink } from "lucide-react";
-import { directGatewayUrl } from "@/lib/drop/client";
+import { Download, Trash2, Copy, Share2, Lock, Globe, Check } from "lucide-react";
 import type { DropFile, DropFileStatus } from "@/lib/drop/types";
 
 const STATUS_META: Record<
@@ -67,12 +66,6 @@ export function DropFileList({
             const canDownload =
               file.status === "available" && (!file.encrypted || file.can_decrypt);
             const busy = busyId === file.id;
-            // Optional direct node-gateway link, only for public files whose
-            // host exposes a public IPFS gateway.
-            const gatewayLink =
-              file.visibility === "public" && file.status === "available"
-                ? directGatewayUrl(file.gateway_url ?? file.gateway_urls?.[0], file.cid)
-                : null;
             return (
               <li key={file.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5">
                 <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -134,20 +127,6 @@ export function DropFileList({
                       <Share2 size={13} />
                       Share
                     </ActionButton>
-                  )}
-                  {gatewayLink && (
-                    <a
-                      href={gatewayLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="contents"
-                      aria-label={`Open ${file.filename} on the node IPFS gateway`}
-                    >
-                      <ActionButton variant="neutral">
-                        <ExternalLink size={13} />
-                        Gateway
-                      </ActionButton>
-                    </a>
                   )}
                   <ActionButton
                     variant="accent"

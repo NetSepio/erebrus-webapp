@@ -1,6 +1,5 @@
 "use client";
 
-import { Globe, GlobeLock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, MonoLabel, StatusDot } from "@/components/v3/ui";
 import type { DropNode } from "@/lib/drop/types";
@@ -77,33 +76,6 @@ export function DropNodePicker({
                       )}
                     >
                       {node.scope}
-                    </span>
-                    <span
-                      title={
-                        node.gateway_available
-                          ? `This node publishes its IPFS gateway over HTTPS${
-                              node.gateway_url ? ` (${node.gateway_url})` : ""
-                            } — files can be viewed directly in the browser by CID.`
-                          : "This node has not published a public gateway — files are served through the Erebrus gateway proxy only."
-                      }
-                      className={cn(
-                        "flex items-center gap-1 rounded px-1.5 font-mono text-[10px]",
-                        node.gateway_available
-                          ? "bg-[var(--success)]/15 text-[var(--success)]"
-                          : "bg-white/[0.06] text-[var(--text-3)]"
-                      )}
-                    >
-                      {node.gateway_available ? (
-                        <>
-                          <Globe size={10} />
-                          direct view
-                        </>
-                      ) : (
-                        <>
-                          <GlobeLock size={10} />
-                          proxy only
-                        </>
-                      )}
                     </span>
                   </div>
                   <div className="mt-0.5 truncate font-mono text-[11px] text-[var(--text-3)]">

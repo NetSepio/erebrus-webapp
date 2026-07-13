@@ -30,20 +30,8 @@ export interface DropNode {
   capacity: DropNodeCapacity;
   /** False when the node is not currently accepting new pins. */
   accepting: boolean;
+  /** True when the node has a same-origin WebUI proxy for Kubo. */
   webui_available: boolean;
-  /**
-   * True when the operator has published this node's public IPFS gateway under
-   * an HTTPS domain, enabling direct in-browser file viewing by CID. Derived
-   * solely from a valid `gateway_url`; when false, content is only reachable
-   * through the Erebrus gateway proxy.
-   */
-  gateway_available: boolean;
-  /**
-   * The node's public IPFS gateway base — always an HTTPS domain
-   * (e.g. `https://drop-sg1.erebrus.io`) that TLS-terminates in front of Kubo.
-   * Present only when the operator has published it.
-   */
-  gateway_url?: string;
 }
 
 /**
@@ -89,13 +77,6 @@ export interface DropFile {
   created_at?: string;
   updated_at?: string;
   encryption_metadata?: DropEncryptionMetadata;
-  /** Direct public IPFS gateway base for the hosting node, when exposed. */
-  gateway_url?: string;
-  /**
-   * Additional public gateway bases for other nodes that have pinned this CID.
-   * Used to fall back across nodes if one is down (content is addressed by CID).
-   */
-  gateway_urls?: string[];
 }
 
 /** Per-user (public) or per-org (private) storage accounting. */
@@ -145,10 +126,8 @@ export interface DropPublicFile {
   size_bytes: number;
   cid?: string;
   created_at?: string;
-  /** Direct public IPFS gateway base for the hosting node, when exposed. */
-  gateway_url?: string;
-  /** Additional gateway bases for other nodes pinning this CID (fallback). */
-  gateway_urls?: string[];
+  /** Same-origin gateway proxy URL for downloading the public file. */
+  content_url?: string;
 }
 
 /** Short-lived same-origin proxy session for a private node's Kubo WebUI. */

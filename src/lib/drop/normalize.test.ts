@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeDropFile,
   normalizeDropNode,
+  normalizeDropPublicFile,
   normalizeDropUpload,
   normalizeDropUsage,
   normalizeDropEncryptionMetadata,
@@ -32,55 +33,16 @@ describe("normalizeDropNode", () => {
     expect(node.accepting).toBe(false);
   });
 
-  it("defaults gateway_available to false when the node publishes no gateway domain", () => {
-    const node = normalizeDropNode({ id: "n" });
-    expect(node.gateway_available).toBe(false);
-    expect(node.gateway_url).toBeUndefined();
-  });
-
-  it("reads the HTTPS gateway domain from public_gateway_url and the drop capability", () => {
-    const top = normalizeDropNode({ id: "n", public_gateway_url: "https://drop-sg1.erebrus.io" });
-    expect(top.gateway_available).toBe(true);
-    expect(top.gateway_url).toBe("https://drop-sg1.erebrus.io");
-
-    const nested = normalizeDropNode({
+  it("derives webui_available from the drop capability", () => {
+    const node = normalizeDropNode({
       id: "n",
-      capabilities: { drop: { public_gateway_url: "https://drop-sg1.erebrus.io/" } },
+      capabilities: { drop: { webui_available: true } },
     });
-    expect(nested.gateway_available).toBe(true);
-    expect(nested.gateway_url).toBe("https://drop-sg1.erebrus.io");
-  });
-
-  it("rejects non-HTTPS and RPC gateway values so no insecure link reaches the UI", () => {
-    expect(normalizeDropNode({ id: "n", public_gateway_url: "http://node1.example" }).gateway_available).toBe(false);
-    expect(normalizeDropNode({ id: "n", public_gateway_url: "https://node1.example:5001" }).gateway_available).toBe(false);
-    expect(normalizeDropNode({ id: "n", public_gateway_url: "not-a-url" }).gateway_url).toBeUndefined();
+    expect(node.webui_available).toBe(true);
   });
 });
 
 describe("normalizeDropFile", () => {
-  it("keeps only valid HTTPS gateway bases and drops http/invalid entries", () => {
-    const file = normalizeDropFile({
-      file_id: "f1",
-      gateway_url: "https://node1.example/",
-      gateway_urls: [
-        "https://node2.example",
-        "http://insecure.example",
-        "",
-        123,
-        "https://node3.example/",
-      ],
-    });
-    expect(file.gateway_url).toBe("https://node1.example");
-    expect(file.gateway_urls).toEqual(["https://node2.example", "https://node3.example"]);
-  });
-
-  it("leaves gateway fields undefined when absent", () => {
-    const file = normalizeDropFile({ file_id: "f1" });
-    expect(file.gateway_url).toBeUndefined();
-    expect(file.gateway_urls).toBeUndefined();
-  });
-
   it("defaults visibility to private and status to reserved", () => {
     const file = normalizeDropFile({ file_id: "f1", filename: "a.bin", size_bytes: 10 });
     expect(file.id).toBe("f1");
@@ -101,6 +63,16 @@ describe("normalizeDropFile", () => {
     expect(file.status).toBe("available");
     expect(file.encrypted).toBe(true);
     expect(file.cid).toBe("bafy");
+  });
+});
+
+describe("normalizeDropPublicFile", () => {
+  it("exposes the gateway proxy content_url", () => {
+    const file = normalizeDropPublicFile({
+      file_id: "f1",
+      content_url: "/api/v2/drop/public/f1/content",
+    });
+    expect(file.content_url).toBe("/api/v2/drop/public/f1/content");
   });
 });
 

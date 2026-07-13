@@ -254,55 +254,19 @@ export function publicDropContentUrl(fileId: string): string {
   return dropUrl(`drop/public/${fileId}/content`);
 }
 
-/**
- * Build a direct node IPFS gateway URL (`{gateway}/ipfs/{cid}`) for a file's
- * CID. Nodes publish their gateway as an HTTPS domain, so a non-HTTPS or
- * malformed base (or the RPC endpoint) is rejected — an insecure link is never
- * produced. A CID is content-addressed, so any node gateway that has pinned it
- * can serve identical bytes, enabling cross-node fallback.
- */
-export function directGatewayUrl(
-  gatewayBase: string | undefined,
-  cid: string | undefined
-): string | null {
-  if (!gatewayBase || !cid) return null;
-  try {
-    const url = new URL(gatewayBase);
-    if (url.protocol !== "https:" || !url.hostname || url.port === "5001") return null;
-    const base = gatewayBase.replace(/\/+$/, "");
-    return `${base}/ipfs/${encodeURIComponent(cid)}`;
-  } catch {
-    return null;
-  }
-}
-
 /** Minimal shape needed to resolve a public file's content sources. */
 export interface PublicContentRef {
   id: string;
-  cid?: string;
-  gateway_url?: string;
-  gateway_urls?: string[];
 }
 
 /**
- * Ordered content sources for a public file. Direct node IPFS gateways come
- * first (fast, offloads the Erebrus gateway), followed by the Erebrus gateway
- * proxy as the durable fallback — the proxy can source the same CID from any
- * node that has it pinned, so a single downed node doesn't break retrieval.
+ * Content source for a public file. Nodes no longer advertise a public IPFS
+ * gateway base, so all public content is served through the same-origin Erebrus
+ * gateway proxy. The proxy can source the same CID from any node that has it
+ * pinned, so a single downed node doesn't break retrieval.
  */
 export function publicContentSources(file: PublicContentRef): string[] {
-  const sources: string[] = [];
-  const bases = [
-    ...(file.gateway_urls ?? []),
-    ...(file.gateway_url ? [file.gateway_url] : []),
-  ];
-  for (const base of bases) {
-    const url = directGatewayUrl(base, file.cid);
-    if (url && !sources.includes(url)) sources.push(url);
-  }
-  const proxy = publicDropContentUrl(file.id);
-  if (!sources.includes(proxy)) sources.push(proxy);
-  return sources;
+  return [publicDropContentUrl(file.id)];
 }
 
 // ── Private node WebUI ──────────────────────────────────────────────────────
