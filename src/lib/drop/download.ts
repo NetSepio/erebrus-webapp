@@ -10,10 +10,10 @@ import type { DropFile } from "./types";
 export type DecryptContent = (file: DropFile, ciphertext: ArrayBuffer) => Promise<Blob>;
 
 /**
- * Fetch a file's content. Public files try each source in order (direct node
- * IPFS gateways first, then the Erebrus gateway proxy) so a downed node doesn't
- * break retrieval — the same CID is served by any node that has it pinned.
- * Encrypted/private files stream from the authenticated gateway proxy.
+ * Fetch a file's content. Public files stream from the same-origin Erebrus
+ * gateway proxy, which can source the same CID from any pinned node so a
+ * downed node doesn't break retrieval. Encrypted/private files stream from
+ * the authenticated gateway proxy.
  */
 async function fetchContentWithFallback(
   file: DropFile,
@@ -89,9 +89,8 @@ export async function downloadDropFile(
 }
 
 /**
- * Download a public file from the opaque share page, trying each content source
- * in order (direct node gateways first, then the Erebrus gateway proxy) until
- * one succeeds. Tolerates a downed node since the CID is content-addressed.
+ * Download a public file from the opaque share page through the Erebrus gateway
+ * proxy. Tolerates a downed node since the CID is content-addressed.
  */
 export async function downloadPublicRef(
   file: PublicContentRef & { filename: string; content_type: string },

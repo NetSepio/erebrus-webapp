@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Download, ExternalLink, File, ShieldCheck } from "lucide-react";
+import { Download, File, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { AuroraBackground } from "@/components/v3/AuroraBackground";
 import { AccentButton, Card, MonoLabel } from "@/components/v3/ui";
-import { directGatewayUrl, fetchPublicDropFile } from "@/lib/drop/client";
+import { fetchPublicDropFile } from "@/lib/drop/client";
 import { downloadPublicRef } from "@/lib/drop/download";
 import { formatBytes } from "@/lib/format";
 import type { DropPublicFile } from "@/lib/drop/types";
@@ -74,26 +74,6 @@ export default function PublicDropSharePage() {
               <Download size={15} />
               {downloading ? "Downloading…" : "Download"}
             </AccentButton>
-
-            {(() => {
-              const gatewayLink = directGatewayUrl(
-                file.gateway_url ?? file.gateway_urls?.[0],
-                file.cid
-              );
-              return gatewayLink ? (
-                <a
-                  href={gatewayLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 block"
-                >
-                  <AccentButton variant="ghost" className="w-full">
-                    <ExternalLink size={15} />
-                    Open on IPFS gateway
-                  </AccentButton>
-                </a>
-              ) : null;
-            })()}
             <div className="mt-4 flex gap-2 text-xs leading-relaxed text-[var(--text-3)]">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent-hi)]" />
               Public Drop files are plaintext. Anyone with this opaque link may download
