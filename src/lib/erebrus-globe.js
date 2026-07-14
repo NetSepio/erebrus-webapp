@@ -48,6 +48,9 @@ export function createNodeGlobe(canvas, opts = {}) {
   // Optional dot-matrix world map: array of [lat, lng] points on land.
   const landDots = Array.isArray(opts.landDots) && opts.landDots.length ? opts.landDots : null;
   const aurora = opts.aurora !== false;
+  // Globe radius relative to the shorter canvas edge; larger values let the
+  // sphere fill (or overflow) the container, which crops at the card edges.
+  const radiusScale = typeof opts.radiusScale === 'number' ? opts.radiusScale : 0.38;
   let rot = 0, raf = 0, alive = true;
   let autoRotate = true;
   // Screen-space positions of front-facing nodes from the last frame, for hit-testing.
@@ -96,7 +99,7 @@ export function createNodeGlobe(canvas, opts = {}) {
     if (!alive) return;
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
-    const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.38;
+    const cx = W / 2, cy = H / 2, R = Math.min(W, H) * radiusScale;
 
     // Subtle sphere body so the land dots read as sitting on a globe.
     const sphere = ctx.createRadialGradient(

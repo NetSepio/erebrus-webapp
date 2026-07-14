@@ -24,5 +24,7 @@ export function createNodeGlobe(
     onHover?: (id: string | null) => void;
     landDots?: Array<[number, number]>;
     aurora?: boolean;
+    /** Globe radius as a fraction of the shorter canvas edge (default 0.38). */
+    radiusScale?: number;
   }
 ): GlobeController;
