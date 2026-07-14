@@ -430,7 +430,7 @@ export function VpnConnectPanel() {
 
       <div className="grid gap-5 xl:grid-cols-[1fr_372px]">
         <Card
-          className="overflow-hidden"
+          className="flex flex-col overflow-hidden"
           style={{
             background: "linear-gradient(180deg, #101014, #0B0B0E)",
           }}
@@ -447,7 +447,7 @@ export function VpnConnectPanel() {
               {scope ? "Org nodes" : "Auto-rotating"}
             </span>
           </div>
-          <div className="relative h-[360px] md:h-[440px]">
+          <div className="relative h-[360px] md:h-auto md:min-h-[440px] md:flex-1">
             <NodeGlobe
               nodes={nodes}
               selectedId={selected?.id}
@@ -459,8 +459,8 @@ export function VpnConnectPanel() {
               <div>LAT {selected?.latitude?.toFixed(1) ?? "—"}</div>
               <div>LON {selected?.longitude?.toFixed(1) ?? "—"}</div>
             </div>
-            {selected && !detailNode && (
-              <div className="pointer-events-none absolute right-5 top-1/2 hidden w-[180px] -translate-y-1/2 rounded-xl border border-white/[0.06] bg-black/45 p-4 backdrop-blur-sm md:block lg:right-[22px]">
+            {selected && (
+              <div className="pointer-events-none absolute left-5 top-1/2 hidden w-[180px] -translate-y-1/2 rounded-xl border border-white/[0.06] bg-black/45 p-4 backdrop-blur-sm md:block lg:left-[22px]">
                 <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
                 <div className="truncate text-base font-semibold">{selected.name || selected.region}</div>
                 <div className="truncate text-xs text-[var(--text-3)]">{nodeGeoLabel(selected)}</div>
