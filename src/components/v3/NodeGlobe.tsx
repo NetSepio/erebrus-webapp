@@ -12,12 +12,14 @@ export function NodeGlobe({
   onSelect,
   onHover,
   className = "h-[470px]",
+  radiusScale,
 }: {
   nodes: GatewayNode[];
   selectedId?: string;
   onSelect?: (id: string) => void;
   onHover?: (id: string | null) => void;
   className?: string;
+  radiusScale?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controllerRef = useRef<ReturnType<typeof createNodeGlobe> | null>(null);
@@ -46,6 +48,7 @@ export function NodeGlobe({
       onSelect: (id) => onSelectRef.current?.(id),
       onHover: (id) => onHoverRef.current?.(id),
       landDots: landDots as Array<[number, number]>,
+      radiusScale,
     });
     controllerRef.current = globe;
 

@@ -268,8 +268,8 @@ export function VpnConnectPanel() {
     return { label: "NOT PROTECTED", color: "var(--text-3)", border: "rgba(255,255,255,0.08)" };
   }, [provisioning, tunnelActive, clients.length]);
 
-  const sessionStats = useMemo(() => {
-    const active = clients[0];
+  // Selected-node metrics, rendered as an overlay on the map's right edge.
+  const nodeStats = useMemo(() => {
     const mbps = (v?: number) =>
       v != null ? `${v >= 100 ? v.toFixed(0) : v.toFixed(1)} Mbps` : "—";
     return [
@@ -297,6 +297,18 @@ export function VpnConnectPanel() {
         color: "var(--text)",
       },
       {
+        label: "Latency",
+        value: formatLatency(selected?.latency_ms),
+        color: latencyColor(selected?.latency_ms),
+      },
+    ];
+  }, [selected]);
+
+  // Session (client-side) metrics shown in the right column.
+  const sessionStats = useMemo(() => {
+    const active = clients[0];
+    return [
+      {
         label: "Last handshake",
         value: active?.last_handshake ? formatRelativeTime(active.last_handshake) : "—",
         color: "var(--text-2)",
@@ -306,13 +318,8 @@ export function VpnConnectPanel() {
         value: hasBandwidth ? `↓${formatBytes(totals.rx)} · ↑${formatBytes(totals.tx)}` : "—",
         color: "var(--text)",
       },
-      {
-        label: "Latency",
-        value: formatLatency(selected?.latency_ms),
-        color: latencyColor(selected?.latency_ms),
-      },
     ];
-  }, [clients, selected, hasBandwidth, totals]);
+  }, [clients, hasBandwidth, totals]);
 
   const runProvision = async (name: string) => {
     if (!selected) return;
@@ -440,25 +447,41 @@ export function VpnConnectPanel() {
               {scope ? "Org nodes" : "Auto-rotating"}
             </span>
           </div>
-          <div className="relative h-[360px] md:h-[470px]">
+          <div className="relative h-[360px] md:h-[440px]">
             <NodeGlobe
               nodes={nodes}
               selectedId={selected?.id}
               onSelect={handleNodeSelect}
+              radiusScale={0.48}
               className="absolute inset-0 h-full"
             />
-            <div className="pointer-events-none absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4 md:left-[22px] md:right-[22px]">
-              <div className="font-mono text-[11px] leading-relaxed text-[var(--text-3)]">
-                <div>LAT {selected?.latitude?.toFixed(1) ?? "—"}</div>
-                <div>LON {selected?.longitude?.toFixed(1) ?? "—"}</div>
-              </div>
-              {selected && !detailNode && (
-                <div className="text-right">
-                  <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
-                  <div className="text-lg font-semibold">{selected.name || selected.region}</div>
-                </div>
-              )}
+            <div className="pointer-events-none absolute bottom-5 left-5 font-mono text-[11px] leading-relaxed text-[var(--text-3)] md:left-[22px]">
+              <div>LAT {selected?.latitude?.toFixed(1) ?? "—"}</div>
+              <div>LON {selected?.longitude?.toFixed(1) ?? "—"}</div>
             </div>
+            {selected && !detailNode && (
+              <div className="pointer-events-none absolute right-5 top-1/2 hidden w-[180px] -translate-y-1/2 rounded-xl border border-white/[0.06] bg-black/45 p-4 backdrop-blur-sm md:block lg:right-[22px]">
+                <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
+                <div className="truncate text-base font-semibold">{selected.name || selected.region}</div>
+                <div className="truncate text-xs text-[var(--text-3)]">{nodeGeoLabel(selected)}</div>
+                <div className="mt-3 space-y-1.5">
+                  {nodeStats.map((s) => (
+                    <div key={s.label} className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-[var(--text-3)]">{s.label}</span>
+                      <span className="font-mono text-[11px]" style={{ color: s.color }}>
+                        {s.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {selected && !detailNode && (
+              <div className="pointer-events-none absolute bottom-5 right-5 text-right md:hidden">
+                <div className="font-mono text-[11px] text-[var(--accent-hi)]">SELECTED</div>
+                <div className="text-lg font-semibold">{selected.name || selected.region}</div>
+              </div>
+            )}
             {!detailNode && (
               <div className="pointer-events-none absolute left-5 top-4 font-mono text-[11px] text-[var(--text-3)] md:left-[22px]">
                 Tap a node for details
@@ -497,73 +520,11 @@ export function VpnConnectPanel() {
         </Card>
 
         <div className="flex flex-col gap-4">
-          <Card className="p-6 text-center" style={{ borderColor: statusUi.border }}>
-            <div className="relative mx-auto mb-5 h-[148px] w-[148px]">
-              {provisioning && (
-                <div className="absolute inset-0 animate-spin rounded-full border-2 border-[var(--accent)]/20 border-t-[var(--accent)]" />
-              )}
-              {tunnelActive && (
-                <>
-                  <div className="absolute inset-0 animate-ping rounded-full border border-[var(--success)]/40 opacity-40" />
-                  <div className="absolute inset-2 animate-ping rounded-full border border-[var(--success)]/30 opacity-30 [animation-delay:600ms]" />
-                </>
-              )}
-              <button
-                type="button"
-                onClick={provision}
-                disabled={provisioning || !canProvision || nodes.length === 0}
-                className="absolute inset-7 flex items-center justify-center rounded-full border-0 transition-transform hover:scale-105 disabled:opacity-60"
-                style={{
-                  background: tunnelActive ? "var(--success)" : "var(--accent)",
-                  boxShadow: tunnelActive
-                    ? "0 0 40px rgba(54,211,153,0.4)"
-                    : "0 0 40px rgba(255,107,53,0.4)",
-                }}
-              >
-                <div className="h-7 w-7 rotate-[-45deg] rounded-[9px] border-[3.5px] border-[var(--on-accent)] border-r-transparent" />
-              </button>
-            </div>
-            <div className="mb-1.5 font-mono text-xs tracking-[0.2em]" style={{ color: statusUi.color }}>
-              {statusUi.label}
-            </div>
-            <div className="text-2xl font-semibold">{selected?.name ?? selected?.region ?? "—"}</div>
-            <div className="text-sm text-[var(--text-2)]">{selected ? nodeGeoLabel(selected) : "—"}</div>
-            {!tunnelActive && clients.length > 0 && !provisioning && (
-              <p className="mt-2 text-xs text-[var(--text-3)]">
-                Import your config into the WireGuard app and connect — status updates once the
-                tunnel handshakes.
-              </p>
-            )}
-            <AccentButton className="mt-5 w-full" onClick={provision} disabled={provisioning || !canProvision}>
-              {provisioning ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
-                </>
-              ) : (
-                "Add device"
-              )}
-            </AccentButton>
-          </Card>
-
-          <Card className="p-1">
-            {sessionStats.map((s) => (
-              <div
-                key={s.label}
-                className="flex items-center justify-between border-b border-white/[0.04] px-4 py-3 last:border-0"
-              >
-                <span className="text-sm text-[var(--text-2)]">{s.label}</span>
-                <span className="font-mono text-xs" style={{ color: s.color }}>
-                  {s.value}
-                </span>
-              </div>
-            ))}
-          </Card>
-
           <Sheet>
             <SheetTrigger asChild>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-[14px] border border-white/[0.08] bg-white/[0.02] px-4 py-4 text-left"
+                className="flex w-full items-center justify-between rounded-[14px] border border-white/[0.08] bg-white/[0.02] px-4 py-3.5 text-left"
               >
                 <span>
                   <span className="block text-sm font-semibold">Change location</span>
@@ -629,6 +590,68 @@ export function VpnConnectPanel() {
               </div>
             </SheetContent>
           </Sheet>
+
+          <Card className="p-5 text-center" style={{ borderColor: statusUi.border }}>
+            <div className="relative mx-auto mb-4 h-[112px] w-[112px]">
+              {provisioning && (
+                <div className="absolute inset-0 animate-spin rounded-full border-2 border-[var(--accent)]/20 border-t-[var(--accent)]" />
+              )}
+              {tunnelActive && (
+                <>
+                  <div className="absolute inset-0 animate-ping rounded-full border border-[var(--success)]/40 opacity-40" />
+                  <div className="absolute inset-2 animate-ping rounded-full border border-[var(--success)]/30 opacity-30 [animation-delay:600ms]" />
+                </>
+              )}
+              <button
+                type="button"
+                onClick={provision}
+                disabled={provisioning || !canProvision || nodes.length === 0}
+                className="absolute inset-5 flex items-center justify-center rounded-full border-0 transition-transform hover:scale-105 disabled:opacity-60"
+                style={{
+                  background: tunnelActive ? "var(--success)" : "var(--accent)",
+                  boxShadow: tunnelActive
+                    ? "0 0 40px rgba(54,211,153,0.4)"
+                    : "0 0 40px rgba(255,107,53,0.4)",
+                }}
+              >
+                <div className="h-7 w-7 rotate-[-45deg] rounded-[9px] border-[3.5px] border-[var(--on-accent)] border-r-transparent" />
+              </button>
+            </div>
+            <div className="mb-1.5 font-mono text-xs tracking-[0.2em]" style={{ color: statusUi.color }}>
+              {statusUi.label}
+            </div>
+            <div className="text-xl font-semibold">{selected?.name ?? selected?.region ?? "—"}</div>
+            <div className="text-sm text-[var(--text-2)]">{selected ? nodeGeoLabel(selected) : "—"}</div>
+            {!tunnelActive && clients.length > 0 && !provisioning && (
+              <p className="mt-2 text-xs text-[var(--text-3)]">
+                Import your config into the WireGuard app and connect — status updates once the
+                tunnel handshakes.
+              </p>
+            )}
+            <AccentButton className="mt-4 w-full" onClick={provision} disabled={provisioning || !canProvision}>
+              {provisioning ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Provisioning…
+                </>
+              ) : (
+                "Add device"
+              )}
+            </AccentButton>
+          </Card>
+
+          <Card className="p-1">
+            {sessionStats.map((s) => (
+              <div
+                key={s.label}
+                className="flex items-center justify-between border-b border-white/[0.04] px-4 py-2.5 last:border-0"
+              >
+                <span className="text-sm text-[var(--text-2)]">{s.label}</span>
+                <span className="font-mono text-xs" style={{ color: s.color }}>
+                  {s.value}
+                </span>
+              </div>
+            ))}
+          </Card>
         </div>
       </div>
 
