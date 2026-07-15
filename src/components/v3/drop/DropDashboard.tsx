@@ -338,7 +338,6 @@ export function DropDashboard() {
             disabled={uploadDisabled}
             disabledReason={uploadDisabledReason}
             visibility={visibility}
-            publicAllowed={activeScope?.scope === "public"}
             onVisibilityChange={setVisibility}
             onFiles={handleFiles}
             items={uploads.items}
