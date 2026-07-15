@@ -45,6 +45,27 @@ export function injectPrivateKey(config: string, privateKey: string): string {
   return `[Interface]\n${line}\n${config}`;
 }
 
+/**
+ * Inject the client-held private key into a gateway credential bundle so it can
+ * be imported by the Erebrus mobile app as a single JSON QR payload. The mobile
+ * app reads `client_private_key` from the top-level bundle; we also patch the
+ * embedded `wireguard.client_conf` placeholder if it exists.
+ */
+export function injectClientPrivateKeyIntoBundle(
+  bundle: Record<string, unknown>,
+  privateKey: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...bundle, client_private_key: privateKey };
+
+  const wg = out.wireguard as Record<string, unknown> | undefined;
+  const clientConf = wg?.client_conf;
+  if (typeof clientConf === "string") {
+    out.wireguard = { ...wg, client_conf: injectPrivateKey(clientConf, privateKey) };
+  }
+
+  return out;
+}
+
 // ── Local private-key store ──────────────────────────────────────────────────
 // WireGuard private keys exist only on the client. We keep them in localStorage,
 // keyed by client id, so a device's config can be re-downloaded or shown as a QR
