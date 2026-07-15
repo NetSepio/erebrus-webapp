@@ -146,8 +146,10 @@ export function useDropUploads(
           uploadId: upload.upload_id,
           totalBytes: prepared.blob.size,
         });
+        // The node's content endpoint only accepts application/octet-stream
+        // bodies; the file's real content type travels in the reservation.
         const result = await uploadDropContent(upload.upload_id, prepared.blob, {
-          contentType: prepared.contentType,
+          contentType: "application/octet-stream",
           signal: controller.signal,
           onProgress: (sent, total) => patch(item.id, { sentBytes: sent, totalBytes: total }),
         });
