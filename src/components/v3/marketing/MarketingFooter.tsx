@@ -30,6 +30,7 @@ const legalLinks = [
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
   { href: "/contact", label: "Contact" },
+  { href: "/account-deletion", label: "Account deletion" },
 ];
 
 export function MarketingFooter() {
