@@ -39,8 +39,8 @@ type CategoryValue = (typeof CATEGORIES)[number]["value"];
 
 function getInitialCategory(searchParams: URLSearchParams | null): CategoryValue | "" {
   const raw = searchParams?.get("category")?.toLowerCase();
-  if (raw === "enterprise") return "enterprise";
-  return "";
+  const match = CATEGORIES.find((c) => c.value === raw);
+  return match ? match.value : "";
 }
 
 export function ContactForm() {
