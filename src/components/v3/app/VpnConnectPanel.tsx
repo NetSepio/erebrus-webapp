@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   generateWgKeyPair,
   injectPrivateKey,
+  injectClientPrivateKeyIntoBundle,
   storeClientPrivateKey,
   getClientPrivateKey,
   removeClientPrivateKey,
@@ -100,9 +101,11 @@ export function VpnConnectPanel() {
   const [deviceName, setDeviceName] = useState("");
   const [configModal, setConfigModal] = useState<{
     name: string;
-    config: string;
+    wgConfig: string;
+    bundle: Record<string, unknown>;
     hasKey: boolean;
   } | null>(null);
+  const [configTab, setConfigTab] = useState<"wireguard" | "erebrus">("wireguard");
 
   const refresh = useCallback(async () => {
     const [c, o] = await Promise.all([
@@ -331,7 +334,7 @@ export function VpnConnectPanel() {
       // wireguard.client_conf has a PrivateKey placeholder — the node never
       // sees our private key. Persist the key so this device's config can be
       // re-downloaded or shown as a QR later, then inject it locally.
-      const { client, wgConfig } = await provisionVpnClient({
+      const { client, wgConfig, bundle } = await provisionVpnClient({
         name,
         node_id: selected.id,
         wg_public_key: publicKey,
@@ -339,9 +342,14 @@ export function VpnConnectPanel() {
       });
       storeClientPrivateKey(client.id, privateKey);
       const rawConfig = wgConfig ?? (await fetchVpnClientConfig(client.id)).config;
-      const config = injectPrivateKey(rawConfig, privateKey);
+      const wgConfigFinal = injectPrivateKey(rawConfig, privateKey);
 
-      setConfigModal({ name, config, hasKey: true });
+      setConfigModal({
+        name,
+        wgConfig: wgConfigFinal,
+        bundle: injectClientPrivateKeyIntoBundle(bundle, privateKey),
+        hasKey: true,
+      });
       toast.success("VPN client provisioned");
       await refresh();
     } catch (err) {
@@ -762,11 +770,12 @@ export function VpnConnectPanel() {
                     className="!px-2.5"
                     onClick={async () => {
                       try {
-                        const { config: raw } = await fetchVpnClientConfig(client.id);
+                        const { config: raw, bundle } = await fetchVpnClientConfig(client.id);
                         const pk = getClientPrivateKey(client.id);
                         setConfigModal({
                           name: client.name,
-                          config: pk ? injectPrivateKey(raw, pk) : raw,
+                          wgConfig: pk ? injectPrivateKey(raw, pk) : raw,
+                          bundle: pk ? injectClientPrivateKeyIntoBundle(bundle, pk) : bundle,
                           hasKey: !!pk,
                         });
                       } catch {
@@ -839,29 +848,72 @@ export function VpnConnectPanel() {
       </Dialog>
 
       <Dialog open={!!configModal} onOpenChange={(o) => !o && setConfigModal(null)}>
-        <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)] sm:max-w-md">
+        <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)] sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{configModal?.name} — WireGuard config</DialogTitle>
+            <DialogTitle>{configModal?.name} — VPN config</DialogTitle>
           </DialogHeader>
           {configModal?.hasKey ? (
             <div className="flex flex-col items-center gap-4">
-              <p className="text-center text-sm text-[var(--text-2)]">
-                Scan this with the WireGuard app, or download the <code>.conf</code> and import it.
-              </p>
-              <div className="rounded-2xl bg-white p-4">
-                <QRCodeSVG value={configModal.config} size={208} level="M" marginSize={0} />
+              <div className="flex w-full justify-center gap-2">
+                <ScopeChip
+                  label="WireGuard app"
+                  active={configTab === "wireguard"}
+                  onClick={() => setConfigTab("wireguard")}
+                />
+                <ScopeChip
+                  label="Erebrus app"
+                  active={configTab === "erebrus"}
+                  onClick={() => setConfigTab("erebrus")}
+                />
               </div>
-              <AccentButton
-                className="w-full"
-                onClick={() =>
-                  saveAs(
-                    new Blob([configModal.config], { type: "text/plain" }),
-                    `${configModal.name.replace(/[^a-z0-9-_]+/gi, "-") || "erebrus"}.conf`
-                  )
-                }
-              >
-                <Download size={16} /> Download .conf
-              </AccentButton>
+              {configTab === "wireguard" ? (
+                <>
+                  <p className="text-center text-sm text-[var(--text-2)]">
+                    Scan this with the WireGuard app, or download the <code>.conf</code> and import it.
+                  </p>
+                  <div className="rounded-2xl bg-white p-4">
+                    <QRCodeSVG value={configModal.wgConfig} size={360} level="M" marginSize={0} />
+                  </div>
+                  <AccentButton
+                    className="w-full"
+                    onClick={() =>
+                      saveAs(
+                        new Blob([configModal.wgConfig], { type: "text/plain" }),
+                        `${configModal.name.replace(/[^a-z0-9-_]+/gi, "-") || "erebrus"}.conf`
+                      )
+                    }
+                  >
+                    <Download size={16} /> Download .conf
+                  </AccentButton>
+                </>
+              ) : (
+                <>
+                  <p className="text-center text-sm text-[var(--text-2)]">
+                    Scan this with the Erebrus mobile app to import the full bundle.
+                  </p>
+                  <div className="rounded-2xl bg-white p-4">
+                    <QRCodeSVG
+                      value={JSON.stringify(configModal.bundle)}
+                      size={360}
+                      level="L"
+                      marginSize={0}
+                    />
+                  </div>
+                  <AccentButton
+                    className="w-full"
+                    onClick={() =>
+                      saveAs(
+                        new Blob([JSON.stringify(configModal.bundle, null, 2)], {
+                          type: "application/json",
+                        }),
+                        `${configModal.name.replace(/[^a-z0-9-_]+/gi, "-") || "erebrus"}.json`
+                      )
+                    }
+                  >
+                    <Download size={16} /> Download .json
+                  </AccentButton>
+                </>
+              )}
             </div>
           ) : (
             <p className="rounded-lg bg-[var(--warn)]/10 px-3 py-3 text-center text-sm text-[var(--warn)]">

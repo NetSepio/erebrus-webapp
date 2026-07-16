@@ -155,23 +155,23 @@ export async function provisionVpnClient(body: {
   wg_public_key: string;
   wg_preshared_key?: string;
   idempotency_key?: string;
-}): Promise<{ client: GatewayVpnClient; wgConfig: string | null }> {
+}): Promise<{ client: GatewayVpnClient; wgConfig: string | null; bundle: Record<string, unknown> }> {
   const data = await gatewayFetch<Record<string, unknown>>("vpn/clients", {
     method: "POST",
     body: JSON.stringify(body),
   });
-  return { client: normalizeClient(data), wgConfig: bundleWgConfig(data) };
+  return { client: normalizeClient(data), wgConfig: bundleWgConfig(data), bundle: data };
 }
 
 export async function deleteVpnClient(id: string): Promise<void> {
   await gatewayFetch(`vpn/clients/${id}`, { method: "DELETE" });
 }
 
-export async function fetchVpnClientConfig(id: string): Promise<{ config: string }> {
+export async function fetchVpnClientConfig(id: string): Promise<{ config: string; bundle: Record<string, unknown> }> {
   const data = await gatewayFetch<Record<string, unknown>>(`vpn/clients/${id}/config`);
   const config = bundleWgConfig(data);
   if (!config) throw new Error("Credential bundle has no WireGuard config");
-  return { config };
+  return { config, bundle: data };
 }
 
 // ── Account ────────────────────────────────────────────────────────────────
