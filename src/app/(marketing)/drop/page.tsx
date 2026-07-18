@@ -57,9 +57,9 @@ export default function DropMarketingPage() {
               <Image
                 src="/drop/logo.png"
                 alt=""
-                width={128}
-                height={128}
-                className="relative h-32 w-32 object-contain"
+                width={96}
+                height={96}
+                className="relative h-24 w-24 rounded-[26px] object-contain shadow-[0_0_50px_rgba(255,107,53,0.5)]"
               />
             </div>
             <div className="mt-6 font-mono text-[11px] tracking-[0.2em] text-[var(--text-3)]">

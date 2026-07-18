@@ -87,13 +87,16 @@ export default function AiMarketingPage() {
           }}
         >
           <div className="text-center">
-            <Image
-              src="/ai/logo.png"
-              alt=""
-              width={96}
-              height={96}
-              className="mx-auto h-24 w-24 object-contain"
-            />
+            <div className="relative mx-auto flex h-40 w-40 items-center justify-center">
+              <div className="absolute inset-0 animate-ping rounded-full border border-[var(--accent)]/50 opacity-30" />
+              <Image
+                src="/ai/logo.png"
+                alt=""
+                width={96}
+                height={96}
+                className="relative h-24 w-24 rounded-[26px] object-contain shadow-[0_0_50px_rgba(255,107,53,0.5)]"
+              />
+            </div>
             <div className="mt-6 font-mono text-[11px] tracking-[0.2em] text-[var(--text-3)]">
               LOCAL NODE
             </div>
