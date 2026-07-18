@@ -32,15 +32,15 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   if (!isAuthenticated) {
     return (
-      <AuthModalProvider>
+      <AuthModalProvider autoOpen>
         <div className="mx-auto max-w-md py-20 text-center">
-          <h2 className="text-2xl font-bold tracking-tight">Connect to continue</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Sign in to continue</h2>
           <p className="mt-3 text-sm text-[var(--text-2)]">
             Sign in with your wallet, email, Google, or Apple to access the Erebrus app.
           </p>
           <div className="mt-6 flex flex-col gap-3">
             <AuthModalTrigger>
-              <AccentButton className="w-full">Connect wallet</AccentButton>
+              <AccentButton className="w-full">Sign in</AccentButton>
             </AuthModalTrigger>
             <ActionButton
               type="button"

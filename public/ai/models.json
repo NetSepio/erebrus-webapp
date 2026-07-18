@@ -1,0 +1,4694 @@
+{
+  "schema_version": "1.0.0",
+  "catalog_version": "2026.07.18-v1",
+  "generated_at": "2026-07-18T16:25:49.842749Z",
+  "publisher": {
+    "name": "Erebrus AI",
+    "organization": "NetSepio",
+    "website": "https://erebrus.io",
+    "description": "Curated local AI models for private inference on phones, laptops, desktops and nearby Erebrus workspaces."
+  },
+  "catalog_policy": {
+    "model_count": 25,
+    "primary_format": "GGUF",
+    "primary_backend": "llama.cpp",
+    "default_quantization_policy": "Prefer Q4_K_M for balanced quality unless a model has a native or specialized quantization.",
+    "vision_policy": "Vision entries include their required mmproj artifact where the selected llama.cpp package uses one.",
+    "mobile_policy": "Mobile compatibility is a device-tier recommendation, not a guarantee. The app should perform a RAM and backend capability check before enabling download.",
+    "download_policy": "All artifact URLs point to public Hugging Face repositories. Pin revisions and mirror only after license review.",
+    "integrity_policy": "SHA-256 is null unless independently confirmed. Production releases should resolve an immutable repository commit, fetch Content-Length and compute SHA-256 in CI.",
+    "runtime_policy": "Every entry remains erebrus_runtime_verification=pending until tested with the exact runtime shipped by Erebrus AI."
+  },
+  "device_tiers": [
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "typical_memory_gb": "4-8",
+      "description": "Modern phones and tablets; prefer models below 4B."
+    },
+    {
+      "id": "flagship_mobile",
+      "label": "Flagship Mobile",
+      "typical_memory_gb": "12-24",
+      "description": "High-memory recent iOS or Android hardware; experimental large and low-bit models may run."
+    },
+    {
+      "id": "laptop",
+      "label": "Laptop",
+      "typical_memory_gb": "8-24",
+      "description": "CPU, Apple Silicon or integrated/discrete GPU laptops."
+    },
+    {
+      "id": "desktop",
+      "label": "Desktop",
+      "typical_memory_gb": "16-64+",
+      "description": "Desktop CPUs, Apple Silicon systems and workstation-class machines."
+    },
+    {
+      "id": "gpu",
+      "label": "GPU Heavy",
+      "typical_memory_gb": "8-48+ VRAM",
+      "description": "Systems where GPU offload is recommended for responsiveness."
+    }
+  ],
+  "filters": {
+    "collections": [
+      "mobile",
+      "everyday",
+      "reasoning",
+      "coding",
+      "vision",
+      "workspace",
+      "experimental"
+    ],
+    "release_channels": [
+      "stable",
+      "beta",
+      "experimental"
+    ],
+    "mobile_statuses": [
+      "supported",
+      "supported_on_recent_devices",
+      "experimental",
+      "not_recommended"
+    ]
+  },
+  "models": [
+    {
+      "id": "qwen3.5-0.8b",
+      "slug": "qwen3.5-0.8b",
+      "name": "Qwen3.5 0.8B",
+      "family": "Qwen3.5",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "A tiny multimodal assistant designed for fast, private chat and basic image understanding on mobile devices.",
+      "tags": [
+        "tiny",
+        "mobile",
+        "multimodal",
+        "fast"
+      ],
+      "collections": [
+        "mobile",
+        "vision",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 800000000,
+        "parameter_label": "0.8B",
+        "architecture": "qwen3.5",
+        "context_length": 262144,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "summarization",
+        "translation",
+        "vision",
+        "structured_output"
+      ],
+      "best_for": [
+        "Quick chat",
+        "Short summaries",
+        "Basic translation",
+        "Simple image questions"
+      ],
+      "limitations": [
+        "Limited advanced reasoning",
+        "Small-model hallucinations",
+        "Not suited to long coding tasks"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported",
+        "minimum_ram_gb": 3,
+        "recommended_ram_gb": 4,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.5-0.8B-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/main/Qwen3.5-0.8B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-0.8B-GGUF/Qwen3.5-0.8B-Q4_K_M.gguf",
+          "file_size_display": "533 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-F16.gguf",
+          "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-0.8B-GGUF/mmproj-F16.gguf",
+          "file_size_display": "205 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3.5/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 10,
+        "badges": [
+          "Mobile Ready",
+          "Vision",
+          "Multilingual"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3.5-2b",
+      "slug": "qwen3.5-2b",
+      "name": "Qwen3.5 2B",
+      "family": "Qwen3.5",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "A compact multimodal model offering a strong balance of mobile performance, multilingual chat and image understanding.",
+      "tags": [
+        "compact",
+        "mobile",
+        "multimodal",
+        "multilingual"
+      ],
+      "collections": [
+        "mobile",
+        "vision",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 2000000000,
+        "parameter_label": "2B",
+        "architecture": "qwen3.5",
+        "context_length": 262144,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization",
+        "translation",
+        "vision",
+        "structured_output"
+      ],
+      "best_for": [
+        "Everyday assistance",
+        "Multilingual chat",
+        "Document summaries",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Weaker than larger models on complex reasoning",
+        "Long contexts increase mobile memory use"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 4,
+        "recommended_ram_gb": 6,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.5-2B-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3.5-2B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/main/Qwen3.5-2B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf",
+          "file_size_display": "1.28 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-F16.gguf",
+          "repository_id": "unsloth/Qwen3.5-2B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-2B-GGUF/mmproj-F16.gguf",
+          "file_size_display": "668 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3.5/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 20,
+        "badges": [
+          "Mobile",
+          "Vision",
+          "Multilingual"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3-1.7b",
+      "slug": "qwen3-1.7b",
+      "name": "Qwen3 1.7B",
+      "family": "Qwen3",
+      "variant": "Instruct",
+      "publisher": "Qwen / Bartowski",
+      "description": "A compact text model for multilingual conversations, lightweight reasoning and private offline assistance.",
+      "tags": [
+        "compact",
+        "mobile",
+        "reasoning",
+        "multilingual"
+      ],
+      "collections": [
+        "mobile",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 1700000000,
+        "parameter_label": "1.7B",
+        "architecture": "qwen3",
+        "context_length": 32768,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization",
+        "translation",
+        "structured_output"
+      ],
+      "best_for": [
+        "Mobile chat",
+        "Rewriting",
+        "Short reasoning",
+        "Multilingual use"
+      ],
+      "limitations": [
+        "No vision",
+        "Limited depth on difficult reasoning and coding"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported",
+        "minimum_ram_gb": 3,
+        "recommended_ram_gb": 4,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen_Qwen3-1.7B-Q4_K_M.gguf",
+          "repository_id": "bartowski/Qwen_Qwen3-1.7B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF/resolve/main/Qwen_Qwen3-1.7B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Qwen_Qwen3-1.7B-GGUF/Qwen_Qwen3-1.7B-Q4_K_M.gguf",
+          "file_size_display": "1.28 GB",
+          "file_size_bytes": null,
+          "sha256": "72c5c3cb38fa32d5256e2fe30d03e7a64c6c79e668ad84057e3bd66e250b24fb",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 30,
+        "badges": [
+          "Mobile Ready",
+          "Reasoning",
+          "Multilingual"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "smollm2-1.7b-instruct",
+      "slug": "smollm2-1.7b-instruct",
+      "name": "SmolLM2 1.7B Instruct",
+      "family": "SmolLM2",
+      "variant": "Instruct",
+      "publisher": "Hugging Face / Bartowski",
+      "description": "A lightweight open model for basic chat, rewriting and summarization on constrained devices.",
+      "tags": [
+        "small",
+        "fast",
+        "open",
+        "mobile"
+      ],
+      "collections": [
+        "mobile",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 1700000000,
+        "parameter_label": "1.7B",
+        "architecture": "llama",
+        "context_length": 8192,
+        "recommended_context_length": 4096
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "summarization",
+        "rewriting",
+        "structured_output"
+      ],
+      "best_for": [
+        "Basic offline assistant",
+        "Rewriting",
+        "Short summaries",
+        "Low-memory devices"
+      ],
+      "limitations": [
+        "Limited reasoning",
+        "English-centric compared with multilingual Qwen models",
+        "No vision"
+      ],
+      "languages": [
+        "en"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported",
+        "minimum_ram_gb": 3,
+        "recommended_ram_gb": 4,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "SmolLM2-1.7B-Instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/SmolLM2-1.7B-Instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/SmolLM2-1.7B-Instruct-GGUF/SmolLM2-1.7B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 1.1 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 40,
+        "badges": [
+          "Mobile Ready",
+          "Lightweight"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "llama-3.2-1b-instruct",
+      "slug": "llama-3.2-1b-instruct",
+      "name": "Llama 3.2 1B Instruct",
+      "family": "Llama 3.2",
+      "variant": "Instruct",
+      "publisher": "Meta / Bartowski",
+      "description": "A widely supported compact Llama model for local chat, summarization and simple assistant workflows.",
+      "tags": [
+        "llama",
+        "mobile",
+        "fast",
+        "popular"
+      ],
+      "collections": [
+        "mobile",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 1000000000,
+        "parameter_label": "1B",
+        "architecture": "llama",
+        "context_length": 131072,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "summarization",
+        "rewriting",
+        "structured_output"
+      ],
+      "best_for": [
+        "Fast offline chat",
+        "Summaries",
+        "Simple classification",
+        "Ecosystem compatibility"
+      ],
+      "limitations": [
+        "Limited reasoning and factual depth",
+        "Custom Llama license",
+        "No vision"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported",
+        "minimum_ram_gb": 2,
+        "recommended_ram_gb": 4,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Llama-3.2-1B-Instruct-GGUF/Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "808 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "llama-3-community",
+        "name": "Llama 3 Community License",
+        "url": "https://www.llama.com/llama3/license/",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 50,
+        "badges": [
+          "Mobile Ready",
+          "Popular"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "llama-3.2-3b-instruct",
+      "slug": "llama-3.2-3b-instruct",
+      "name": "Llama 3.2 3B Instruct",
+      "family": "Llama 3.2",
+      "variant": "Instruct",
+      "publisher": "Meta / Bartowski",
+      "description": "A dependable small Llama assistant with broad runtime compatibility and stronger output than the 1B edition.",
+      "tags": [
+        "llama",
+        "compact",
+        "popular",
+        "general"
+      ],
+      "collections": [
+        "mobile",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 3000000000,
+        "parameter_label": "3B",
+        "architecture": "llama",
+        "context_length": 131072,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "summarization",
+        "rewriting",
+        "structured_output",
+        "basic_reasoning"
+      ],
+      "best_for": [
+        "Everyday chat",
+        "Writing help",
+        "Summaries",
+        "General offline use"
+      ],
+      "limitations": [
+        "Custom Llama license",
+        "No vision",
+        "Not a specialist coding model"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 4,
+        "recommended_ram_gb": 6,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Llama-3.2-3B-Instruct-GGUF/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "2.02 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "llama-3-community",
+        "name": "Llama 3 Community License",
+        "url": "https://www.llama.com/llama3/license/",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 60,
+        "badges": [
+          "Mobile",
+          "Popular"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "gemma-3n-e2b-it",
+      "slug": "gemma-3n-e2b-it",
+      "name": "Gemma 3n E2B IT",
+      "family": "Gemma 3n",
+      "variant": "Instruct",
+      "publisher": "Google / GGML",
+      "description": "Google's edge-oriented Gemma 3n model. This catalog artifact is currently exposed as text-only GGUF pending full Erebrus multimodal validation.",
+      "tags": [
+        "edge",
+        "mobile",
+        "gemma",
+        "experimental"
+      ],
+      "collections": [
+        "mobile",
+        "everyday",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 5000000000,
+        "parameter_label": "E2B effective",
+        "architecture": "gemma3n",
+        "context_length": 32768,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "audio",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization",
+        "translation",
+        "structured_output"
+      ],
+      "best_for": [
+        "High-quality mobile text chat",
+        "Edge devices",
+        "Multilingual assistance"
+      ],
+      "limitations": [
+        "Current listed GGUF artifact is text-only in Erebrus",
+        "Q8 artifact is relatively large",
+        "Gemma terms apply"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "high_end_mobile",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 7,
+        "recommended_ram_gb": 10,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q8-0",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "gemma-3n-E2B-it-Q8_0.gguf",
+          "repository_id": "ggml-org/gemma-3n-E2B-it-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-Q8_0.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/gemma-3n-E2B-it-GGUF/gemma-3n-E2B-it-Q8_0.gguf",
+          "file_size_display": "4.79 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": "Enable multimodal inputs only after the pinned Erebrus runtime is validated for Gemma 3n."
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "gemma-terms",
+        "name": "Gemma Terms of Use",
+        "url": "https://ai.google.dev/gemma/terms",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 70,
+        "badges": [
+          "Edge Model",
+          "Experimental"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "phi-4-mini-instruct",
+      "slug": "phi-4-mini-instruct",
+      "name": "Phi-4 Mini Instruct",
+      "family": "Phi-4",
+      "variant": "Instruct",
+      "publisher": "Microsoft / Bartowski",
+      "description": "A compact Microsoft model focused on reasoning, coding and structured instruction following.",
+      "tags": [
+        "reasoning",
+        "coding",
+        "compact",
+        "microsoft"
+      ],
+      "collections": [
+        "mobile",
+        "reasoning",
+        "coding"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 3800000000,
+        "parameter_label": "3.8B",
+        "architecture": "phi4",
+        "context_length": 131072,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "math",
+        "structured_output"
+      ],
+      "best_for": [
+        "Reasoning on small devices",
+        "Coding help",
+        "Math",
+        "JSON generation"
+      ],
+      "limitations": [
+        "No vision",
+        "Can be slower than similarly sized general-chat models"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 5,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/microsoft_Phi-4-mini-instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/resolve/main/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/microsoft_Phi-4-mini-instruct-GGUF/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
+          "file_size_display": "2.49 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "mit",
+        "name": "MIT License",
+        "url": "https://opensource.org/license/mit",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 80,
+        "badges": [
+          "Reasoning",
+          "Coding",
+          "MIT"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3.5-4b",
+      "slug": "qwen3.5-4b",
+      "name": "Qwen3.5 4B",
+      "family": "Qwen3.5",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "A balanced multimodal model for private chat, reasoning, multilingual work and image understanding.",
+      "tags": [
+        "balanced",
+        "multimodal",
+        "reasoning",
+        "multilingual"
+      ],
+      "collections": [
+        "vision",
+        "everyday",
+        "reasoning"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 4000000000,
+        "parameter_label": "4B",
+        "architecture": "qwen3.5",
+        "context_length": 262144,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "summarization",
+        "translation",
+        "vision",
+        "tool_calling",
+        "structured_output"
+      ],
+      "best_for": [
+        "Private everyday assistant",
+        "Image understanding",
+        "Multilingual work",
+        "Light coding"
+      ],
+      "limitations": [
+        "High-end phones only for comfortable use",
+        "Very long contexts require substantial memory"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 6,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.5-4B-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3.5-4B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/Qwen3.5-4B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-4B-GGUF/Qwen3.5-4B-Q4_K_M.gguf",
+          "file_size_display": "2.74 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-F16.gguf",
+          "repository_id": "unsloth/Qwen3.5-4B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-4B-GGUF/mmproj-F16.gguf",
+          "file_size_display": "672 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3.5/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 90,
+        "badges": [
+          "Recommended",
+          "Vision",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "gemma-3-4b-it",
+      "slug": "gemma-3-4b-it",
+      "name": "Gemma 3 4B IT",
+      "family": "Gemma 3",
+      "variant": "Instruct",
+      "publisher": "Google / GGML",
+      "description": "A compact multimodal Gemma model for image understanding, multilingual chat and general assistance.",
+      "tags": [
+        "gemma",
+        "vision",
+        "multilingual",
+        "compact"
+      ],
+      "collections": [
+        "vision",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 4000000000,
+        "parameter_label": "4B",
+        "architecture": "gemma3",
+        "context_length": 131072,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "summarization",
+        "translation",
+        "reasoning",
+        "structured_output"
+      ],
+      "best_for": [
+        "Image questions",
+        "Document screenshots",
+        "Multilingual chat",
+        "General assistance"
+      ],
+      "limitations": [
+        "Gemma terms apply",
+        "Vision adds memory overhead",
+        "Not specialized for tool calling"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 6,
+        "recommended_ram_gb": 10,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "gemma-3-4b-it-Q4_K_M.gguf",
+          "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/gemma-3-4b-it-GGUF/gemma-3-4b-it-Q4_K_M.gguf",
+          "file_size_display": "about 3.3 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-model-f16.gguf",
+          "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/mmproj-model-f16.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/gemma-3-4b-it-GGUF/mmproj-model-f16.gguf",
+          "file_size_display": "about 0.9 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "gemma-terms",
+        "name": "Gemma Terms of Use",
+        "url": "https://ai.google.dev/gemma/terms",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 100,
+        "badges": [
+          "Vision",
+          "Multilingual"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3-8b",
+      "slug": "qwen3-8b",
+      "name": "Qwen3 8B",
+      "family": "Qwen3",
+      "variant": "Instruct",
+      "publisher": "Qwen / Bartowski",
+      "description": "A popular general-purpose text model with strong multilingual chat, reasoning and coding for laptops and desktops.",
+      "tags": [
+        "popular",
+        "balanced",
+        "reasoning",
+        "coding"
+      ],
+      "collections": [
+        "everyday",
+        "reasoning",
+        "coding"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 8000000000,
+        "parameter_label": "8B",
+        "architecture": "qwen3",
+        "context_length": 32768,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "summarization",
+        "translation",
+        "tool_calling",
+        "structured_output"
+      ],
+      "best_for": [
+        "General assistant",
+        "Reasoning",
+        "Coding",
+        "Multilingual work"
+      ],
+      "limitations": [
+        "No vision",
+        "Mobile use is limited to high-memory devices"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 8,
+        "recommended_ram_gb": 12,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen_Qwen3-8B-Q4_K_M.gguf",
+          "repository_id": "bartowski/Qwen_Qwen3-8B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF/resolve/main/Qwen_Qwen3-8B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Qwen_Qwen3-8B-GGUF/Qwen_Qwen3-8B-Q4_K_M.gguf",
+          "file_size_display": "about 5.0 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 110,
+        "badges": [
+          "Recommended",
+          "Reasoning",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "llama-3.1-8b-instruct",
+      "slug": "llama-3.1-8b-instruct",
+      "name": "Llama 3.1 8B Instruct",
+      "family": "Llama 3.1",
+      "variant": "Instruct",
+      "publisher": "Meta / Bartowski",
+      "description": "A mature and broadly compatible local model for general chat, writing and assistant workloads.",
+      "tags": [
+        "llama",
+        "popular",
+        "mature",
+        "general"
+      ],
+      "collections": [
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 8000000000,
+        "parameter_label": "8B",
+        "architecture": "llama",
+        "context_length": 131072,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization",
+        "rewriting",
+        "structured_output",
+        "tool_calling"
+      ],
+      "best_for": [
+        "General chat",
+        "Writing",
+        "Existing Llama integrations",
+        "Reliable local serving"
+      ],
+      "limitations": [
+        "Custom Llama license",
+        "No vision",
+        "Newer models may offer better quality per parameter"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 8,
+        "recommended_ram_gb": 12,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 4.9 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "llama-3-community",
+        "name": "Llama 3 Community License",
+        "url": "https://www.llama.com/llama3/license/",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 120,
+        "badges": [
+          "Popular",
+          "Mature"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3.5-9b",
+      "slug": "qwen3.5-9b",
+      "name": "Qwen3.5 9B",
+      "family": "Qwen3.5",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "A high-quality multimodal assistant for private reasoning, coding, tool use and image understanding.",
+      "tags": [
+        "multimodal",
+        "reasoning",
+        "tools",
+        "high-quality"
+      ],
+      "collections": [
+        "vision",
+        "reasoning",
+        "coding",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 9000000000,
+        "parameter_label": "9B",
+        "architecture": "qwen3.5",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "vision",
+        "tool_calling",
+        "structured_output",
+        "summarization",
+        "translation"
+      ],
+      "best_for": [
+        "High-quality local assistant",
+        "Image analysis",
+        "Coding",
+        "Workspace agents"
+      ],
+      "limitations": [
+        "Laptop-class memory recommended",
+        "Vision and long contexts increase memory use"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 10,
+        "recommended_ram_gb": 16,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.5-9B-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3.5-9B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-9B-GGUF/Qwen3.5-9B-Q4_K_M.gguf",
+          "file_size_display": "5.68 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-F16.gguf",
+          "repository_id": "unsloth/Qwen3.5-9B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3.5-9B-GGUF/mmproj-F16.gguf",
+          "file_size_display": "918 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3.5/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 130,
+        "badges": [
+          "Vision",
+          "Reasoning",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "gemma-3-12b-it",
+      "slug": "gemma-3-12b-it",
+      "name": "Gemma 3 12B IT",
+      "family": "Gemma 3",
+      "variant": "Instruct",
+      "publisher": "Google / GGML",
+      "description": "A capable multimodal model for image analysis, multilingual assistance and higher-quality local conversations.",
+      "tags": [
+        "gemma",
+        "vision",
+        "quality",
+        "multilingual"
+      ],
+      "collections": [
+        "vision",
+        "everyday",
+        "reasoning"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 12000000000,
+        "parameter_label": "12B",
+        "architecture": "gemma3",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "summarization",
+        "translation",
+        "structured_output"
+      ],
+      "best_for": [
+        "Detailed image understanding",
+        "Documents and screenshots",
+        "Multilingual assistance",
+        "Higher-quality chat"
+      ],
+      "limitations": [
+        "Gemma terms apply",
+        "Desktop or well-equipped laptop recommended"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 12,
+        "recommended_ram_gb": 18,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "gemma-3-12b-it-Q4_K_M.gguf",
+          "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/main/gemma-3-12b-it-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/gemma-3-12b-it-GGUF/gemma-3-12b-it-Q4_K_M.gguf",
+          "file_size_display": "7.3 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-model-f16.gguf",
+          "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/main/mmproj-model-f16.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/gemma-3-12b-it-GGUF/mmproj-model-f16.gguf",
+          "file_size_display": "854 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "gemma-terms",
+        "name": "Gemma Terms of Use",
+        "url": "https://ai.google.dev/gemma/terms",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 140,
+        "badges": [
+          "Vision",
+          "High Quality"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3-14b",
+      "slug": "qwen3-14b",
+      "name": "Qwen3 14B",
+      "family": "Qwen3",
+      "variant": "Instruct",
+      "publisher": "Qwen / Bartowski",
+      "description": "A strong desktop-class text model for reasoning, coding, multilingual work and tool-enabled assistants.",
+      "tags": [
+        "reasoning",
+        "coding",
+        "tools",
+        "desktop"
+      ],
+      "collections": [
+        "reasoning",
+        "coding",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 14000000000,
+        "parameter_label": "14B",
+        "architecture": "qwen3",
+        "context_length": 32768,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "tool_calling",
+        "structured_output",
+        "summarization",
+        "translation"
+      ],
+      "best_for": [
+        "Advanced local assistant",
+        "Coding",
+        "Complex reasoning",
+        "Workspace tools"
+      ],
+      "limitations": [
+        "No vision",
+        "Substantial RAM required"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 12,
+        "recommended_ram_gb": 20,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen_Qwen3-14B-Q4_K_M.gguf",
+          "repository_id": "bartowski/Qwen_Qwen3-14B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF/resolve/main/Qwen_Qwen3-14B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Qwen_Qwen3-14B-GGUF/Qwen_Qwen3-14B-Q4_K_M.gguf",
+          "file_size_display": "about 9.0 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 150,
+        "badges": [
+          "Reasoning",
+          "Coding",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "mistral-small-3.1-24b-instruct",
+      "slug": "mistral-small-3.1-24b-instruct",
+      "name": "Mistral Small 3.1 24B Instruct",
+      "family": "Mistral Small",
+      "variant": "Instruct",
+      "publisher": "Mistral AI / GGML",
+      "description": "A desktop-class multimodal Mistral model for high-quality chat, coding and image understanding.",
+      "tags": [
+        "mistral",
+        "vision",
+        "desktop",
+        "tools"
+      ],
+      "collections": [
+        "vision",
+        "reasoning",
+        "coding",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 24000000000,
+        "parameter_label": "24B",
+        "architecture": "mistral3",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "vision",
+        "tool_calling",
+        "structured_output",
+        "summarization"
+      ],
+      "best_for": [
+        "Desktop assistant",
+        "Image analysis",
+        "Coding",
+        "Tool-enabled workflows"
+      ],
+      "limitations": [
+        "Aggressive IQ2 quantization trades quality for size",
+        "Desktop-class memory recommended"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 14,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-ud-iq2-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "UD-IQ2_M",
+          "filename": "Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf",
+          "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/main/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf",
+          "file_size_display": "8.76 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-q8-0",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf",
+          "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/main/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf",
+          "file_size_display": "467 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 160,
+        "badges": [
+          "Vision",
+          "Desktop",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen3-4b-thinking-2507",
+      "slug": "qwen3-4b-thinking-2507",
+      "name": "Qwen3 4B Thinking 2507",
+      "family": "Qwen3",
+      "variant": "Instruct",
+      "publisher": "Qwen / Bartowski",
+      "description": "A compact reasoning-focused Qwen model for planning, math and problems that benefit from deliberate thinking.",
+      "tags": [
+        "thinking",
+        "reasoning",
+        "planning",
+        "compact"
+      ],
+      "collections": [
+        "reasoning"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 4000000000,
+        "parameter_label": "4B",
+        "architecture": "qwen3",
+        "context_length": 262144,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "reasoning",
+        "math",
+        "planning",
+        "coding",
+        "structured_output"
+      ],
+      "best_for": [
+        "Step-based problem solving",
+        "Planning",
+        "Math",
+        "Compact reasoning"
+      ],
+      "limitations": [
+        "Thinking output can be verbose",
+        "No vision",
+        "Slower than non-thinking models"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 6,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf",
+          "repository_id": "bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/resolve/main/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf",
+          "file_size_display": "about 2.6 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 170,
+        "badges": [
+          "Thinking",
+          "Reasoning"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "deepseek-r1-distill-qwen-7b",
+      "slug": "deepseek-r1-distill-qwen-7b",
+      "name": "DeepSeek R1 Distill Qwen 7B",
+      "family": "DeepSeek R1 Distill",
+      "variant": "Instruct",
+      "publisher": "DeepSeek / Bartowski",
+      "description": "A popular reasoning distillation for math, planning and technical problem solving on laptops.",
+      "tags": [
+        "deepseek",
+        "reasoning",
+        "math",
+        "popular"
+      ],
+      "collections": [
+        "reasoning"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 7000000000,
+        "parameter_label": "7B",
+        "architecture": "qwen2",
+        "context_length": 131072,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "reasoning",
+        "math",
+        "coding",
+        "planning"
+      ],
+      "best_for": [
+        "Math",
+        "Reasoning",
+        "Technical questions",
+        "Problem decomposition"
+      ],
+      "limitations": [
+        "Can overthink simple requests",
+        "No vision",
+        "Not optimized for casual conversation"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 8,
+        "recommended_ram_gb": 12,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+          "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+          "file_size_display": "about 4.7 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "mit",
+        "name": "MIT License",
+        "url": "https://opensource.org/license/mit",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 180,
+        "badges": [
+          "Reasoning",
+          "Popular"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "deepseek-r1-distill-qwen-14b",
+      "slug": "deepseek-r1-distill-qwen-14b",
+      "name": "DeepSeek R1 Distill Qwen 14B",
+      "family": "DeepSeek R1 Distill",
+      "variant": "Instruct",
+      "publisher": "DeepSeek / Bartowski",
+      "description": "A stronger desktop reasoning model for difficult math, coding and analytical tasks.",
+      "tags": [
+        "deepseek",
+        "reasoning",
+        "math",
+        "desktop"
+      ],
+      "collections": [
+        "reasoning",
+        "coding"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 14000000000,
+        "parameter_label": "14B",
+        "architecture": "qwen2",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "reasoning",
+        "math",
+        "coding",
+        "planning"
+      ],
+      "best_for": [
+        "Complex reasoning",
+        "Math",
+        "Technical analysis",
+        "Coding"
+      ],
+      "limitations": [
+        "Can be verbose",
+        "No vision",
+        "Desktop-class RAM recommended"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 12,
+        "recommended_ram_gb": 20,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf",
+          "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf",
+          "file_size_display": "about 9.0 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "mit",
+        "name": "MIT License",
+        "url": "https://opensource.org/license/mit",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 190,
+        "badges": [
+          "Advanced Reasoning",
+          "Coding"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "gpt-oss-20b",
+      "slug": "gpt-oss-20b",
+      "name": "GPT-OSS 20B",
+      "family": "GPT-OSS",
+      "variant": "Instruct",
+      "publisher": "OpenAI / GGML",
+      "description": "An open-weight reasoning and tool-use model packaged in the native MXFP4 quantization.",
+      "tags": [
+        "openai",
+        "reasoning",
+        "tools",
+        "mxfp4"
+      ],
+      "collections": [
+        "reasoning",
+        "coding",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 20000000000,
+        "parameter_label": "20B",
+        "architecture": "gpt-oss",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "tool_calling",
+        "structured_output"
+      ],
+      "best_for": [
+        "Agent workflows",
+        "Reasoning",
+        "Coding",
+        "Structured tools"
+      ],
+      "limitations": [
+        "Large 12.1 GB download",
+        "Recent runtime support required",
+        "No vision"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 16,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-mxfp4",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "MXFP4",
+          "filename": "gpt-oss-20b-MXFP4.gguf",
+          "repository_id": "ggml-org/gpt-oss-20b-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF/resolve/main/gpt-oss-20b-MXFP4.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+          "file_size_display": "12.1 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": "recent llama.cpp build with GPT-OSS/MXFP4 support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 200,
+        "badges": [
+          "Tools",
+          "Reasoning",
+          "Open Weight"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen2.5-coder-7b-instruct",
+      "slug": "qwen2.5-coder-7b-instruct",
+      "name": "Qwen2.5 Coder 7B Instruct",
+      "family": "Qwen2.5 Coder",
+      "variant": "Instruct",
+      "publisher": "Qwen / Bartowski",
+      "description": "A popular compact coding model for generation, debugging, explanations and local developer tools.",
+      "tags": [
+        "coding",
+        "developer",
+        "popular",
+        "qwen"
+      ],
+      "collections": [
+        "coding"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 7000000000,
+        "parameter_label": "7B",
+        "architecture": "qwen2",
+        "context_length": 131072,
+        "recommended_context_length": 16384
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "coding",
+        "debugging",
+        "code_explanation",
+        "structured_output"
+      ],
+      "best_for": [
+        "Code generation",
+        "Debugging",
+        "Code explanations",
+        "Developer assistants"
+      ],
+      "limitations": [
+        "Text-only",
+        "Less suitable than general models for open-ended chat"
+      ],
+      "languages": [
+        "programming_languages",
+        "multilingual"
+      ],
+      "supports_tools": false,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 8,
+        "recommended_ram_gb": 12,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 4.7 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 210,
+        "badges": [
+          "Coding",
+          "Popular"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "qwen2.5-coder-14b-instruct",
+      "slug": "qwen2.5-coder-14b-instruct",
+      "name": "Qwen2.5 Coder 14B Instruct",
+      "family": "Qwen2.5 Coder",
+      "variant": "Instruct",
+      "publisher": "Qwen / Bartowski",
+      "description": "A desktop-class coding model for repository assistance, debugging and more demanding development tasks.",
+      "tags": [
+        "coding",
+        "developer",
+        "desktop",
+        "qwen"
+      ],
+      "collections": [
+        "coding"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 14000000000,
+        "parameter_label": "14B",
+        "architecture": "qwen2",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "coding",
+        "debugging",
+        "code_explanation",
+        "structured_output",
+        "reasoning"
+      ],
+      "best_for": [
+        "Larger code tasks",
+        "Debugging",
+        "Refactoring",
+        "Developer agents"
+      ],
+      "limitations": [
+        "Text-only",
+        "Substantial RAM required"
+      ],
+      "languages": [
+        "programming_languages",
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 12,
+        "recommended_ram_gb": 20,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+          "repository_id": "bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 9.0 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 220,
+        "badges": [
+          "Advanced Coding",
+          "Developer"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "devstral-small-2-24b-instruct",
+      "slug": "devstral-small-2-24b-instruct",
+      "name": "Devstral Small 2 24B Instruct",
+      "family": "Devstral",
+      "variant": "Instruct",
+      "publisher": "Mistral AI / Bartowski",
+      "description": "A desktop coding and software-engineering model intended for repository-level and agentic development work.",
+      "tags": [
+        "coding",
+        "agentic",
+        "repository",
+        "desktop"
+      ],
+      "collections": [
+        "coding",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 24000000000,
+        "parameter_label": "24B",
+        "architecture": "mistral",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "coding",
+        "debugging",
+        "repository_reasoning",
+        "tool_calling",
+        "structured_output"
+      ],
+      "best_for": [
+        "Software engineering",
+        "Repository tasks",
+        "Agentic coding",
+        "Refactoring"
+      ],
+      "limitations": [
+        "Desktop-class memory required",
+        "No vision",
+        "Overkill for simple completions"
+      ],
+      "languages": [
+        "programming_languages",
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "desktop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 32,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
+          "repository_id": "bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/resolve/main/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
+          "file_size_display": "about 14.5 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 230,
+        "badges": [
+          "Software Engineering",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "moondream2-20250414",
+      "slug": "moondream2-20250414",
+      "name": "Moondream2",
+      "family": "Moondream",
+      "variant": "Instruct",
+      "publisher": "Vikhyat / GGML",
+      "description": "A small specialist vision model for image captions, visual questions and lightweight local image understanding.",
+      "tags": [
+        "vision",
+        "small",
+        "image-captioning",
+        "specialist"
+      ],
+      "collections": [
+        "vision"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 1800000000,
+        "parameter_label": "about 1.8B",
+        "architecture": "moondream2",
+        "context_length": 2048,
+        "recommended_context_length": 2048
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "vision",
+        "image_captioning",
+        "visual_question_answering"
+      ],
+      "best_for": [
+        "Image captions",
+        "Simple image questions",
+        "Lightweight vision",
+        "Mobile-to-desktop nearby serving"
+      ],
+      "limitations": [
+        "Short context",
+        "Not intended as a general-purpose chat model",
+        "F16 files are larger than quantized text models"
+      ],
+      "languages": [
+        "en"
+      ],
+      "supports_tools": false,
+      "supports_json": false,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 5,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-f16",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "moondream2-text-model-f16_ct-vicuna.gguf",
+          "repository_id": "ggml-org/moondream2-20250414-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/main/moondream2-text-model-f16_ct-vicuna.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/moondream2-20250414-GGUF/moondream2-text-model-f16_ct-vicuna.gguf",
+          "file_size_display": "2.84 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        },
+        {
+          "id": "mmproj-f16",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "moondream2-mmproj-f16-20250414.gguf",
+          "repository_id": "ggml-org/moondream2-20250414-GGUF",
+          "revision": "main",
+          "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/main/moondream2-mmproj-f16-20250414.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/moondream2-20250414-GGUF/moondream2-mmproj-f16-20250414.gguf",
+          "file_size_display": "910 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 240,
+        "badges": [
+          "Vision Specialist",
+          "Compact"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    },
+    {
+      "id": "bonsai-27b-q1",
+      "slug": "bonsai-27b-q1",
+      "name": "Bonsai 27B Q1",
+      "family": "Bonsai",
+      "variant": "Instruct",
+      "publisher": "PrismML",
+      "description": "An experimental 1-bit 27B multimodal model with a phone-sized weight file, intended for flagship phones and local desktops.",
+      "tags": [
+        "1-bit",
+        "27b",
+        "mobile-experimental",
+        "vision"
+      ],
+      "collections": [
+        "mobile",
+        "vision",
+        "reasoning",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "emerging",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 27000000000,
+        "parameter_label": "27B",
+        "architecture": "qwen3.6-derived",
+        "context_length": 262144,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "vision",
+        "tool_calling",
+        "structured_output"
+      ],
+      "best_for": [
+        "Experimental large-model mobile inference",
+        "Reasoning",
+        "Coding",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Requires a recent or model-specific llama.cpp build",
+        "Flagship high-memory phones only",
+        "Performance varies substantially across Android GPU drivers and thermal limits",
+        "Erebrus device certification is pending"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "flagship_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "flagship_mobile",
+        "mobile_status": "experimental",
+        "minimum_ram_gb": 8,
+        "recommended_ram_gb": 16,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q1-0",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q1_0",
+          "filename": "Bonsai-27B-Q1_0.gguf",
+          "repository_id": "prism-ml/Bonsai-27B-gguf",
+          "revision": "main",
+          "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/main/Bonsai-27B-Q1_0.gguf?download=true",
+          "huggingface_uri": "hf://prism-ml/Bonsai-27B-gguf/Bonsai-27B-Q1_0.gguf",
+          "file_size_display": "3.8 GB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": "Primary 1-bit model artifact. Benchmark and certify per device family."
+        },
+        {
+          "id": "mmproj-q8-0",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "Bonsai-27B-mmproj-Q8_0.gguf",
+          "repository_id": "prism-ml/Bonsai-27B-gguf",
+          "revision": "main",
+          "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/main/Bonsai-27B-mmproj-Q8_0.gguf?download=true",
+          "huggingface_uri": "hf://prism-ml/Bonsai-27B-gguf/Bonsai-27B-mmproj-Q8_0.gguf",
+          "file_size_display": "629 MB",
+          "file_size_bytes": null,
+          "sha256": null,
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "macos-arm64",
+            "linux-x86_64",
+            "windows-x86_64"
+          ],
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent or PrismML-compatible llama.cpp build",
+        "notes": "Do not label Android or iOS devices as certified until Erebrus has measured load success, peak RAM, tokens/sec, thermals and battery use."
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 250,
+        "badges": [
+          "27B",
+          "1-bit",
+          "Vision",
+          "Experimental Mobile"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf",
+        "artifact_revision_policy": "main; pin to an immutable commit before production release"
+      }
+    }
+  ]
+}

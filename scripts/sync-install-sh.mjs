@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Publishes the Erebrus node installer at https://erebrus.io/install.sh
- * Prefers a sibling erebrus checkout; otherwise fetches from GitHub main.
+ * Always fetches from the NetSepio/erebrus GitHub repo at runtime.
  */
 import fs from "fs";
 import path from "path";
@@ -11,17 +11,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const dest = path.join(root, "public", "install.sh");
 const branch = process.env.EREBRUS_INSTALL_BRANCH || "main";
-const local = path.resolve(root, "../erebrus/install.sh");
 const remote = `https://raw.githubusercontent.com/NetSepio/erebrus/${branch}/install.sh`;
 
 async function main() {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
-
-  if (fs.existsSync(local)) {
-    fs.copyFileSync(local, dest);
-    console.log(`install.sh ← ${local}`);
-    return;
-  }
 
   const res = await fetch(remote);
   if (!res.ok) {
