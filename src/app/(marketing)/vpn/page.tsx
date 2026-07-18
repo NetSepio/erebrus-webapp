@@ -91,14 +91,14 @@ export default function VpnMarketingPage() {
               "radial-gradient(ellipse 60% 60% at 50% 40%, rgba(255,107,53,0.1), transparent 70%), linear-gradient(180deg, #121216, #0B0B0E)",
           }}
         >
-          <div className="relative h-40 w-40">
+          <div className="relative flex h-40 w-40 items-center justify-center">
             <div className="absolute inset-0 animate-ping rounded-full border border-[var(--accent)]/50 opacity-30" />
             <Image
               src="/brand/erebrus-vpn.png"
               alt=""
               width={96}
               height={96}
-              className="absolute inset-11 rounded-[26px] shadow-[0_0_50px_rgba(255,107,53,0.5)]"
+              className="relative h-24 w-24 rounded-[26px] object-contain shadow-[0_0_50px_rgba(255,107,53,0.5)]"
             />
           </div>
           <div className="text-center">

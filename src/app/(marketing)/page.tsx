@@ -159,7 +159,7 @@ export default function LandingPage() {
               }}
             >
               <div className="mb-5 flex items-center gap-3.5">
-                <Image src="/brand/erebrus-drop.png" alt="" width={56} height={56} />
+                <Image src="/drop/logo.png" alt="" width={56} height={56} className="rounded-[14px]" />
                 <div>
                   <div className="text-xl font-bold">Erebrus Drop</div>
                   <div className="font-mono text-[11px] text-[var(--success)]">● Live · IPFS storage</div>

@@ -8,12 +8,13 @@ import { AccentButton, iconButtonClass } from "@/components/v3/ui";
 import { cn } from "@/lib/utils";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
 
-type NavVariant = "platform" | "vpn" | "drop";
+type NavVariant = "platform" | "vpn" | "drop" | "ai";
 
 const navLinks: Record<NavVariant, Array<{ label: string; href: string; external?: boolean }>> = {
   platform: [
     { label: "VPN", href: "/vpn" },
     { label: "Drop", href: "/drop" },
+    { label: "AI", href: "/ai" },
     { label: "Pricing", href: "/pricing" },
     { label: "Docs", href: "https://docs.netsepio.com/erebrus/", external: true },
   ],
@@ -21,11 +22,19 @@ const navLinks: Record<NavVariant, Array<{ label: string; href: string; external
     { label: "Features", href: "/vpn#features" },
     { label: "How it works", href: "/vpn#how" },
     { label: "Drop", href: "/drop" },
+    { label: "AI", href: "/ai" },
   ],
   drop: [
     { label: "Features", href: "/drop#features" },
     { label: "How it works", href: "/drop#how" },
     { label: "VPN", href: "/vpn" },
+    { label: "AI", href: "/ai" },
+  ],
+  ai: [
+    { label: "Features", href: "/ai#features" },
+    { label: "How it works", href: "/ai#how" },
+    { label: "VPN", href: "/vpn" },
+    { label: "Drop", href: "/drop" },
   ],
 };
 
@@ -36,6 +45,7 @@ const brand: Record<
   platform: { icon: "/brand/erebrus-mark.png", title: "Erebrus" },
   vpn: { icon: "/brand/erebrus-vpn.png", title: "Erebrus", subtitle: "VPN", back: "/" },
   drop: { icon: "/drop/logo.png", title: "Erebrus", subtitle: "Drop", back: "/" },
+  ai: { icon: "/ai/logo.png", title: "Erebrus", subtitle: "AI", back: "/" },
 };
 
 export function MarketingNav({ variant = "platform" }: { variant?: NavVariant }) {
@@ -59,7 +69,7 @@ export function MarketingNav({ variant = "platform" }: { variant?: NavVariant })
               width={40}
               height={40}
               className={
-                variant === "drop"
+                variant === "drop" || variant === "ai"
                   ? "h-10 w-10 shrink-0 object-contain"
                   : "h-10 w-10 shrink-0 rounded-[10px] shadow-[0_4px_16px_rgba(255,107,53,0.35)]"
               }

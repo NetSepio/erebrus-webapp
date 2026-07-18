@@ -61,6 +61,11 @@ export function LegalPageShell({
                 Drop
               </AccentButton>
             </Link>
+            <Link href="/ai">
+              <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
+                AI
+              </AccentButton>
+            </Link>
             <Link href="/contact">
               <AccentButton variant="outline" className="!px-4 !py-2 !text-sm">
                 Contact

@@ -53,8 +53,14 @@ function socialLoginErrorMessage(provider: "google" | "apple", error: unknown): 
 
 const AuthModalContext = createContext<{ open: () => void }>({ open: () => {} });
 
-export function AuthModalProvider({ children }: { children: ReactNode }) {
-  const [visible, setVisible] = useState(false);
+export function AuthModalProvider({
+  children,
+  autoOpen = false,
+}: {
+  children: ReactNode;
+  autoOpen?: boolean;
+}) {
+  const [visible, setVisible] = useState(autoOpen);
   const router = useRouter();
   const { open: openAppKit } = useAppKit();
   const { isConnected, isAuthenticated, authenticate, isAuthenticating, address } =
