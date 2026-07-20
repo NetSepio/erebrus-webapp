@@ -7,6 +7,25 @@ const GOOGLE_GSI_URL = "https://accounts.google.com/gsi/client";
 const APPLE_AUTH_URL =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
+function generateAppleNonce(): string {
+  const bytes = new Uint8Array(16);
+  if (typeof window !== "undefined" && window.crypto) {
+    window.crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  const bin = Array.from(bytes, (b) => String.fromCharCode(b)).join("");
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export type AppleCredential = {
+  idToken: string;
+  nonce: string;
+  authorizationCode?: string;
+};
+
 /**
  * Loads GIS, renders a hidden official button, and proxies clicks to our custom UI.
  * GIS only returns an ID token through the credential callback — not via oauth2 token client.
@@ -79,7 +98,7 @@ export function useGoogleSignIn(
 /** Loads Apple JS and opens the popup sign-in flow (usePopup: true). */
 export function useAppleSignIn(
   clientId: string | undefined,
-  onCredential: (idToken: string) => void,
+  onCredential: (credential: AppleCredential) => void,
   enabled: boolean
 ) {
   const [ready, setReady] = useState(false);
@@ -95,13 +114,6 @@ export function useAppleSignIn(
     loadScript(APPLE_AUTH_URL, "apple-auth-js")
       .then(() => {
         if (cancelled || !window.AppleID?.auth) return;
-
-        window.AppleID.auth.init({
-          clientId,
-          scope: "name email",
-          redirectURI: window.location.origin,
-          usePopup: true,
-        });
         setReady(true);
       })
       .catch(() => setReady(false));
@@ -112,19 +124,28 @@ export function useAppleSignIn(
   }, [clientId, enabled]);
 
   const signIn = useCallback(async () => {
-    if (!ready || !window.AppleID?.auth) return false;
+    if (!ready || !clientId || !window.AppleID?.auth) return false;
 
+    const nonce = generateAppleNonce();
     try {
+      window.AppleID.auth.init({
+        clientId,
+        scope: "name email",
+        redirectURI: window.location.origin,
+        nonce,
+        usePopup: true,
+      });
       const response = await window.AppleID.auth.signIn();
       const idToken = response.authorization?.id_token?.trim();
+      const authorizationCode = response.authorization?.code?.trim();
       if (!idToken) return false;
-      callbackRef.current(idToken);
+      callbackRef.current({ idToken, nonce, authorizationCode });
       return true;
     } catch {
       // User dismissed the popup or Apple returned an error.
       return false;
     }
-  }, [ready]);
+  }, [ready, clientId]);
 
   return { ready: ready && !!clientId, signIn };
 }

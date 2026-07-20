@@ -20,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useWalletAuth, setWebSession } from "@/context/appkit";
-import { useAppleSignIn, useGoogleSignIn } from "@/hooks/use-social-login";
+import { useAppleSignIn, useGoogleSignIn, type AppleCredential } from "@/hooks/use-social-login";
 import {
   appleLogin,
   emailLoginStart,
@@ -112,13 +112,18 @@ export function OrgJoinPanel({ slug }: { slug: string }) {
   }, [isAuthenticated, preview, tryJoinWorkspace]);
 
   const completeSocialLogin = useCallback(
-    async (provider: "google" | "apple", idToken: string) => {
+    async (
+      provider: "google" | "apple",
+      idToken: string,
+      nonce?: string,
+      authorizationCode?: string
+    ) => {
       setSocialBusy(true);
       try {
         const session =
           provider === "google"
             ? await googleLogin(idToken)
-            : await appleLogin(idToken);
+            : await appleLogin(idToken, nonce, authorizationCode);
         setWebSession(session.token, session.userId, provider);
         setModalOpen(false);
         const joined = await tryJoinWorkspace();
@@ -144,7 +149,8 @@ export function OrgJoinPanel({ slug }: { slug: string }) {
 
   const { ready: appleReady, signIn: signInWithApple } = useAppleSignIn(
     APPLE_CLIENT_ID,
-    (token) => void completeSocialLogin("apple", token),
+    ({ idToken, nonce, authorizationCode }: AppleCredential) =>
+      void completeSocialLogin("apple", idToken, nonce, authorizationCode),
     modalOpen
   );
 
