@@ -6,6 +6,9 @@ type AppleAuthConfig = {
   scope: string;
   redirectURI: string;
   state?: string;
+  nonce?: string;
+  responseType?: "code" | "id_token" | "code id_token";
+  responseMode?: "query" | "fragment" | "form_post";
   usePopup?: boolean;
 };
 

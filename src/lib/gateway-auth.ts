@@ -155,12 +155,17 @@ export async function googleLogin(idToken: string): Promise<AuthSession> {
 }
 
 /** Exchanges an Apple ID token for a session. */
-export async function appleLogin(idToken: string): Promise<AuthSession> {
+export async function appleLogin(
+  idToken: string,
+  nonce?: string,
+  authorizationCode?: string
+): Promise<AuthSession> {
   const ref = storedReferralCode();
-  const { data } = await axios.post(gatewayAuthUrl("auth/apple"), {
-    id_token: idToken,
-    ...(ref ? { ref } : {}),
-  });
+  const body: Record<string, string> = { id_token: idToken };
+  if (nonce) body.nonce = nonce;
+  if (authorizationCode) body.authorization_code = authorizationCode;
+  if (ref) body.ref = ref;
+  const { data } = await axios.post(gatewayAuthUrl("auth/apple"), body);
   const session = parseSession(data);
   clearReferralCode();
   return session;
