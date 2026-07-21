@@ -42,7 +42,7 @@ const brand: Record<
   NavVariant,
   { icon: string; title: string; subtitle?: string; back?: string }
 > = {
-  platform: { icon: "/brand/erebrus-mark.png", title: "Erebrus" },
+  platform: { icon: "/brand/erebrus-logo.png", title: "Erebrus" },
   vpn: { icon: "/brand/erebrus-vpn.png", title: "Erebrus", subtitle: "VPN", back: "/" },
   drop: { icon: "/drop/logo.png", title: "Erebrus", subtitle: "Drop", back: "/" },
   ai: { icon: "/ai/logo.png", title: "Erebrus", subtitle: "AI", back: "/" },

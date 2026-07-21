@@ -184,7 +184,7 @@ export function AuthModalProvider({
           <DialogHeader>
             <div className="flex items-center gap-3 mb-2">
               <Image
-                src="/brand/erebrus-icon.png"
+                src="/brand/erebrus-logo.png"
                 alt=""
                 width={36}
                 height={36}

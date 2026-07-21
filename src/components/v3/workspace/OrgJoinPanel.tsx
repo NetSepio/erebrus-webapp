@@ -227,7 +227,7 @@ export function OrgJoinPanel({ slug }: { slug: string }) {
     <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center gap-6 px-6 py-12">
       <Card className="w-full p-6 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--solana)] to-[var(--accent)]">
-          <Image src="/brand/erebrus-mark.png" alt="" width={28} height={28} className="rounded-lg" />
+          <Image src="/brand/erebrus-logo.png" alt="" width={28} height={28} className="rounded-lg" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight">Join workspace</h1>
         <p className="mt-2 text-sm text-[var(--text-2)]">
