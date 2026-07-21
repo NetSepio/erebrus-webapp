@@ -272,8 +272,25 @@ export async function authenticateEvm(
   return completeAuth(challengeId, signature, walletAddress);
 }
 
-/** Desktop client deep-link callback (Erebrus VPN app). Expand as new clients are approved. */
-export const ALLOWED_DESKTOP_AUTH_REDIRECT_URI = "erebrusvpn://auth";
+/** Default desktop client deep-link callbacks. Expand as new clients are approved. */
+export const DEFAULT_DESKTOP_AUTH_REDIRECT_URIS = [
+  "erebrusai://auth",
+  "erebrusdrop://auth",
+  "erebrusvpn://auth",
+];
+
+/**
+ * Allowed desktop app redirect URIs for /auth.
+ * Override with NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS as a comma-separated list.
+ */
+export function getAllowedDesktopAuthRedirectUris(): string[] {
+  const raw =
+    typeof process !== "undefined"
+      ? process.env.NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS?.trim()
+      : "";
+  if (!raw) return DEFAULT_DESKTOP_AUTH_REDIRECT_URIS;
+  return raw.split(",").map((u) => u.trim()).filter(Boolean);
+}
 
 /** Query params returned to the requesting app after a successful wallet sign-in. */
 export const AUTH_CALLBACK_FIELDS = [

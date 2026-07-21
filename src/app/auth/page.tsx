@@ -11,11 +11,11 @@ import type { Provider } from "@reown/appkit-adapter-solana/react";
 import type { Eip1193Provider } from "ethers";
 import { Check, Copy, Loader2, Shield, X } from "lucide-react";
 import {
-  ALLOWED_DESKTOP_AUTH_REDIRECT_URI,
   AUTH_CALLBACK_FIELDS,
   authenticateEvm,
   authenticateSolana,
   buildAuthCallbackUrl,
+  getAllowedDesktopAuthRedirectUris,
   type AuthSession,
 } from "@/lib/gateway-auth";
 
@@ -54,7 +54,7 @@ function parseAuthParams(searchParams: URLSearchParams): AuthParams | null {
   const platform = searchParams.get("platform") ?? "";
   const clientId = searchParams.get("client_id") ?? "";
 
-  if (redirectUri !== ALLOWED_DESKTOP_AUTH_REDIRECT_URI) return null;
+  if (!getAllowedDesktopAuthRedirectUris().includes(redirectUri)) return null;
   if (!state || !platform || !clientId) return null;
 
   return { redirectUri, state, platform, clientId };
