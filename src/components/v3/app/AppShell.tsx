@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <aside className="hidden w-[244px] shrink-0 flex-col border-r border-white/[0.06] bg-[var(--elevated)]/70 p-4 backdrop-blur-xl lg:flex sticky top-0 h-screen">
             <Link href="/dashboard" className="mb-5 flex items-center gap-2.5 px-2.5 py-1.5">
               <Image
-                src="/brand/erebrus-mark.png"
+                src="/brand/erebrus-logo.png"
                 alt="Erebrus"
                 width={30}
                 height={30}
