@@ -1,12 +1,41 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
-  ALLOWED_DESKTOP_AUTH_REDIRECT_URI,
+  DEFAULT_DESKTOP_AUTH_REDIRECT_URIS,
   buildAuthCallbackUrl,
+  getAllowedDesktopAuthRedirectUris,
 } from "./gateway-auth";
 
+const originalEnv = process.env.NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS;
+
+afterEach(() => {
+  if (originalEnv === undefined) {
+    delete process.env.NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS;
+  } else {
+    process.env.NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS = originalEnv;
+  }
+});
+
+describe("getAllowedDesktopAuthRedirectUris", () => {
+  it("returns defaults when env is missing or empty", () => {
+    delete process.env.NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS;
+    expect(getAllowedDesktopAuthRedirectUris()).toEqual(
+      DEFAULT_DESKTOP_AUTH_REDIRECT_URIS
+    );
+  });
+
+  it("parses a comma-separated env override", () => {
+    process.env.NEXT_PUBLIC_ALLOWED_DESKTOP_AUTH_REDIRECT_URIS =
+      " custom://auth , other://auth ";
+    expect(getAllowedDesktopAuthRedirectUris()).toEqual([
+      "custom://auth",
+      "other://auth",
+    ]);
+  });
+});
+
 describe("buildAuthCallbackUrl", () => {
-  it("appends callback params to the allowed desktop redirect URI", () => {
-    const url = buildAuthCallbackUrl(ALLOWED_DESKTOP_AUTH_REDIRECT_URI, {
+  it("appends callback params to a desktop redirect URI", () => {
+    const url = buildAuthCallbackUrl("erebrusvpn://auth", {
       token: "t",
       user_id: "u",
       state: "s",
@@ -19,7 +48,7 @@ describe("buildAuthCallbackUrl", () => {
   });
 
   it("URL-encodes param values", () => {
-    const url = buildAuthCallbackUrl(ALLOWED_DESKTOP_AUTH_REDIRECT_URI, {
+    const url = buildAuthCallbackUrl("erebrusdrop://auth", {
       token: "a b&c=d",
     });
     expect(new URL(url).searchParams.get("token")).toBe("a b&c=d");
