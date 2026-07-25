@@ -37,6 +37,11 @@ const features = [
     desc: "Store files on community IPFS nodes; private content is encrypted in your browser.",
   },
   {
+    glyph: "✧",
+    title: "AI on your hardware",
+    desc: "Run quantized local models, create private personas, and use trusted workspace nodes only when you choose to share compute.",
+  },
+  {
     glyph: "✦",
     title: "Earn as operator",
     desc: "Run a node, track uptime, earn XP. Private or public — your infrastructure, your rules.",
@@ -57,12 +62,12 @@ const steps = [
   {
     num: "02",
     title: "Pick your plan",
-    desc: "Every account starts free. Upgrade a workspace plan for more access and seats.",
+    desc: "Every account starts free. Upgrade a workspace plan for VPN, Drop, AI access, and seats.",
   },
   {
     num: "03",
     title: "Connect & go",
-    desc: "Pick a node, provision a WireGuard config, download to any device.",
+    desc: "Pick a VPN node, open a Drop Room, or run a local AI model from your own device.",
   },
 ];
 
@@ -89,8 +94,8 @@ export default function LandingPage() {
 
         <p className="mx-auto mt-6 max-w-[640px] text-base leading-relaxed text-[var(--text-2)] md:text-xl">
           Everything you do online is watched, tracked, and sold. Erebrus hands the controls back
-          to you — a no-logs VPN and decentralized Drop storage, run by people, not the platforms that
-          profit from you.
+          to you — a no-logs VPN, decentralized Drop storage, and local-first AI, run by
+          people and personal devices, not the platforms that profit from you.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
@@ -107,7 +112,7 @@ export default function LandingPage() {
         </div>
 
         <p className="mt-6 font-mono text-xs text-[var(--text-3)]">
-          Two products live today · VPN + Drop · more on the way
+          Three products live today · VPN + Drop + AI
         </p>
 
         <LandingNetworkPreview />
@@ -125,7 +130,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-3">
           <Link href="/vpn" className="group">
             <Card className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
               style={{
@@ -146,6 +151,31 @@ export default function LandingPage() {
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
                 Explore VPN →
+              </span>
+            </Card>
+          </Link>
+
+          <Link href="/ai" className="group">
+            <Card
+              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
+              style={{
+                background:
+                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,183,77,0.12), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
+              }}
+            >
+              <div className="mb-5 flex items-center gap-3.5">
+                <Image src="/ai/logo.png" alt="" width={56} height={56} className="rounded-[14px]" />
+                <div>
+                  <div className="text-xl font-bold">Erebrus AI</div>
+                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · local models</div>
+                </div>
+              </div>
+              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
+                Download private GGUF models, create custom personas, and run inference locally or
+                through trusted devices on your own network.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
+                Explore AI →
               </span>
             </Card>
           </Link>
