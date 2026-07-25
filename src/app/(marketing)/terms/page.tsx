@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
 import {
   LegalPageShell,
@@ -227,6 +228,32 @@ export default function TermsPage() {
         {sections.map((section) => (
           <LegalSection key={section.title} {...section} />
         ))}
+
+        <section className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6">
+          <h2 className="mb-4 text-xl font-semibold tracking-tight md:text-2xl">
+            Account deletion
+          </h2>
+          <p className="mb-4 leading-7 text-[var(--text-2)]">
+            You can request deletion of your Erebrus account and associated data at any time. Read the{" "}
+            <Link
+              href="/account-deletion"
+              className="text-[var(--accent-hi)] hover:underline"
+            >
+              account deletion page
+            </Link>{" "}
+            for what is deleted, what may be retained, and how to verify ownership.
+          </p>
+          <p className="leading-7 text-[var(--text-2)]">
+            If you can sign in, request deletion from your Profile. If you cannot sign in, use the{" "}
+            <Link
+              href="/contact?category=account-deletion"
+              className="text-[var(--accent-hi)] hover:underline"
+            >
+              contact form
+            </Link>{" "}
+            with the “Account deletion” category.
+          </p>
+        </section>
       </div>
     </LegalPageShell>
   );
