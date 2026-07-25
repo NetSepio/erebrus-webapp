@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0.0",
-  "catalog_version": "2026.07.18-v1",
-  "generated_at": "2026-07-18T16:25:49.842749Z",
+  "schema_version": "1.1.0",
+  "catalog_version": "2026.07.25-v2",
+  "generated_at": "2026-07-25T12:00:00Z",
   "publisher": {
     "name": "Erebrus AI",
     "organization": "NetSepio",
@@ -9,14 +9,14 @@
     "description": "Curated local AI models for private inference on phones, laptops, desktops and nearby Erebrus workspaces."
   },
   "catalog_policy": {
-    "model_count": 25,
-    "primary_format": "GGUF",
-    "primary_backend": "llama.cpp",
+    "model_count": 27,
+    "primary_format": "GGUF and MLX",
+    "primary_backend": "device-selected",
     "default_quantization_policy": "Prefer Q4_K_M for balanced quality unless a model has a native or specialized quantization.",
     "vision_policy": "Vision entries include their required mmproj artifact where the selected llama.cpp package uses one.",
     "mobile_policy": "Mobile compatibility is a device-tier recommendation, not a guarantee. The app should perform a RAM and backend capability check before enabling download.",
     "download_policy": "All artifact URLs point to public Hugging Face repositories. Pin revisions and mirror only after license review.",
-    "integrity_policy": "SHA-256 is null unless independently confirmed. Production releases should resolve an immutable repository commit, fetch Content-Length and compute SHA-256 in CI.",
+    "integrity_policy": "New production variants use immutable repository revisions, exact Content-Length values and independently computed SHA-256 checksums. Legacy entries remain unavailable to the verified package installer until their null integrity fields are resolved.",
     "runtime_policy": "Every entry remains erebrus_runtime_verification=pending until tested with the exact runtime shipped by Erebrus AI."
   },
   "device_tiers": [
@@ -74,6 +74,321 @@
     ]
   },
   "models": [
+    {
+      "id": "smollm2-135m-instruct",
+      "slug": "smollm2-135m-instruct",
+      "name": "SmolLM2 135M Instruct",
+      "family": "SmolLM2",
+      "variant": "Instruct",
+      "publisher": "Hugging Face / MLX Community / Unsloth",
+      "description": "Emergency Nano model for constrained devices, with verified GGUF and Apple MLX packages.",
+      "tags": [
+        "nano",
+        "mobile",
+        "text",
+        "fast",
+        "mlx"
+      ],
+      "collections": [
+        "mobile",
+        "everyday"
+      ],
+      "model": {
+        "parameter_count": 135000000,
+        "parameter_label": "0.135B",
+        "architecture": "llama",
+        "context_length": 8192,
+        "recommended_context_length": 2048
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "summarization"
+      ],
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported",
+        "minimum_ram_gb": 0.35,
+        "recommended_ram_gb": 0.7,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "macos-x86_64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "smollm2-135m-q8-model",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "SmolLM2-135M-Instruct-Q8_0.gguf",
+          "repository_id": "unsloth/SmolLM2-135M-Instruct-GGUF",
+          "revision": "8637628433dc3df4a2d363adc89e4c3917f299dc",
+          "download_url": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q8_0.gguf",
+          "file_size_display": "138.1 MB",
+          "file_size_bytes": 144811072,
+          "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
+          "recommended": true,
+          "backend": "llama.cpp"
+        }
+      ],
+      "variants": [
+        {
+          "variant_id": "smollm2-135m-instruct-mlx-bf16",
+          "model_id": "smollm2-135m-instruct",
+          "format": "mlx",
+          "quantization": "BF16",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 0.45,
+          "recommended_ram_gb": 0.7,
+          "release_channel": "stable",
+          "files": [
+            {
+              "artifact_id": "smollm2-135m-mlx-config",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/SmolLM2-135M-Instruct",
+              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/config.json?download=true",
+              "file_size_bytes": 944,
+              "sha256": "f5365fe3a752f61675ac4822e102cf34ab56ad92af8ed9c3ebc26b57a691a6e3",
+              "backend": "mlx"
+            },
+            {
+              "artifact_id": "smollm2-135m-mlx-weights",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/SmolLM2-135M-Instruct",
+              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/model.safetensors?download=true",
+              "file_size_bytes": 269060381,
+              "sha256": "989e3ef746b41999ca096055a60c87057b8e842824253391bc0d9ed8dfc6936e",
+              "backend": "mlx"
+            },
+            {
+              "artifact_id": "smollm2-135m-mlx-tokenizer",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/SmolLM2-135M-Instruct",
+              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/tokenizer.json?download=true",
+              "file_size_bytes": 3522656,
+              "sha256": "7d27c493c729a66ecefc837280b05d948b1ed50d130eebdbf911b1b36cf38ed7",
+              "backend": "mlx"
+            },
+            {
+              "artifact_id": "smollm2-135m-mlx-tokenizer-config",
+              "role": "tokenizer_config",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/SmolLM2-135M-Instruct",
+              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/tokenizer_config.json?download=true",
+              "file_size_bytes": 3764,
+              "sha256": "a27f638bd2831f5c3dea654a75838930f2b11fbe550c4d4e1d5d7bd07157b2ee",
+              "backend": "mlx"
+            }
+          ]
+        },
+        {
+          "variant_id": "smollm2-135m-instruct-gguf-q8_0",
+          "model_id": "smollm2-135m-instruct",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 0.35,
+          "recommended_ram_gb": 0.5,
+          "release_channel": "stable",
+          "files": [
+            {
+              "artifact_id": "smollm2-135m-q8-model",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "SmolLM2-135M-Instruct-Q8_0.gguf",
+              "repository_id": "unsloth/SmolLM2-135M-Instruct-GGUF",
+              "revision": "8637628433dc3df4a2d363adc89e4c3917f299dc",
+              "download_url": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q8_0.gguf",
+              "file_size_bytes": 144811072,
+              "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
+              "backend": "llama.cpp"
+            }
+          ]
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "mlx",
+        "compatible_backends": [
+          "mlx",
+          "llama.cpp"
+        ],
+        "chat_template_source": "tokenizer_or_gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "requires_mmproj": false,
+        "minimum_runtime_version": "Erebrus AI 1.1"
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level"
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "runtime_verified",
+        "erebrus_runtime_verification": "verified_macos_mlx_and_llama_cpp",
+        "verified_at": "2026-07-25T12:00:00Z",
+        "minimum_app_version": "1.1.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 1,
+        "badges": [
+          "Nano",
+          "MLX",
+          "Mobile Ready"
+        ]
+      }
+    },
+    {
+      "id": "smollm2-360m-instruct",
+      "slug": "smollm2-360m-instruct",
+      "name": "SmolLM2 360M Instruct",
+      "family": "SmolLM2",
+      "variant": "Instruct",
+      "publisher": "Hugging Face",
+      "description": "Nano text model with more capability while remaining below 0.5B parameters.",
+      "tags": [
+        "nano",
+        "mobile",
+        "text"
+      ],
+      "collections": [
+        "mobile",
+        "everyday"
+      ],
+      "model": {
+        "parameter_count": 360000000,
+        "parameter_label": "0.36B",
+        "architecture": "llama",
+        "context_length": 8192,
+        "recommended_context_length": 2048
+      },
+      "device_support": {
+        "tiers": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "mobile",
+        "mobile_status": "supported",
+        "minimum_ram_gb": 0.6,
+        "recommended_ram_gb": 0.8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "macos-x86_64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "smollm2-360m-q8-model",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "smollm2-360m-instruct-q8_0.gguf",
+          "repository_id": "HuggingFaceTB/SmolLM2-360M-Instruct-GGUF",
+          "revision": "593b5a2e04c8f3e4ee880263f93e0bd2901ad47f",
+          "download_url": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct-GGUF/resolve/593b5a2e04c8f3e4ee880263f93e0bd2901ad47f/smollm2-360m-instruct-q8_0.gguf",
+          "file_size_display": "368.5 MB",
+          "file_size_bytes": 386404992,
+          "sha256": "48ab3034d0dd401fbc721eb1df3217902fee7dab9078992d66431f09b7750201",
+          "recommended": true,
+          "backend": "llama.cpp"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "requires_mmproj": false
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level"
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "stable",
+        "metadata_status": "runtime_verified",
+        "erebrus_runtime_verification": "verified_llama_cpp",
+        "verified_at": "2026-07-25T12:00:00Z",
+        "minimum_app_version": "1.1.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 2,
+        "badges": [
+          "Nano",
+          "Mobile Ready"
+        ]
+      }
+    },
     {
       "id": "qwen3.5-0.8b",
       "slug": "qwen3.5-0.8b",
