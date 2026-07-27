@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1.0",
-  "catalog_version": "2026.07.25-v2",
-  "generated_at": "2026-07-25T12:00:00Z",
+  "schema_version": "1.2.0",
+  "catalog_version": "2026.07.27",
+  "generated_at": "2026-07-27T08:06:04.323Z",
   "publisher": {
     "name": "Erebrus AI",
     "organization": "NetSepio",
@@ -15,9 +15,10 @@
     "default_quantization_policy": "Prefer Q4_K_M for balanced quality unless a model has a native or specialized quantization.",
     "vision_policy": "Vision entries include their required mmproj artifact where the selected llama.cpp package uses one.",
     "mobile_policy": "Mobile compatibility is a device-tier recommendation, not a guarantee. The app should perform a RAM and backend capability check before enabling download.",
-    "download_policy": "All artifact URLs point to public Hugging Face repositories. Pin revisions and mirror only after license review.",
-    "integrity_policy": "New production variants use immutable repository revisions, exact Content-Length values and independently computed SHA-256 checksums. Legacy entries remain unavailable to the verified package installer until their null integrity fields are resolved.",
-    "runtime_policy": "Every entry remains erebrus_runtime_verification=pending until tested with the exact runtime shipped by Erebrus AI."
+    "download_policy": "Only existing public publisher artifacts are listed. Erebrus does not convert or republish weights.",
+    "integrity_policy": "Every downloadable file is pinned to an immutable repository revision with exact byte size and SHA-256.",
+    "runtime_policy": "Every entry remains erebrus_runtime_verification=pending until tested with the exact runtime shipped by Erebrus AI.",
+    "provenance_policy": "Each variant identifies whether it is publisher-official or a community conversion and names its source repository."
   },
   "device_tiers": [
     {
@@ -145,13 +146,14 @@
           "quantization": "Q8_0",
           "filename": "SmolLM2-135M-Instruct-Q8_0.gguf",
           "repository_id": "unsloth/SmolLM2-135M-Instruct-GGUF",
-          "revision": "8637628433dc3df4a2d363adc89e4c3917f299dc",
-          "download_url": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q8_0.gguf",
+          "revision": "9e6855bc4be717fca1ef21360a1db4b29d5c559a",
+          "download_url": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/9e6855bc4be717fca1ef21360a1db4b29d5c559a/SmolLM2-135M-Instruct-Q8_0.gguf?download=true",
           "file_size_display": "138.1 MB",
           "file_size_bytes": 144811072,
           "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
           "recommended": true,
-          "backend": "llama.cpp"
+          "backend": "llama.cpp",
+          "required": true
         }
       ],
       "variants": [
@@ -177,11 +179,12 @@
               "format": "json",
               "filename": "config.json",
               "repository_id": "mlx-community/SmolLM2-135M-Instruct",
-              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
-              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/config.json?download=true",
+              "revision": "422de227b90002f443a21a58b1087f6ee7632731",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/422de227b90002f443a21a58b1087f6ee7632731/config.json?download=true",
               "file_size_bytes": 944,
               "sha256": "f5365fe3a752f61675ac4822e102cf34ab56ad92af8ed9c3ebc26b57a691a6e3",
-              "backend": "mlx"
+              "backend": "mlx",
+              "required": true
             },
             {
               "artifact_id": "smollm2-135m-mlx-weights",
@@ -189,11 +192,12 @@
               "format": "safetensors",
               "filename": "model.safetensors",
               "repository_id": "mlx-community/SmolLM2-135M-Instruct",
-              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
-              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/model.safetensors?download=true",
+              "revision": "422de227b90002f443a21a58b1087f6ee7632731",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/422de227b90002f443a21a58b1087f6ee7632731/model.safetensors?download=true",
               "file_size_bytes": 269060381,
               "sha256": "989e3ef746b41999ca096055a60c87057b8e842824253391bc0d9ed8dfc6936e",
-              "backend": "mlx"
+              "backend": "mlx",
+              "required": true
             },
             {
               "artifact_id": "smollm2-135m-mlx-tokenizer",
@@ -201,11 +205,12 @@
               "format": "json",
               "filename": "tokenizer.json",
               "repository_id": "mlx-community/SmolLM2-135M-Instruct",
-              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
-              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/tokenizer.json?download=true",
+              "revision": "422de227b90002f443a21a58b1087f6ee7632731",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/422de227b90002f443a21a58b1087f6ee7632731/tokenizer.json?download=true",
               "file_size_bytes": 3522656,
               "sha256": "7d27c493c729a66ecefc837280b05d948b1ed50d130eebdbf911b1b36cf38ed7",
-              "backend": "mlx"
+              "backend": "mlx",
+              "required": true
             },
             {
               "artifact_id": "smollm2-135m-mlx-tokenizer-config",
@@ -213,13 +218,21 @@
               "format": "json",
               "filename": "tokenizer_config.json",
               "repository_id": "mlx-community/SmolLM2-135M-Instruct",
-              "revision": "1adc2ffbe2b9840bf4f957846d03d5f95ad505c6",
-              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/1adc2ffbe2b9840bf4f957846d03d5f95ad505c6/tokenizer_config.json?download=true",
+              "revision": "422de227b90002f443a21a58b1087f6ee7632731",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-135M-Instruct/resolve/422de227b90002f443a21a58b1087f6ee7632731/tokenizer_config.json?download=true",
               "file_size_bytes": 3764,
               "sha256": "a27f638bd2831f5c3dea654a75838930f2b11fbe550c4d4e1d5d7bd07157b2ee",
-              "backend": "mlx"
+              "backend": "mlx",
+              "required": true
             }
-          ]
+          ],
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/SmolLM2-135M-Instruct",
+            "verification": "immutable_revision_size_and_sha256"
+          }
         },
         {
           "variant_id": "smollm2-135m-instruct-gguf-q8_0",
@@ -240,17 +253,25 @@
               "quantization": "Q8_0",
               "filename": "SmolLM2-135M-Instruct-Q8_0.gguf",
               "repository_id": "unsloth/SmolLM2-135M-Instruct-GGUF",
-              "revision": "8637628433dc3df4a2d363adc89e4c3917f299dc",
-              "download_url": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/8637628433dc3df4a2d363adc89e4c3917f299dc/SmolLM2-135M-Instruct-Q8_0.gguf",
+              "revision": "9e6855bc4be717fca1ef21360a1db4b29d5c559a",
+              "download_url": "https://huggingface.co/unsloth/SmolLM2-135M-Instruct-GGUF/resolve/9e6855bc4be717fca1ef21360a1db4b29d5c559a/SmolLM2-135M-Instruct-Q8_0.gguf?download=true",
               "file_size_bytes": 144811072,
               "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
-              "backend": "llama.cpp"
+              "backend": "llama.cpp",
+              "required": true
             }
-          ]
+          ],
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/SmolLM2-135M-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          }
         }
       ],
       "runtime": {
-        "preferred_backend": "mlx",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
           "mlx",
           "llama.cpp"
@@ -287,7 +308,8 @@
           "MLX",
           "Mobile Ready"
         ]
-      }
+      },
+      "preferred_variant_id": "smollm2-135m-instruct-gguf-q8_0"
     },
     {
       "id": "smollm2-360m-instruct",
@@ -344,18 +366,20 @@
           "filename": "smollm2-360m-instruct-q8_0.gguf",
           "repository_id": "HuggingFaceTB/SmolLM2-360M-Instruct-GGUF",
           "revision": "593b5a2e04c8f3e4ee880263f93e0bd2901ad47f",
-          "download_url": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct-GGUF/resolve/593b5a2e04c8f3e4ee880263f93e0bd2901ad47f/smollm2-360m-instruct-q8_0.gguf",
+          "download_url": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct-GGUF/resolve/593b5a2e04c8f3e4ee880263f93e0bd2901ad47f/smollm2-360m-instruct-q8_0.gguf?download=true",
           "file_size_display": "368.5 MB",
           "file_size_bytes": 386404992,
           "sha256": "48ab3034d0dd401fbc721eb1df3217902fee7dab9078992d66431f09b7750201",
           "recommended": true,
-          "backend": "llama.cpp"
+          "backend": "llama.cpp",
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -385,9 +409,162 @@
         "sort_order": 2,
         "badges": [
           "Nano",
-          "Mobile Ready"
+          "Mobile Ready",
+          "MLX"
         ]
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "smollm2-360m-instruct-gguf-q8-0",
+          "model_id": "smollm2-360m-instruct",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "macos-x86_64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 0.6,
+          "recommended_ram_gb": 0.8,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "HuggingFaceTB",
+            "repository_id": "HuggingFaceTB/SmolLM2-360M-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "smollm2-360m-instruct-q8_0.gguf",
+              "repository_id": "HuggingFaceTB/SmolLM2-360M-Instruct-GGUF",
+              "revision": "593b5a2e04c8f3e4ee880263f93e0bd2901ad47f",
+              "download_url": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct-GGUF/resolve/593b5a2e04c8f3e4ee880263f93e0bd2901ad47f/smollm2-360m-instruct-q8_0.gguf?download=true",
+              "file_size_display": "368.5 MB",
+              "file_size_bytes": 386404992,
+              "sha256": "48ab3034d0dd401fbc721eb1df3217902fee7dab9078992d66431f09b7750201",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "artifact_id": "smollm2-360m-q8-model",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "smollm2-360m-instruct-mlx-bf16",
+          "model_id": "smollm2-360m-instruct",
+          "format": "mlx",
+          "quantization": "BF16",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 0.9,
+          "recommended_ram_gb": 1.3,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+            "upstream_repository_id": "HuggingFaceTB/SmolLM2-360M-Instruct",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-smollm2-360m-instruct-bf16-mlx-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+              "revision": "3294f31da06d54bce7f501eac248fcb5a692b51d",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-360M-Instruct-bf16-mlx/resolve/3294f31da06d54bce7f501eac248fcb5a692b51d/config.json?download=true",
+              "file_size_bytes": 929,
+              "sha256": "a71ddb550723840c35375ca1fbcabf0ae6e9803ccb9c3685a788601d0afa1880",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-smollm2-360m-instruct-bf16-mlx-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+              "revision": "3294f31da06d54bce7f501eac248fcb5a692b51d",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-360M-Instruct-bf16-mlx/resolve/3294f31da06d54bce7f501eac248fcb5a692b51d/model.safetensors?download=true",
+              "file_size_bytes": 723674815,
+              "sha256": "343dc673f7c45f829ff2a725ff9cf4151209ac52fae921dd5467e3e1b1a2fd22",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-smollm2-360m-instruct-bf16-mlx-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+              "revision": "3294f31da06d54bce7f501eac248fcb5a692b51d",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-360M-Instruct-bf16-mlx/resolve/3294f31da06d54bce7f501eac248fcb5a692b51d/model.safetensors.index.json?download=true",
+              "file_size_bytes": 20711,
+              "sha256": "9fafd51579dfad4a40600c60fc292f0f2ad06aebdbfc9789a57f563e90fc45ba",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-smollm2-360m-instruct-bf16-mlx-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+              "revision": "3294f31da06d54bce7f501eac248fcb5a692b51d",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-360M-Instruct-bf16-mlx/resolve/3294f31da06d54bce7f501eac248fcb5a692b51d/special_tokens_map.json?download=true",
+              "file_size_bytes": 655,
+              "sha256": "2b7379f3ae813529281a5c602bc5a11c1d4e0a99107aaa597fe936c1e813ca52",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-smollm2-360m-instruct-bf16-mlx-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+              "revision": "3294f31da06d54bce7f501eac248fcb5a692b51d",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-360M-Instruct-bf16-mlx/resolve/3294f31da06d54bce7f501eac248fcb5a692b51d/tokenizer.json?download=true",
+              "file_size_bytes": 3522656,
+              "sha256": "7d27c493c729a66ecefc837280b05d948b1ed50d130eebdbf911b1b36cf38ed7",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-smollm2-360m-instruct-bf16-mlx-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/SmolLM2-360M-Instruct-bf16-mlx",
+              "revision": "3294f31da06d54bce7f501eac248fcb5a692b51d",
+              "download_url": "https://huggingface.co/mlx-community/SmolLM2-360M-Instruct-bf16-mlx/resolve/3294f31da06d54bce7f501eac248fcb5a692b51d/tokenizer_config.json?download=true",
+              "file_size_bytes": 3794,
+              "sha256": "7b85619980209ca801effcd87e5df7084a21abc3d8b8d27003a6b4ffcce170ef",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "smollm2-360m-instruct-gguf-q8-0"
     },
     {
       "id": "qwen3.5-0.8b",
@@ -493,12 +670,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen3.5-0.8B-Q4_K_M.gguf",
           "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/main/Qwen3.5-0.8B-Q4_K_M.gguf?download=true",
+          "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/6ab461498e2023f6e3c1baea90a8f0fe38ab64d0/Qwen3.5-0.8B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-0.8B-GGUF/Qwen3.5-0.8B-Q4_K_M.gguf",
           "file_size_display": "533 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 532517120,
+          "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -508,7 +685,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -517,12 +695,12 @@
           "quantization": "F16",
           "filename": "mmproj-F16.gguf",
           "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/6ab461498e2023f6e3c1baea90a8f0fe38ab64d0/mmproj-F16.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-0.8B-GGUF/mmproj-F16.gguf",
           "file_size_display": "205 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 204987232,
+          "sha256": "56e4c6cfe73b0c82e3e82bc518d7591997e61d81f723fc41a586f4fa69ea2453",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -532,13 +710,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -584,13 +764,199 @@
         "badges": [
           "Mobile Ready",
           "Vision",
-          "Multilingual"
+          "Multilingual",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.5-0.8b-gguf-q4-k-m",
+          "model_id": "qwen3.5-0.8b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 3,
+          "recommended_ram_gb": 4,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.5-0.8B-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
+              "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/6ab461498e2023f6e3c1baea90a8f0fe38ab64d0/Qwen3.5-0.8B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-0.8B-GGUF/Qwen3.5-0.8B-Q4_K_M.gguf",
+              "file_size_display": "533 MB",
+              "file_size_bytes": 532517120,
+              "sha256": "bd258782e35f7f458f8aced1adc053e6e92e89bc735ba3be89d38a06121dc517",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-F16.gguf",
+              "repository_id": "unsloth/Qwen3.5-0.8B-GGUF",
+              "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF/resolve/6ab461498e2023f6e3c1baea90a8f0fe38ab64d0/mmproj-F16.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-0.8B-GGUF/mmproj-F16.gguf",
+              "file_size_display": "205 MB",
+              "file_size_bytes": 204987232,
+              "sha256": "56e4c6cfe73b0c82e3e82bc518d7591997e61d81f723fc41a586f4fa69ea2453",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3.5-0.8b-mlx-4bit",
+          "model_id": "qwen3.5-0.8b",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 1.4,
+          "recommended_ram_gb": 2.2,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+            "upstream_repository_id": "Qwen/Qwen3.5-0.8B",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-qwen3-5-0-8b-mlx-4bit-chat-template-jinja",
+              "role": "chat_template",
+              "format": "json",
+              "filename": "chat_template.jinja",
+              "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+              "revision": "5d894f8cc4ef3e6c88537bf3746ed262f549da6a",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-0.8B-MLX-4bit/resolve/5d894f8cc4ef3e6c88537bf3746ed262f549da6a/chat_template.jinja?download=true",
+              "file_size_bytes": 7755,
+              "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-0-8b-mlx-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+              "revision": "5d894f8cc4ef3e6c88537bf3746ed262f549da6a",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-0.8B-MLX-4bit/resolve/5d894f8cc4ef3e6c88537bf3746ed262f549da6a/config.json?download=true",
+              "file_size_bytes": 3112,
+              "sha256": "ba7770da23eae5ebd6827571f086e331956b33f4442a9e876fb4aa10969a6772",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-0-8b-mlx-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+              "revision": "5d894f8cc4ef3e6c88537bf3746ed262f549da6a",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-0.8B-MLX-4bit/resolve/5d894f8cc4ef3e6c88537bf3746ed262f549da6a/model.safetensors?download=true",
+              "file_size_bytes": 625229487,
+              "sha256": "f5a0d9dd3efa73510542a8023d610ff26be2b4b020d181cfc4bedaa1fcc5dd9e",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-0-8b-mlx-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+              "revision": "5d894f8cc4ef3e6c88537bf3746ed262f549da6a",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-0.8B-MLX-4bit/resolve/5d894f8cc4ef3e6c88537bf3746ed262f549da6a/model.safetensors.index.json?download=true",
+              "file_size_bytes": 71473,
+              "sha256": "6e48f2fa5d6f033a6d77bf833abfa9698ca24d1715ecea4c67447bcfaee44650",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-0-8b-mlx-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+              "revision": "5d894f8cc4ef3e6c88537bf3746ed262f549da6a",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-0.8B-MLX-4bit/resolve/5d894f8cc4ef3e6c88537bf3746ed262f549da6a/tokenizer.json?download=true",
+              "file_size_bytes": 19989343,
+              "sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-0-8b-mlx-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Qwen3.5-0.8B-MLX-4bit",
+              "revision": "5d894f8cc4ef3e6c88537bf3746ed262f549da6a",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-0.8B-MLX-4bit/resolve/5d894f8cc4ef3e6c88537bf3746ed262f549da6a/tokenizer_config.json?download=true",
+              "file_size_bytes": 1139,
+              "sha256": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.5-0.8b-gguf-q4-k-m"
     },
     {
       "id": "qwen3.5-2b",
@@ -696,12 +1062,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen3.5-2B-Q4_K_M.gguf",
           "repository_id": "unsloth/Qwen3.5-2B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/main/Qwen3.5-2B-Q4_K_M.gguf?download=true",
+          "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf",
           "file_size_display": "1.28 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 1280835840,
+          "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -711,7 +1077,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -720,12 +1087,12 @@
           "quantization": "F16",
           "filename": "mmproj-F16.gguf",
           "repository_id": "unsloth/Qwen3.5-2B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/mmproj-F16.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-2B-GGUF/mmproj-F16.gguf",
           "file_size_display": "668 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 668227264,
+          "sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -735,13 +1102,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -787,13 +1156,199 @@
         "badges": [
           "Mobile",
           "Vision",
-          "Multilingual"
+          "Multilingual",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.5-2b-gguf-q4-k-m",
+          "model_id": "qwen3.5-2b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 4,
+          "recommended_ram_gb": 6,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3.5-2B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.5-2B-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3.5-2B-GGUF",
+              "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/Qwen3.5-2B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf",
+              "file_size_display": "1.28 GB",
+              "file_size_bytes": 1280835840,
+              "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-F16.gguf",
+              "repository_id": "unsloth/Qwen3.5-2B-GGUF",
+              "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/f6d5376be1edb4d416d56da11e5397a961aca8ae/mmproj-F16.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-2B-GGUF/mmproj-F16.gguf",
+              "file_size_display": "668 MB",
+              "file_size_bytes": 668227264,
+              "sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3.5-2b-mlx-4bit",
+          "model_id": "qwen3.5-2b",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 2.5,
+          "recommended_ram_gb": 4,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+            "upstream_repository_id": "Qwen/Qwen3.5-2B",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-qwen3-5-2b-4bit-chat-template-jinja",
+              "role": "chat_template",
+              "format": "json",
+              "filename": "chat_template.jinja",
+              "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+              "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit/resolve/674aaa7240b91e8012fcad5d791b7dfe5ba90207/chat_template.jinja?download=true",
+              "file_size_bytes": 7755,
+              "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-2b-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+              "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit/resolve/674aaa7240b91e8012fcad5d791b7dfe5ba90207/config.json?download=true",
+              "file_size_bytes": 3113,
+              "sha256": "beb7fc5a6e0405fe332821cf1a8ef7b69bb390a8c8933171647de5579debf949",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-2b-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+              "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit/resolve/674aaa7240b91e8012fcad5d791b7dfe5ba90207/model.safetensors?download=true",
+              "file_size_bytes": 1722271785,
+              "sha256": "713fe7e5d3c3965f7106b0d0ee17615f7869c23c8d327996df8c1196fbcf07d5",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-2b-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+              "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit/resolve/674aaa7240b91e8012fcad5d791b7dfe5ba90207/model.safetensors.index.json?download=true",
+              "file_size_bytes": 81722,
+              "sha256": "8294c05cca7d53a6c33e3db2b379539bd296d054e0b689711b16b6ac93c7e49d",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-2b-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+              "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit/resolve/674aaa7240b91e8012fcad5d791b7dfe5ba90207/tokenizer.json?download=true",
+              "file_size_bytes": 19989343,
+              "sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-5-2b-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Qwen3.5-2B-4bit",
+              "revision": "674aaa7240b91e8012fcad5d791b7dfe5ba90207",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3.5-2B-4bit/resolve/674aaa7240b91e8012fcad5d791b7dfe5ba90207/tokenizer_config.json?download=true",
+              "file_size_bytes": 1139,
+              "sha256": "e98f1901ac6f0adff67b1d540bfa0c36ac1a0cf59eb72ed78146ef89aafa1182",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.5-2b-gguf-q4-k-m"
     },
     {
       "id": "qwen3-1.7b",
@@ -895,11 +1450,11 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen_Qwen3-1.7B-Q4_K_M.gguf",
           "repository_id": "bartowski/Qwen_Qwen3-1.7B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF/resolve/main/Qwen_Qwen3-1.7B-Q4_K_M.gguf?download=true",
+          "revision": "dcb19155b962dbb6389f4691a982043a8e651022",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF/resolve/dcb19155b962dbb6389f4691a982043a8e651022/Qwen_Qwen3-1.7B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Qwen_Qwen3-1.7B-GGUF/Qwen_Qwen3-1.7B-Q4_K_M.gguf",
           "file_size_display": "1.28 GB",
-          "file_size_bytes": null,
+          "file_size_bytes": 1282439584,
           "sha256": "72c5c3cb38fa32d5256e2fe30d03e7a64c6c79e668ad84057e3bd66e250b24fb",
           "recommended": true,
           "backend": "llama.cpp",
@@ -910,13 +1465,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -962,13 +1519,216 @@
         "badges": [
           "Mobile Ready",
           "Reasoning",
-          "Multilingual"
+          "Multilingual",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-1.7b-gguf-q4-k-m",
+          "model_id": "qwen3-1.7b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 3,
+          "recommended_ram_gb": 4,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Qwen_Qwen3-1.7B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen_Qwen3-1.7B-Q4_K_M.gguf",
+              "repository_id": "bartowski/Qwen_Qwen3-1.7B-GGUF",
+              "revision": "dcb19155b962dbb6389f4691a982043a8e651022",
+              "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF/resolve/dcb19155b962dbb6389f4691a982043a8e651022/Qwen_Qwen3-1.7B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Qwen_Qwen3-1.7B-GGUF/Qwen_Qwen3-1.7B-Q4_K_M.gguf",
+              "file_size_display": "1.28 GB",
+              "file_size_bytes": 1282439584,
+              "sha256": "72c5c3cb38fa32d5256e2fe30d03e7a64c6c79e668ad84057e3bd66e250b24fb",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3-1.7b-mlx-4bit",
+          "model_id": "qwen3-1.7b",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 2,
+          "recommended_ram_gb": 3,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+            "upstream_repository_id": "Qwen/Qwen3-1.7B",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-qwen3-1-7b-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+              "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/resolve/3b1b1768f8f8cf8351c712464f906e86c2b8269e/config.json?download=true",
+              "file_size_bytes": 937,
+              "sha256": "507a6701220524eb8b283425bf0856a9ae4f21f4052e563896ddd668994b1dc7",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-1-7b-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+              "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/resolve/3b1b1768f8f8cf8351c712464f906e86c2b8269e/model.safetensors?download=true",
+              "file_size_bytes": 968080210,
+              "sha256": "0e86d9677e519323849eac1bc272caae88567a481ff188c431f70be543d9995f",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-1-7b-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+              "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/resolve/3b1b1768f8f8cf8351c712464f906e86c2b8269e/model.safetensors.index.json?download=true",
+              "file_size_bytes": 49731,
+              "sha256": "1e3058d4ba4b04e4de35b74467725cbef90ff022198404218e48f21adc9cfa15",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-1-7b-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+              "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/resolve/3b1b1768f8f8cf8351c712464f906e86c2b8269e/special_tokens_map.json?download=true",
+              "file_size_bytes": 613,
+              "sha256": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-1-7b-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+              "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/resolve/3b1b1768f8f8cf8351c712464f906e86c2b8269e/tokenizer.json?download=true",
+              "file_size_bytes": 11422654,
+              "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-1-7b-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Qwen3-1.7B-4bit",
+              "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-1.7B-4bit/resolve/3b1b1768f8f8cf8351c712464f906e86c2b8269e/tokenizer_config.json?download=true",
+              "file_size_bytes": 9706,
+              "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3-1.7b-gguf-q8-0-qwen",
+          "model_id": "qwen3-1.7b",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 2.5,
+          "recommended_ram_gb": 3.5,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "official",
+            "publisher": "Qwen",
+            "repository_id": "Qwen/Qwen3-1.7B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "qwen-qwen3-1-7b-gguf-qwen3-1-7b-q8-0-gguf",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "Qwen3-1.7B-Q8_0.gguf",
+              "repository_id": "Qwen/Qwen3-1.7B-GGUF",
+              "revision": "90862c4b9d2787eaed51d12237eafdfe7c5f6077",
+              "download_url": "https://huggingface.co/Qwen/Qwen3-1.7B-GGUF/resolve/90862c4b9d2787eaed51d12237eafdfe7c5f6077/Qwen3-1.7B-Q8_0.gguf?download=true",
+              "file_size_bytes": 1834426016,
+              "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+              "backend": "llama.cpp",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-1.7b-gguf-q4-k-m"
     },
     {
       "id": "smollm2-1.7b-instruct",
@@ -1070,12 +1830,12 @@
           "quantization": "Q4_K_M",
           "filename": "SmolLM2-1.7B-Instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/SmolLM2-1.7B-Instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf?download=true",
+          "revision": "1f03464768bfcc0319fc50da8ff5fb20b6417ba2",
+          "download_url": "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/1f03464768bfcc0319fc50da8ff5fb20b6417ba2/SmolLM2-1.7B-Instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/SmolLM2-1.7B-Instruct-GGUF/SmolLM2-1.7B-Instruct-Q4_K_M.gguf",
           "file_size_display": "about 1.1 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 1055609824,
+          "sha256": "77665ea4815999596525c636fbeb56ba8b080b46ae85efef4f0d986a139834d7",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1085,7 +1845,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -1142,7 +1903,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "smollm2-1.7b-instruct-gguf-q4-k-m",
+          "model_id": "smollm2-1.7b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 3,
+          "recommended_ram_gb": 4,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/SmolLM2-1.7B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "SmolLM2-1.7B-Instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/SmolLM2-1.7B-Instruct-GGUF",
+              "revision": "1f03464768bfcc0319fc50da8ff5fb20b6417ba2",
+              "download_url": "https://huggingface.co/bartowski/SmolLM2-1.7B-Instruct-GGUF/resolve/1f03464768bfcc0319fc50da8ff5fb20b6417ba2/SmolLM2-1.7B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/SmolLM2-1.7B-Instruct-GGUF/SmolLM2-1.7B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 1.1 GB",
+              "file_size_bytes": 1055609824,
+              "sha256": "77665ea4815999596525c636fbeb56ba8b080b46ae85efef4f0d986a139834d7",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "smollm2-1.7b-instruct-gguf-q4-k-m"
     },
     {
       "id": "llama-3.2-1b-instruct",
@@ -1244,12 +2061,12 @@
           "quantization": "Q4_K_M",
           "filename": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/Llama-3.2-1B-Instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf?download=true",
+          "revision": "067b946cf014b7c697f3654f621d577a3e3afd1c",
+          "download_url": "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/067b946cf014b7c697f3654f621d577a3e3afd1c/Llama-3.2-1B-Instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Llama-3.2-1B-Instruct-GGUF/Llama-3.2-1B-Instruct-Q4_K_M.gguf",
           "file_size_display": "808 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 807694464,
+          "sha256": "6f85a640a97cf2bf5b8e764087b1e83da0fdb51d7c9fab7d0fece9385611df83",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1259,13 +2076,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -1310,13 +2129,174 @@
         "sort_order": 50,
         "badges": [
           "Mobile Ready",
-          "Popular"
+          "Popular",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "llama-3.2-1b-instruct-gguf-q4-k-m",
+          "model_id": "llama-3.2-1b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 2,
+          "recommended_ram_gb": 4,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+              "revision": "067b946cf014b7c697f3654f621d577a3e3afd1c",
+              "download_url": "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/067b946cf014b7c697f3654f621d577a3e3afd1c/Llama-3.2-1B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Llama-3.2-1B-Instruct-GGUF/Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "808 MB",
+              "file_size_bytes": 807694464,
+              "sha256": "6f85a640a97cf2bf5b8e764087b1e83da0fdb51d7c9fab7d0fece9385611df83",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "llama-3.2-1b-instruct-mlx-4bit",
+          "model_id": "llama-3.2-1b-instruct",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 1.5,
+          "recommended_ram_gb": 2.5,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+            "upstream_repository_id": "meta-llama/Llama-3.2-1B-Instruct",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-llama-3-2-1b-instruct-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+              "revision": "08231374eeacb049a0eade7922910865b8fce912",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-1B-Instruct-4bit/resolve/08231374eeacb049a0eade7922910865b8fce912/config.json?download=true",
+              "file_size_bytes": 1121,
+              "sha256": "73bfb89e5a43c76ada2d7a9609862139578a71cfbb43e30bf5d4571026dd3741",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-1b-instruct-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+              "revision": "08231374eeacb049a0eade7922910865b8fce912",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-1B-Instruct-4bit/resolve/08231374eeacb049a0eade7922910865b8fce912/model.safetensors?download=true",
+              "file_size_bytes": 695283921,
+              "sha256": "35e396644bca888eec399f9c0f843ec7fa78b8f8c5e06841661be62b4edf96dd",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-1b-instruct-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+              "revision": "08231374eeacb049a0eade7922910865b8fce912",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-1B-Instruct-4bit/resolve/08231374eeacb049a0eade7922910865b8fce912/model.safetensors.index.json?download=true",
+              "file_size_bytes": 26159,
+              "sha256": "437f66af94c5f921f4fbe465341bdee4dc6a37ab8f29bbb12fd7caad577dedd7",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-1b-instruct-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+              "revision": "08231374eeacb049a0eade7922910865b8fce912",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-1B-Instruct-4bit/resolve/08231374eeacb049a0eade7922910865b8fce912/special_tokens_map.json?download=true",
+              "file_size_bytes": 296,
+              "sha256": "6f38c73729248f6c127296386e3cdde96e254636cc58b4169d3fd32328d9a8ec",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-1b-instruct-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+              "revision": "08231374eeacb049a0eade7922910865b8fce912",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-1B-Instruct-4bit/resolve/08231374eeacb049a0eade7922910865b8fce912/tokenizer.json?download=true",
+              "file_size_bytes": 17209920,
+              "sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-1b-instruct-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+              "revision": "08231374eeacb049a0eade7922910865b8fce912",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-1B-Instruct-4bit/resolve/08231374eeacb049a0eade7922910865b8fce912/tokenizer_config.json?download=true",
+              "file_size_bytes": 54558,
+              "sha256": "022d5ae3df4737998ab97d8f31ac2bcb4c06dd8ebe5a8aba2b4aceef1e5ea7d3",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "llama-3.2-1b-instruct-gguf-q4-k-m"
     },
     {
       "id": "llama-3.2-3b-instruct",
@@ -1419,12 +2399,12 @@
           "quantization": "Q4_K_M",
           "filename": "Llama-3.2-3B-Instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/Llama-3.2-3B-Instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf?download=true",
+          "revision": "5ab33fa94d1d04e903623ae72c95d1696f09f9e8",
+          "download_url": "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/5ab33fa94d1d04e903623ae72c95d1696f09f9e8/Llama-3.2-3B-Instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Llama-3.2-3B-Instruct-GGUF/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
           "file_size_display": "2.02 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 2019377696,
+          "sha256": "6c1a2b41161032677be168d354123594c0e6e67d2b9227c84f296ad037c728ff",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1434,13 +2414,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -1485,13 +2467,174 @@
         "sort_order": 60,
         "badges": [
           "Mobile",
-          "Popular"
+          "Popular",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "llama-3.2-3b-instruct-gguf-q4-k-m",
+          "model_id": "llama-3.2-3b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 4,
+          "recommended_ram_gb": 6,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+              "revision": "5ab33fa94d1d04e903623ae72c95d1696f09f9e8",
+              "download_url": "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/5ab33fa94d1d04e903623ae72c95d1696f09f9e8/Llama-3.2-3B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Llama-3.2-3B-Instruct-GGUF/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "2.02 GB",
+              "file_size_bytes": 2019377696,
+              "sha256": "6c1a2b41161032677be168d354123594c0e6e67d2b9227c84f296ad037c728ff",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "llama-3.2-3b-instruct-mlx-4bit",
+          "model_id": "llama-3.2-3b-instruct",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 3,
+          "recommended_ram_gb": 5,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+            "upstream_repository_id": "meta-llama/Llama-3.2-3B-Instruct",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-llama-3-2-3b-instruct-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+              "revision": "7f0dc925e0d0afb0322d96f9255cfddf2ba5636e",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-3B-Instruct-4bit/resolve/7f0dc925e0d0afb0322d96f9255cfddf2ba5636e/config.json?download=true",
+              "file_size_bytes": 1122,
+              "sha256": "c546925585e48f43890d9dc5150df4fec73dd3780d92961c5ace451934cc4cd6",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-3b-instruct-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+              "revision": "7f0dc925e0d0afb0322d96f9255cfddf2ba5636e",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-3B-Instruct-4bit/resolve/7f0dc925e0d0afb0322d96f9255cfddf2ba5636e/model.safetensors?download=true",
+              "file_size_bytes": 1807496278,
+              "sha256": "d75e1ee0ea653cc5b76191ec934c7c0d568e94d4e47846619f1f4bc715b7b265",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-3b-instruct-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+              "revision": "7f0dc925e0d0afb0322d96f9255cfddf2ba5636e",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-3B-Instruct-4bit/resolve/7f0dc925e0d0afb0322d96f9255cfddf2ba5636e/model.safetensors.index.json?download=true",
+              "file_size_bytes": 45720,
+              "sha256": "2ef31fa0b9dcda01f87835851d5e1d5a39ab6258ae618af6ea864c3747e556e4",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-3b-instruct-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+              "revision": "7f0dc925e0d0afb0322d96f9255cfddf2ba5636e",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-3B-Instruct-4bit/resolve/7f0dc925e0d0afb0322d96f9255cfddf2ba5636e/special_tokens_map.json?download=true",
+              "file_size_bytes": 296,
+              "sha256": "6f38c73729248f6c127296386e3cdde96e254636cc58b4169d3fd32328d9a8ec",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-3b-instruct-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+              "revision": "7f0dc925e0d0afb0322d96f9255cfddf2ba5636e",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-3B-Instruct-4bit/resolve/7f0dc925e0d0afb0322d96f9255cfddf2ba5636e/tokenizer.json?download=true",
+              "file_size_bytes": 17209920,
+              "sha256": "6b9e4e7fb171f92fd137b777cc2714bf87d11576700a1dcd7a399e7bbe39537b",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-llama-3-2-3b-instruct-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+              "revision": "7f0dc925e0d0afb0322d96f9255cfddf2ba5636e",
+              "download_url": "https://huggingface.co/mlx-community/Llama-3.2-3B-Instruct-4bit/resolve/7f0dc925e0d0afb0322d96f9255cfddf2ba5636e/tokenizer_config.json?download=true",
+              "file_size_bytes": 54558,
+              "sha256": "022d5ae3df4737998ab97d8f31ac2bcb4c06dd8ebe5a8aba2b4aceef1e5ea7d3",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "llama-3.2-3b-instruct-gguf-q4-k-m"
     },
     {
       "id": "gemma-3n-e2b-it",
@@ -1597,12 +2740,12 @@
           "quantization": "Q8_0",
           "filename": "gemma-3n-E2B-it-Q8_0.gguf",
           "repository_id": "ggml-org/gemma-3n-E2B-it-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-Q8_0.gguf?download=true",
+          "revision": "989cffaba23976934324f5e3abfabe31b30eb73b",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/989cffaba23976934324f5e3abfabe31b30eb73b/gemma-3n-E2B-it-Q8_0.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/gemma-3n-E2B-it-GGUF/gemma-3n-E2B-it-Q8_0.gguf",
           "file_size_display": "4.79 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 4788112064,
+          "sha256": "038a47c482e7af3009c462b56a7592e1ade3c7862540717aa1d9dee1760c337b",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1612,13 +2755,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -1663,13 +2808,200 @@
         "sort_order": 70,
         "badges": [
           "Edge Model",
-          "Experimental"
+          "Experimental",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "gemma-3n-e2b-it-gguf-q8-0",
+          "model_id": "gemma-3n-e2b-it",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 7,
+          "recommended_ram_gb": 10,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/gemma-3n-E2B-it-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "gemma-3n-E2B-it-Q8_0.gguf",
+              "repository_id": "ggml-org/gemma-3n-E2B-it-GGUF",
+              "revision": "989cffaba23976934324f5e3abfabe31b30eb73b",
+              "download_url": "https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/989cffaba23976934324f5e3abfabe31b30eb73b/gemma-3n-E2B-it-Q8_0.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/gemma-3n-E2B-it-GGUF/gemma-3n-E2B-it-Q8_0.gguf",
+              "file_size_display": "4.79 GB",
+              "file_size_bytes": 4788112064,
+              "sha256": "038a47c482e7af3009c462b56a7592e1ade3c7862540717aa1d9dee1760c337b",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q8-0",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "gemma-3n-e2b-it-mlx-4bit",
+          "model_id": "gemma-3n-e2b-it",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 4,
+          "recommended_ram_gb": 6,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+            "upstream_repository_id": "google/gemma-3n-E2B-it",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-chat-template-jinja",
+              "role": "chat_template",
+              "format": "json",
+              "filename": "chat_template.jinja",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/chat_template.jinja?download=true",
+              "file_size_bytes": 1626,
+              "sha256": "ac03dcb3b09726f1e50ac55ae58fc8d5930eadc3b3a12cb04286dc1d82ac8001",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/config.json?download=true",
+              "file_size_bytes": 246393,
+              "sha256": "f865367012e0738cef66e19353f46cb96c67aead717c4e86e72f130450d8e52a",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-generation-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "generation_config.json",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/generation_config.json?download=true",
+              "file_size_bytes": 215,
+              "sha256": "9daf81b0069ea14070fc340e4bf853dc92b4606a08d1ed69e8e7c5c539a527c5",
+              "backend": "mlx",
+              "required": false
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/model.safetensors?download=true",
+              "file_size_bytes": 4462976625,
+              "sha256": "8d5af4ae73617d12496301ebad11226f9056c4b0d51dbb9ef9409234fb87d6fa",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/model.safetensors.index.json?download=true",
+              "file_size_bytes": 159374,
+              "sha256": "3ed4d02b8c245c61ba2f542e48cc40ed98398f7098457d63d3d7d0fda8d09c0c",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/special_tokens_map.json?download=true",
+              "file_size_bytes": 769,
+              "sha256": "d0585986e1fa2764eb2ca29cd854da40478d804a9953ba2e2c1c682d1428adc6",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/tokenizer.json?download=true",
+              "file_size_bytes": 33442553,
+              "sha256": "b6c35ee648c07754b44cd9e371c75d4caa05c4504910b7ad29b1847ee9d8ba5d",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3n-e2b-it-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/gemma-3n-E2B-it-4bit",
+              "revision": "66e7276cfc589073b4f92ebed58c05301f990222",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3n-E2B-it-4bit/resolve/66e7276cfc589073b4f92ebed58c05301f990222/tokenizer_config.json?download=true",
+              "file_size_bytes": 1202305,
+              "sha256": "0579706d90acb1f4dfa057324b05e3fec18e77d285ced1dc7d617c61c77ef863",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gemma-3n-e2b-it-gguf-q8-0"
     },
     {
       "id": "phi-4-mini-instruct",
@@ -1772,12 +3104,12 @@
           "quantization": "Q4_K_M",
           "filename": "microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/microsoft_Phi-4-mini-instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/resolve/main/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf?download=true",
+          "revision": "7ff82c2aaa4dde30121698a973765f39be5288c0",
+          "download_url": "https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/resolve/7ff82c2aaa4dde30121698a973765f39be5288c0/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/microsoft_Phi-4-mini-instruct-GGUF/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
           "file_size_display": "2.49 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 2491874688,
+          "sha256": "01999f17c39cc3074afae5e9c539bc82d45f2dd7faa3917c66cbef76fce8c0c2",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1787,13 +3119,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -1839,13 +3173,174 @@
         "badges": [
           "Reasoning",
           "Coding",
-          "MIT"
+          "MIT",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "phi-4-mini-instruct-gguf-q4-k-m",
+          "model_id": "phi-4-mini-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 5,
+          "recommended_ram_gb": 8,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/microsoft_Phi-4-mini-instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/microsoft_Phi-4-mini-instruct-GGUF",
+              "revision": "7ff82c2aaa4dde30121698a973765f39be5288c0",
+              "download_url": "https://huggingface.co/bartowski/microsoft_Phi-4-mini-instruct-GGUF/resolve/7ff82c2aaa4dde30121698a973765f39be5288c0/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/microsoft_Phi-4-mini-instruct-GGUF/microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
+              "file_size_display": "2.49 GB",
+              "file_size_bytes": 2491874688,
+              "sha256": "01999f17c39cc3074afae5e9c539bc82d45f2dd7faa3917c66cbef76fce8c0c2",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "phi-4-mini-instruct-mlx-4bit",
+          "model_id": "phi-4-mini-instruct",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 3.5,
+          "recommended_ram_gb": 5,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+            "upstream_repository_id": "microsoft/Phi-4-mini-instruct",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-phi-4-mini-instruct-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+              "revision": "ac1c269cb4222a4e136a3d09edad301056c1f36a",
+              "download_url": "https://huggingface.co/mlx-community/Phi-4-mini-instruct-4bit/resolve/ac1c269cb4222a4e136a3d09edad301056c1f36a/config.json?download=true",
+              "file_size_bytes": 3298,
+              "sha256": "431eafdf55dc6d4a76dc3e9f22b0d06eac42d9ac6dc7cbd7ff8ca1e38f18cdb1",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-phi-4-mini-instruct-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+              "revision": "ac1c269cb4222a4e136a3d09edad301056c1f36a",
+              "download_url": "https://huggingface.co/mlx-community/Phi-4-mini-instruct-4bit/resolve/ac1c269cb4222a4e136a3d09edad301056c1f36a/model.safetensors?download=true",
+              "file_size_bytes": 2158100796,
+              "sha256": "9dcfcdc0a579494283f2d2317ad686123782ce461d1111690ede7c904ff3f87b",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-phi-4-mini-instruct-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+              "revision": "ac1c269cb4222a4e136a3d09edad301056c1f36a",
+              "download_url": "https://huggingface.co/mlx-community/Phi-4-mini-instruct-4bit/resolve/ac1c269cb4222a4e136a3d09edad301056c1f36a/model.safetensors.index.json?download=true",
+              "file_size_bytes": 32554,
+              "sha256": "958e2e0939857e9fb398e9e3d5344a84e345b00da2e4e7c396024d6a91bc1ab7",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-phi-4-mini-instruct-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+              "revision": "ac1c269cb4222a4e136a3d09edad301056c1f36a",
+              "download_url": "https://huggingface.co/mlx-community/Phi-4-mini-instruct-4bit/resolve/ac1c269cb4222a4e136a3d09edad301056c1f36a/special_tokens_map.json?download=true",
+              "file_size_bytes": 587,
+              "sha256": "aff38493227d813e29fcf8406e8e90062f1f031aa47d589325e9c31d89ac7cc3",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-phi-4-mini-instruct-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+              "revision": "ac1c269cb4222a4e136a3d09edad301056c1f36a",
+              "download_url": "https://huggingface.co/mlx-community/Phi-4-mini-instruct-4bit/resolve/ac1c269cb4222a4e136a3d09edad301056c1f36a/tokenizer.json?download=true",
+              "file_size_bytes": 15524095,
+              "sha256": "382cc235b56c725945e149cc25f191da667c836655efd0857b004320e90e91ea",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-phi-4-mini-instruct-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Phi-4-mini-instruct-4bit",
+              "revision": "ac1c269cb4222a4e136a3d09edad301056c1f36a",
+              "download_url": "https://huggingface.co/mlx-community/Phi-4-mini-instruct-4bit/resolve/ac1c269cb4222a4e136a3d09edad301056c1f36a/tokenizer_config.json?download=true",
+              "file_size_bytes": 2962,
+              "sha256": "76c79ba1828e98a574123dd5de047587219ed8c1ab20702d340bc10a7a32b6bd",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "phi-4-mini-instruct-gguf-q4-k-m"
     },
     {
       "id": "qwen3.5-4b",
@@ -1953,12 +3448,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen3.5-4B-Q4_K_M.gguf",
           "repository_id": "unsloth/Qwen3.5-4B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/Qwen3.5-4B-Q4_K_M.gguf?download=true",
+          "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-4B-GGUF/Qwen3.5-4B-Q4_K_M.gguf",
           "file_size_display": "2.74 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 2740937888,
+          "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1968,7 +3463,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -1977,12 +3473,12 @@
           "quantization": "F16",
           "filename": "mmproj-F16.gguf",
           "repository_id": "unsloth/Qwen3.5-4B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/mmproj-F16.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-4B-GGUF/mmproj-F16.gguf",
           "file_size_display": "672 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 672423616,
+          "sha256": "cd88edcf8d031894960bb0c9c5b9b7e1fea6ebee02b9f7ce925a00d12891f864",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -1992,7 +3488,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -2050,7 +3547,88 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.5-4b-gguf-q4-k-m",
+          "model_id": "qwen3.5-4b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 8,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3.5-4B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.5-4B-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3.5-4B-GGUF",
+              "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-4B-GGUF/Qwen3.5-4B-Q4_K_M.gguf",
+              "file_size_display": "2.74 GB",
+              "file_size_bytes": 2740937888,
+              "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-F16.gguf",
+              "repository_id": "unsloth/Qwen3.5-4B-GGUF",
+              "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/mmproj-F16.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-4B-GGUF/mmproj-F16.gguf",
+              "file_size_display": "672 MB",
+              "file_size_bytes": 672423616,
+              "sha256": "cd88edcf8d031894960bb0c9c5b9b7e1fea6ebee02b9f7ce925a00d12891f864",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.5-4b-gguf-q4-k-m"
     },
     {
       "id": "gemma-3-4b-it",
@@ -2156,12 +3734,12 @@
           "quantization": "Q4_K_M",
           "filename": "gemma-3-4b-it-Q4_K_M.gguf",
           "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf?download=true",
+          "revision": "d0976223747697cb51e056d85c532013931fe52e",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/d0976223747697cb51e056d85c532013931fe52e/gemma-3-4b-it-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/gemma-3-4b-it-GGUF/gemma-3-4b-it-Q4_K_M.gguf",
           "file_size_display": "about 3.3 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 2489757856,
+          "sha256": "882e8d2db44dc554fb0ea5077cb7e4bc49e7342a1f0da57901c0802ea21a0863",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2171,7 +3749,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -2180,12 +3759,12 @@
           "quantization": "F16",
           "filename": "mmproj-model-f16.gguf",
           "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/mmproj-model-f16.gguf?download=true",
+          "revision": "d0976223747697cb51e056d85c532013931fe52e",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/d0976223747697cb51e056d85c532013931fe52e/mmproj-model-f16.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/gemma-3-4b-it-GGUF/mmproj-model-f16.gguf",
           "file_size_display": "about 0.9 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 851251104,
+          "sha256": "8c0fb064b019a6972856aaae2c7e4792858af3ca4561be2dbf649123ba6c40cb",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2195,13 +3774,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -2246,13 +3827,212 @@
         "sort_order": 100,
         "badges": [
           "Vision",
-          "Multilingual"
+          "Multilingual",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "gemma-3-4b-it-gguf-q4-k-m",
+          "model_id": "gemma-3-4b-it",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 10,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "gemma-3-4b-it-Q4_K_M.gguf",
+              "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
+              "revision": "d0976223747697cb51e056d85c532013931fe52e",
+              "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/d0976223747697cb51e056d85c532013931fe52e/gemma-3-4b-it-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/gemma-3-4b-it-GGUF/gemma-3-4b-it-Q4_K_M.gguf",
+              "file_size_display": "about 3.3 GB",
+              "file_size_bytes": 2489757856,
+              "sha256": "882e8d2db44dc554fb0ea5077cb7e4bc49e7342a1f0da57901c0802ea21a0863",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-model-f16.gguf",
+              "repository_id": "ggml-org/gemma-3-4b-it-GGUF",
+              "revision": "d0976223747697cb51e056d85c532013931fe52e",
+              "download_url": "https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/d0976223747697cb51e056d85c532013931fe52e/mmproj-model-f16.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/gemma-3-4b-it-GGUF/mmproj-model-f16.gguf",
+              "file_size_display": "about 0.9 GB",
+              "file_size_bytes": 851251104,
+              "sha256": "8c0fb064b019a6972856aaae2c7e4792858af3ca4561be2dbf649123ba6c40cb",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "gemma-3-4b-it-mlx-4bit",
+          "model_id": "gemma-3-4b-it",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 4,
+          "recommended_ram_gb": 6,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+            "upstream_repository_id": "google/gemma-3-4b-it",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/config.json?download=true",
+              "file_size_bytes": 1072,
+              "sha256": "5ccdde91da736e6e6f8f138268c620adcbf1219c973b884240b719a54122465b",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-generation-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "generation_config.json",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/generation_config.json?download=true",
+              "file_size_bytes": 192,
+              "sha256": "e04ecb65db447404710114fb282baaac482d22a95e2244ecaab428b81672ba78",
+              "backend": "mlx",
+              "required": false
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/model.safetensors?download=true",
+              "file_size_bytes": 3400569562,
+              "sha256": "94d3d701367d78584a9334ca00672b1c86e4aefa6a94167556c0485381e74af3",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/model.safetensors.index.json?download=true",
+              "file_size_bytes": 90558,
+              "sha256": "77f4b67de084c31c7bcd373b039908108eee6c6181607e6d53da730e5f0bc659",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/special_tokens_map.json?download=true",
+              "file_size_bytes": 662,
+              "sha256": "2f7b0adf4fb469770bb1490e3e35df87b1dc578246c5e7e6fc76ecf33213a397",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/tokenizer.json?download=true",
+              "file_size_bytes": 33384568,
+              "sha256": "4667f2089529e8e7657cfb6d1c19910ae71ff5f28aa7ab2ff2763330affad795",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-3-4b-it-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/gemma-3-4b-it-4bit",
+              "revision": "93724907d4ed1745d2fe50baadf3b0b01a65abf2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-3-4b-it-4bit/resolve/93724907d4ed1745d2fe50baadf3b0b01a65abf2/tokenizer_config.json?download=true",
+              "file_size_bytes": 1157007,
+              "sha256": "0d95398b39395e5cfb290683a78f3fb0551223c672d8b033333c1a5307473760",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gemma-3-4b-it-gguf-q4-k-m"
     },
     {
       "id": "qwen3-8b",
@@ -2356,12 +4136,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen_Qwen3-8B-Q4_K_M.gguf",
           "repository_id": "bartowski/Qwen_Qwen3-8B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF/resolve/main/Qwen_Qwen3-8B-Q4_K_M.gguf?download=true",
+          "revision": "0b69f75b7472688e6808490aa2b85efdb81b5ce7",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF/resolve/0b69f75b7472688e6808490aa2b85efdb81b5ce7/Qwen_Qwen3-8B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Qwen_Qwen3-8B-GGUF/Qwen_Qwen3-8B-Q4_K_M.gguf",
           "file_size_display": "about 5.0 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 5027784224,
+          "sha256": "54fffa050078e984116639c83dfb64b5aa6d4cd474e018b076777c632bbccccd",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2371,13 +4151,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -2423,13 +4205,216 @@
         "badges": [
           "Recommended",
           "Reasoning",
-          "Tools"
+          "Tools",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-8b-gguf-q4-k-m",
+          "model_id": "qwen3-8b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 8,
+          "recommended_ram_gb": 12,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Qwen_Qwen3-8B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen_Qwen3-8B-Q4_K_M.gguf",
+              "repository_id": "bartowski/Qwen_Qwen3-8B-GGUF",
+              "revision": "0b69f75b7472688e6808490aa2b85efdb81b5ce7",
+              "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-8B-GGUF/resolve/0b69f75b7472688e6808490aa2b85efdb81b5ce7/Qwen_Qwen3-8B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Qwen_Qwen3-8B-GGUF/Qwen_Qwen3-8B-Q4_K_M.gguf",
+              "file_size_display": "about 5.0 GB",
+              "file_size_bytes": 5027784224,
+              "sha256": "54fffa050078e984116639c83dfb64b5aa6d4cd474e018b076777c632bbccccd",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3-8b-mlx-4bit",
+          "model_id": "qwen3-8b",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 10,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Qwen3-8B-4bit",
+            "upstream_repository_id": "Qwen/Qwen3-8B",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-qwen3-8b-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Qwen3-8B-4bit",
+              "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-8B-4bit/resolve/545dc4251c05440727734bcd94334791f6ab0192/config.json?download=true",
+              "file_size_bytes": 939,
+              "sha256": "e5485285fd7e289e76e9cffa112f6dc2e3426519082f7db9b69041589f81a218",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-8b-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/Qwen3-8B-4bit",
+              "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-8B-4bit/resolve/545dc4251c05440727734bcd94334791f6ab0192/model.safetensors?download=true",
+              "file_size_bytes": 4607835174,
+              "sha256": "f2d29621aab300336ad645567ff38c42aac755513006ef4e8a579cf7ef5256d8",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-8b-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Qwen3-8B-4bit",
+              "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-8B-4bit/resolve/545dc4251c05440727734bcd94334791f6ab0192/model.safetensors.index.json?download=true",
+              "file_size_bytes": 64065,
+              "sha256": "3fb25463b4078b1fc27159daa605190029c2e965f533bf0b1b594f96cbfceb8a",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-8b-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/Qwen3-8B-4bit",
+              "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-8B-4bit/resolve/545dc4251c05440727734bcd94334791f6ab0192/special_tokens_map.json?download=true",
+              "file_size_bytes": 613,
+              "sha256": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-8b-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Qwen3-8B-4bit",
+              "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-8B-4bit/resolve/545dc4251c05440727734bcd94334791f6ab0192/tokenizer.json?download=true",
+              "file_size_bytes": 11422654,
+              "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-8b-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Qwen3-8B-4bit",
+              "revision": "545dc4251c05440727734bcd94334791f6ab0192",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-8B-4bit/resolve/545dc4251c05440727734bcd94334791f6ab0192/tokenizer_config.json?download=true",
+              "file_size_bytes": 9706,
+              "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3-8b-gguf-q4-k-m-qwen",
+          "model_id": "qwen3-8b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 10,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "official",
+            "publisher": "Qwen",
+            "repository_id": "Qwen/Qwen3-8B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "qwen-qwen3-8b-gguf-qwen3-8b-q4-k-m-gguf",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-8B-Q4_K_M.gguf",
+              "repository_id": "Qwen/Qwen3-8B-GGUF",
+              "revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+              "download_url": "https://huggingface.co/Qwen/Qwen3-8B-GGUF/resolve/7c41481f57cb95916b40956ab2f0b139b296d974/Qwen3-8B-Q4_K_M.gguf?download=true",
+              "file_size_bytes": 5027783488,
+              "sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785",
+              "backend": "llama.cpp",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-8b-gguf-q4-k-m"
     },
     {
       "id": "llama-3.1-8b-instruct",
@@ -2531,12 +4516,12 @@
           "quantization": "Q4_K_M",
           "filename": "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf?download=true",
+          "revision": "bf5b95e96dac0462e2a09145ec66cae9a3f12067",
+          "download_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/bf5b95e96dac0462e2a09145ec66cae9a3f12067/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
           "file_size_display": "about 4.9 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 4920739232,
+          "sha256": "7b064f5842bf9532c91456deda288a1b672397a54fa729aa665952863033557c",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2546,7 +4531,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -2603,7 +4589,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "llama-3.1-8b-instruct-gguf-q4-k-m",
+          "model_id": "llama-3.1-8b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 8,
+          "recommended_ram_gb": 12,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+              "revision": "bf5b95e96dac0462e2a09145ec66cae9a3f12067",
+              "download_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/bf5b95e96dac0462e2a09145ec66cae9a3f12067/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 4.9 GB",
+              "file_size_bytes": 4920739232,
+              "sha256": "7b064f5842bf9532c91456deda288a1b672397a54fa729aa665952863033557c",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "llama-3.1-8b-instruct-gguf-q4-k-m"
     },
     {
       "id": "qwen3.5-9b",
@@ -2711,12 +4753,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen3.5-9B-Q4_K_M.gguf",
           "repository_id": "unsloth/Qwen3.5-9B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf?download=true",
+          "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/3885219b6810b007914f3a7950a8d1b469d598a5/Qwen3.5-9B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-9B-GGUF/Qwen3.5-9B-Q4_K_M.gguf",
           "file_size_display": "5.68 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 5680522464,
+          "sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2726,7 +4768,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -2735,12 +4778,12 @@
           "quantization": "F16",
           "filename": "mmproj-F16.gguf",
           "repository_id": "unsloth/Qwen3.5-9B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/mmproj-F16.gguf?download=true",
+          "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+          "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/3885219b6810b007914f3a7950a8d1b469d598a5/mmproj-F16.gguf?download=true",
           "huggingface_uri": "hf://unsloth/Qwen3.5-9B-GGUF/mmproj-F16.gguf",
           "file_size_display": "918 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 918166080,
+          "sha256": "f70dc3509053962b0d0d3ee8a7eacebf5d60aa560cad78254ae8698516ae029f",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2750,7 +4793,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -2808,7 +4852,88 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.5-9b-gguf-q4-k-m",
+          "model_id": "qwen3.5-9b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 10,
+          "recommended_ram_gb": 16,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3.5-9B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.5-9B-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3.5-9B-GGUF",
+              "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/3885219b6810b007914f3a7950a8d1b469d598a5/Qwen3.5-9B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-9B-GGUF/Qwen3.5-9B-Q4_K_M.gguf",
+              "file_size_display": "5.68 GB",
+              "file_size_bytes": 5680522464,
+              "sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-F16.gguf",
+              "repository_id": "unsloth/Qwen3.5-9B-GGUF",
+              "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+              "download_url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/3885219b6810b007914f3a7950a8d1b469d598a5/mmproj-F16.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3.5-9B-GGUF/mmproj-F16.gguf",
+              "file_size_display": "918 MB",
+              "file_size_bytes": 918166080,
+              "sha256": "f70dc3509053962b0d0d3ee8a7eacebf5d60aa560cad78254ae8698516ae029f",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.5-9b-gguf-q4-k-m"
     },
     {
       "id": "gemma-3-12b-it",
@@ -2913,12 +5038,12 @@
           "quantization": "Q4_K_M",
           "filename": "gemma-3-12b-it-Q4_K_M.gguf",
           "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/main/gemma-3-12b-it-Q4_K_M.gguf?download=true",
+          "revision": "ec0cbabd8dbff316f659876a50202295c3c4a314",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/ec0cbabd8dbff316f659876a50202295c3c4a314/gemma-3-12b-it-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/gemma-3-12b-it-GGUF/gemma-3-12b-it-Q4_K_M.gguf",
           "file_size_display": "7.3 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 7300574976,
+          "sha256": "7bb69bff3f48a7b642355d64a90e481182a7794707b3133890646b1efa778ff5",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2928,7 +5053,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -2937,12 +5063,12 @@
           "quantization": "F16",
           "filename": "mmproj-model-f16.gguf",
           "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/main/mmproj-model-f16.gguf?download=true",
+          "revision": "ec0cbabd8dbff316f659876a50202295c3c4a314",
+          "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/ec0cbabd8dbff316f659876a50202295c3c4a314/mmproj-model-f16.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/gemma-3-12b-it-GGUF/mmproj-model-f16.gguf",
           "file_size_display": "854 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 854200224,
+          "sha256": "30c02d056410848227001830866e0a269fcc28aaf8ca971bded494003de9f5a5",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -2952,7 +5078,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -3009,7 +5136,88 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "gemma-3-12b-it-gguf-q4-k-m",
+          "model_id": "gemma-3-12b-it",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 12,
+          "recommended_ram_gb": 18,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "gemma-3-12b-it-Q4_K_M.gguf",
+              "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
+              "revision": "ec0cbabd8dbff316f659876a50202295c3c4a314",
+              "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/ec0cbabd8dbff316f659876a50202295c3c4a314/gemma-3-12b-it-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/gemma-3-12b-it-GGUF/gemma-3-12b-it-Q4_K_M.gguf",
+              "file_size_display": "7.3 GB",
+              "file_size_bytes": 7300574976,
+              "sha256": "7bb69bff3f48a7b642355d64a90e481182a7794707b3133890646b1efa778ff5",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-model-f16.gguf",
+              "repository_id": "ggml-org/gemma-3-12b-it-GGUF",
+              "revision": "ec0cbabd8dbff316f659876a50202295c3c4a314",
+              "download_url": "https://huggingface.co/ggml-org/gemma-3-12b-it-GGUF/resolve/ec0cbabd8dbff316f659876a50202295c3c4a314/mmproj-model-f16.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/gemma-3-12b-it-GGUF/mmproj-model-f16.gguf",
+              "file_size_display": "854 MB",
+              "file_size_bytes": 854200224,
+              "sha256": "30c02d056410848227001830866e0a269fcc28aaf8ca971bded494003de9f5a5",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gemma-3-12b-it-gguf-q4-k-m"
     },
     {
       "id": "qwen3-14b",
@@ -3113,12 +5321,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen_Qwen3-14B-Q4_K_M.gguf",
           "repository_id": "bartowski/Qwen_Qwen3-14B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF/resolve/main/Qwen_Qwen3-14B-Q4_K_M.gguf?download=true",
+          "revision": "bd080f768a6401c2d5a7fa53a2e50cd8218a9ce2",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF/resolve/bd080f768a6401c2d5a7fa53a2e50cd8218a9ce2/Qwen_Qwen3-14B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Qwen_Qwen3-14B-GGUF/Qwen_Qwen3-14B-Q4_K_M.gguf",
           "file_size_display": "about 9.0 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 9001753632,
+          "sha256": "915913e22399475dbe6c968ac014d9f1fbe08975e489279aede9d5c7b2c98eb6",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -3128,13 +5336,15 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
-        "preferred_backend": "llama.cpp",
+        "preferred_backend": "device-selected",
         "compatible_backends": [
-          "llama.cpp"
+          "llama.cpp",
+          "mlx"
         ],
         "chat_template_source": "gguf_metadata",
         "supports_gpu_offload": true,
@@ -3180,13 +5390,229 @@
         "badges": [
           "Reasoning",
           "Coding",
-          "Tools"
+          "Tools",
+          "MLX"
         ]
       },
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-14b-gguf-q4-k-m",
+          "model_id": "qwen3-14b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 12,
+          "recommended_ram_gb": 20,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Qwen_Qwen3-14B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen_Qwen3-14B-Q4_K_M.gguf",
+              "repository_id": "bartowski/Qwen_Qwen3-14B-GGUF",
+              "revision": "bd080f768a6401c2d5a7fa53a2e50cd8218a9ce2",
+              "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF/resolve/bd080f768a6401c2d5a7fa53a2e50cd8218a9ce2/Qwen_Qwen3-14B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Qwen_Qwen3-14B-GGUF/Qwen_Qwen3-14B-Q4_K_M.gguf",
+              "file_size_display": "about 9.0 GB",
+              "file_size_bytes": 9001753632,
+              "sha256": "915913e22399475dbe6c968ac014d9f1fbe08975e489279aede9d5c7b2c98eb6",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3-14b-mlx-4bit",
+          "model_id": "qwen3-14b",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 10,
+          "recommended_ram_gb": 16,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/Qwen3-14B-4bit",
+            "upstream_repository_id": "Qwen/Qwen3-14B",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/config.json?download=true",
+              "file_size_bytes": 939,
+              "sha256": "a54ec18ffe24f3c909e9556471dc156ed9b3b61b872008831c7cba9d4768b4a5",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-model-00001-of-00002-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model-00001-of-00002.safetensors",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/model-00001-of-00002.safetensors?download=true",
+              "file_size_bytes": 5354381380,
+              "sha256": "5795efcfc7c96fd273e600562e8b111bfcc427415de9001d0a07e70cd99cff19",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-model-00002-of-00002-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model-00002-of-00002.safetensors",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/model-00002-of-00002.safetensors?download=true",
+              "file_size_bytes": 2953517134,
+              "sha256": "2814562d654fe2d541fd4682804a0ccaa400e79701872c8e9f5998cf9481fdf8",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/model.safetensors.index.json?download=true",
+              "file_size_bytes": 86266,
+              "sha256": "eb522fa2269e4a958bf625765bccde4a0677895a09eed23cdd8d1760dfc0259c",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-special-tokens-map-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "special_tokens_map.json",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/special_tokens_map.json?download=true",
+              "file_size_bytes": 613,
+              "sha256": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/tokenizer.json?download=true",
+              "file_size_bytes": 11422654,
+              "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-qwen3-14b-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/Qwen3-14B-4bit",
+              "revision": "a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4",
+              "download_url": "https://huggingface.co/mlx-community/Qwen3-14B-4bit/resolve/a4d9b2df59d2c150bef02fcbe0d91046b7ca33a4/tokenizer_config.json?download=true",
+              "file_size_bytes": 9706,
+              "sha256": "253153d0738ceb4c668d2eff957714dd2bea0b56de772a9fdccd96cbf517e6a0",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        },
+        {
+          "variant_id": "qwen3-14b-gguf-q4-k-m-qwen",
+          "model_id": "qwen3-14b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 10,
+          "recommended_ram_gb": 16,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "official",
+            "publisher": "Qwen",
+            "repository_id": "Qwen/Qwen3-14B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "qwen-qwen3-14b-gguf-qwen3-14b-q4-k-m-gguf",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-14B-Q4_K_M.gguf",
+              "repository_id": "Qwen/Qwen3-14B-GGUF",
+              "revision": "530227a7d994db8eca5ab5ced2fb692b614357fd",
+              "download_url": "https://huggingface.co/Qwen/Qwen3-14B-GGUF/resolve/530227a7d994db8eca5ab5ced2fb692b614357fd/Qwen3-14B-Q4_K_M.gguf?download=true",
+              "file_size_bytes": 9001752960,
+              "sha256": "500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0",
+              "backend": "llama.cpp",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-14b-gguf-q4-k-m"
     },
     {
       "id": "mistral-small-3.1-24b-instruct",
@@ -3292,12 +5718,12 @@
           "quantization": "UD-IQ2_M",
           "filename": "Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf",
           "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/main/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf?download=true",
+          "revision": "68a3e055a6ec6952faa1db12aea9592e23d890e0",
+          "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/68a3e055a6ec6952faa1db12aea9592e23d890e0/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf",
           "file_size_display": "8.76 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 8755975072,
+          "sha256": "fadb5c04d1140ac878f8e59187853258a2c0e4e127ddcb19cc76a111a9450b3a",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -3307,7 +5733,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-q8-0",
@@ -3316,12 +5743,12 @@
           "quantization": "Q8_0",
           "filename": "mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf",
           "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/main/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf?download=true",
+          "revision": "68a3e055a6ec6952faa1db12aea9592e23d890e0",
+          "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/68a3e055a6ec6952faa1db12aea9592e23d890e0/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf",
           "file_size_display": "467 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 467143232,
+          "sha256": "6de5bee5ce4950fa362b97b875d0ffd1ae7e058c399834c1d0d1f7b014714fb4",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -3331,7 +5758,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -3389,7 +5817,88 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "mistral-small-3.1-24b-instruct-gguf-ud-iq2-m",
+          "model_id": "mistral-small-3.1-24b-instruct",
+          "format": "gguf",
+          "quantization": "UD-IQ2_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 14,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "UD-IQ2_M",
+              "filename": "Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf",
+              "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
+              "revision": "68a3e055a6ec6952faa1db12aea9592e23d890e0",
+              "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/68a3e055a6ec6952faa1db12aea9592e23d890e0/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ2_M.gguf",
+              "file_size_display": "8.76 GB",
+              "file_size_bytes": 8755975072,
+              "sha256": "fadb5c04d1140ac878f8e59187853258a2c0e4e127ddcb19cc76a111a9450b3a",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-ud-iq2-m",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf",
+              "repository_id": "ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF",
+              "revision": "68a3e055a6ec6952faa1db12aea9592e23d890e0",
+              "download_url": "https://huggingface.co/ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/resolve/68a3e055a6ec6952faa1db12aea9592e23d890e0/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/Mistral-Small-3.1-24B-Instruct-2503-GGUF/mmproj-Mistral-Small-3.1-24B-Instruct-2503-Q8_0.gguf",
+              "file_size_display": "467 MB",
+              "file_size_bytes": 467143232,
+              "sha256": "6de5bee5ce4950fa362b97b875d0ffd1ae7e058c399834c1d0d1f7b014714fb4",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-q8-0",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "mistral-small-3.1-24b-instruct-gguf-ud-iq2-m"
     },
     {
       "id": "qwen3-4b-thinking-2507",
@@ -3490,12 +5999,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf",
           "repository_id": "bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/resolve/main/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf?download=true",
+          "revision": "ba7f9bc071caf4788e3d7a5963543cff0149e483",
+          "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/resolve/ba7f9bc071caf4788e3d7a5963543cff0149e483/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf",
           "file_size_display": "about 2.6 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 2497280736,
+          "sha256": "64ce5838a76b4d63071289c17ed04525265a47abf51546cd747a30e41b7687fa",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -3505,7 +6014,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -3562,7 +6072,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-4b-thinking-2507-gguf-q4-k-m",
+          "model_id": "qwen3-4b-thinking-2507",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 8,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf",
+              "repository_id": "bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF",
+              "revision": "ba7f9bc071caf4788e3d7a5963543cff0149e483",
+              "download_url": "https://huggingface.co/bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/resolve/ba7f9bc071caf4788e3d7a5963543cff0149e483/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Qwen_Qwen3-4B-Thinking-2507-GGUF/Qwen_Qwen3-4B-Thinking-2507-Q4_K_M.gguf",
+              "file_size_display": "about 2.6 GB",
+              "file_size_bytes": 2497280736,
+              "sha256": "64ce5838a76b4d63071289c17ed04525265a47abf51546cd747a30e41b7687fa",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-4b-thinking-2507-gguf-q4-k-m"
     },
     {
       "id": "deepseek-r1-distill-qwen-7b",
@@ -3661,12 +6227,12 @@
           "quantization": "Q4_K_M",
           "filename": "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
           "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf?download=true",
+          "revision": "361004151d4f4f6b446dc5e6d46fbf4422a80d5f",
+          "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/resolve/361004151d4f4f6b446dc5e6d46fbf4422a80d5f/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
           "file_size_display": "about 4.7 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 4683073504,
+          "sha256": "731ece8d06dc7eda6f6572997feb9ee1258db0784827e642909d9b565641937b",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -3676,7 +6242,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -3733,7 +6300,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "deepseek-r1-distill-qwen-7b-gguf-q4-k-m",
+          "model_id": "deepseek-r1-distill-qwen-7b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 8,
+          "recommended_ram_gb": 12,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+              "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+              "revision": "361004151d4f4f6b446dc5e6d46fbf4422a80d5f",
+              "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/resolve/361004151d4f4f6b446dc5e6d46fbf4422a80d5f/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+              "file_size_display": "about 4.7 GB",
+              "file_size_bytes": 4683073504,
+              "sha256": "731ece8d06dc7eda6f6572997feb9ee1258db0784827e642909d9b565641937b",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "deepseek-r1-distill-qwen-7b-gguf-q4-k-m"
     },
     {
       "id": "deepseek-r1-distill-qwen-14b",
@@ -3834,12 +6457,12 @@
           "quantization": "Q4_K_M",
           "filename": "DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf",
           "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf?download=true",
+          "revision": "9f5d77d401799416e0702290a691038b44012e0c",
+          "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/resolve/9f5d77d401799416e0702290a691038b44012e0c/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf",
           "file_size_display": "about 9.0 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 8988110240,
+          "sha256": "0b319bd0572f2730bfe11cc751defe82045fad5085b4e60591ac2cd2d9633181",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -3849,7 +6472,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -3906,7 +6530,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "deepseek-r1-distill-qwen-14b-gguf-q4-k-m",
+          "model_id": "deepseek-r1-distill-qwen-14b",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 12,
+          "recommended_ram_gb": 20,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf",
+              "repository_id": "bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF",
+              "revision": "9f5d77d401799416e0702290a691038b44012e0c",
+              "download_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/resolve/9f5d77d401799416e0702290a691038b44012e0c/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/DeepSeek-R1-Distill-Qwen-14B-GGUF/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf",
+              "file_size_display": "about 9.0 GB",
+              "file_size_bytes": 8988110240,
+              "sha256": "0b319bd0572f2730bfe11cc751defe82045fad5085b4e60591ac2cd2d9633181",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "deepseek-r1-distill-qwen-14b-gguf-q4-k-m"
     },
     {
       "id": "gpt-oss-20b",
@@ -4008,12 +6688,12 @@
           "quantization": "MXFP4",
           "filename": "gpt-oss-20b-MXFP4.gguf",
           "repository_id": "ggml-org/gpt-oss-20b-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF/resolve/main/gpt-oss-20b-MXFP4.gguf?download=true",
+          "revision": "c9a07b972b8979719fd97b8ff2c10dc79ebf5d26",
+          "download_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF/resolve/c9a07b972b8979719fd97b8ff2c10dc79ebf5d26/gpt-oss-20b-MXFP4.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
           "file_size_display": "12.1 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 12109566624,
+          "sha256": "27cd6c432c7672cb812a92f611cf3ba7bbc35928262bb1e1253ff4ee6ae35901",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4023,7 +6703,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -4081,7 +6762,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "gpt-oss-20b-gguf-mxfp4",
+          "model_id": "gpt-oss-20b",
+          "format": "gguf",
+          "quantization": "MXFP4",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 16,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/gpt-oss-20b-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "MXFP4",
+              "filename": "gpt-oss-20b-MXFP4.gguf",
+              "repository_id": "ggml-org/gpt-oss-20b-GGUF",
+              "revision": "c9a07b972b8979719fd97b8ff2c10dc79ebf5d26",
+              "download_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF/resolve/c9a07b972b8979719fd97b8ff2c10dc79ebf5d26/gpt-oss-20b-MXFP4.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+              "file_size_display": "12.1 GB",
+              "file_size_bytes": 12109566624,
+              "sha256": "27cd6c432c7672cb812a92f611cf3ba7bbc35928262bb1e1253ff4ee6ae35901",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-mxfp4",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gpt-oss-20b-gguf-mxfp4"
     },
     {
       "id": "qwen2.5-coder-7b-instruct",
@@ -4180,12 +6917,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf?download=true",
+          "revision": "1f629da0c8bed16b9e50cee91c70693650e66c35",
+          "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/1f629da0c8bed16b9e50cee91c70693650e66c35/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf",
           "file_size_display": "about 4.7 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 4683074336,
+          "sha256": "1664fccab734674a50763490a8c6931b70e3f2f8ec10031b54806d30e5f956b6",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4195,7 +6932,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -4252,7 +6990,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen2.5-coder-7b-instruct-gguf-q4-k-m",
+          "model_id": "qwen2.5-coder-7b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 8,
+          "recommended_ram_gb": 12,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
+              "revision": "1f629da0c8bed16b9e50cee91c70693650e66c35",
+              "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/1f629da0c8bed16b9e50cee91c70693650e66c35/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Qwen2.5-Coder-7B-Instruct-GGUF/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 4.7 GB",
+              "file_size_bytes": 4683074336,
+              "sha256": "1664fccab734674a50763490a8c6931b70e3f2f8ec10031b54806d30e5f956b6",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen2.5-coder-7b-instruct-gguf-q4-k-m"
     },
     {
       "id": "qwen2.5-coder-14b-instruct",
@@ -4353,12 +7147,12 @@
           "quantization": "Q4_K_M",
           "filename": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
           "repository_id": "bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf?download=true",
+          "revision": "5b379ec4bf71bafecb5f9081ad28b19939128988",
+          "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/resolve/5b379ec4bf71bafecb5f9081ad28b19939128988/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
           "file_size_display": "about 9.0 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 8988111072,
+          "sha256": "2946d28c9e1bb2bcae6d42e8678863a31775df6f740315c7d7e6d6b6411f5937",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4368,7 +7162,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -4425,7 +7220,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "qwen2.5-coder-14b-instruct-gguf-q4-k-m",
+          "model_id": "qwen2.5-coder-14b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 12,
+          "recommended_ram_gb": 20,
+          "release_channel": "stable",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+              "repository_id": "bartowski/Qwen2.5-Coder-14B-Instruct-GGUF",
+              "revision": "5b379ec4bf71bafecb5f9081ad28b19939128988",
+              "download_url": "https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/resolve/5b379ec4bf71bafecb5f9081ad28b19939128988/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 9.0 GB",
+              "file_size_bytes": 8988111072,
+              "sha256": "2946d28c9e1bb2bcae6d42e8678863a31775df6f740315c7d7e6d6b6411f5937",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen2.5-coder-14b-instruct-gguf-q4-k-m"
     },
     {
       "id": "devstral-small-2-24b-instruct",
@@ -4527,12 +7378,12 @@
           "quantization": "Q4_K_M",
           "filename": "mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
           "repository_id": "bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/resolve/main/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf?download=true",
+          "revision": "027695770ae1de77c2f6fb19f8e1ba9d65fcd15d",
+          "download_url": "https://huggingface.co/bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/resolve/027695770ae1de77c2f6fb19f8e1ba9d65fcd15d/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf?download=true",
           "huggingface_uri": "hf://bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
           "file_size_display": "about 14.5 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 14334438272,
+          "sha256": "bfd11c8679c6b81eb43763505465d7dcfa72e460ab1c220ecc235a3efadd7f7f",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4542,7 +7393,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -4599,7 +7451,63 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "devstral-small-2-24b-instruct-gguf-q4-k-m",
+          "model_id": "devstral-small-2-24b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 32,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
+              "repository_id": "bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF",
+              "revision": "027695770ae1de77c2f6fb19f8e1ba9d65fcd15d",
+              "download_url": "https://huggingface.co/bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/resolve/027695770ae1de77c2f6fb19f8e1ba9d65fcd15d/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/mistralai_Devstral-Small-2-24B-Instruct-2512-GGUF/mistralai_Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf",
+              "file_size_display": "about 14.5 GB",
+              "file_size_bytes": 14334438272,
+              "sha256": "bfd11c8679c6b81eb43763505465d7dcfa72e460ab1c220ecc235a3efadd7f7f",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-q4-k-m",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "devstral-small-2-24b-instruct-gguf-q4-k-m"
     },
     {
       "id": "moondream2-20250414",
@@ -4700,12 +7608,12 @@
           "quantization": "F16",
           "filename": "moondream2-text-model-f16_ct-vicuna.gguf",
           "repository_id": "ggml-org/moondream2-20250414-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/main/moondream2-text-model-f16_ct-vicuna.gguf?download=true",
+          "revision": "97d0efa4667189aea70998d0b1ee36a7a3214fcb",
+          "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/97d0efa4667189aea70998d0b1ee36a7a3214fcb/moondream2-text-model-f16_ct-vicuna.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/moondream2-20250414-GGUF/moondream2-text-model-f16_ct-vicuna.gguf",
           "file_size_display": "2.84 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 2839535072,
+          "sha256": "925bcb666baf69ed747e26121af287b16ae7764483be9548b1382f29783689a5",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4715,7 +7623,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         },
         {
           "id": "mmproj-f16",
@@ -4724,12 +7633,12 @@
           "quantization": "F16",
           "filename": "moondream2-mmproj-f16-20250414.gguf",
           "repository_id": "ggml-org/moondream2-20250414-GGUF",
-          "revision": "main",
-          "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/main/moondream2-mmproj-f16-20250414.gguf?download=true",
+          "revision": "97d0efa4667189aea70998d0b1ee36a7a3214fcb",
+          "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/97d0efa4667189aea70998d0b1ee36a7a3214fcb/moondream2-mmproj-f16-20250414.gguf?download=true",
           "huggingface_uri": "hf://ggml-org/moondream2-20250414-GGUF/moondream2-mmproj-f16-20250414.gguf",
           "file_size_display": "910 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 909777984,
+          "sha256": "4cc1cb3660d87ff56432ebeb7884ad35d67c48c7b9f6b2856f305e39c38eed8f",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4739,7 +7648,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -4796,7 +7706,88 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "moondream2-20250414-gguf-f16",
+          "model_id": "moondream2-20250414",
+          "format": "gguf",
+          "quantization": "F16",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 5,
+          "recommended_ram_gb": 8,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/moondream2-20250414-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "moondream2-text-model-f16_ct-vicuna.gguf",
+              "repository_id": "ggml-org/moondream2-20250414-GGUF",
+              "revision": "97d0efa4667189aea70998d0b1ee36a7a3214fcb",
+              "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/97d0efa4667189aea70998d0b1ee36a7a3214fcb/moondream2-text-model-f16_ct-vicuna.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/moondream2-20250414-GGUF/moondream2-text-model-f16_ct-vicuna.gguf",
+              "file_size_display": "2.84 GB",
+              "file_size_bytes": 2839535072,
+              "sha256": "925bcb666baf69ed747e26121af287b16ae7764483be9548b1382f29783689a5",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "model-f16",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "moondream2-mmproj-f16-20250414.gguf",
+              "repository_id": "ggml-org/moondream2-20250414-GGUF",
+              "revision": "97d0efa4667189aea70998d0b1ee36a7a3214fcb",
+              "download_url": "https://huggingface.co/ggml-org/moondream2-20250414-GGUF/resolve/97d0efa4667189aea70998d0b1ee36a7a3214fcb/moondream2-mmproj-f16-20250414.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/moondream2-20250414-GGUF/moondream2-mmproj-f16-20250414.gguf",
+              "file_size_display": "910 MB",
+              "file_size_bytes": 909777984,
+              "sha256": "4cc1cb3660d87ff56432ebeb7884ad35d67c48c7b9f6b2856f305e39c38eed8f",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-f16",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "moondream2-20250414-gguf-f16"
     },
     {
       "id": "bonsai-27b-q1",
@@ -4905,12 +7896,12 @@
           "quantization": "Q1_0",
           "filename": "Bonsai-27B-Q1_0.gguf",
           "repository_id": "prism-ml/Bonsai-27B-gguf",
-          "revision": "main",
-          "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/main/Bonsai-27B-Q1_0.gguf?download=true",
+          "revision": "f10afb355f104535e3e3e98cf7ab7795c72bd292",
+          "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/f10afb355f104535e3e3e98cf7ab7795c72bd292/Bonsai-27B-Q1_0.gguf?download=true",
           "huggingface_uri": "hf://prism-ml/Bonsai-27B-gguf/Bonsai-27B-Q1_0.gguf",
           "file_size_display": "3.8 GB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 3803452480,
+          "sha256": "17ef842e47450caeb8eaa3ebfbbab5d2f2278b62b79be107985fb69a2f819aa0",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4920,7 +7911,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": "Primary 1-bit model artifact. Benchmark and certify per device family."
+          "notes": "Primary 1-bit model artifact. Benchmark and certify per device family.",
+          "required": true
         },
         {
           "id": "mmproj-q8-0",
@@ -4929,12 +7921,12 @@
           "quantization": "Q8_0",
           "filename": "Bonsai-27B-mmproj-Q8_0.gguf",
           "repository_id": "prism-ml/Bonsai-27B-gguf",
-          "revision": "main",
-          "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/main/Bonsai-27B-mmproj-Q8_0.gguf?download=true",
+          "revision": "f10afb355f104535e3e3e98cf7ab7795c72bd292",
+          "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/f10afb355f104535e3e3e98cf7ab7795c72bd292/Bonsai-27B-mmproj-Q8_0.gguf?download=true",
           "huggingface_uri": "hf://prism-ml/Bonsai-27B-gguf/Bonsai-27B-mmproj-Q8_0.gguf",
           "file_size_display": "629 MB",
-          "file_size_bytes": null,
-          "sha256": null,
+          "file_size_bytes": 629246880,
+          "sha256": "eb561d41a7bbeb0fcf04883c8af11078ef6cae0a66862a0b68443cfca495269d",
           "recommended": true,
           "backend": "llama.cpp",
           "platforms": [
@@ -4944,7 +7936,8 @@
             "linux-x86_64",
             "windows-x86_64"
           ],
-          "notes": null
+          "notes": null,
+          "required": true
         }
       ],
       "runtime": {
@@ -5003,7 +7996,88 @@
       "sources": {
         "gguf_repository_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf",
         "artifact_revision_policy": "main; pin to an immutable commit before production release"
-      }
+      },
+      "variants": [
+        {
+          "variant_id": "bonsai-27b-q1-gguf-q1-0",
+          "model_id": "bonsai-27b-q1",
+          "format": "gguf",
+          "quantization": "Q1_0",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 8,
+          "recommended_ram_gb": 16,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "prism-ml",
+            "repository_id": "prism-ml/Bonsai-27B-gguf",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q1_0",
+              "filename": "Bonsai-27B-Q1_0.gguf",
+              "repository_id": "prism-ml/Bonsai-27B-gguf",
+              "revision": "f10afb355f104535e3e3e98cf7ab7795c72bd292",
+              "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/f10afb355f104535e3e3e98cf7ab7795c72bd292/Bonsai-27B-Q1_0.gguf?download=true",
+              "huggingface_uri": "hf://prism-ml/Bonsai-27B-gguf/Bonsai-27B-Q1_0.gguf",
+              "file_size_display": "3.8 GB",
+              "file_size_bytes": 3803452480,
+              "sha256": "17ef842e47450caeb8eaa3ebfbbab5d2f2278b62b79be107985fb69a2f819aa0",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": "Primary 1-bit model artifact. Benchmark and certify per device family.",
+              "artifact_id": "model-q1-0",
+              "required": true
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "Bonsai-27B-mmproj-Q8_0.gguf",
+              "repository_id": "prism-ml/Bonsai-27B-gguf",
+              "revision": "f10afb355f104535e3e3e98cf7ab7795c72bd292",
+              "download_url": "https://huggingface.co/prism-ml/Bonsai-27B-gguf/resolve/f10afb355f104535e3e3e98cf7ab7795c72bd292/Bonsai-27B-mmproj-Q8_0.gguf?download=true",
+              "huggingface_uri": "hf://prism-ml/Bonsai-27B-gguf/Bonsai-27B-mmproj-Q8_0.gguf",
+              "file_size_display": "629 MB",
+              "file_size_bytes": 629246880,
+              "sha256": "eb561d41a7bbeb0fcf04883c8af11078ef6cae0a66862a0b68443cfca495269d",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "macos-arm64",
+                "linux-x86_64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "artifact_id": "mmproj-q8-0",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "bonsai-27b-q1-gguf-q1-0"
     }
   ]
 }
