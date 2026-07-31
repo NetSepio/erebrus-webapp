@@ -36,7 +36,7 @@ const features = [
   {
     glyph: "◈",
     title: "Wallet sign-in",
-    desc: "One Erebrus account across VPN, Drop, and AI — authenticate with your existing wallet.",
+    desc: "One Erebrus account across VPN, Firewall, Drop, and AI — authenticate with your existing wallet.",
   },
 ];
 

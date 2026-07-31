@@ -1,4 +1,9 @@
-import { ogImageResponse, OG_SIZE, OG_CONTENT_TYPE } from "@/lib/og";
+import {
+  EREBRUS_SUITE_TAGS,
+  ogImageResponse,
+  OG_CONTENT_TYPE,
+  OG_SIZE,
+} from "@/lib/og";
 
 export const runtime = "edge";
 export const alt = "Erebrus Pricing — Private internet for every scale";
@@ -11,6 +16,6 @@ export default function PricingOgImage() {
     title: "Private internet for every scale",
     subtitle:
       "Free private access → Builder plans from $3.99/mo → dedicated nodes, firewall, and sovereign infrastructure for teams and enterprises.",
-    tags: ["Free tier", "From $3.99/mo", "erebrus.io/pricing"],
+    tags: EREBRUS_SUITE_TAGS,
   });
 }

@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/v3/marketing/ContactForm";
 export const metadata = pageMetadata({
   title: "Contact & Support",
   description:
-    "Contact the Erebrus team for VPN, Drop, Wallet login, Billing, or Account Support. We respond by email.",
+    "Contact the Erebrus team for VPN, Firewall, Drop, AI, wallet login, billing, or account support. We respond by email.",
   path: "/contact",
 });
 
@@ -15,7 +15,7 @@ export default function ContactPage() {
     <LegalPageShell
       eyebrow="Erebrus support"
       title="Contact us"
-      summary="Submit a support request for Erebrus VPN, Drop, Wallet Access, Subscriptions, or Account questions. We typically respond by email."
+      summary="Submit a support request for Erebrus VPN, Firewall, Drop, AI, wallet access, subscriptions, or account questions. We typically respond by email."
       lastUpdated="June 26, 2026"
     >
       <Suspense fallback={<div className="mx-auto max-w-2xl text-sm text-[var(--text-3)]">Loading form…</div>}>

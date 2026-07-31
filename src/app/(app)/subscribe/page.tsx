@@ -17,7 +17,7 @@ const benefits = [
   "WireGuard + stealth protocol bundles",
   "Multiple device configs",
   "Workspace operator tools",
-  "Decentralized Drop storage",
+  "Local Drop transfer + optional storage",
   "XP rewards and rank perks",
 ];
 

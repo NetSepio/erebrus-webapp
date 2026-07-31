@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
+export const EREBRUS_SUITE_TAGS = ["VPN", "Firewall", "Drop", "AI", "erebrus.io"];
 
 /**
  * Shared 1200×630 social card used by every `opengraph-image`/`twitter-image`
@@ -11,7 +12,7 @@ export function ogImageResponse({
   eyebrow = "Erebrus",
   title,
   subtitle,
-  tags = ["VPN", "Drop", "erebrus.io"],
+  tags = EREBRUS_SUITE_TAGS,
 }: {
   eyebrow?: string;
   title: string;

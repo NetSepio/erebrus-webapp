@@ -29,7 +29,7 @@ const SCREEN_META: Record<string, { title: string; subtitle: string }> = {
   "/profile": { title: "Profile", subtitle: "Account settings" },
   "/profile/activity": { title: "Activity", subtitle: "Your account activity log" },
   "/rewards": { title: "Rewards & XP", subtitle: "Earn, claim, and climb tiers" },
-  "/storage": { title: "Drop", subtitle: "Decentralized IPFS storage" },
+  "/storage": { title: "Drop", subtitle: "Local transfer + optional storage" },
   "/subscribe": { title: "Plan", subtitle: "Your organization entitlements" },
   "/admin": { title: "Admin Console", subtitle: "Platform administration" },
 };

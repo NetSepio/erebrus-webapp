@@ -4,9 +4,9 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "Erebrus Drop — Decentralized IPFS storage",
+    title: "Erebrus Drop — Local file transfer",
     description:
-      "Store files on community-run IPFS nodes, encrypt private files in your browser, and share public files by opaque link.",
+      "Move files, photos, and text between nearby devices over Wi-Fi or hotspot with Drop Rooms. IPFS storage and public links are available when you need them.",
     path: "/drop",
     // og + twitter images come from this route's opengraph-image/twitter-image.
     image: null,
