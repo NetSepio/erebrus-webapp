@@ -3,6 +3,12 @@ import Link from "next/link";
 import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
+import { AppDownloadLinks } from "@/components/v3/marketing/AppDownloadLinks";
+
+const dropDownloadLinks = {
+  googleHref: "https://play.google.com/store/apps/details?id=com.erebrus.drop",
+  appleHref: "https://testflight.apple.com/join/YyfmzNKG",
+};
 
 // Erebrus Drop — zero-cloud file sharing with Drop Rooms + optional IPFS storage.
 const features = [
@@ -42,6 +48,11 @@ export default function DropMarketingPage() {
               <AccentButton variant="ghost" className="!px-6 !py-4">Explore VPN</AccentButton>
             </Link>
           </div>
+          <AppDownloadLinks
+            productName="Erebrus Drop"
+            className="mt-5"
+            {...dropDownloadLinks}
+          />
         </div>
 
         <Card
@@ -102,16 +113,16 @@ export default function DropMarketingPage() {
       <section id="how" className="mx-auto max-w-[1180px] px-4 pb-20 md:px-8">
         <Card className="flex flex-col items-center p-10 text-center md:flex-row md:text-left">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold">How a Drop Room works</h2>
+            <h2 className="text-2xl font-bold">Get Drop on your devices</h2>
             <p className="mt-3 text-[var(--text-2)]">
               Create a Drop Room on the sending or receiving device, scan the QR code or open the local browser link, and transfer files directly across your Wi-Fi or hotspot.
             </p>
           </div>
-          <div className="mt-6 flex flex-wrap gap-3 md:mt-0">
-            <Link href="/storage">
-              <AccentButton>Open Drop</AccentButton>
-            </Link>
-          </div>
+          <AppDownloadLinks
+            productName="Erebrus Drop"
+            className="mt-6 justify-center md:mt-0 md:justify-end"
+            {...dropDownloadLinks}
+          />
         </Card>
       </section>
 

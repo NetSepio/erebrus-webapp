@@ -6,6 +6,12 @@ import { AuthModalTrigger } from "@/components/v3/AuthModal";
 import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
 import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
 import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
+import { AppDownloadLinks } from "@/components/v3/marketing/AppDownloadLinks";
+
+const vpnDownloadLinks = {
+  googleHref: "https://play.google.com/store/apps/details?id=com.erebrus.vpn",
+  appleHref: "https://testflight.apple.com/join/URzZf6JH",
+};
 
 const features = [
   {
@@ -79,8 +85,13 @@ export default function VpnMarketingPage() {
               </AccentButton>
             </Link>
           </div>
+          <AppDownloadLinks
+            productName="Erebrus VPN"
+            className="mt-5"
+            {...vpnDownloadLinks}
+          />
           <p className="mt-5 font-mono text-xs text-[var(--text-3)]">
-            Start free · no card required
+            Start free · Android on Google Play · iOS beta on TestFlight
           </p>
         </div>
 
@@ -144,18 +155,14 @@ export default function VpnMarketingPage() {
           <div className="flex-1">
             <h2 className="text-2xl font-bold">Get VPN on your device</h2>
             <p className="mt-3 text-[var(--text-2)]">
-              Available on Android. iOS and desktop coming soon.
+              Install Erebrus VPN from Google Play or join the iOS beta on TestFlight.
             </p>
           </div>
-          <div className="mt-6 flex flex-wrap gap-3 md:mt-0">
-            <AccentButton variant="ghost" disabled>
-              iOS (soon)
-            </AccentButton>
-            <AccentButton variant="ghost">Android</AccentButton>
-            <AccentButton variant="ghost" disabled>
-              Desktop (soon)
-            </AccentButton>
-          </div>
+          <AppDownloadLinks
+            productName="Erebrus VPN"
+            className="mt-6 justify-center md:mt-0 md:justify-end"
+            {...vpnDownloadLinks}
+          />
         </Card>
       </section>
 
