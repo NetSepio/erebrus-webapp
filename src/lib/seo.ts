@@ -5,7 +5,7 @@ export const SITE_NAME = "Erebrus";
 export const TWITTER_HANDLE = "@NetSepio";
 
 export const DEFAULT_DESCRIPTION =
-  "Take back your digital agency. Erebrus combines a no-logs decentralized VPN with optional IPFS-backed Drop storage — privacy infrastructure run by the people who use it.";
+  "Take back your digital agency. Erebrus combines a no-logs decentralized VPN and firewall protection with local-first Drop transfer and private AI — privacy infrastructure run by the people who use it.";
 
 const DEFAULT_KEYWORDS = [
   "Erebrus",
@@ -13,8 +13,12 @@ const DEFAULT_KEYWORDS = [
   "DePIN",
   "WireGuard VPN",
   "wallet login VPN",
-  "local file sharing",
+  "local file transfer",
   "Erebrus Drop",
+  "Erebrus AI",
+  "local AI",
+  "Erebrus Firewall",
+  "firewall protection",
   "NetSepio",
   "privacy network",
   "sovereign internet",

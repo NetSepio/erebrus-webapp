@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Page not found",
-  description: "The page you requested is not on Erebrus. Head home or explore VPN, Drop, and the network.",
+  description: "The page you requested is not on Erebrus. Head home or explore VPN, Firewall, Drop, AI, and the network.",
   path: "/404",
   noIndex: true,
 });
@@ -18,6 +18,7 @@ const shortcuts = [
   { href: "/connect", label: "Connect" },
   { href: "/vpn", label: "VPN" },
   { href: "/drop", label: "Drop" },
+  { href: "/ai", label: "AI" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
 ];

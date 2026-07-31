@@ -1,16 +1,21 @@
-import { ogImageResponse, OG_SIZE, OG_CONTENT_TYPE } from "@/lib/og";
+import {
+  EREBRUS_SUITE_TAGS,
+  ogImageResponse,
+  OG_CONTENT_TYPE,
+  OG_SIZE,
+} from "@/lib/og";
 
 export const runtime = "edge";
-export const alt = "Erebrus Drop — decentralized IPFS storage";
+export const alt = "Erebrus Drop — local file transfer over Wi-Fi or hotspot";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
 export default function DropOgImage() {
   return ogImageResponse({
     eyebrow: "Erebrus Drop",
-    title: "Store files on community IPFS nodes",
+    title: "Move files between nearby devices",
     subtitle:
-      "Encrypt private files in your browser and share public files with an opaque link.",
-    tags: ["IPFS", "Client-side encryption", "erebrus.io"],
+      "Create a local Drop Room, scan the QR code, and transfer over Wi-Fi or hotspot. IPFS storage is available when you need a persistent link.",
+    tags: EREBRUS_SUITE_TAGS,
   });
 }

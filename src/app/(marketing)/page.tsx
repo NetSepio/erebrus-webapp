@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
@@ -32,9 +33,14 @@ const features = [
     desc: "Modern VPN protocol with fast, audited cryptography. Configs provisioned per device.",
   },
   {
+    glyph: "▣",
+    title: "Firewall protection",
+    desc: "Workspace firewall and DNS-filtering controls help protect private nodes, teams, and trusted network paths.",
+  },
+  {
     glyph: "↔",
-    title: "Drop — decentralized storage",
-    desc: "Store files on community IPFS nodes; private content is encrypted in your browser.",
+    title: "Drop — local transfer",
+    desc: "Move files, photos, and text over Wi-Fi or hotspot; use IPFS storage only when you need a durable share.",
   },
   {
     glyph: "✧",
@@ -62,12 +68,12 @@ const steps = [
   {
     num: "02",
     title: "Pick your plan",
-    desc: "Every account starts free. Upgrade a workspace plan for VPN, Drop, AI access, and seats.",
+    desc: "Every account starts free. Upgrade a workspace plan for VPN, Firewall, Drop, AI access, and seats.",
   },
   {
     num: "03",
     title: "Connect & go",
-    desc: "Pick a VPN node, open a Drop Room, or run a local AI model from your own device.",
+    desc: "Pick a VPN node, configure firewall protection, open a Drop Room, or run a local AI model.",
   },
 ];
 
@@ -94,7 +100,7 @@ export default function LandingPage() {
 
         <p className="mx-auto mt-6 max-w-[640px] text-base leading-relaxed text-[var(--text-2)] md:text-xl">
           Everything you do online is watched, tracked, and sold. Erebrus hands the controls back
-          to you — a no-logs VPN, decentralized Drop storage, and local-first AI, run by
+          to you — a no-logs VPN, firewall protection, local-first Drop transfer, and private AI, run by
           people and personal devices, not the platforms that profit from you.
         </p>
 
@@ -112,7 +118,7 @@ export default function LandingPage() {
         </div>
 
         <p className="mt-6 font-mono text-xs text-[var(--text-3)]">
-          Three products live today · VPN + Drop + AI
+          VPN + Firewall + Drop + AI
         </p>
 
         <LandingNetworkPreview />
@@ -130,7 +136,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           <Link href="/vpn" className="group">
             <Card className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
               style={{
@@ -151,6 +157,58 @@ export default function LandingPage() {
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
                 Explore VPN →
+              </span>
+            </Card>
+          </Link>
+
+          <Link href="/pricing" className="group">
+            <Card
+              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
+              style={{
+                background:
+                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,107,53,0.11), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
+              }}
+            >
+              <div className="mb-5 flex items-center gap-3.5">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[14px] border border-[var(--accent)]/25 bg-[var(--accent)]/12 text-[var(--accent-hi)]">
+                  <ShieldCheck size={30} strokeWidth={1.8} />
+                </div>
+                <div>
+                  <div className="text-xl font-bold">Erebrus Firewall</div>
+                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · workspace protection</div>
+                </div>
+              </div>
+              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
+                Add firewall and DNS-filtering controls to eligible workspaces and nodes, with rule
+                management for teams that need stronger network protection.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
+                Explore Firewall →
+              </span>
+            </Card>
+          </Link>
+
+          <Link href="/drop" className="group">
+            <Card
+              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
+              style={{
+                background:
+                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,126,68,0.14), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
+              }}
+            >
+              <div className="mb-5 flex items-center gap-3.5">
+                <Image src="/drop/logo.png" alt="" width={56} height={56} className="rounded-[14px]" />
+                <div>
+                  <div className="text-xl font-bold">Erebrus Drop</div>
+                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · local rooms</div>
+                </div>
+              </div>
+              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
+                Create a local Drop Room, scan the QR code from another device, and transfer
+                directly over Wi-Fi or hotspot. IPFS links are there when you need persistence.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
+                Explore Drop →
               </span>
             </Card>
           </Link>
@@ -176,31 +234,6 @@ export default function LandingPage() {
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
                 Explore AI →
-              </span>
-            </Card>
-          </Link>
-
-          <Link href="/drop" className="group">
-            <Card
-              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
-              style={{
-                background:
-                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,126,68,0.14), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
-              }}
-            >
-              <div className="mb-5 flex items-center gap-3.5">
-                <Image src="/drop/logo.png" alt="" width={56} height={56} className="rounded-[14px]" />
-                <div>
-                  <div className="text-xl font-bold">Erebrus Drop</div>
-                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · IPFS storage</div>
-                </div>
-              </div>
-              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
-                Store public or browser-encrypted private files on community-run IPFS nodes, then
-                retrieve or share them from anywhere.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
-                Explore Drop →
               </span>
             </Card>
           </Link>

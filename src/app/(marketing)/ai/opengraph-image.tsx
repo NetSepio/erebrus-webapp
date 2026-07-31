@@ -1,4 +1,9 @@
-import { ogImageResponse, OG_SIZE, OG_CONTENT_TYPE } from "@/lib/og";
+import {
+  EREBRUS_SUITE_TAGS,
+  ogImageResponse,
+  OG_CONTENT_TYPE,
+  OG_SIZE,
+} from "@/lib/og";
 
 export const runtime = "edge";
 export const alt = "Erebrus AI — local LLM runner";
@@ -11,6 +16,6 @@ export default function AiOgImage() {
     title: "Run AI models locally on your network",
     subtitle:
       "Download quantized GGUF models, create custom personas, and turn your desktop into a private AI node.",
-    tags: ["Local-first", "GGUF", "erebrus.io"],
+    tags: EREBRUS_SUITE_TAGS,
   });
 }

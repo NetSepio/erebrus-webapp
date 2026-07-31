@@ -8,11 +8,13 @@ import {
 export const metadata = pageMetadata({
   title: "Privacy Policy",
   description:
-    "Privacy Policy for Erebrus VPN, Erebrus Drop, and Erebrus AI — wallet authentication, VPN metadata, decentralized file storage, and local AI.",
+    "Privacy Policy for Erebrus VPN, Erebrus Firewall, Erebrus Drop, and Erebrus AI — wallet authentication, network protection, local file transfer, optional storage, and local AI.",
   path: "/privacy",
   keywords: [
     "Erebrus privacy policy",
     "VPN privacy",
+    "firewall privacy",
+    "local file transfer privacy",
     "IPFS storage privacy",
     "Erebrus AI privacy",
     "local AI privacy",
@@ -32,13 +34,14 @@ type PolicySection = {
   }>;
 };
 
-const lastUpdated = "July 25, 2026";
+const lastUpdated = "July 31, 2026";
 
 const privacyHighlights = [
-  "Private Drop files are encrypted in your browser before upload; NetSepio and node operators store ciphertext and cannot recover your plaintext without your client-held keys.",
-  "Public Drop files are plaintext on IPFS and may be retrieved by anyone who has the opaque share link or learns the CID.",
+  "Drop Rooms are designed for nearby local transfer over Wi-Fi or hotspot. Local-only room transfers are not uploaded to NetSepio servers by default.",
+  "Optional private Drop storage encrypts files in your browser before upload; NetSepio and node operators store ciphertext and cannot recover your plaintext without your client-held keys.",
+  "Optional public Drop storage is plaintext on IPFS and may be retrieved by anyone who has the opaque share link or learns the CID.",
   "Erebrus AI is designed for local-first inference. Prompts, outputs, personas, and model files used only on your device are not uploaded to NetSepio by default.",
-  "Erebrus VPN may process wallet authentication, subscription, device, technical, and security metadata needed to provide VPN access.",
+  "Erebrus VPN and Firewall may process wallet authentication, subscription, device, node, rule, technical, and security metadata needed to provide network access and protection.",
   "NetSepio does not sell personal information or use Drop file contents, private prompts, or AI outputs for advertising.",
 ];
 
@@ -46,8 +49,8 @@ const sections: PolicySection[] = [
   {
     title: "1. Scope",
     body: [
-      "This Privacy Policy explains how NetSepio handles information for Erebrus VPN, Erebrus Drop, Erebrus AI, the Erebrus web application, mobile applications, dashboard, explorer, websites, support channels, and related services.",
-      "Erebrus VPN, Erebrus Drop, and Erebrus AI are different products with different data flows. This policy explains those differences.",
+      "This Privacy Policy explains how NetSepio handles information for Erebrus VPN, Erebrus Firewall, Erebrus Drop, Erebrus AI, the Erebrus web application, mobile applications, dashboard, explorer, websites, support channels, and related services.",
+      "Erebrus VPN, Erebrus Firewall, Erebrus Drop, and Erebrus AI are different products with different data flows. This policy explains those differences.",
     ],
   },
   {
@@ -74,11 +77,21 @@ const sections: PolicySection[] = [
         ],
       },
       {
+        title: "Erebrus Firewall information",
+        items: [
+          "Firewall service status, selected node, workspace, rule names, rule configuration, sync and restart actions, and administrator activity needed to provide firewall or DNS-filtering features.",
+          "Firewall credentials and connection details where needed to let authorized workspace administrators access or configure protection services.",
+          "Operational, security, and abuse-prevention logs related to firewall availability, configuration changes, rule enforcement, and service reliability.",
+        ],
+      },
+      {
         title: "Erebrus Drop information",
         items: [
-          "File metadata such as filename, content type, byte size, selected node, storage scope, visibility, CID, upload state, and timestamps.",
-          "Public file contents are sent as plaintext through the gateway to the selected Kubo/IPFS node.",
-          "Private file contents are encrypted in your browser. The gateway and node receive ciphertext, authenticated encryption metadata, and a wrapped per-file key, but not the plaintext file key.",
+          "For local Drop Rooms, room identifiers, QR or browser link state, nearby-device connection details, transfer status, and local-network technical metadata may be generated or exchanged by participating devices to complete the transfer.",
+          "Local-only Drop Room file contents are designed to move directly between nearby devices over Wi-Fi or hotspot and are not uploaded to NetSepio servers by default.",
+          "For optional storage, file metadata such as filename, content type, byte size, selected node, storage scope, visibility, CID, upload state, and timestamps may be processed.",
+          "Optional public stored file contents are sent as plaintext through the gateway to the selected Kubo/IPFS node.",
+          "Optional private stored file contents are encrypted in your browser. The gateway and node receive ciphertext, authenticated encryption metadata, and a wrapped per-file key, but not the plaintext file key.",
           "An encrypted vault backup may be stored by the gateway. Your recovery secret and unwrapped vault key are not sent to the gateway and are not persisted by the web app.",
           "Upload, download, quota, node-health, audit, rate-limit, and security events needed to operate and protect the storage service.",
         ],
@@ -109,9 +122,9 @@ const sections: PolicySection[] = [
   {
     title: "4. How We Use Information",
     items: [
-      "Provide, secure, maintain, and troubleshoot Erebrus VPN, Erebrus Drop, and Erebrus AI.",
+      "Provide, secure, maintain, and troubleshoot Erebrus VPN, Erebrus Firewall, Erebrus Drop, and Erebrus AI.",
       "Authenticate wallets and sessions.",
-      "Create, manage, and revoke VPN clients and access credentials.",
+      "Create, manage, and revoke VPN clients, firewall rules, firewall credentials, and access credentials.",
       "Provide model catalog, local inference, shared-node discovery, workspace access, and AI diagnostics where you use those features.",
       "Apply organization membership, seat, plan, quota, and payment-related rules.",
       "Detect abuse, fraud, spam, malware, attacks, service misuse, and violations of our Terms.",
@@ -120,11 +133,12 @@ const sections: PolicySection[] = [
     ],
   },
   {
-    title: "5. How Erebrus Drop Storage Works",
+    title: "5. How Erebrus Drop Works",
     body: [
-      "The web app sends file bytes through the Erebrus gateway to the Kubo node you select. The gateway controls authorization, quota, metadata, and managed pin lifecycle. Kubo stores content-addressed blocks and participates in IPFS.",
-      "Private files are encrypted and decrypted in your browser using a random per-file key wrapped by your in-memory account vault key. Keep the recovery secret secure: NetSepio cannot reset it or decrypt your files if it is lost.",
-      "Public IPFS content should be treated as public and potentially durable. Deleting a managed Drop file removes the gateway record and its managed pin when safe, but cannot guarantee removal from other IPFS nodes, caches, recipients, or independent pins.",
+      "Drop Rooms are the primary Drop flow: one device creates a local room, another joins by QR code or local browser link, and files, photos, or text move over Wi-Fi or hotspot between nearby devices.",
+      "When you choose optional storage, the web app sends file bytes through the Erebrus gateway to the Kubo node you select. The gateway controls authorization, quota, metadata, and managed pin lifecycle. Kubo stores content-addressed blocks and participates in IPFS.",
+      "Optional private stored files are encrypted and decrypted in your browser using a random per-file key wrapped by your in-memory account vault key. Keep the recovery secret secure: NetSepio cannot reset it or decrypt your files if it is lost.",
+      "Optional public IPFS content should be treated as public and potentially durable. Deleting a managed Drop file removes the gateway record and its managed pin when safe, but cannot guarantee removal from other IPFS nodes, caches, recipients, or independent pins.",
     ],
   },
   {
@@ -144,7 +158,7 @@ const sections: PolicySection[] = [
     items: [
       "Service providers that help with hosting, security, support, payment processing, wallet connectivity, infrastructure, model delivery or catalog operations, analytics for non-Drop and non-local-AI services where used, and app operations.",
       "Blockchain networks, wallet providers, RPC providers, payment processors, or app stores when you choose to use those features.",
-      "VPN and Drop node operators or infrastructure providers as technically necessary to provide routing and storage. Drop operators may see metadata and stored bytes; private stored bytes are ciphertext.",
+      "VPN, Firewall, and Drop node operators or infrastructure providers as technically necessary to provide routing, network protection, local transfer support, and optional storage. Drop storage operators may see metadata and stored bytes; private stored bytes are ciphertext.",
       "AI workspace operators, shared-node providers, nearby devices, or infrastructure providers as technically necessary when you choose shared inference, LAN discovery, support, or remote AI features. Local-only AI inference is not sent to NetSepio by default.",
       "Legal, safety, or compliance recipients when we believe disclosure is required by law or necessary to protect rights, users, the Services, or the public.",
       "Business transfer recipients if NetSepio is involved in a merger, acquisition, financing, reorganization, or sale of assets.",
@@ -165,7 +179,7 @@ const sections: PolicySection[] = [
       "Where laws such as the GDPR apply, we process personal data under one or more legal bases:",
     ],
     items: [
-      "Contract: to provide Erebrus VPN, Erebrus Drop, Erebrus AI, account access, subscriptions, and support.",
+      "Contract: to provide Erebrus VPN, Erebrus Firewall, Erebrus Drop, Erebrus AI, account access, subscriptions, and support.",
       "Legitimate interests: to secure, debug, improve, and protect the Services and users.",
       "Consent: where we ask for optional permissions or communications consent.",
       "Legal obligation: to comply with applicable law, legal process, accounting, tax, fraud prevention, and compliance obligations.",
@@ -176,7 +190,8 @@ const sections: PolicySection[] = [
     items: [
       "Wallet authentication, organization, plan, payment, support, and operational records are retained as long as needed to provide the Services, resolve disputes, enforce Terms, maintain security, and comply with law.",
       "VPN client metadata may be retained while your client, account, or organization service is active and for a reasonable period after deletion for security, backup, audit, or legal reasons.",
-      "Managed Drop files and metadata remain until deleted, expired, or removed under applicable policy. Public IPFS copies may remain outside NetSepio's control; encrypted private blocks may also persist as unreadable ciphertext on independent nodes or backups.",
+      "Firewall configuration, credential, status, and audit records may be retained while your account, node, or organization service is active and for a reasonable period after deletion for security, backup, audit, or legal reasons.",
+      "Local-only Drop Room transfers are not retained by NetSepio by default. Managed Drop files and metadata remain until deleted, expired, or removed under applicable policy. Public IPFS copies may remain outside NetSepio's control; encrypted private blocks may also persist as unreadable ciphertext on independent nodes or backups.",
       "Local Erebrus AI model files, personas, prompts, conversation history, and outputs remain on your device until you delete them, clear app data, or uninstall the app. Shared-node, support, or remote AI request metadata may be retained as needed to provide the feature, maintain security, troubleshoot, enforce Terms, and comply with law.",
       "Security logs may be retained for a limited period to detect abuse, investigate incidents, and protect the Services.",
     ],
@@ -185,7 +200,7 @@ const sections: PolicySection[] = [
     title: "11. Security",
     body: [
       "We use administrative, technical, and organizational safeguards designed to protect information. These may include access controls, encryption in transit where appropriate, logging, monitoring, secure development practices, and vendor review.",
-      "No app, VPN, AI runtime, model file, blockchain, wallet, browser, local network, or transfer method can be guaranteed to be 100 percent secure. Keep your devices, wallets, operating systems, browsers, local networks, received files, prompts, and AI outputs secure.",
+      "No app, VPN, firewall, AI runtime, model file, blockchain, wallet, browser, local network, or transfer method can be guaranteed to be 100 percent secure. Keep your devices, wallets, operating systems, browsers, local networks, firewall credentials, received files, prompts, and AI outputs secure.",
       "AI outputs can be inaccurate, unsafe, or unexpected. Review outputs before relying on them, sharing them, or using them in sensitive decisions.",
     ],
   },
@@ -239,7 +254,7 @@ export default function PrivacyPage() {
     <LegalPageShell
       eyebrow="Erebrus legal"
       title="Privacy Policy"
-      summary="This policy covers Erebrus VPN, Erebrus Drop, and Erebrus AI, including wallet authentication, organization entitlements, VPN client management, IPFS storage, browser-side encryption, public shares, key recovery, local AI inference, LAN discovery, and shared model access."
+      summary="This policy covers Erebrus VPN, Erebrus Firewall, Erebrus Drop, and Erebrus AI, including wallet authentication, organization entitlements, VPN client management, firewall controls, local Drop Room transfers, optional IPFS storage, browser-side encryption, public shares, key recovery, local AI inference, LAN discovery, and shared model access."
       lastUpdated={lastUpdated}
     >
       <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2">

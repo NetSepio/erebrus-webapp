@@ -286,7 +286,7 @@ export function PricingPageContent() {
           with free VPN access and faster public nodes.
           <br />
           Go from VPN access to a full private network workspace with dedicated
-          nodes, firewall, APIs, Drop, AI with BYOC support.
+          nodes, firewall, APIs, local Drop transfer, optional storage, and AI with BYOC support.
         </p>
 
         <div className="mt-8">
