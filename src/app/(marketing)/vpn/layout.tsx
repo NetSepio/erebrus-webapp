@@ -4,9 +4,9 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "Erebrus VPN — Decentralized, no-logs VPN",
+    title: "Erebrus VPN - Private, Resilient Connectivity from Anywhere",
     description:
-      "A no-logs, privacy-first VPN powered by a worldwide community of node operators. Modern WireGuard encryption and wallet sign-in keep your traffic private — your data stays yours, never sold.",
+      "Encrypt your internet connection, use trusted Erebrus gateways, and access private resources from supported devices at home, at work, or while travelling.",
     path: "/vpn",
     // og + twitter images come from this route's opengraph-image/twitter-image.
     image: null,

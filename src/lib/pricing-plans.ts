@@ -151,7 +151,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     ],
     cta: "Start Pro",
     ctaEnabled: false,
-    edgeBadge: "Popular for teams",
+    edgeBadge: "Popular for families",
     highlighted: true,
   },
   {

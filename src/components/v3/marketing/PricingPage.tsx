@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
@@ -60,65 +61,90 @@ function BillingToggle({
   onChange: (p: BillingPeriod) => void;
 }) {
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1">
-        <button
-          type="button"
-          onClick={() => onChange("annual")}
-          className={cn(
-            "rounded-full px-5 py-2 text-sm font-semibold transition-colors",
-            period === "annual"
-              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-[0_4px_20px_rgba(255,107,53,0.3)]"
-              : "text-[var(--text-2)] hover:text-[var(--text)]",
-          )}
-        >
-          Annual
-        </button>
+    <div className="flex items-center gap-2">
+      <div className="inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-0.5" role="group" aria-label="Billing frequency">
         <button
           type="button"
           onClick={() => onChange("monthly")}
+          aria-pressed={period === "monthly"}
           className={cn(
-            "rounded-full px-5 py-2 text-sm font-semibold transition-colors",
+            "min-h-9 rounded-md px-3 text-xs font-semibold transition-colors",
             period === "monthly"
-              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-[0_4px_20px_rgba(255,107,53,0.3)]"
+              ? "bg-white/[0.09] text-[var(--text)]"
               : "text-[var(--text-2)] hover:text-[var(--text)]",
           )}
         >
           Monthly
         </button>
+        <button
+          type="button"
+          onClick={() => onChange("annual")}
+          aria-pressed={period === "annual"}
+          className={cn(
+            "min-h-9 rounded-md px-3 text-xs font-semibold transition-colors",
+            period === "annual"
+              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-[0_3px_14px_rgba(255,107,53,0.24)]"
+              : "text-[var(--text-2)] hover:text-[var(--text)]",
+          )}
+        >
+          Annual
+        </button>
       </div>
-      <span
-        className={cn(
-          "font-mono text-[13px] tracking-wide",
-          period === "annual"
-            ? "font-semibold text-[var(--success)]"
-            : "text-[var(--text-3)]",
-        )}
-      >
-        {period === "annual"
-          ? "Saving ~20% with annual billing"
-          : "Save ~20% with annual billing"}
-      </span>
-      <span className="font-mono text-[13px] text-[var(--text-3)]">
-        All prices in USD
+      <span className={cn("rounded-full border px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wide", period === "annual" ? "border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)]" : "border-white/[0.08] text-[var(--text-3)]")}>
+        Save ~20%
       </span>
     </div>
   );
 }
 
+const BUSINESS_PLAN_PRESENTATION = {
+  pro: {
+    name: "Launch",
+    subtitle: "Team Access",
+    tagline: "Launch a secure company network.",
+    description: "Give a growing team private VPN access, a dedicated gateway, Shield protection, and shared company services.",
+    badge: "For growing teams",
+    seatsLabel: "Launch seats",
+    bestFor: ["Remote teams", "Contractors", "Company resources", "Private AI pilots"],
+  },
+  business: {
+    name: "Scale",
+    subtitle: "Protected Workspace",
+    tagline: "Scale access, protection, and private AI.",
+    description: "Add more dedicated gateways, Sentinel protection, company controls, audit visibility, and priority support.",
+    badge: "For scaling companies",
+    seatsLabel: "Scale seats",
+    bestFor: ["Growing companies", "Multiple locations", "Security policies", "Private AI workspace"],
+  },
+} as const;
+
 function PlanCard({
   plan,
   period,
+  businessView,
 }: {
   plan: (typeof PRICING_PLANS)[number];
   period: BillingPeriod;
+  businessView: boolean;
 }) {
   const price = getDisplayPrice(plan, period);
-  const inheritsLabel = getInheritsLabel(plan);
+  const businessPresentation = businessView && (plan.id === "pro" || plan.id === "business")
+    ? BUSINESS_PLAN_PRESENTATION[plan.id]
+    : null;
+  const inheritsLabel = businessPresentation
+    ? plan.id === "business" ? "Everything in Launch, plus:" : null
+    : getInheritsLabel(plan);
+  const displayName = businessPresentation?.name ?? plan.name;
+  const displaySubtitle = businessPresentation?.subtitle ?? plan.subtitle;
+  const displayTagline = businessPresentation?.tagline ?? plan.tagline;
+  const displayDescription = businessPresentation?.description ?? plan.description;
+  const displayBadge = businessPresentation?.badge ?? plan.edgeBadge;
+  const displayBestFor = businessPresentation?.bestFor ?? plan.bestFor;
 
+  const isPilotCta = businessView && !plan.ctaEnabled;
   const ctaButton = (
-    <AccentButton className="!flex !w-full !py-3.5" disabled={!plan.ctaEnabled}>
-      {plan.ctaEnabled ? plan.cta : "Coming soon"}
+    <AccentButton className="!flex !w-full !py-3.5" disabled={!plan.ctaEnabled && !isPilotCta}>
+      {isPilotCta ? `Start ${displayName} Pilot` : plan.ctaEnabled ? plan.cta : "Coming soon"}
     </AccentButton>
   );
 
@@ -146,22 +172,22 @@ function PlanCard({
             : "border-white/[0.12] text-[var(--text-2)]",
         )}
       >
-        {plan.edgeBadge}
+        {displayBadge}
       </div>
 
       <div>
-        <h3 className="text-2xl font-bold tracking-tight">{plan.name}</h3>
+        <h3 className="text-2xl font-bold tracking-tight">{displayName}</h3>
         <p className="font-mono text-[11px] tracking-wide text-[var(--accent-hi)] uppercase">
-          {plan.subtitle}
+          {displaySubtitle}
         </p>
       </div>
 
       <div className="min-h-[5.5rem]">
         <p className="text-base font-medium leading-snug text-[var(--text)]">
-          {plan.tagline}
+          {displayTagline}
         </p>
         <p className="mt-2 text-sm leading-relaxed text-[var(--text-2)]">
-          {plan.description}
+          {displayDescription}
         </p>
       </div>
 
@@ -193,7 +219,7 @@ function PlanCard({
                 Seats included
               </div>
               <div className="text-sm font-semibold tracking-tight text-[var(--text)]">
-                {plan.seatsIncluded.label}
+                {businessPresentation?.seatsLabel ?? plan.seatsIncluded.label}
               </div>
             </div>
           </div>
@@ -231,7 +257,7 @@ function PlanCard({
       <div className="flex w-full flex-col pt-5">
         <MonoLabel className="mb-2 block">Best for</MonoLabel>
         <div className="mb-4 grid grid-cols-2 gap-1.5">
-          {plan.bestFor.map((item) => (
+          {displayBestFor.map((item) => (
             <span
               key={item}
               className="flex min-h-[2.75rem] items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-2 text-center text-[11px] leading-tight text-[var(--text-2)]"
@@ -242,7 +268,11 @@ function PlanCard({
         </div>
 
         <div className="w-full">
-          {plan.ctaEnabled ? (
+          {isPilotCta ? (
+            <Link href={`/contact?intent=business-pilot&plan=${plan.id}`} className="flex w-full">
+              {ctaButton}
+            </Link>
+          ) : plan.ctaEnabled ? (
             <AuthModalTrigger className="flex w-full">
               {ctaButton}
             </AuthModalTrigger>
@@ -262,47 +292,71 @@ function PlanCard({
 
 export function PricingPageContent() {
   const [period, setPeriod] = useState<BillingPeriod>("annual");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const audience = searchParams.get("audience") === "business" ? "business" : "personal";
+  const visiblePlans = audience === "business"
+    ? PRICING_PLANS.filter((plan) => plan.id === "pro" || plan.id === "business")
+    : PRICING_PLANS.filter((plan) => plan.id !== "business");
+  const comparisonRows = audience === "business"
+    ? [
+        { ...COMPARISON_ROWS.find((row) => row.plan === "Pro")!, plan: "Launch", planId: "pro" as const, subtitle: "Team Access", bestFor: "Growing and remote teams", keyIncludes: "5 seats, 1 dedicated VPN node, Shield protection" },
+        { ...COMPARISON_ROWS.find((row) => row.plan === "Business")!, plan: "Scale", planId: "business" as const, subtitle: "Protected Workspace", bestFor: "Scaling companies", keyIncludes: "25 seats, 3 dedicated VPN nodes, Sentinel protection" },
+        { ...COMPARISON_ROWS.find((row) => row.plan === "Enterprise")!, planId: "enterprise" as const },
+      ]
+    : COMPARISON_ROWS.filter((row) => row.plan !== "Business" && row.plan !== "Enterprise").map((row) => ({
+        ...row,
+        planId: row.plan.toLowerCase() as "basic" | "starter" | "pro",
+      }));
+
+  const setAudience = (value: "personal" | "business") => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("audience", value);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <>
       <section className="mx-auto max-w-[1180px] px-4 pt-16 pb-6 text-center md:px-8 md:pt-20 md:pb-6">
-        <Eyebrow className="mb-4">Agentic internet infrastructure</Eyebrow>
+        <Eyebrow className="mb-4">Plans for the way you connect</Eyebrow>
         <h1 className="mx-auto max-w-[900px] text-4xl font-bold leading-[1.05] tracking-[-0.04em] md:text-[56px]">
-          Private internet access for{" "}
+          {audience === "business" ? "Private infrastructure for " : "Private connectivity for "}{" "}
           <span
             className="bg-clip-text text-transparent"
             style={{
               backgroundImage: "linear-gradient(120deg, #FF7E44, #E0531F)",
             }}
           >
-            individuals, teams, and businesses.
+            {audience === "business" ? "growing teams." : "individuals and families."}
           </span>
         </h1>
         <p className="mx-auto mt-6 max-w-[900px] text-base leading-relaxed text-[var(--text-2)] md:text-[19px] md:leading-[1.55]">
-          Start on the{" "}
-          <span className="font-medium text-[var(--text)]">
-            Agentic Internet
-          </span>{" "}
-          with free VPN access and faster public nodes.
-          <br />
-          Go from VPN access to a full private network workspace with dedicated
-          nodes, firewall, APIs, local Drop transfer, optional storage, and AI with BYOC support.
+          {audience === "business"
+            ? "Start with a dedicated company gateway, add business firewall protection, and connect private AI services when your team is ready."
+            : "Start free, unlock faster VPN access, or add a dedicated network and Shield protection for a household or small shared group."}
         </p>
 
-        <div className="mt-8">
-          <BillingToggle period={period} onChange={setPeriod} />
+        <div className="mt-8 flex flex-col items-center">
+          <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1" role="group" aria-label="Pricing audience">
+            {(["personal", "business"] as const).map((value) => <button key={value} type="button" onClick={() => setAudience(value)} aria-pressed={audience === value} className={cn("min-h-11 rounded-full px-6 text-sm font-semibold capitalize transition-colors", audience === value ? "bg-[var(--accent)] text-[var(--on-accent)]" : "text-[var(--text-2)] hover:text-[var(--text)]")}>{value}</button>)}
+          </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-[1180px] px-4 pt-2 pb-12 md:px-8">
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4 xl:grid-rows-[auto_auto_auto_1fr_auto]">
-          {PRICING_PLANS.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} period={period} />
+        <div className="mb-5 flex flex-col gap-3 border-b border-white/[0.06] pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <span className="font-mono text-[11px] uppercase tracking-wide text-[var(--text-3)]">All prices in USD</span>
+          <BillingToggle period={period} onChange={setPeriod} />
+        </div>
+        <div className={cn("grid gap-5 md:grid-cols-2 xl:grid-rows-[auto_auto_auto_1fr_auto]", audience === "personal" ? "xl:grid-cols-3" : "xl:grid-cols-2")}>
+          {visiblePlans.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} period={period} businessView={audience === "business"} />
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1280px] px-4 pb-20 md:px-6">
+      {audience === "business" && <section className="mx-auto max-w-[1280px] px-4 pb-20 md:px-6">
         <Card
           className="p-6 md:p-8"
           style={{
@@ -347,7 +401,7 @@ export function PricingPageContent() {
                   Tailored to your deployment
                 </div>
               </div>
-              <Link href="/contact?category=enterprise" className="w-full">
+              <Link href="/contact?intent=deployment&plan=enterprise" className="w-full">
                 <AccentButton className="!flex !w-full !py-3">
                   {ENTERPRISE_PLAN.cta}
                 </AccentButton>
@@ -366,9 +420,9 @@ export function PricingPageContent() {
             {ORG_MEMBERS_NOTE}
           </p>
         </div>
-      </section>
+      </section>}
 
-      <section className="mx-auto max-w-[1180px] px-4 pb-24 md:px-8">
+      <section className="mx-auto w-full min-w-0 max-w-[1180px] px-4 pb-24 md:px-8">
         <div className="mb-10 text-center">
           <Eyebrow className="mb-4">Compare plans</Eyebrow>
           <h2 className="text-2xl font-bold md:text-3xl">
@@ -376,7 +430,7 @@ export function PricingPageContent() {
           </h2>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="max-w-full overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-white/[0.08]">
@@ -398,13 +452,8 @@ export function PricingPageContent() {
               </tr>
             </thead>
             <tbody>
-              {COMPARISON_ROWS.map((row) => {
-                const planId = row.plan.toLowerCase() as
-                  | "basic"
-                  | "starter"
-                  | "pro"
-                  | "business"
-                  | "enterprise";
+              {comparisonRows.map((row) => {
+                const planId = row.planId;
                 const isEnterprise = planId === "enterprise";
 
                 return (

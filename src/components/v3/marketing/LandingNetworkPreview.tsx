@@ -8,7 +8,7 @@ import { coLocatedNodes } from "@/lib/globe-nodes";
 import { uniqueCountries } from "@/lib/regions";
 
 export function LandingNetworkPreview() {
-  const { nodes } = useOnlineNodes();
+  const { nodes, loading } = useOnlineNodes();
   const [selectedId, setSelectedId] = useState<string | undefined>();
   const [detailId, setDetailId] = useState<string | null>(null);
 
@@ -47,7 +47,7 @@ export function LandingNetworkPreview() {
         <div className="pointer-events-none absolute left-5 top-5">
           <span className="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-wide text-[var(--success)]">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)] shadow-[0_0_8px_var(--success)]" />
-            LIVE NETWORK
+            {loading ? "CHECKING NETWORK" : nodes.length > 0 ? "LIVE NETWORK" : "NETWORK STATUS UNAVAILABLE"}
           </span>
         </div>
 
@@ -58,8 +58,8 @@ export function LandingNetworkPreview() {
         )}
 
         <div className="pointer-events-none absolute bottom-5 left-5 flex gap-6">
-          <Stat value={nodes.length} label="Nodes online" />
-          <Stat value={uniqueCountries(nodes) || "—"} label="Regions" />
+          <Stat value={loading || nodes.length === 0 ? "—" : nodes.length} label="Nodes online" />
+          <Stat value={loading || nodes.length === 0 ? "—" : uniqueCountries(nodes) || "—"} label="Regions" />
         </div>
 
         {detailNode && (

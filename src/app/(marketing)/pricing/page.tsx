@@ -6,8 +6,9 @@ export default function PricingPage() {
   return (
     <>
       <MarketingNav variant="platform" />
-      <PricingPageContent />
+      <Suspense fallback={<div className="min-h-[70vh]" />}><PricingPageContent /></Suspense>
       <MarketingFooter />
     </>
   );
 }
+import { Suspense } from "react";

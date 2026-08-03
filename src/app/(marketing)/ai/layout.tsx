@@ -4,9 +4,9 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "Erebrus AI — Local LLM runner",
+    title: "Erebrus AI - Run Private AI Models on Trusted Hardware",
     description:
-      "Run AI models locally and chat with them from any device on your network. Download quantized GGUF models, create custom personas, and turn your desktop into a private AI node.",
+      "Download supported local AI models, run them on your computer or private server, and make them available to approved devices through Erebrus.",
     path: "/ai",
     // og + twitter images come from this route's opengraph-image/twitter-image.
     image: null,

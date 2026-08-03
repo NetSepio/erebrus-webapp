@@ -1,317 +1,49 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
 import { MarketingNav } from "@/components/v3/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
-import { AuthModalTrigger } from "@/components/v3/AuthModal";
-import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
+import { Card, Eyebrow } from "@/components/v3/ui";
 import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
 import { LandingNetworkPreview } from "@/components/v3/marketing/LandingNetworkPreview";
-import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
-
 import { pageMetadata } from "@/lib/seo";
+import { CardGridSection, FinalCta, MarketingButtonLink, ProductFlow, VisualPlaceholder } from "@/components/v3/marketing/MarketingSections";
 
 export const metadata = pageMetadata({
-  title: "Erebrus — The sovereign internet",
+  title: "Erebrus - Private VPN, Firewall and AI for Work, Travel and Home",
+  description: "Secure your connection with Erebrus VPN, block threats with firewall protection, and run private AI on trusted hardware. Built for travellers, families and growing teams.",
   path: "/",
 });
 
-const features = [
-  {
-    glyph: "⬡",
-    title: "Community-owned",
-    desc: "The network is run by independent operators worldwide — so your traffic isn't logged, sold, or cut off by any single party.",
-  },
-  {
-    glyph: "◎",
-    title: "Wallet-native auth",
-    desc: "Sign in with Solana or EVM wallets. No passwords stored, no accounts sold.",
-  },
-  {
-    glyph: "◇",
-    title: "WireGuard tunnels",
-    desc: "Modern VPN protocol with fast, audited cryptography. Configs provisioned per device.",
-  },
-  {
-    glyph: "▣",
-    title: "Firewall protection",
-    desc: "Workspace firewall and DNS-filtering controls help protect private nodes, teams, and trusted network paths.",
-  },
-  {
-    glyph: "↔",
-    title: "Drop — local transfer",
-    desc: "Move files, photos, and text over Wi-Fi or hotspot; use IPFS storage only when you need a durable share.",
-  },
-  {
-    glyph: "✧",
-    title: "AI on your hardware",
-    desc: "Run quantized local models, create private personas, and use trusted workspace nodes only when you choose to share compute.",
-  },
-  {
-    glyph: "✦",
-    title: "Earn as operator",
-    desc: "Run a node, track uptime, earn XP. Private or public — your infrastructure, your rules.",
-  },
-  {
-    glyph: "◈",
-    title: "Workspaces",
-    desc: "Group nodes into orgs with enrollment secrets, API keys, and member management.",
-  },
+const audiences = [
+  { title: "Digital Nomads", body: "Stay protected on airport, hotel, cafe, and coworking Wi-Fi while keeping access to the services you rely on.", href: "/digital-nomads", cta: "Explore for Digital Nomads" },
+  { title: "Families", body: "Protect household devices, reduce exposure to harmful websites, and manage safer connection policies at home and away.", href: "/families", cta: "Explore for Families" },
+  { title: "Businesses and Teams", body: "Secure employee access, protect company systems, and run confidential AI workloads on trusted infrastructure.", href: "/business", cta: "Explore for Business" },
 ];
-
-const steps = [
-  {
-    num: "01",
-    title: "Connect wallet",
-    desc: "Phantom, MetaMask, or WalletConnect. Sign the EULA message — that's your login.",
-  },
-  {
-    num: "02",
-    title: "Pick your plan",
-    desc: "Every account starts free. Upgrade a workspace plan for VPN, Firewall, Drop, AI access, and seats.",
-  },
-  {
-    num: "03",
-    title: "Connect & go",
-    desc: "Pick a VPN node, configure firewall protection, open a Drop Room, or run a local AI model.",
-  },
+const products = [
+  { title: "Erebrus VPN", body: "Encrypt your connection on public and private networks, choose trusted gateways, and access approved resources from anywhere.", href: "/vpn", cta: "Explore VPN" },
+  { title: "Erebrus Firewall", body: "Block malicious domains and unwanted traffic, apply safer DNS policies, and protect devices before threats reach them.", href: "/firewall", cta: "Explore Firewall" },
+  { title: "Erebrus AI", body: "Run supported AI models on your computer, server, or private node so sensitive work can remain under your control.", href: "/ai", cta: "Explore Private AI" },
 ];
 
 export default function LandingPage() {
-  return (
-    <>
-      <MarketingNav variant="platform" />
-
-      <section className="mx-auto max-w-[1180px] px-4 py-16 text-center md:px-8 md:py-24">
-        <div className="mb-8 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5">
-          <LiveNetworkBadge />
-        </div>
-
-        <h1 className="mx-auto max-w-[900px] text-4xl font-bold leading-[0.98] tracking-[-0.04em] sm:text-6xl md:text-[78px]">
-          A sovereign
-          <br />
-          <span
-            className="bg-clip-text text-transparent"
-            style={{ backgroundImage: "linear-gradient(120deg, #FF7E44, #E0531F)" }}
-          >
-            internet.
-          </span>
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-[640px] text-base leading-relaxed text-[var(--text-2)] md:text-xl">
-          Everything you do online is watched, tracked, and sold. Erebrus hands the controls back
-          to you — a no-logs VPN, firewall protection, local-first Drop transfer, and private AI, run by
-          people and personal devices, not the platforms that profit from you.
-        </p>
-
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
-          <AuthModalTrigger>
-            <AccentButton className="!px-6 !py-4 !text-base">
-              Launch app <span className="text-lg">→</span>
-            </AccentButton>
-          </AuthModalTrigger>
-          <Link href="#products">
-            <AccentButton variant="ghost" className="!px-6 !py-4 !text-base">
-              Explore products
-            </AccentButton>
-          </Link>
-        </div>
-
-        <p className="mt-6 font-mono text-xs text-[var(--text-3)]">
-          VPN + Firewall + Drop + AI
-        </p>
-
-        <LandingNetworkPreview />
+  return <><MarketingNav />
+    <main>
+      <section className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:grid-cols-[1.05fr_.95fr] md:px-8 md:py-24">
+        <div><Eyebrow className="mb-5">Private connectivity and AI</Eyebrow><h1 className="text-5xl font-bold leading-[.98] tracking-[-.045em] sm:text-6xl md:text-[76px]">Privacy that travels with you.</h1><p className="mt-6 max-w-[640px] text-lg leading-relaxed text-[var(--text-2)] md:text-xl">Secure your connection with Erebrus VPN, block harmful traffic with firewall protection, and run private AI on hardware you trust.</p><div className="mt-9 flex flex-wrap gap-3"><MarketingButtonLink href="#app" className="!px-6 !py-4 !text-base">Get Erebrus →</MarketingButtonLink><MarketingButtonLink href="/business" variant="ghost" className="!px-6 !py-4 !text-base">Explore for Business</MarketingButtonLink></div><p className="mt-6 text-sm text-[var(--text-3)]">VPN for secure access. Firewall for safer connections. Private AI for sensitive work.</p></div>
+        {/* TODO: Replace with home-privacy-contexts.webp per handoff section 18.2. */}<VisualPlaceholder label="Work · travel · home" />
       </section>
 
-      <section id="products" className="mx-auto max-w-[1180px] px-4 py-16 md:px-8">
-        <div className="mb-12 text-center">
-          <Eyebrow className="mb-4">The Erebrus suite</Eyebrow>
-          <h2 className="text-3xl font-bold tracking-tight md:text-[44px]">
-            One platform, sovereign tools
-          </h2>
-          <p className="mx-auto mt-4 max-w-[640px] text-[var(--text-2)]">
-            Each product stands on its own, and shares one identity, one network, and one promise:
-            your data stays yours.
-          </p>
-        </div>
+      <CardGridSection eyebrow="Built around how you connect" title="Choose the Erebrus experience that fits you." items={audiences} />
+      <CardGridSection eyebrow="One private workspace, three core capabilities" title="Connect. Protect. Work privately." items={products} />
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <Link href="/vpn" className="group">
-            <Card className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
-              style={{
-                background:
-                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,107,53,0.12), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
-              }}
-            >
-              <div className="mb-5 flex items-center gap-3.5">
-                <Image src="/brand/erebrus-vpn.png" alt="" width={52} height={52} className="rounded-[14px]" />
-                <div>
-                  <div className="text-xl font-bold">Erebrus VPN</div>
-                  <div className="font-mono text-[11px] text-[var(--success)]">● Live</div>
-                </div>
-              </div>
-              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
-                A decentralized VPN backed by a global network of community nodes. Wallet login,
-                WireGuard tunnels, and no logs — ever.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
-                Explore VPN →
-              </span>
-            </Card>
-          </Link>
+      <section className="mx-auto max-w-[1180px] px-4 pb-10 md:px-8"><Link href="/drop"><Card className="flex flex-col justify-between gap-4 p-6 transition-colors hover:border-[var(--accent)]/30 sm:flex-row sm:items-center"><div><h2 className="text-lg font-semibold">Need private file transfer too?</h2><p className="mt-1 text-sm text-[var(--text-2)]">Erebrus Drop helps you move files directly and securely across trusted devices.</p></div><span className="font-semibold text-[var(--accent-hi)]">Explore Drop →</span></Card></Link></section>
 
-          <Link href="/pricing" className="group">
-            <Card
-              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
-              style={{
-                background:
-                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,107,53,0.11), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
-              }}
-            >
-              <div className="mb-5 flex items-center gap-3.5">
-                <div className="flex h-14 w-14 items-center justify-center rounded-[14px] border border-[var(--accent)]/25 bg-[var(--accent)]/12 text-[var(--accent-hi)]">
-                  <ShieldCheck size={30} strokeWidth={1.8} />
-                </div>
-                <div>
-                  <div className="text-xl font-bold">Erebrus Firewall</div>
-                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · workspace protection</div>
-                </div>
-              </div>
-              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
-                Add firewall and DNS-filtering controls to eligible workspaces and nodes, with rule
-                management for teams that need stronger network protection.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
-                Explore Firewall →
-              </span>
-            </Card>
-          </Link>
+      <section className="mx-auto max-w-[1180px] px-4 py-16 md:px-8"><div className="mb-10 max-w-3xl"><Eyebrow className="mb-4">How it fits together</Eyebrow><h2 className="text-3xl font-bold md:text-[44px]">One secure path from device to intelligence.</h2><p className="mt-4 text-[var(--text-2)]">Connect through a trusted gateway, apply protection, and reach only the internet services, private resources, or AI hosts you approve.</p></div><ProductFlow /></section>
 
-          <Link href="/drop" className="group">
-            <Card
-              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
-              style={{
-                background:
-                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,126,68,0.14), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
-              }}
-            >
-              <div className="mb-5 flex items-center gap-3.5">
-                <Image src="/drop/logo.png" alt="" width={56} height={56} className="rounded-[14px]" />
-                <div>
-                  <div className="text-xl font-bold">Erebrus Drop</div>
-                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · local rooms</div>
-                </div>
-              </div>
-              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
-                Create a local Drop Room, scan the QR code from another device, and transfer
-                directly over Wi-Fi or hotspot. IPFS links are there when you need persistence.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
-                Explore Drop →
-              </span>
-            </Card>
-          </Link>
+      <CardGridSection eyebrow="Deployment flexibility" title="Use the Erebrus network or deploy your own." intro="Start with available Erebrus gateways, use infrastructure dedicated to your organization, or deploy Erebrus in your cloud or on hardware you manage." items={[{title:"Erebrus network",body:"Choose from available gateways operated across the network."},{title:"Dedicated company gateway",body:"Connect a team through infrastructure assigned to the organization."},{title:"Your cloud",body:"Deploy in infrastructure controlled by your organization where supported."},{title:"Your hardware",body:"Run Erebrus from hardware you manage at home, in an office, or at the edge."}]} columns={4} />
 
-          <Link href="/ai" className="group">
-            <Card
-              className="h-full p-8 transition-colors hover:border-[var(--accent)]/30"
-              style={{
-                background:
-                  "radial-gradient(ellipse 90% 70% at 15% 0%, rgba(255,183,77,0.12), transparent 55%), linear-gradient(180deg, #131318, #0C0B0E)",
-              }}
-            >
-              <div className="mb-5 flex items-center gap-3.5">
-                <Image src="/ai/logo.png" alt="" width={56} height={56} className="rounded-[14px]" />
-                <div>
-                  <div className="text-xl font-bold">Erebrus AI</div>
-                  <div className="font-mono text-[11px] text-[var(--success)]">● Live · local models</div>
-                </div>
-              </div>
-              <p className="text-[15px] leading-relaxed text-[var(--text-2)]">
-                Download private GGUF models, create custom personas, and run inference locally or
-                through trusted devices on your own network.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--accent-hi)]">
-                Explore AI →
-              </span>
-            </Card>
-          </Link>
-        </div>
-      </section>
+      <section className="mx-auto max-w-[1180px] px-4 py-10 md:px-8"><div className="mb-8 max-w-3xl"><Eyebrow className="mb-4">The Erebrus network</Eyebrow><h2 className="text-3xl font-bold md:text-[44px]">Powered by an open network of independent operators.</h2><p className="mt-4 text-[var(--text-2)]">Erebrus combines community infrastructure with private and customer-controlled deployments, giving users more choice over how and where they connect.</p></div><LiveNetworkStats /><LandingNetworkPreview /><div className="mt-6 flex gap-5 text-sm font-semibold"><Link href="/dashboard" className="text-[var(--accent-hi)]">Explore the Network →</Link><Link href="/#operators" className="text-[var(--text-2)]">Run a Node →</Link></div></section>
 
-      <section className="mx-auto max-w-[1180px] px-4 py-8 md:px-8">
-        <LiveNetworkStats />
-      </section>
-
-      <section id="features" className="mx-auto max-w-[1180px] px-4 py-20 md:px-8">
-        <div className="mb-14 text-center">
-          <Eyebrow className="mb-4">Why Erebrus</Eyebrow>
-          <h2 className="text-3xl font-bold tracking-tight md:text-[44px]">
-            Privacy that doesn&apos;t ask permission
-          </h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
-            <Card key={f.title} className="p-7">
-              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/10 font-mono text-lg text-[var(--accent)]">
-                {f.glyph}
-              </div>
-              <h3 className="text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--text-2)]">{f.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section id="how" className="mx-auto max-w-[1180px] px-4 py-16 md:px-8">
-        <div className="mb-14 text-center">
-          <Eyebrow className="mb-4">How it works</Eyebrow>
-          <h2 className="text-3xl font-bold tracking-tight md:text-[44px]">
-            Connected in under a minute
-          </h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {steps.map((st) => (
-            <Card
-              key={st.num}
-              className="p-7"
-              style={{ background: "linear-gradient(180deg, #131318, #0D0D11)" }}
-            >
-              <div className="mb-4 font-mono text-[13px] text-[var(--accent)]">{st.num}</div>
-              <h3 className="text-lg font-semibold">{st.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--text-2)]">{st.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section id="operators" className="mx-auto max-w-[1180px] px-4 py-16 md:px-8">
-        <Card
-          className="flex flex-col items-start justify-between gap-8 p-8 md:flex-row md:items-center md:p-14"
-          style={{
-            borderColor: "rgba(255,107,53,0.22)",
-            background:
-              "radial-gradient(ellipse 70% 130% at 80% 0%, rgba(255,107,53,0.14), transparent 60%), linear-gradient(180deg, #131318, #0D0D11)",
-          }}
-        >
-          <div className="max-w-[540px]">
-            <Eyebrow className="mb-4">For operators</Eyebrow>
-            <h2 className="text-2xl font-bold tracking-tight md:text-[38px]">
-              Run a node. Power the network. Earn.
-            </h2>
-            <p className="mt-4 text-[var(--text-2)]">
-              Turn spare bandwidth into a node on the Erebrus network. Enroll a machine, set it
-              public or private, and track uptime and rewards from your operator dashboard.
-            </p>
-          </div>
-          <AuthModalTrigger>
-            <AccentButton className="whitespace-nowrap">Become an operator →</AccentButton>
-          </AuthModalTrigger>
-        </Card>
-      </section>
-
-      <MarketingFooter />
-    </>
-  );
+      <section id="operators" className="mx-auto max-w-[1180px] px-4 py-12 md:px-8"><Card className="p-8 md:p-12"><Eyebrow className="mb-4">For operators</Eyebrow><h2 className="text-3xl font-bold">Run a node. Help power the network.</h2><p className="mt-4 max-w-2xl text-[var(--text-2)]">Enroll compatible infrastructure, choose how it is shared, and monitor it from your Erebrus workspace.</p></Card></section>
+      <FinalCta title="Start with the connection you need today." body="Download Erebrus for personal use, or explore a managed private network for your team." primary={{label:"Get Erebrus",href:"#app"}} secondary={{label:"Explore for Business",href:"/business"}} />
+    </main><MarketingFooter /></>;
 }
