@@ -5,7 +5,6 @@ import { MarketingFooter } from "@/components/v3/marketing/MarketingFooter";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
 import { AccentButton, Eyebrow, Card } from "@/components/v3/ui";
 import { LiveNetworkStats } from "@/components/v3/marketing/LiveNetworkStats";
-import { LiveNetworkBadge } from "@/components/v3/marketing/LiveNetworkBadge";
 import { AppDownloadLinks } from "@/components/v3/marketing/AppDownloadLinks";
 
 const vpnDownloadLinks = {
@@ -53,35 +52,21 @@ export default function VpnMarketingPage() {
 
       <section className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:grid-cols-2 md:px-8 md:py-20">
         <div>
-          <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5">
-            <span className="font-mono text-[11px] text-[var(--success)]">
-              ● LIVE
-            </span>
-            <LiveNetworkBadge />
-          </div>
+          <Eyebrow className="mb-4">Erebrus VPN</Eyebrow>
           <h1 className="text-4xl font-bold leading-none tracking-tight md:text-[64px]">
-            The internet,{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage: "linear-gradient(120deg, #FF7E44, #E0531F)",
-              }}
-            >
-              off the record.
-            </span>
+            Your internet connection, kept private.
           </h1>
           <p className="mt-5 max-w-[540px] text-lg leading-relaxed text-[var(--text-2)]">
-            A no-logs VPN powered by a worldwide community of operators. Modern
-            WireGuard tunnels and wallet sign-in keep your browsing private — so
-            your data stays yours instead of becoming the product.
+            Encrypt your traffic on home, work, and public networks. Choose an Erebrus gateway,
+            connect to your organization, or deploy a private node you control.
           </p>
           <div className="mt-8 flex flex-wrap gap-3.5">
             <AuthModalTrigger>
-              <AccentButton className="!px-6 !py-4">Launch app →</AccentButton>
+              <AccentButton className="!px-6 !py-4">Download Erebrus VPN →</AccentButton>
             </AuthModalTrigger>
-            <Link href="/#operators">
+            <Link href="#how">
               <AccentButton variant="ghost" className="!px-6 !py-4">
-                Run a node
+                See How It Works
               </AccentButton>
             </Link>
           </div>
@@ -91,7 +76,7 @@ export default function VpnMarketingPage() {
             {...vpnDownloadLinks}
           />
           <p className="mt-5 font-mono text-xs text-[var(--text-3)]">
-            Start free · Android on Google Play · iOS beta on TestFlight
+            WireGuard for fast everyday connections, with supported alternative transports for restricted networks.
           </p>
         </div>
 
@@ -132,7 +117,7 @@ export default function VpnMarketingPage() {
         <div className="mb-12 text-center">
           <Eyebrow className="mb-4">Why Erebrus VPN</Eyebrow>
           <h2 className="text-3xl font-bold md:text-[44px]">
-            Private by design. Powered by a global community.
+            Secure access before network architecture.
           </h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -146,6 +131,18 @@ export default function VpnMarketingPage() {
                 {f.desc}
               </p>
             </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1180px] px-4 pb-20 md:px-8">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ["Travelling or working remotely?", "/digital-nomads", "Explore for Digital Nomads"],
+            ["Protecting family devices?", "/families", "Explore for Families"],
+            ["Securing a team?", "/business", "Explore for Business"],
+          ].map(([title, href, label]) => (
+            <Link key={href} href={href}><Card className="h-full p-6 transition-colors hover:border-[var(--accent)]/30"><h2 className="font-semibold">{title}</h2><p className="mt-3 text-sm text-[var(--accent-hi)]">{label} →</p></Card></Link>
           ))}
         </div>
       </section>

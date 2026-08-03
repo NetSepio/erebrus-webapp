@@ -8,14 +8,14 @@ export function LiveNetworkStats({ variant = "bar" }: { variant?: "bar" | "inlin
   if (variant === "inline") {
     return (
       <span className="text-[13px] text-[var(--text-2)]">
-        {loading ? "Loading network…" : `${nodesOnline} nodes live · ${countries || "—"} regions`}
+        {loading ? "Loading network…" : nodesOnline > 0 ? `${nodesOnline} nodes live · ${countries || "—"} regions` : "Network status unavailable"}
       </span>
     );
   }
 
   const stats = [
-    { value: loading ? "…" : String(nodesOnline), label: "Nodes online" },
-    { value: loading ? "…" : String(countries || "—"), label: "Regions" },
+    { value: loading || nodesOnline === 0 ? "—" : String(nodesOnline), label: "Nodes online" },
+    { value: loading || nodesOnline === 0 ? "—" : String(countries || "—"), label: "Regions" },
   ];
 
   return (

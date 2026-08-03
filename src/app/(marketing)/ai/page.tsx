@@ -10,8 +10,8 @@ import { AuthModalTrigger } from "@/components/v3/AuthModal";
 const features = [
   {
     glyph: "◎",
-    title: "Local-first inference",
-    desc: "Download quantized GGUF models and run them on your own hardware — your prompts never leave the device.",
+    title: "Models on trusted hardware",
+    desc: "Download supported models and run them on your own hardware so prompt processing follows the deployment you choose.",
   },
   {
     glyph: "◇",
@@ -49,33 +49,24 @@ export default function AiMarketingPage() {
         <div>
           <Eyebrow className="mb-4">Erebrus AI</Eyebrow>
           <h1 className="text-4xl font-bold leading-none tracking-tight md:text-[64px]">
-            Intelligence{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage: "linear-gradient(120deg, #FF7E44, #E0531F)",
-              }}
-            >
-              on your terms.
-            </span>
+            Use AI without sending every task to a public service.
           </h1>
           <p className="mt-5 max-w-[540px] text-lg leading-relaxed text-[var(--text-2)]">
-            Run AI models locally and chat with them from any device on your
-            network. Download quantized models, create custom personas, and turn
-            your desktop into a private AI node.
+            Run supported models on your own computer, server, or private Erebrus node, then make
+            them available to approved devices on your trusted network.
           </p>
           <div className="mt-8 flex flex-wrap gap-3.5">
             <AuthModalTrigger>
-              <AccentButton className="!px-6 !py-4">Launch app →</AccentButton>
+              <AccentButton className="!px-6 !py-4">Explore Local Models →</AccentButton>
             </AuthModalTrigger>
-            <Link href="/vpn">
+            <Link href="/business#private-ai">
               <AccentButton variant="ghost" className="!px-6 !py-4">
-                Explore VPN
+                Explore AI for Business
               </AccentButton>
             </Link>
           </div>
           <p className="mt-5 font-mono text-xs text-[var(--text-3)]">
-            Private by default · nothing leaves your device
+            Your deployment determines where prompts are processed, what is logged, and which devices can connect.
           </p>
         </div>
 
@@ -125,7 +116,7 @@ export default function AiMarketingPage() {
         <div className="mb-12 text-center">
           <Eyebrow className="mb-4">Why Erebrus AI</Eyebrow>
           <h2 className="text-3xl font-bold md:text-[44px]">
-            Your models. Your hardware. Your network.
+            Choose where models run and who can reach them.
           </h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -157,6 +148,18 @@ export default function AiMarketingPage() {
             <AccentButton variant="ghost">Android</AccentButton>
             <AccentButton variant="ghost">iOS</AccentButton>
           </div>
+        </Card>
+      </section>
+
+      <section className="mx-auto max-w-[1180px] px-4 pb-20 md:px-8">
+        <Card className="p-7">
+          <h2 className="text-xl font-semibold">Plan the model and hardware together.</h2>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--text-2)]">
+            Model licenses and hardware requirements vary. Smaller or heavily quantized models can
+            trade quality for speed and memory efficiency. Local hosting does not automatically make
+            a workflow compliant, accurate, or free from logging; those outcomes depend on the model,
+            configuration, and operating practices.
+          </p>
         </Card>
       </section>
 

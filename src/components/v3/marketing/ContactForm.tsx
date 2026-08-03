@@ -33,14 +33,29 @@ const CATEGORIES = [
   { value: "account-deletion", label: "Account deletion" },
   { value: "feedback", label: "Feedback" },
   { value: "enterprise", label: "Enterprise / Sovereign Infrastructure" },
+  { value: "business-pilot", label: "Business pilot" },
+  { value: "business-demo", label: "Business demo" },
+  { value: "deployment", label: "Deployment discussion" },
 ] as const;
 
 type CategoryValue = (typeof CATEGORIES)[number]["value"];
 
 function getInitialCategory(searchParams: URLSearchParams | null): CategoryValue | "" {
-  const raw = searchParams?.get("category")?.toLowerCase();
+  const raw = (searchParams?.get("intent") ?? searchParams?.get("category"))?.toLowerCase();
   const match = CATEGORIES.find((c) => c.value === raw);
   return match ? match.value : "";
+}
+
+function getInitialDescription(searchParams: URLSearchParams | null): string {
+  const intent = searchParams?.get("intent")?.toLowerCase();
+  const plan = searchParams?.get("plan")?.toLowerCase();
+  const subjects: Record<string, string> = {
+    "business-pilot": "Business pilot request",
+    "business-demo": "Business demo request",
+    deployment: "Erebrus deployment discussion",
+  };
+  if (!intent || !subjects[intent]) return "";
+  return `${subjects[intent]}${plan ? ` — ${plan} plan` : ""}\n\n`;
 }
 
 export function ContactForm() {
@@ -51,7 +66,7 @@ export function ContactForm() {
     phone: "",
     walletAddress: "",
     category: getInitialCategory(searchParams),
-    description: "",
+    description: getInitialDescription(searchParams),
   });
   const [showPopup, setShowPopup] = useState(false);
 
@@ -143,7 +158,9 @@ export function ContactForm() {
             required
           >
             <SelectTrigger id="category" className={selectTriggerClass}>
-              <SelectValue placeholder="Select a category" />
+              <SelectValue placeholder="Select a category">
+                {CATEGORIES.find((category) => category.value === formData.category)?.label}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent className={selectContentClass}>
               {CATEGORIES.map((cat) => (
@@ -172,6 +189,11 @@ export function ContactForm() {
             rows={5}
             className={inputClass}
           />
+          {(formData.category === "business-pilot" || formData.category === "business-demo" || formData.category === "deployment") && (
+            <p className="mt-2 text-xs leading-relaxed text-[var(--text-3)]">
+              Tell us your team size, locations, current remote-access setup, and whether private AI is part of the initial requirement. These details are optional.
+            </p>
+          )}
         </div>
 
         <AccentButton type="submit" className="w-full !py-3.5 !text-base">
