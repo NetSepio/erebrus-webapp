@@ -97,27 +97,6 @@ function BillingToggle({
   );
 }
 
-const BUSINESS_PLAN_PRESENTATION = {
-  pro: {
-    name: "Launch",
-    subtitle: "Team Access",
-    tagline: "Launch a secure company network.",
-    description: "Give a growing team private VPN access, a dedicated gateway, Shield protection, and shared company services.",
-    badge: "For growing teams",
-    seatsLabel: "Launch seats",
-    bestFor: ["Remote teams", "Contractors", "Company resources", "Private AI pilots"],
-  },
-  business: {
-    name: "Scale",
-    subtitle: "Protected Workspace",
-    tagline: "Scale access, protection, and private AI.",
-    description: "Add more dedicated gateways, Sentinel protection, company controls, audit visibility, and priority support.",
-    badge: "For scaling companies",
-    seatsLabel: "Scale seats",
-    bestFor: ["Growing companies", "Multiple locations", "Security policies", "Private AI workspace"],
-  },
-} as const;
-
 function PlanCard({
   plan,
   period,
@@ -128,23 +107,12 @@ function PlanCard({
   businessView: boolean;
 }) {
   const price = getDisplayPrice(plan, period);
-  const businessPresentation = businessView && (plan.id === "pro" || plan.id === "business")
-    ? BUSINESS_PLAN_PRESENTATION[plan.id]
-    : null;
-  const inheritsLabel = businessPresentation
-    ? plan.id === "business" ? "Everything in Launch, plus:" : null
-    : getInheritsLabel(plan);
-  const displayName = businessPresentation?.name ?? plan.name;
-  const displaySubtitle = businessPresentation?.subtitle ?? plan.subtitle;
-  const displayTagline = businessPresentation?.tagline ?? plan.tagline;
-  const displayDescription = businessPresentation?.description ?? plan.description;
-  const displayBadge = businessPresentation?.badge ?? plan.edgeBadge;
-  const displayBestFor = businessPresentation?.bestFor ?? plan.bestFor;
+  const inheritsLabel = getInheritsLabel(plan);
 
   const isPilotCta = businessView && !plan.ctaEnabled;
   const ctaButton = (
     <AccentButton className="!flex !w-full !py-3.5" disabled={!plan.ctaEnabled && !isPilotCta}>
-      {isPilotCta ? `Start ${displayName} Pilot` : plan.ctaEnabled ? plan.cta : "Coming soon"}
+      {isPilotCta ? plan.cta : plan.ctaEnabled ? plan.cta : "Coming soon"}
     </AccentButton>
   );
 
@@ -172,22 +140,22 @@ function PlanCard({
             : "border-white/[0.12] text-[var(--text-2)]",
         )}
       >
-        {displayBadge}
+        {plan.edgeBadge}
       </div>
 
       <div>
-        <h3 className="text-2xl font-bold tracking-tight">{displayName}</h3>
+        <h3 className="text-2xl font-bold tracking-tight">{plan.name}</h3>
         <p className="font-mono text-[11px] tracking-wide text-[var(--accent-hi)] uppercase">
-          {displaySubtitle}
+          {plan.subtitle}
         </p>
       </div>
 
       <div className="min-h-[5.5rem]">
         <p className="text-base font-medium leading-snug text-[var(--text)]">
-          {displayTagline}
+          {plan.tagline}
         </p>
         <p className="mt-2 text-sm leading-relaxed text-[var(--text-2)]">
-          {displayDescription}
+          {plan.description}
         </p>
       </div>
 
@@ -219,7 +187,7 @@ function PlanCard({
                 Seats included
               </div>
               <div className="text-sm font-semibold tracking-tight text-[var(--text)]">
-                {businessPresentation?.seatsLabel ?? plan.seatsIncluded.label}
+                {plan.seatsIncluded.label}
               </div>
             </div>
           </div>
@@ -257,7 +225,7 @@ function PlanCard({
       <div className="flex w-full flex-col pt-5">
         <MonoLabel className="mb-2 block">Best for</MonoLabel>
         <div className="mb-4 grid grid-cols-2 gap-1.5">
-          {displayBestFor.map((item) => (
+          {plan.bestFor.map((item) => (
             <span
               key={item}
               className="flex min-h-[2.75rem] items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-2 text-center text-[11px] leading-tight text-[var(--text-2)]"
@@ -296,19 +264,8 @@ export function PricingPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const audience = searchParams.get("audience") === "business" ? "business" : "personal";
-  const visiblePlans = audience === "business"
-    ? PRICING_PLANS.filter((plan) => plan.id === "pro" || plan.id === "business")
-    : PRICING_PLANS.filter((plan) => plan.id !== "business");
-  const comparisonRows = audience === "business"
-    ? [
-        { ...COMPARISON_ROWS.find((row) => row.plan === "Pro")!, plan: "Launch", planId: "pro" as const, subtitle: "Team Access", bestFor: "Growing and remote teams", keyIncludes: "5 seats, 1 dedicated VPN node, Shield protection" },
-        { ...COMPARISON_ROWS.find((row) => row.plan === "Business")!, plan: "Scale", planId: "business" as const, subtitle: "Protected Workspace", bestFor: "Scaling companies", keyIncludes: "25 seats, 3 dedicated VPN nodes, Sentinel protection" },
-        { ...COMPARISON_ROWS.find((row) => row.plan === "Enterprise")!, planId: "enterprise" as const },
-      ]
-    : COMPARISON_ROWS.filter((row) => row.plan !== "Business" && row.plan !== "Enterprise").map((row) => ({
-        ...row,
-        planId: row.plan.toLowerCase() as "basic" | "starter" | "pro",
-      }));
+  const visiblePlans = PRICING_PLANS.filter((plan) => plan.id.startsWith(`${audience}.`));
+  const comparisonRows = COMPARISON_ROWS.filter((row) => row.planId.startsWith(`${audience}.`));
 
   const setAudience = (value: "personal" | "business") => {
     const params = new URLSearchParams(searchParams.toString());
@@ -401,7 +358,7 @@ export function PricingPageContent() {
                   Tailored to your deployment
                 </div>
               </div>
-              <Link href="/contact?intent=deployment&plan=enterprise" className="w-full">
+              <Link href="/contact?intent=deployment&plan=business.enterprise" className="w-full">
                 <AccentButton className="!flex !w-full !py-3">
                   {ENTERPRISE_PLAN.cta}
                 </AccentButton>
@@ -454,7 +411,7 @@ export function PricingPageContent() {
             <tbody>
               {comparisonRows.map((row) => {
                 const planId = row.planId;
-                const isEnterprise = planId === "enterprise";
+                const isEnterprise = planId === "business.enterprise";
 
                 return (
                   <tr key={row.plan} className="border-b border-white/[0.05]">

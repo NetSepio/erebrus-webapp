@@ -3,7 +3,7 @@ import type { GatewayOrg } from "@/lib/gateway/types";
 /**
  * Effective product tier. Organization membership is the sole source of a
  * user's tier — there is no personal trial/subscription/NFT entitlement. Every
- * account is expected to have a personal `basic` organization from bootstrap,
+ * account is expected to have a `personal.basic` organization from bootstrap,
  * so an authenticated user without any paid seat still resolves to `free`.
  */
 export type EffectiveTier = "free" | "starter" | "pro" | "business" | "enterprise";
@@ -30,7 +30,16 @@ export const TIER_LABELS: Record<EffectiveTier, string> = {
 export function normalizeTier(value?: string | null): EffectiveTier {
   const v = (value ?? "").toLowerCase().trim();
   if ((TIER_ORDER as string[]).includes(v)) return v as EffectiveTier;
-  // `basic`, `free`, empty, and anything unknown collapse to the free tier.
+  const planTiers: Record<string, EffectiveTier> = {
+    "personal.basic": "free",
+    "personal.starter": "starter",
+    "personal.pro": "pro",
+    "business.launch": "pro",
+    "business.scale": "business",
+    "business.enterprise": "enterprise",
+  };
+  if (planTiers[v]) return planTiers[v];
+  // Empty and anything unknown collapse to the free tier.
   return "free";
 }
 

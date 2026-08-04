@@ -1,8 +1,13 @@
 export type BillingPeriod = "annual" | "monthly";
 
-export type PlanId = "basic" | "starter" | "pro" | "business";
+export type PlanId =
+  | "personal.basic"
+  | "personal.starter"
+  | "personal.pro"
+  | "business.launch"
+  | "business.scale";
 
-export type InheritsFrom = "basic" | "starter" | "pro";
+export type InheritsFrom = "personal.basic" | "personal.starter" | "business.launch";
 
 export interface TechnicalNote {
   title: string;
@@ -41,6 +46,7 @@ export interface PricingPlan {
 }
 
 export interface EnterprisePlan {
+  id: "business.enterprise";
   name: string;
   subtitle: string;
   tagline: string;
@@ -51,7 +57,7 @@ export interface EnterprisePlan {
 
 export const PRICING_PLANS: PricingPlan[] = [
   {
-    id: "basic",
+    id: "personal.basic",
     name: "Basic",
     subtitle: "Private Access",
     tagline: "Start your private network for free.",
@@ -79,7 +85,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     edgeBadge: "Free forever",
   },
   {
-    id: "starter",
+    id: "personal.starter",
     name: "Starter",
     subtitle: "Builder Access",
     tagline: "Premium access for individuals and builders.",
@@ -90,7 +96,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       annualEffectiveMonthly: 3.99,
       annualTotal: 47.88,
     },
-    inheritsFrom: "basic",
+    inheritsFrom: "personal.basic",
     seatsIncluded: { count: 1, label: "Starter seat" },
     includes: [
       "Faster public VPN nodes",
@@ -113,7 +119,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     edgeBadge: "For builders",
   },
   {
-    id: "pro",
+    id: "personal.pro",
     name: "Pro",
     subtitle: "Team Network",
     tagline: "Dedicated private infrastructure for teams.",
@@ -124,7 +130,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       annualEffectiveMonthly: 19.99,
       annualTotal: 239.88,
     },
-    inheritsFrom: "starter",
+    inheritsFrom: "personal.starter",
     seatsIncluded: { count: 5, label: "Pro seats" },
     includes: [
       "1 managed dedicated VPN node",
@@ -155,10 +161,46 @@ export const PRICING_PLANS: PricingPlan[] = [
     highlighted: true,
   },
   {
-    id: "business",
-    name: "Business",
-    subtitle: "Security Cloud",
-    tagline: "Secure private networking for organizations.",
+    id: "business.launch",
+    name: "Launch",
+    subtitle: "Team Access",
+    tagline: "Launch a secure company network.",
+    description:
+      "Give a growing team private VPN access, a dedicated gateway, Shield protection, and shared company services.",
+    pricing: {
+      monthly: 24.99,
+      annualEffectiveMonthly: 19.99,
+      annualTotal: 239.88,
+    },
+    seatsIncluded: { count: 5, label: "Launch seats" },
+    includes: [
+      "1 managed dedicated VPN node",
+      "Erebrus Shield",
+      "DNS allow/block list controls",
+      "Private org VPN access",
+      "Shared Drop on org nodes",
+      "Shared AI on org nodes",
+      "Org API keys",
+      "BYOC public/private nodes",
+      "Service visibility controls",
+      "Basic usage dashboard",
+    ],
+    additionalSeats: {
+      label: "Additional Launch seats",
+      monthly: 4.99,
+      annualEffectiveMonthly: 3.99,
+    },
+    bestFor: ["Remote teams", "Contractors", "Company resources", "Private AI pilots"],
+    cta: "Start Launch Pilot",
+    ctaEnabled: false,
+    edgeBadge: "For growing teams",
+    highlighted: true,
+  },
+  {
+    id: "business.scale",
+    name: "Scale",
+    subtitle: "Protected Workspace",
+    tagline: "Scale access, protection, and private AI.",
     description:
       "Get dedicated VPN infrastructure, Erebrus Sentinel licensing, network-layer monitoring, audit logs, and priority support.",
     pricing: {
@@ -166,8 +208,8 @@ export const PRICING_PLANS: PricingPlan[] = [
       annualEffectiveMonthly: 79.99,
       annualTotal: 959.88,
     },
-    inheritsFrom: "pro",
-    seatsIncluded: { count: 25, label: "Business seats" },
+    inheritsFrom: "business.launch",
+    seatsIncluded: { count: 25, label: "Scale seats" },
     includes: [
       "3 managed dedicated VPN nodes",
       "Erebrus Sentinel license",
@@ -184,14 +226,14 @@ export const PRICING_PLANS: PricingPlan[] = [
       "BYOC + managed nodes",
     ],
     additionalSeats: {
-      label: "Additional Business seats",
+      label: "Additional Scale seats",
       monthly: 9.99,
       annualEffectiveMonthly: 7.99,
     },
     bestFor: ["Startups", "Agencies", "Remote companies", "Security teams"],
-    cta: "Secure Your Business",
+    cta: "Start Scale Pilot",
     ctaEnabled: false,
-    edgeBadge: "For organizations",
+    edgeBadge: "For scaling companies",
   },
 ];
 
@@ -207,6 +249,7 @@ export const COMMUNITY_EDITION_FOOTNOTE =
   "Erebrus Shield may use supported open-source DNS/firewall components such as AdGuard Home, Pi-hole, or compatible alternatives depending on deployment requirements.";
 
 export const ENTERPRISE_PLAN: EnterprisePlan = {
+  id: "business.enterprise",
   name: "Enterprise",
   subtitle: "Sovereign Infrastructure",
   tagline: "Custom private internet infrastructure.",
@@ -227,9 +270,9 @@ export const ENTERPRISE_PLAN: EnterprisePlan = {
 };
 
 const INHERIT_LABELS: Record<InheritsFrom, string> = {
-  basic: "Basic",
-  starter: "Starter",
-  pro: "Pro",
+  "personal.basic": "Basic",
+  "personal.starter": "Starter",
+  "business.launch": "Launch",
 };
 
 export function getInheritsLabel(plan: PricingPlan): string | null {
@@ -270,6 +313,7 @@ export function getAdditionalSeatPrice(
 }
 
 export interface ComparisonRow {
+  planId: PlanId | "business.enterprise";
   plan: string;
   subtitle: string;
   bestFor: string;
@@ -278,6 +322,7 @@ export interface ComparisonRow {
 
 export const COMPARISON_ROWS: ComparisonRow[] = [
   {
+    planId: "personal.basic",
     plan: "Basic",
     subtitle: "Private Access",
     bestFor: "Free users and self-hosters",
@@ -285,24 +330,35 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
       "Free public nodes, self-host private nodes, private key management",
   },
   {
+    planId: "personal.starter",
     plan: "Starter",
     subtitle: "Builder Access",
     bestFor: "Individuals and builders",
     keyIncludes: "Faster public nodes, Gateway API key, Drop/AI access",
   },
   {
+    planId: "personal.pro",
     plan: "Pro",
     subtitle: "Team Network",
     bestFor: "Teams and families",
     keyIncludes: "5 seats, 1 dedicated VPN node, Community Edition Firewall",
   },
   {
-    plan: "Business",
-    subtitle: "Security Cloud",
-    bestFor: "Companies and secure teams",
-    keyIncludes: "25 seats, 3 dedicated VPN nodes, Erebrus Firewall license",
+    planId: "business.launch",
+    plan: "Launch",
+    subtitle: "Team Access",
+    bestFor: "Growing and remote teams",
+    keyIncludes: "5 seats, 1 dedicated VPN node, Shield protection",
   },
   {
+    planId: "business.scale",
+    plan: "Scale",
+    subtitle: "Protected Workspace",
+    bestFor: "Scaling companies",
+    keyIncludes: "25 seats, 3 dedicated VPN nodes, Sentinel protection",
+  },
+  {
+    planId: "business.enterprise",
     plan: "Enterprise",
     subtitle: "Sovereign Infrastructure",
     bestFor: "Custom deployments",
@@ -311,10 +367,10 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
 ];
 
 export function getComparisonPrice(
-  planId: PlanId | "enterprise",
+  planId: PlanId | "business.enterprise",
   period: BillingPeriod,
 ): string {
-  if (planId === "enterprise") return "Custom";
+  if (planId === "business.enterprise") return "Custom";
 
   const plan = PRICING_PLANS.find((p) => p.id === planId)!;
   if (plan.pricing.monthly === null) return "Free";

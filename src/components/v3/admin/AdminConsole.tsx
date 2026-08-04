@@ -44,10 +44,11 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { truncateAddress } from "@/lib/design";
 import { regionZoneLabel } from "@/lib/regions";
+import { ORG_PLAN_IDS, orgPlanLabel } from "@/lib/org-plans";
 
 // Org plans the platform admin can assign manually (self-serve upgrades land
 // with payments later). Mirrors the gateway's normalizeOrgPlan whitelist.
-const ORG_PLANS = ["basic", "starter", "pro", "business", "enterprise"] as const;
+const ORG_PLANS = ORG_PLAN_IDS;
 
 function formatBytes(n: number): string {
   if (!n || n < 1) return "0 B";
@@ -468,14 +469,14 @@ export function AdminConsole() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <select
-                  value={selectedOrg.plan ?? "basic"}
+                  value={selectedOrg.plan ?? "personal.basic"}
                   onChange={(e) => assignOrgPlan(selectedOrg.id!, e.target.value)}
                   className="rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1.5 text-xs capitalize text-[var(--text)]"
                   aria-label={`Plan for ${selectedOrg.name}`}
                 >
                   {ORG_PLANS.map((p) => (
-                    <option key={p} value={p} className="capitalize">
-                      {p}
+                    <option key={p} value={p}>
+                      {orgPlanLabel(p)}
                     </option>
                   ))}
                 </select>
@@ -510,7 +511,7 @@ export function AdminConsole() {
                 <div className="min-w-0">
                   <div className="font-semibold">{o.name}</div>
                   <div className="text-xs text-[var(--text-3)]">
-                    <span className="uppercase text-[var(--accent-hi)]">{o.plan ?? o.kind}</span>
+                    <span className="text-[var(--accent-hi)]">{o.plan ? orgPlanLabel(o.plan) : o.kind}</span>
                     {o.slug ? ` · ${o.slug}` : ""}
                     {o.id ? (
                       <span className="ml-1 font-mono text-[10px]">· {o.id.slice(0, 8)}…</span>
@@ -520,14 +521,14 @@ export function AdminConsole() {
                 {o.id ? (
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <select
-                      value={o.plan ?? "basic"}
+                      value={o.plan ?? "personal.basic"}
                       onChange={(e) => assignOrgPlan(o.id!, e.target.value)}
                       className="rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1 text-xs capitalize text-[var(--text)]"
                       aria-label={`Plan for ${o.name}`}
                     >
                       {ORG_PLANS.map((p) => (
-                        <option key={p} value={p} className="capitalize">
-                          {p}
+                        <option key={p} value={p}>
+                          {orgPlanLabel(p)}
                         </option>
                       ))}
                     </select>

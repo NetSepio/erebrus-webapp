@@ -137,10 +137,11 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   // Seats: a paid plan's tier is also the seat tier to assign. Seats used = the
   // owner + members holding a non-free seat (== VPN-entitled members).
   const PLAN_SEAT_TIER: Record<string, string> = {
-    starter: "starter",
-    pro: "pro",
-    business: "business",
-    enterprise: "enterprise",
+    "personal.starter": "starter",
+    "personal.pro": "pro",
+    "business.launch": "pro",
+    "business.scale": "business",
+    "business.enterprise": "enterprise",
   };
   const planSeatTier = org?.plan ? PLAN_SEAT_TIER[org.plan] : undefined;
   const seatsUsed = countSeatsUsed(members);
@@ -248,13 +249,14 @@ export function OrgDetailPanel({ orgId }: { orgId: string }) {
   };
 
   const canUseSentinelProfile =
-    org?.plan === "business" ||
-    org?.plan === "enterprise" ||
+    org?.plan === "business.scale" ||
+    org?.plan === "business.enterprise" ||
     (entitlements?.sentinel_licenses_included ?? 0) > 0;
   const canUseShieldProfile =
     canUseSentinelProfile ||
-    org?.plan === "pro" ||
-    org?.plan === "starter" ||
+    org?.plan === "personal.pro" ||
+    org?.plan === "personal.starter" ||
+    org?.plan === "business.launch" ||
     (entitlements?.shield_instances_included ?? 0) > 0;
 
   const registrationEnvLine = regToken
