@@ -15,11 +15,10 @@ import type {
   GatewayDeletionRequest,
 } from "@/lib/gateway/types";
 import { truncateAddress } from "@/lib/design";
+import { ORG_PLAN_IDS, orgPlanLabel } from "@/lib/org-plans";
 import { Card, AccentButton, ActionButton, MonoLabel } from "@/components/v3/ui";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { toast } from "sonner";
-
-const USER_PLANS = ["basic", "starter", "pro", "business", "enterprise"] as const;
 
 export interface AdminUserProfileProps {
   userId: string | null;
@@ -47,7 +46,7 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
     try {
       const [u, o] = await Promise.all([fetchAdminUser(userId), fetchAdminUserOrgs(userId)]);
       setUser(u);
-      setPlanId(u.plan ?? "basic");
+      setPlanId(u.plan ?? "personal.basic");
       setOrgs(o);
     } catch (e) {
       toast.error(e instanceof GatewayApiError ? e.message : "Failed to load user");
@@ -164,17 +163,17 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
                   onChange={(e) => setPlanId(e.target.value)}
                   className="flex-1 rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1.5 text-xs capitalize text-[var(--text)]"
                 >
-                  {USER_PLANS.map((p) => (
-                    <option key={p} value={p} className="capitalize">
-                      {p}
+                  {ORG_PLAN_IDS.map((p) => (
+                    <option key={p} value={p}>
+                      {orgPlanLabel(p)}
                     </option>
                   ))}
                 </select>
-                <ActionButton onClick={savePlan} disabled={savingPlan || planId === (user.plan ?? "basic")}>
+                <ActionButton onClick={savePlan} disabled={savingPlan || planId === (user.plan ?? "personal.basic")}>
                   {savingPlan ? "Saving…" : "Save"}
                 </ActionButton>
               </div>
-              <p className="text-xs text-[var(--text-3)]">Current plan: {user.plan || "—"}</p>
+              <p className="text-xs text-[var(--text-3)]">Current plan: {user.plan ? orgPlanLabel(user.plan) : "—"}</p>
             </Card>
 
             <Card className="space-y-3 p-5">
@@ -191,7 +190,7 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
                       <div className="min-w-0">
                         <div className="truncate text-sm font-medium">{o.name}</div>
                         <div className="text-xs text-[var(--text-3)]">
-                          {o.plan || o.kind} · {o.verified ? "verified" : "unverified"}
+                          {o.plan ? orgPlanLabel(o.plan) : o.kind} · {o.verified ? "verified" : "unverified"}
                         </div>
                       </div>
                       {o.id && (

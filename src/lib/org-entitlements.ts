@@ -3,13 +3,13 @@ import type { GatewayOrgEntitlements } from "@/lib/gateway/types";
 /** Plan tiers that can include Erebrus Shield (AdGuard DNS filtering). */
 export function planIncludesShield(plan?: string | null): boolean {
   const p = (plan ?? "").toLowerCase();
-  return p === "starter" || p === "pro" || p === "business" || p === "enterprise";
+  return p === "personal.starter" || p === "personal.pro" || p === "business.launch" || p === "business.scale" || p === "business.enterprise";
 }
 
 /** Plan tiers that can include Erebrus Sentinel (network-layer firewall). */
 export function planIncludesSentinel(plan?: string | null): boolean {
   const p = (plan ?? "").toLowerCase();
-  return p === "business" || p === "enterprise";
+  return p === "business.scale" || p === "business.enterprise";
 }
 
 export type OrgEntitlementBadge = {

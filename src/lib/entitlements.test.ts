@@ -18,8 +18,8 @@ function org(partial: Partial<GatewayOrg>): GatewayOrg {
 }
 
 describe("normalizeTier", () => {
-  it("maps basic/free/unknown/empty to free", () => {
-    expect(normalizeTier("basic")).toBe("free");
+  it("maps personal Basic/free/unknown/empty to free", () => {
+    expect(normalizeTier("personal.basic")).toBe("free");
     expect(normalizeTier("free")).toBe("free");
     expect(normalizeTier("")).toBe("free");
     expect(normalizeTier(null)).toBe("free");
@@ -32,11 +32,19 @@ describe("normalizeTier", () => {
     expect(normalizeTier("business")).toBe("business");
     expect(normalizeTier("enterprise")).toBe("enterprise");
   });
+
+  it("maps family-qualified plan IDs to capability tiers", () => {
+    expect(normalizeTier("personal.starter")).toBe("starter");
+    expect(normalizeTier("personal.pro")).toBe("pro");
+    expect(normalizeTier("business.launch")).toBe("pro");
+    expect(normalizeTier("business.scale")).toBe("business");
+    expect(normalizeTier("business.enterprise")).toBe("enterprise");
+  });
 });
 
 describe("resolveEffectiveEntitlement", () => {
   it("resolves free for a user with only a personal basic org", () => {
-    const result = resolveEffectiveEntitlement([org({ plan: "basic" })]);
+    const result = resolveEffectiveEntitlement([org({ plan: "personal.basic" })]);
     expect(result.tier).toBe("free");
     expect(result.isMember).toBe(true);
     expect(result.hasPaidSeat).toBe(false);
@@ -52,9 +60,9 @@ describe("resolveEffectiveEntitlement", () => {
 
   it("uses the highest active paid seat tier across orgs", () => {
     const result = resolveEffectiveEntitlement([
-      org({ id: "a", plan: "basic" }),
-      org({ id: "b", plan: "pro", seat_tier: "pro", has_paid_seat: true }),
-      org({ id: "c", plan: "starter", seat_tier: "starter", has_paid_seat: true }),
+      org({ id: "a", plan: "personal.basic" }),
+      org({ id: "b", plan: "personal.pro", seat_tier: "pro", has_paid_seat: true }),
+      org({ id: "c", plan: "personal.starter", seat_tier: "starter", has_paid_seat: true }),
     ]);
     expect(result.tier).toBe("pro");
     expect(result.org?.id).toBe("b");
@@ -63,7 +71,7 @@ describe("resolveEffectiveEntitlement", () => {
 
   it("treats an unpaid seat in a paid-plan org as free for that member", () => {
     const result = resolveEffectiveEntitlement([
-      org({ id: "a", plan: "business", seat_tier: "free", has_paid_seat: false, role: "member" }),
+      org({ id: "a", plan: "business.scale", seat_tier: "free", has_paid_seat: false, role: "member" }),
     ]);
     expect(result.tier).toBe("free");
     expect(result.hasPaidSeat).toBe(false);
@@ -71,11 +79,11 @@ describe("resolveEffectiveEntitlement", () => {
 
   it("treats owners and node operators as holding a paid seat", () => {
     expect(
-      resolveEffectiveEntitlement([org({ plan: "starter", seat_tier: "free", role: "owner" })]).tier
+      resolveEffectiveEntitlement([org({ plan: "personal.starter", seat_tier: "free", role: "owner" })]).tier
     ).toBe("starter");
     expect(
       resolveEffectiveEntitlement([
-        org({ plan: "pro", seat_tier: "free", role: "node_operator" }),
+        org({ plan: "business.launch", seat_tier: "free", role: "node_operator" }),
       ]).tier
     ).toBe("pro");
   });
