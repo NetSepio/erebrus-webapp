@@ -10,10 +10,10 @@ export function MarketingButtonLink({ href, children, variant = "primary", class
   return <Link href={href}><AccentButton variant={variant} className={className}>{children}</AccentButton></Link>;
 }
 
-export function SolutionHero({ eyebrow, title, body, primary, secondary, note, visual }: { eyebrow: string; title: string; body: string; primary: { label: string; href: string }; secondary: { label: string; href: string }; note?: string; visual?: ReactNode }) {
-  return <section className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:grid-cols-2 md:px-8 md:py-20">
+export function SolutionHero({ eyebrow, title, body, primary, secondary, note, visual, compactVisual = false }: { eyebrow: string; title: string; body: string; primary: { label: string; href: string }; secondary: { label: string; href: string }; note?: string; visual?: ReactNode; compactVisual?: boolean }) {
+  return <section className={cn("mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:px-8 md:py-20", compactVisual ? "lg:grid-cols-[minmax(0,3fr)_minmax(300px,2fr)] lg:gap-16" : "md:grid-cols-2")}>
     <div><Eyebrow className="mb-4">{eyebrow}</Eyebrow><h1 className="text-4xl font-bold leading-[1.02] tracking-[-0.04em] md:text-[64px]">{title}</h1><p className="mt-6 max-w-[600px] text-lg leading-relaxed text-[var(--text-2)]">{body}</p><div className="mt-8 flex flex-wrap gap-3"><MarketingButtonLink href={primary.href} className="!px-6 !py-4">{primary.label}<ArrowRight size={17} /></MarketingButtonLink><MarketingButtonLink href={secondary.href} variant="ghost" className="!px-6 !py-4">{secondary.label}</MarketingButtonLink></div>{note && <p className="mt-5 text-sm leading-relaxed text-[var(--text-3)]">{note}</p>}</div>
-    {visual ?? <VisualPlaceholder label={eyebrow} />}
+    {compactVisual ? <div className="w-full max-w-[420px] justify-self-center lg:justify-self-end">{visual ?? <VisualPlaceholder label={eyebrow} />}</div> : visual ?? <VisualPlaceholder label={eyebrow} />}
   </section>;
 }
 

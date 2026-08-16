@@ -50,7 +50,7 @@ export default function VpnMarketingPage() {
     <>
       <MarketingNav variant="vpn" />
 
-      <section className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:grid-cols-2 md:px-8 md:py-20">
+      <section className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 py-16 md:px-8 md:py-20 lg:grid-cols-[minmax(0,3fr)_minmax(300px,2fr)] lg:gap-16">
         <div>
           <Eyebrow className="mb-4">Erebrus VPN</Eyebrow>
           <h1 className="text-4xl font-bold leading-none tracking-tight md:text-[64px]">
@@ -81,7 +81,7 @@ export default function VpnMarketingPage() {
         </div>
 
         <Card
-          className="flex aspect-square flex-col items-center justify-center gap-5 p-8"
+          className="flex aspect-square w-full max-w-[420px] flex-col items-center justify-center gap-5 justify-self-center p-8 lg:justify-self-end"
           style={{
             background:
               "radial-gradient(ellipse 60% 60% at 50% 40%, rgba(255,107,53,0.1), transparent 70%), linear-gradient(180deg, #121216, #0B0B0E)",
