@@ -1,7 +1,7 @@
 {
   "schema_version": "1.2.0",
-  "catalog_version": "2026.07.28",
-  "generated_at": "2026-07-28T13:41:34.363Z",
+  "catalog_version": "2026.08.16",
+  "generated_at": "2026-08-16T07:07:56.000Z",
   "publisher": {
     "name": "Erebrus AI",
     "organization": "NetSepio",
@@ -9,7 +9,7 @@
     "description": "Curated local AI models for private inference on phones, laptops, desktops and nearby Erebrus workspaces."
   },
   "catalog_policy": {
-    "model_count": 29,
+    "model_count": 31,
     "primary_format": "GGUF and MLX",
     "primary_backend": "device-selected",
     "default_quantization_policy": "Prefer Q4_K_M for balanced quality unless a model has a native or specialized quantization.",
@@ -566,6 +566,846 @@
         }
       ],
       "preferred_variant_id": "smollm2-360m-instruct-gguf-q8-0"
+    },
+    {
+      "id": "gemma-4-e2b-it",
+      "slug": "gemma-4-e2b-it",
+      "name": "Gemma 4 E2B IT",
+      "family": "Gemma 4",
+      "variant": "Instruct",
+      "publisher": "Google / GGML / MLX Community",
+      "description": "Gemma 4 E2B IT is Google's current multimodal, reasoning-capable on-device model with text, image and audio support upstream.",
+      "tags": [
+        "gemma-4",
+        "reasoning",
+        "on-device",
+        "multimodal",
+        "featured"
+      ],
+      "collections": [
+        "mobile",
+        "reasoning",
+        "vision",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "official Google open-weights release",
+          "designed for mobile and edge inference",
+          "maintained ggml-org and mlx-community packages"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 2300000000,
+        "parameter_label": "E2B effective / 5.1B total",
+        "architecture": "gemma4",
+        "context_length": 131072,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "audio"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "summarization",
+        "translation",
+        "structured_output",
+        "multimodal_upstream"
+      ],
+      "best_for": [
+        "Private on-device assistance",
+        "Reasoning and coding",
+        "Multilingual chat",
+        "Future image and audio understanding"
+      ],
+      "limitations": [
+        "Erebrus currently enables text input only",
+        "Exact iOS and macOS runtime smoke tests are pending",
+        "Multimodal inputs require additional app integration"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "flagship_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "flagship_mobile",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 5,
+        "recommended_ram_gb": 7,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "artifact_id": "model-q4-0",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_0",
+          "filename": "gemma-4-E2B-it-Q4_0.gguf",
+          "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
+          "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
+          "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/gemma-4-E2B-it-Q4_0.gguf?download=true",
+          "file_size_bytes": 2841481184,
+          "sha256": "8e30dff3ac4c8434c49a7036fa15564bdbb6044e42bf04550bf1a096ad7e6a52",
+          "backend": "llama.cpp",
+          "required": true,
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "id": "model-q4-0",
+          "file_size_display": "2.84 GB",
+          "huggingface_uri": "hf://ggml-org/gemma-4-E2B-it-GGUF/gemma-4-E2B-it-Q4_0.gguf",
+          "recommended": true,
+          "notes": null
+        },
+        {
+          "artifact_id": "mmproj-q8-0",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "mmproj-gemma-4-E2B-it-Q8_0.gguf",
+          "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
+          "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
+          "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/mmproj-gemma-4-E2B-it-Q8_0.gguf?download=true",
+          "file_size_bytes": 557368064,
+          "sha256": "9406f99c16d68cda4f1f0552192dcc99021ea1fc6d2fd50b1dc3ccf30d04b292",
+          "backend": "llama.cpp",
+          "required": true,
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "id": "mmproj-q8-0",
+          "file_size_display": "0.56 GB",
+          "huggingface_uri": "hf://ggml-org/gemma-4-E2B-it-GGUF/mmproj-gemma-4-E2B-it-Q8_0.gguf",
+          "recommended": true,
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "device-selected",
+        "compatible_backends": [
+          "llama.cpp",
+          "mlx"
+        ],
+        "chat_template_source": "package_or_gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": null,
+        "notes": "The bundled Erebrus llama.cpp and MLX Swift runtimes recognize Gemma 4; keep erebrus_runtime_verification pending until physical-device generation passes."
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Re-check the upstream model card and license before redistribution."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 5,
+        "badges": [
+          "Gemma 4",
+          "On-device",
+          "Reasoning",
+          "MLX",
+          "Beta"
+        ]
+      },
+      "sources": {
+        "upstream_repository_url": "https://huggingface.co/google/gemma-4-E2B-it",
+        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF",
+        "mlx_repository_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit",
+        "artifact_revision_policy": "immutable revisions pinned in every artifact"
+      },
+      "variants": [
+        {
+          "variant_id": "gemma-4-e2b-it-gguf-q4-0",
+          "model_id": "gemma-4-e2b-it",
+          "format": "gguf",
+          "quantization": "Q4_0",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 5,
+          "recommended_ram_gb": 7,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
+            "upstream_repository_id": "google/gemma-4-E2B-it",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "model-q4-0",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_0",
+              "filename": "gemma-4-E2B-it-Q4_0.gguf",
+              "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
+              "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
+              "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/gemma-4-E2B-it-Q4_0.gguf?download=true",
+              "file_size_bytes": 2841481184,
+              "sha256": "8e30dff3ac4c8434c49a7036fa15564bdbb6044e42bf04550bf1a096ad7e6a52",
+              "backend": "llama.cpp",
+              "required": true,
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ]
+            },
+            {
+              "artifact_id": "mmproj-q8-0",
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "mmproj-gemma-4-E2B-it-Q8_0.gguf",
+              "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
+              "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
+              "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/mmproj-gemma-4-E2B-it-Q8_0.gguf?download=true",
+              "file_size_bytes": 557368064,
+              "sha256": "9406f99c16d68cda4f1f0552192dcc99021ea1fc6d2fd50b1dc3ccf30d04b292",
+              "backend": "llama.cpp",
+              "required": true,
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ]
+            }
+          ]
+        },
+        {
+          "variant_id": "gemma-4-e2b-it-mlx-4bit",
+          "model_id": "gemma-4-e2b-it",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 4.5,
+          "recommended_ram_gb": 6,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+            "upstream_repository_id": "google/gemma-4-E2B-it",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-chat-template-jinja",
+              "role": "chat_template",
+              "format": "json",
+              "filename": "chat_template.jinja",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/chat_template.jinja?download=true",
+              "file_size_bytes": 17336,
+              "sha256": "2f1b4d75d067bae3fe44e676721c7f077d243bc007156cb9c2f8b5836613d082",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/config.json?download=true",
+              "file_size_bytes": 6395,
+              "sha256": "6397cb6eca41b911d1dcab74e17941351057bd759284052a2331918ff6f9246c",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-generation-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "generation_config.json",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/generation_config.json?download=true",
+              "file_size_bytes": 208,
+              "sha256": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
+              "backend": "mlx",
+              "required": false
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/model.safetensors?download=true",
+              "file_size_bytes": 3550670554,
+              "sha256": "038e39a37a7667373d2c3991375446b10c96ae1d717a68674870343db376b76e",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/model.safetensors.index.json?download=true",
+              "file_size_bytes": 218323,
+              "sha256": "edb157dbf495e23f37377af4a628a9ad13c4ee7937f93ccb36ec9e9a19940f16",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-processor-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "processor_config.json",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/processor_config.json?download=true",
+              "file_size_bytes": 1316,
+              "sha256": "de3e580aebdc98272d4c4547daffe6525fcbae18a83a0e0bcf0d7444d4ee6f37",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/tokenizer.json?download=true",
+              "file_size_bytes": 32169626,
+              "sha256": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
+              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/tokenizer_config.json?download=true",
+              "file_size_bytes": 2740,
+              "sha256": "080d9e1aff284e2f6043889cd05367966f7c7b80e025fbc0b06745e218158656",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gemma-4-e2b-it-gguf-q4-0"
+    },
+    {
+      "id": "gemma-4-e4b-it",
+      "slug": "gemma-4-e4b-it",
+      "name": "Gemma 4 E4B IT",
+      "family": "Gemma 4",
+      "variant": "Instruct",
+      "publisher": "Google / GGML / MLX Community",
+      "description": "Gemma 4 E4B IT is Google's current multimodal, reasoning-capable on-device model with text, image and audio support upstream.",
+      "tags": [
+        "gemma-4",
+        "reasoning",
+        "on-device",
+        "multimodal",
+        "featured"
+      ],
+      "collections": [
+        "mobile",
+        "reasoning",
+        "vision",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "official Google open-weights release",
+          "designed for mobile and edge inference",
+          "maintained ggml-org and mlx-community packages"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 4500000000,
+        "parameter_label": "E4B effective / 8B total",
+        "architecture": "gemma4",
+        "context_length": 131072,
+        "recommended_context_length": 8192
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "audio"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding",
+        "summarization",
+        "translation",
+        "structured_output",
+        "multimodal_upstream"
+      ],
+      "best_for": [
+        "Private on-device assistance",
+        "Reasoning and coding",
+        "Multilingual chat",
+        "Future image and audio understanding"
+      ],
+      "limitations": [
+        "Erebrus currently enables text input only",
+        "Exact iOS and macOS runtime smoke tests are pending",
+        "Multimodal inputs require additional app integration"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "high_end_mobile",
+          "flagship_mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "recommended_tier": "flagship_mobile",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 7,
+        "recommended_ram_gb": 9,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "artifact_id": "model-q4-0",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_0",
+          "filename": "gemma-4-E4B-it-Q4_0.gguf",
+          "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
+          "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
+          "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/gemma-4-E4B-it-Q4_0.gguf?download=true",
+          "file_size_bytes": 4590807392,
+          "sha256": "a555b900214b477d8880e7832e0b8925e139b0159640036b09fe472b6f2097f2",
+          "backend": "llama.cpp",
+          "required": true,
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "id": "model-q4-0",
+          "file_size_display": "4.59 GB",
+          "huggingface_uri": "hf://ggml-org/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_0.gguf",
+          "recommended": true,
+          "notes": null
+        },
+        {
+          "artifact_id": "mmproj-q8-0",
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "Q8_0",
+          "filename": "mmproj-gemma-4-E4B-it-Q8_0.gguf",
+          "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
+          "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
+          "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/mmproj-gemma-4-E4B-it-Q8_0.gguf?download=true",
+          "file_size_bytes": 559874816,
+          "sha256": "197f49a93027f9843772bd24a6a9e0be2a32a788de5a3def330e9c585d86edd1",
+          "backend": "llama.cpp",
+          "required": true,
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "id": "mmproj-q8-0",
+          "file_size_display": "0.56 GB",
+          "huggingface_uri": "hf://ggml-org/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-Q8_0.gguf",
+          "recommended": true,
+          "notes": null
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "device-selected",
+        "compatible_backends": [
+          "llama.cpp",
+          "mlx"
+        ],
+        "chat_template_source": "package_or_gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": null,
+        "notes": "The bundled Erebrus llama.cpp and MLX Swift runtimes recognize Gemma 4; keep erebrus_runtime_verification pending until physical-device generation passes."
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "min_p": 0.05,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Re-check the upstream model card and license before redistribution."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": true,
+        "sort_order": 6,
+        "badges": [
+          "Gemma 4",
+          "On-device",
+          "Reasoning",
+          "MLX",
+          "Beta"
+        ]
+      },
+      "sources": {
+        "upstream_repository_url": "https://huggingface.co/google/gemma-4-E4B-it",
+        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF",
+        "mlx_repository_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit",
+        "artifact_revision_policy": "immutable revisions pinned in every artifact"
+      },
+      "variants": [
+        {
+          "variant_id": "gemma-4-e4b-it-gguf-q4-0",
+          "model_id": "gemma-4-e4b-it",
+          "format": "gguf",
+          "quantization": "Q4_0",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 7,
+          "recommended_ram_gb": 9,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
+            "upstream_repository_id": "google/gemma-4-E4B-it",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "model-q4-0",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_0",
+              "filename": "gemma-4-E4B-it-Q4_0.gguf",
+              "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
+              "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
+              "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/gemma-4-E4B-it-Q4_0.gguf?download=true",
+              "file_size_bytes": 4590807392,
+              "sha256": "a555b900214b477d8880e7832e0b8925e139b0159640036b09fe472b6f2097f2",
+              "backend": "llama.cpp",
+              "required": true,
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ]
+            },
+            {
+              "artifact_id": "mmproj-q8-0",
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "Q8_0",
+              "filename": "mmproj-gemma-4-E4B-it-Q8_0.gguf",
+              "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
+              "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
+              "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/mmproj-gemma-4-E4B-it-Q8_0.gguf?download=true",
+              "file_size_bytes": 559874816,
+              "sha256": "197f49a93027f9843772bd24a6a9e0be2a32a788de5a3def330e9c585d86edd1",
+              "backend": "llama.cpp",
+              "required": true,
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ]
+            }
+          ]
+        },
+        {
+          "variant_id": "gemma-4-e4b-it-mlx-4bit",
+          "model_id": "gemma-4-e4b-it",
+          "format": "mlx",
+          "quantization": "4bit",
+          "platforms": [
+            "ios-arm64",
+            "macos-arm64"
+          ],
+          "compatible_backends": [
+            "mlx"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 6.5,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mlx-community",
+            "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+            "upstream_repository_id": "google/gemma-4-E4B-it",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-chat-template-jinja",
+              "role": "chat_template",
+              "format": "json",
+              "filename": "chat_template.jinja",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/chat_template.jinja?download=true",
+              "file_size_bytes": 17336,
+              "sha256": "2f1b4d75d067bae3fe44e676721c7f077d243bc007156cb9c2f8b5836613d082",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "config.json",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/config.json?download=true",
+              "file_size_bytes": 6628,
+              "sha256": "780ccb3a514a5f1ced161d383f948fc22eca9b84b752ca19494f625bd9bad7a6",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-generation-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "generation_config.json",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/generation_config.json?download=true",
+              "file_size_bytes": 208,
+              "sha256": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
+              "backend": "mlx",
+              "required": false
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-model-safetensors",
+              "role": "model",
+              "format": "safetensors",
+              "filename": "model.safetensors",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/model.safetensors?download=true",
+              "file_size_bytes": 5146800534,
+              "sha256": "932b8271fc3fe65adcc78b96c10c6268bbfb13e8f67d1358727c0d6ee97e1eff",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-model-safetensors-index-json",
+              "role": "config",
+              "format": "json",
+              "filename": "model.safetensors.index.json",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/model.safetensors.index.json?download=true",
+              "file_size_bytes": 240961,
+              "sha256": "f8accac59ee7efe87e0c298c854610b262c3cadd477407503147c71209ff0093",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-processor-config-json",
+              "role": "config",
+              "format": "json",
+              "filename": "processor_config.json",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/processor_config.json?download=true",
+              "file_size_bytes": 1316,
+              "sha256": "de3e580aebdc98272d4c4547daffe6525fcbae18a83a0e0bcf0d7444d4ee6f37",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-tokenizer-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer.json",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/tokenizer.json?download=true",
+              "file_size_bytes": 32169626,
+              "sha256": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+              "backend": "mlx",
+              "required": true
+            },
+            {
+              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-tokenizer-config-json",
+              "role": "tokenizer",
+              "format": "json",
+              "filename": "tokenizer_config.json",
+              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
+              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/tokenizer_config.json?download=true",
+              "file_size_bytes": 2740,
+              "sha256": "080d9e1aff284e2f6043889cd05367966f7c7b80e025fbc0b06745e218158656",
+              "backend": "mlx",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gemma-4-e4b-it-gguf-q4-0"
     },
     {
       "id": "qwen3.5-0.8b",
@@ -2636,846 +3476,6 @@
         }
       ],
       "preferred_variant_id": "llama-3.2-3b-instruct-gguf-q4-k-m"
-    },
-    {
-      "id": "gemma-4-e2b-it",
-      "slug": "gemma-4-e2b-it",
-      "name": "Gemma 4 E2B IT",
-      "family": "Gemma 4",
-      "variant": "Instruct",
-      "publisher": "Google / GGML / MLX Community",
-      "description": "Gemma 4 E2B IT is Google's current multimodal, reasoning-capable on-device model with text, image and audio support upstream.",
-      "tags": [
-        "gemma-4",
-        "reasoning",
-        "on-device",
-        "multimodal",
-        "featured"
-      ],
-      "collections": [
-        "mobile",
-        "reasoning",
-        "vision",
-        "everyday"
-      ],
-      "popularity": {
-        "tier": "high",
-        "basis": [
-          "official Google open-weights release",
-          "designed for mobile and edge inference",
-          "maintained ggml-org and mlx-community packages"
-        ],
-        "mutable_download_counts_included": false
-      },
-      "model": {
-        "parameter_count": 2300000000,
-        "parameter_label": "E2B effective / 5.1B total",
-        "architecture": "gemma4",
-        "context_length": 131072,
-        "recommended_context_length": 8192
-      },
-      "modalities": {
-        "runtime_input": [
-          "text"
-        ],
-        "upstream_input": [
-          "text",
-          "image",
-          "audio"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "capabilities": [
-        "chat",
-        "reasoning",
-        "coding",
-        "summarization",
-        "translation",
-        "structured_output",
-        "multimodal_upstream"
-      ],
-      "best_for": [
-        "Private on-device assistance",
-        "Reasoning and coding",
-        "Multilingual chat",
-        "Future image and audio understanding"
-      ],
-      "limitations": [
-        "Erebrus currently enables text input only",
-        "Exact iOS and macOS runtime smoke tests are pending",
-        "Multimodal inputs require additional app integration"
-      ],
-      "languages": [
-        "multilingual"
-      ],
-      "supports_tools": true,
-      "supports_json": true,
-      "supports_vision": false,
-      "device_support": {
-        "tiers": [
-          "high_end_mobile",
-          "flagship_mobile",
-          "tablet",
-          "laptop",
-          "desktop"
-        ],
-        "recommended_tier": "flagship_mobile",
-        "mobile_status": "supported_on_recent_devices",
-        "minimum_ram_gb": 5,
-        "recommended_ram_gb": 7,
-        "gpu_recommended": false,
-        "gpu_required": false,
-        "minimum_vram_gb": 0,
-        "recommended_vram_gb": 0,
-        "platforms": [
-          "android-arm64",
-          "ios-arm64",
-          "linux-x86_64",
-          "macos-arm64",
-          "windows-x86_64"
-        ]
-      },
-      "artifacts": [
-        {
-          "artifact_id": "model-q4-0",
-          "role": "model",
-          "format": "gguf",
-          "quantization": "Q4_0",
-          "filename": "gemma-4-E2B-it-Q4_0.gguf",
-          "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
-          "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
-          "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/gemma-4-E2B-it-Q4_0.gguf?download=true",
-          "file_size_bytes": 2841481184,
-          "sha256": "8e30dff3ac4c8434c49a7036fa15564bdbb6044e42bf04550bf1a096ad7e6a52",
-          "backend": "llama.cpp",
-          "required": true,
-          "platforms": [
-            "android-arm64",
-            "ios-arm64",
-            "linux-x86_64",
-            "macos-arm64",
-            "windows-x86_64"
-          ],
-          "id": "model-q4-0",
-          "file_size_display": "2.84 GB",
-          "huggingface_uri": "hf://ggml-org/gemma-4-E2B-it-GGUF/gemma-4-E2B-it-Q4_0.gguf",
-          "recommended": true,
-          "notes": null
-        },
-        {
-          "artifact_id": "mmproj-q8-0",
-          "role": "mmproj",
-          "format": "gguf",
-          "quantization": "Q8_0",
-          "filename": "mmproj-gemma-4-E2B-it-Q8_0.gguf",
-          "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
-          "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
-          "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/mmproj-gemma-4-E2B-it-Q8_0.gguf?download=true",
-          "file_size_bytes": 557368064,
-          "sha256": "9406f99c16d68cda4f1f0552192dcc99021ea1fc6d2fd50b1dc3ccf30d04b292",
-          "backend": "llama.cpp",
-          "required": true,
-          "platforms": [
-            "android-arm64",
-            "ios-arm64",
-            "linux-x86_64",
-            "macos-arm64",
-            "windows-x86_64"
-          ],
-          "id": "mmproj-q8-0",
-          "file_size_display": "0.56 GB",
-          "huggingface_uri": "hf://ggml-org/gemma-4-E2B-it-GGUF/mmproj-gemma-4-E2B-it-Q8_0.gguf",
-          "recommended": true,
-          "notes": null
-        }
-      ],
-      "runtime": {
-        "preferred_backend": "device-selected",
-        "compatible_backends": [
-          "llama.cpp",
-          "mlx"
-        ],
-        "chat_template_source": "package_or_gguf_metadata",
-        "supports_gpu_offload": true,
-        "supports_mmap": true,
-        "multimodal_api": "libmtmd",
-        "requires_mmproj": true,
-        "minimum_runtime_version": null,
-        "notes": "The bundled Erebrus llama.cpp and MLX Swift runtimes recognize Gemma 4; keep erebrus_runtime_verification pending until physical-device generation passes."
-      },
-      "generation_defaults": {
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "top_k": 40,
-        "min_p": 0.05,
-        "max_tokens": 1024,
-        "repeat_penalty": 1.1,
-        "seed": -1,
-        "stop_sequences": []
-      },
-      "license": {
-        "id": "apache-2.0",
-        "name": "Apache License 2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0",
-        "commercial_use": true,
-        "redistribution": true,
-        "attribution_required": true,
-        "custom_license": false,
-        "review_status": "reviewed_at_catalog_level",
-        "notes": "Re-check the upstream model card and license before redistribution."
-      },
-      "status": {
-        "catalog_state": "active",
-        "release_channel": "beta",
-        "metadata_status": "catalog_curated",
-        "erebrus_runtime_verification": "pending",
-        "verified_at": null,
-        "minimum_app_version": "1.0.0",
-        "deprecation": null
-      },
-      "display": {
-        "featured": true,
-        "sort_order": 5,
-        "badges": [
-          "Gemma 4",
-          "On-device",
-          "Reasoning",
-          "MLX",
-          "Beta"
-        ]
-      },
-      "sources": {
-        "upstream_repository_url": "https://huggingface.co/google/gemma-4-E2B-it",
-        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF",
-        "mlx_repository_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit",
-        "artifact_revision_policy": "immutable revisions pinned in every artifact"
-      },
-      "variants": [
-        {
-          "variant_id": "gemma-4-e2b-it-gguf-q4-0",
-          "model_id": "gemma-4-e2b-it",
-          "format": "gguf",
-          "quantization": "Q4_0",
-          "platforms": [
-            "android-arm64",
-            "ios-arm64",
-            "linux-x86_64",
-            "macos-arm64",
-            "windows-x86_64"
-          ],
-          "compatible_backends": [
-            "llama.cpp"
-          ],
-          "minimum_ram_gb": 5,
-          "recommended_ram_gb": 7,
-          "release_channel": "beta",
-          "status": "active",
-          "provenance": {
-            "kind": "community_conversion",
-            "publisher": "ggml-org",
-            "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
-            "upstream_repository_id": "google/gemma-4-E2B-it",
-            "verification": "immutable_revision_size_and_sha256"
-          },
-          "files": [
-            {
-              "artifact_id": "model-q4-0",
-              "role": "model",
-              "format": "gguf",
-              "quantization": "Q4_0",
-              "filename": "gemma-4-E2B-it-Q4_0.gguf",
-              "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
-              "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
-              "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/gemma-4-E2B-it-Q4_0.gguf?download=true",
-              "file_size_bytes": 2841481184,
-              "sha256": "8e30dff3ac4c8434c49a7036fa15564bdbb6044e42bf04550bf1a096ad7e6a52",
-              "backend": "llama.cpp",
-              "required": true,
-              "platforms": [
-                "android-arm64",
-                "ios-arm64",
-                "linux-x86_64",
-                "macos-arm64",
-                "windows-x86_64"
-              ]
-            },
-            {
-              "artifact_id": "mmproj-q8-0",
-              "role": "mmproj",
-              "format": "gguf",
-              "quantization": "Q8_0",
-              "filename": "mmproj-gemma-4-E2B-it-Q8_0.gguf",
-              "repository_id": "ggml-org/gemma-4-E2B-it-GGUF",
-              "revision": "b4243c156154b6dca9324415f8c7ccc098b4aed1",
-              "download_url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/b4243c156154b6dca9324415f8c7ccc098b4aed1/mmproj-gemma-4-E2B-it-Q8_0.gguf?download=true",
-              "file_size_bytes": 557368064,
-              "sha256": "9406f99c16d68cda4f1f0552192dcc99021ea1fc6d2fd50b1dc3ccf30d04b292",
-              "backend": "llama.cpp",
-              "required": true,
-              "platforms": [
-                "android-arm64",
-                "ios-arm64",
-                "linux-x86_64",
-                "macos-arm64",
-                "windows-x86_64"
-              ]
-            }
-          ]
-        },
-        {
-          "variant_id": "gemma-4-e2b-it-mlx-4bit",
-          "model_id": "gemma-4-e2b-it",
-          "format": "mlx",
-          "quantization": "4bit",
-          "platforms": [
-            "ios-arm64",
-            "macos-arm64"
-          ],
-          "compatible_backends": [
-            "mlx"
-          ],
-          "minimum_ram_gb": 4.5,
-          "recommended_ram_gb": 6,
-          "release_channel": "beta",
-          "status": "active",
-          "provenance": {
-            "kind": "community_conversion",
-            "publisher": "mlx-community",
-            "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-            "upstream_repository_id": "google/gemma-4-E2B-it",
-            "verification": "immutable_revision_size_and_sha256"
-          },
-          "files": [
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-chat-template-jinja",
-              "role": "chat_template",
-              "format": "json",
-              "filename": "chat_template.jinja",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/chat_template.jinja?download=true",
-              "file_size_bytes": 17336,
-              "sha256": "2f1b4d75d067bae3fe44e676721c7f077d243bc007156cb9c2f8b5836613d082",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-config-json",
-              "role": "config",
-              "format": "json",
-              "filename": "config.json",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/config.json?download=true",
-              "file_size_bytes": 6395,
-              "sha256": "6397cb6eca41b911d1dcab74e17941351057bd759284052a2331918ff6f9246c",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-generation-config-json",
-              "role": "config",
-              "format": "json",
-              "filename": "generation_config.json",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/generation_config.json?download=true",
-              "file_size_bytes": 208,
-              "sha256": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
-              "backend": "mlx",
-              "required": false
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-model-safetensors",
-              "role": "model",
-              "format": "safetensors",
-              "filename": "model.safetensors",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/model.safetensors?download=true",
-              "file_size_bytes": 3550670554,
-              "sha256": "038e39a37a7667373d2c3991375446b10c96ae1d717a68674870343db376b76e",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-model-safetensors-index-json",
-              "role": "config",
-              "format": "json",
-              "filename": "model.safetensors.index.json",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/model.safetensors.index.json?download=true",
-              "file_size_bytes": 218323,
-              "sha256": "edb157dbf495e23f37377af4a628a9ad13c4ee7937f93ccb36ec9e9a19940f16",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-processor-config-json",
-              "role": "config",
-              "format": "json",
-              "filename": "processor_config.json",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/processor_config.json?download=true",
-              "file_size_bytes": 1316,
-              "sha256": "de3e580aebdc98272d4c4547daffe6525fcbae18a83a0e0bcf0d7444d4ee6f37",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-tokenizer-json",
-              "role": "tokenizer",
-              "format": "json",
-              "filename": "tokenizer.json",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/tokenizer.json?download=true",
-              "file_size_bytes": 32169626,
-              "sha256": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e2b-it-4bit-tokenizer-config-json",
-              "role": "tokenizer",
-              "format": "json",
-              "filename": "tokenizer_config.json",
-              "repository_id": "mlx-community/gemma-4-e2b-it-4bit",
-              "revision": "238767527555cb75a05732a84dff5d6ba0dd6809",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e2b-it-4bit/resolve/238767527555cb75a05732a84dff5d6ba0dd6809/tokenizer_config.json?download=true",
-              "file_size_bytes": 2740,
-              "sha256": "080d9e1aff284e2f6043889cd05367966f7c7b80e025fbc0b06745e218158656",
-              "backend": "mlx",
-              "required": true
-            }
-          ]
-        }
-      ],
-      "preferred_variant_id": "gemma-4-e2b-it-gguf-q4-0"
-    },
-    {
-      "id": "gemma-4-e4b-it",
-      "slug": "gemma-4-e4b-it",
-      "name": "Gemma 4 E4B IT",
-      "family": "Gemma 4",
-      "variant": "Instruct",
-      "publisher": "Google / GGML / MLX Community",
-      "description": "Gemma 4 E4B IT is Google's current multimodal, reasoning-capable on-device model with text, image and audio support upstream.",
-      "tags": [
-        "gemma-4",
-        "reasoning",
-        "on-device",
-        "multimodal",
-        "featured"
-      ],
-      "collections": [
-        "mobile",
-        "reasoning",
-        "vision",
-        "everyday"
-      ],
-      "popularity": {
-        "tier": "high",
-        "basis": [
-          "official Google open-weights release",
-          "designed for mobile and edge inference",
-          "maintained ggml-org and mlx-community packages"
-        ],
-        "mutable_download_counts_included": false
-      },
-      "model": {
-        "parameter_count": 4500000000,
-        "parameter_label": "E4B effective / 8B total",
-        "architecture": "gemma4",
-        "context_length": 131072,
-        "recommended_context_length": 8192
-      },
-      "modalities": {
-        "runtime_input": [
-          "text"
-        ],
-        "upstream_input": [
-          "text",
-          "image",
-          "audio"
-        ],
-        "output": [
-          "text"
-        ]
-      },
-      "capabilities": [
-        "chat",
-        "reasoning",
-        "coding",
-        "summarization",
-        "translation",
-        "structured_output",
-        "multimodal_upstream"
-      ],
-      "best_for": [
-        "Private on-device assistance",
-        "Reasoning and coding",
-        "Multilingual chat",
-        "Future image and audio understanding"
-      ],
-      "limitations": [
-        "Erebrus currently enables text input only",
-        "Exact iOS and macOS runtime smoke tests are pending",
-        "Multimodal inputs require additional app integration"
-      ],
-      "languages": [
-        "multilingual"
-      ],
-      "supports_tools": true,
-      "supports_json": true,
-      "supports_vision": false,
-      "device_support": {
-        "tiers": [
-          "high_end_mobile",
-          "flagship_mobile",
-          "tablet",
-          "laptop",
-          "desktop"
-        ],
-        "recommended_tier": "flagship_mobile",
-        "mobile_status": "supported_on_recent_devices",
-        "minimum_ram_gb": 7,
-        "recommended_ram_gb": 9,
-        "gpu_recommended": false,
-        "gpu_required": false,
-        "minimum_vram_gb": 0,
-        "recommended_vram_gb": 0,
-        "platforms": [
-          "android-arm64",
-          "ios-arm64",
-          "linux-x86_64",
-          "macos-arm64",
-          "windows-x86_64"
-        ]
-      },
-      "artifacts": [
-        {
-          "artifact_id": "model-q4-0",
-          "role": "model",
-          "format": "gguf",
-          "quantization": "Q4_0",
-          "filename": "gemma-4-E4B-it-Q4_0.gguf",
-          "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
-          "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
-          "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/gemma-4-E4B-it-Q4_0.gguf?download=true",
-          "file_size_bytes": 4590807392,
-          "sha256": "a555b900214b477d8880e7832e0b8925e139b0159640036b09fe472b6f2097f2",
-          "backend": "llama.cpp",
-          "required": true,
-          "platforms": [
-            "android-arm64",
-            "ios-arm64",
-            "linux-x86_64",
-            "macos-arm64",
-            "windows-x86_64"
-          ],
-          "id": "model-q4-0",
-          "file_size_display": "4.59 GB",
-          "huggingface_uri": "hf://ggml-org/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_0.gguf",
-          "recommended": true,
-          "notes": null
-        },
-        {
-          "artifact_id": "mmproj-q8-0",
-          "role": "mmproj",
-          "format": "gguf",
-          "quantization": "Q8_0",
-          "filename": "mmproj-gemma-4-E4B-it-Q8_0.gguf",
-          "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
-          "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
-          "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/mmproj-gemma-4-E4B-it-Q8_0.gguf?download=true",
-          "file_size_bytes": 559874816,
-          "sha256": "197f49a93027f9843772bd24a6a9e0be2a32a788de5a3def330e9c585d86edd1",
-          "backend": "llama.cpp",
-          "required": true,
-          "platforms": [
-            "android-arm64",
-            "ios-arm64",
-            "linux-x86_64",
-            "macos-arm64",
-            "windows-x86_64"
-          ],
-          "id": "mmproj-q8-0",
-          "file_size_display": "0.56 GB",
-          "huggingface_uri": "hf://ggml-org/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-Q8_0.gguf",
-          "recommended": true,
-          "notes": null
-        }
-      ],
-      "runtime": {
-        "preferred_backend": "device-selected",
-        "compatible_backends": [
-          "llama.cpp",
-          "mlx"
-        ],
-        "chat_template_source": "package_or_gguf_metadata",
-        "supports_gpu_offload": true,
-        "supports_mmap": true,
-        "multimodal_api": "libmtmd",
-        "requires_mmproj": true,
-        "minimum_runtime_version": null,
-        "notes": "The bundled Erebrus llama.cpp and MLX Swift runtimes recognize Gemma 4; keep erebrus_runtime_verification pending until physical-device generation passes."
-      },
-      "generation_defaults": {
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "top_k": 40,
-        "min_p": 0.05,
-        "max_tokens": 1024,
-        "repeat_penalty": 1.1,
-        "seed": -1,
-        "stop_sequences": []
-      },
-      "license": {
-        "id": "apache-2.0",
-        "name": "Apache License 2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0",
-        "commercial_use": true,
-        "redistribution": true,
-        "attribution_required": true,
-        "custom_license": false,
-        "review_status": "reviewed_at_catalog_level",
-        "notes": "Re-check the upstream model card and license before redistribution."
-      },
-      "status": {
-        "catalog_state": "active",
-        "release_channel": "beta",
-        "metadata_status": "catalog_curated",
-        "erebrus_runtime_verification": "pending",
-        "verified_at": null,
-        "minimum_app_version": "1.0.0",
-        "deprecation": null
-      },
-      "display": {
-        "featured": true,
-        "sort_order": 6,
-        "badges": [
-          "Gemma 4",
-          "On-device",
-          "Reasoning",
-          "MLX",
-          "Beta"
-        ]
-      },
-      "sources": {
-        "upstream_repository_url": "https://huggingface.co/google/gemma-4-E4B-it",
-        "gguf_repository_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF",
-        "mlx_repository_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit",
-        "artifact_revision_policy": "immutable revisions pinned in every artifact"
-      },
-      "variants": [
-        {
-          "variant_id": "gemma-4-e4b-it-gguf-q4-0",
-          "model_id": "gemma-4-e4b-it",
-          "format": "gguf",
-          "quantization": "Q4_0",
-          "platforms": [
-            "android-arm64",
-            "ios-arm64",
-            "linux-x86_64",
-            "macos-arm64",
-            "windows-x86_64"
-          ],
-          "compatible_backends": [
-            "llama.cpp"
-          ],
-          "minimum_ram_gb": 7,
-          "recommended_ram_gb": 9,
-          "release_channel": "beta",
-          "status": "active",
-          "provenance": {
-            "kind": "community_conversion",
-            "publisher": "ggml-org",
-            "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
-            "upstream_repository_id": "google/gemma-4-E4B-it",
-            "verification": "immutable_revision_size_and_sha256"
-          },
-          "files": [
-            {
-              "artifact_id": "model-q4-0",
-              "role": "model",
-              "format": "gguf",
-              "quantization": "Q4_0",
-              "filename": "gemma-4-E4B-it-Q4_0.gguf",
-              "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
-              "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
-              "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/gemma-4-E4B-it-Q4_0.gguf?download=true",
-              "file_size_bytes": 4590807392,
-              "sha256": "a555b900214b477d8880e7832e0b8925e139b0159640036b09fe472b6f2097f2",
-              "backend": "llama.cpp",
-              "required": true,
-              "platforms": [
-                "android-arm64",
-                "ios-arm64",
-                "linux-x86_64",
-                "macos-arm64",
-                "windows-x86_64"
-              ]
-            },
-            {
-              "artifact_id": "mmproj-q8-0",
-              "role": "mmproj",
-              "format": "gguf",
-              "quantization": "Q8_0",
-              "filename": "mmproj-gemma-4-E4B-it-Q8_0.gguf",
-              "repository_id": "ggml-org/gemma-4-E4B-it-GGUF",
-              "revision": "b8093469224f83f5c38f691eb906c380e9e63114",
-              "download_url": "https://huggingface.co/ggml-org/gemma-4-E4B-it-GGUF/resolve/b8093469224f83f5c38f691eb906c380e9e63114/mmproj-gemma-4-E4B-it-Q8_0.gguf?download=true",
-              "file_size_bytes": 559874816,
-              "sha256": "197f49a93027f9843772bd24a6a9e0be2a32a788de5a3def330e9c585d86edd1",
-              "backend": "llama.cpp",
-              "required": true,
-              "platforms": [
-                "android-arm64",
-                "ios-arm64",
-                "linux-x86_64",
-                "macos-arm64",
-                "windows-x86_64"
-              ]
-            }
-          ]
-        },
-        {
-          "variant_id": "gemma-4-e4b-it-mlx-4bit",
-          "model_id": "gemma-4-e4b-it",
-          "format": "mlx",
-          "quantization": "4bit",
-          "platforms": [
-            "ios-arm64",
-            "macos-arm64"
-          ],
-          "compatible_backends": [
-            "mlx"
-          ],
-          "minimum_ram_gb": 6,
-          "recommended_ram_gb": 6.5,
-          "release_channel": "beta",
-          "status": "active",
-          "provenance": {
-            "kind": "community_conversion",
-            "publisher": "mlx-community",
-            "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-            "upstream_repository_id": "google/gemma-4-E4B-it",
-            "verification": "immutable_revision_size_and_sha256"
-          },
-          "files": [
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-chat-template-jinja",
-              "role": "chat_template",
-              "format": "json",
-              "filename": "chat_template.jinja",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/chat_template.jinja?download=true",
-              "file_size_bytes": 17336,
-              "sha256": "2f1b4d75d067bae3fe44e676721c7f077d243bc007156cb9c2f8b5836613d082",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-config-json",
-              "role": "config",
-              "format": "json",
-              "filename": "config.json",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/config.json?download=true",
-              "file_size_bytes": 6628,
-              "sha256": "780ccb3a514a5f1ced161d383f948fc22eca9b84b752ca19494f625bd9bad7a6",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-generation-config-json",
-              "role": "config",
-              "format": "json",
-              "filename": "generation_config.json",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/generation_config.json?download=true",
-              "file_size_bytes": 208,
-              "sha256": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
-              "backend": "mlx",
-              "required": false
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-model-safetensors",
-              "role": "model",
-              "format": "safetensors",
-              "filename": "model.safetensors",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/model.safetensors?download=true",
-              "file_size_bytes": 5146800534,
-              "sha256": "932b8271fc3fe65adcc78b96c10c6268bbfb13e8f67d1358727c0d6ee97e1eff",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-model-safetensors-index-json",
-              "role": "config",
-              "format": "json",
-              "filename": "model.safetensors.index.json",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/model.safetensors.index.json?download=true",
-              "file_size_bytes": 240961,
-              "sha256": "f8accac59ee7efe87e0c298c854610b262c3cadd477407503147c71209ff0093",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-processor-config-json",
-              "role": "config",
-              "format": "json",
-              "filename": "processor_config.json",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/processor_config.json?download=true",
-              "file_size_bytes": 1316,
-              "sha256": "de3e580aebdc98272d4c4547daffe6525fcbae18a83a0e0bcf0d7444d4ee6f37",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-tokenizer-json",
-              "role": "tokenizer",
-              "format": "json",
-              "filename": "tokenizer.json",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/tokenizer.json?download=true",
-              "file_size_bytes": 32169626,
-              "sha256": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
-              "backend": "mlx",
-              "required": true
-            },
-            {
-              "artifact_id": "mlx-community-gemma-4-e4b-it-4bit-tokenizer-config-json",
-              "role": "tokenizer",
-              "format": "json",
-              "filename": "tokenizer_config.json",
-              "repository_id": "mlx-community/gemma-4-e4b-it-4bit",
-              "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
-              "download_url": "https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit/resolve/475b9088d29754a3379866cf5aeb6b41acd313c2/tokenizer_config.json?download=true",
-              "file_size_bytes": 2740,
-              "sha256": "080d9e1aff284e2f6043889cd05367966f7c7b80e025fbc0b06745e218158656",
-              "backend": "mlx",
-              "required": true
-            }
-          ]
-        }
-      ],
-      "preferred_variant_id": "gemma-4-e4b-it-gguf-q4-0"
     },
     {
       "id": "gemma-3n-e2b-it",
@@ -6742,6 +6742,242 @@
       "preferred_variant_id": "mistral-small-3.1-24b-instruct-gguf-ud-iq2-m"
     },
     {
+      "id": "qwen3-30b-a3b-instruct-2507",
+      "slug": "qwen3-30b-a3b-instruct-2507",
+      "name": "Qwen3 30B-A3B Instruct 2507",
+      "family": "Qwen3 MoE",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "An efficient mixture-of-experts model: 30B total parameters but only ~3B active per token, so it delivers large-model quality while running fast on 24 GB laptops and desktops.",
+      "tags": [
+        "moe",
+        "efficient",
+        "reasoning",
+        "tools",
+        "qwen",
+        "laptop"
+      ],
+      "collections": [
+        "everyday",
+        "reasoning",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3moe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization",
+        "structured_output",
+        "tool_use"
+      ],
+      "best_for": [
+        "General assistant on 24 GB machines",
+        "Fast responses from a large model",
+        "Tool use and agents"
+      ],
+      "limitations": [
+        "Text-only",
+        "Full expert weights must stay resident in memory",
+        "Not suitable for phones despite low active parameter count"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF",
+          "revision": "eea7b2be5805a5f151f8847ede8e5f9a9284bf77",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/resolve/eea7b2be5805a5f151f8847ede8e5f9a9284bf77/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556686752,
+          "sha256": "6c997b8af17debdfb01d890214400ccbab00db6acc0ba8da5de1cc906c4774d0",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3 MoE (qwen3moe) support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 165,
+        "badges": [
+          "MoE",
+          "Efficient",
+          "Reasoning",
+          "Tools"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-30b-a3b-instruct-2507-gguf-q4-k-m",
+          "model_id": "qwen3-30b-a3b-instruct-2507",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "id": "model-q4-k-m",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF",
+              "revision": "eea7b2be5805a5f151f8847ede8e5f9a9284bf77",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/resolve/eea7b2be5805a5f151f8847ede8e5f9a9284bf77/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/Qwen3-30B-A3B-Instruct-2507-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556686752,
+              "sha256": "6c997b8af17debdfb01d890214400ccbab00db6acc0ba8da5de1cc906c4774d0",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-30b-a3b-instruct-2507-gguf-q4-k-m"
+    },
+    {
       "id": "qwen3-4b-thinking-2507",
       "slug": "qwen3-4b-thinking-2507",
       "name": "Qwen3 4B Thinking 2507",
@@ -8118,6 +8354,243 @@
         }
       ],
       "preferred_variant_id": "qwen2.5-coder-14b-instruct-gguf-q4-k-m"
+    },
+    {
+      "id": "qwen3-coder-30b-a3b-instruct",
+      "slug": "qwen3-coder-30b-a3b-instruct",
+      "name": "Qwen3 Coder 30B-A3B Instruct",
+      "family": "Qwen3 Coder MoE",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "A mixture-of-experts coding model with 30B total but ~3B active parameters, giving desktop-class agentic coding and repository assistance that stays responsive on 24 GB machines.",
+      "tags": [
+        "moe",
+        "coding",
+        "agentic",
+        "developer",
+        "qwen",
+        "laptop"
+      ],
+      "collections": [
+        "coding",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "high",
+        "basis": [
+          "community adoption",
+          "quality for model size",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3moe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "coding",
+        "debugging",
+        "code_explanation",
+        "structured_output",
+        "tool_use",
+        "reasoning"
+      ],
+      "best_for": [
+        "Agentic coding",
+        "Repository-scale assistance",
+        "Refactoring and debugging",
+        "Developer agents"
+      ],
+      "limitations": [
+        "Text-only",
+        "Full expert weights must stay resident in memory",
+        "Not suitable for phones despite low active parameter count"
+      ],
+      "languages": [
+        "programming_languages",
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "id": "model-q4-k-m",
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+          "revision": "b17cb02dd882d5b6ab62fc777ad2995f19668350",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/resolve/b17cb02dd882d5b6ab62fc777ad2995f19668350/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556689568,
+          "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3 MoE (qwen3moe) support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false,
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights."
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 225,
+        "badges": [
+          "MoE",
+          "Advanced Coding",
+          "Agentic"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-coder-30b-a3b-instruct-gguf-q4-k-m",
+          "model_id": "qwen3-coder-30b-a3b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "id": "model-q4-k-m",
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+              "revision": "b17cb02dd882d5b6ab62fc777ad2995f19668350",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/resolve/b17cb02dd882d5b6ab62fc777ad2995f19668350/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556689568,
+              "sha256": "fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-coder-30b-a3b-instruct-gguf-q4-k-m"
     },
     {
       "id": "devstral-small-2-24b-instruct",

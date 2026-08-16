@@ -26,7 +26,7 @@ const features = [
   {
     glyph: "↔",
     title: "LAN node discovery",
-    desc: "Your desktop broadcasts _erebrus-ai._tcp over mDNS so phones and other computers find it instantly.",
+    desc: "Your desktop broadcasts _erebrusai._tcp over mDNS so phones and other computers find it instantly.",
   },
   {
     glyph: "✦",
@@ -93,7 +93,7 @@ export default function AiMarketingPage() {
             </div>
             <div className="mt-3 rounded-xl border border-dashed border-[var(--accent)]/35 bg-[var(--accent)]/5 px-6 py-4">
               <div className="truncate font-mono text-sm font-semibold tracking-[0.15em] text-[var(--accent-hi)]">
-                _EREBRUS-AI._TCP
+                _EREBRUSAI._TCP
               </div>
             </div>
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--success)]/25 bg-[var(--success)]/10 px-3 py-1.5">
