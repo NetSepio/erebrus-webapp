@@ -45,6 +45,14 @@ import type {
   GatewayReferral,
   GatewaySocialAccount,
   GatewayVpnClient,
+  GenesisSeason,
+  GenesisLeaderboardEntry,
+  RewardCapacitySlot,
+  OperatorRewardSummary,
+  XpLedgerEntry,
+  ClaimPreview,
+  RewardWithdrawal,
+  AdminRewardsSummary,
 } from "./types";
 
 const CLIENT_HEADER = "webapp";
@@ -672,6 +680,86 @@ export async function fetchLeaderboard(params?: {
     my_rank: data.my_rank,
     my_value: data.my_value,
   };
+}
+
+// ── Genesis Season rewards ─────────────────────────────────────────────────────────────────
+
+export async function fetchCurrentGenesisSeason(): Promise<GenesisSeason | null> {
+  return gatewayFetch("rewards/seasons/current", { auth: false });
+}
+
+export async function fetchGenesisLeaderboard(params?: {
+  kind?: "overall" | "vpn" | "ai";
+  season_id?: string;
+  limit?: number;
+}): Promise<{ entries: GenesisLeaderboardEntry[] }> {
+  return gatewayFetch("rewards/leaderboard", { params, auth: false });
+}
+
+export async function fetchRewardCapacity(params?: {
+  kind?: "vpn" | "ai";
+  status?: string;
+}): Promise<{ slots: RewardCapacitySlot[] }> {
+  return gatewayFetch("rewards/capacity", { params, auth: false });
+}
+
+export async function reserveRewardCapacity(id: string): Promise<RewardCapacitySlot> {
+  return gatewayFetch(`rewards/capacity/${id}/reserve`, { method: "POST" });
+}
+
+export async function fetchOperatorRewardSummary(): Promise<OperatorRewardSummary> {
+  return gatewayFetch("rewards/me");
+}
+
+export async function fetchXpLedger(): Promise<{ entries: XpLedgerEntry[] }> {
+  return gatewayFetch("rewards/me/xp-ledger");
+}
+
+export async function previewRewardClaim(amountUsdc: string): Promise<ClaimPreview> {
+  return gatewayFetch("rewards/withdrawals/preview", {
+    method: "POST",
+    body: JSON.stringify({ amount_usdc: amountUsdc }),
+  });
+}
+
+export async function fetchRewardWithdrawals(): Promise<{ withdrawals: RewardWithdrawal[] }> {
+  return gatewayFetch("rewards/withdrawals");
+}
+
+export async function createRewardWithdrawal(
+  amountUsdc: string,
+  idempotencyKey: string
+): Promise<RewardWithdrawal> {
+  return gatewayFetch("rewards/withdrawals", {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify({ amount_usdc: amountUsdc, idempotency_key: idempotencyKey }),
+  });
+}
+
+export async function fetchAdminRewardsSummary(): Promise<AdminRewardsSummary> {
+  return gatewayFetch("admin/rewards/summary");
+}
+
+export async function fetchAdminRewardWithdrawals(params?: {
+  status?: string;
+}): Promise<{ withdrawals: RewardWithdrawal[] }> {
+  return gatewayFetch("admin/rewards/withdrawals", { params });
+}
+
+export async function approveRewardWithdrawal(id: string): Promise<RewardWithdrawal> {
+  return gatewayFetch(`admin/rewards/withdrawals/${id}/approve`, { method: "POST" });
+}
+
+export async function rejectRewardWithdrawal(id: string, reason: string): Promise<RewardWithdrawal> {
+  return gatewayFetch(`admin/rewards/withdrawals/${id}/reject`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
+}
+
+export async function retryRewardWithdrawal(id: string): Promise<RewardWithdrawal> {
+  return gatewayFetch(`admin/rewards/withdrawals/${id}/retry`, { method: "POST" });
 }
 
 // ── Perks & Social ─────────────────────────────────────────────────────────
