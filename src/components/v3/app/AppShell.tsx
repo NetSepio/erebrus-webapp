@@ -20,6 +20,7 @@ const NAV = [
   { href: "/connect", label: "VPN", glyph: "◎" },
   { href: "/storage", label: "Drop", glyph: "⇲" },
   { href: "/workspace", label: "Workspace", glyph: "⬡" },
+  { href: "/rewards", label: "Genesis", glyph: "✦" },
 ] as const;
 
 const SCREEN_META: Record<string, { title: string; subtitle: string }> = {

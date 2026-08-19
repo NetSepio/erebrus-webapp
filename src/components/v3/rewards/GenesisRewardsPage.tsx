@@ -17,6 +17,7 @@ import {
   fetchOperatorRewardSummary,
   fetchRewardCapacity,
   fetchRewardWithdrawals,
+  fetchXpLedger,
   GatewayApiError,
   previewRewardClaim,
   reserveRewardCapacity,
@@ -28,8 +29,9 @@ import type {
   OperatorRewardSummary,
   RewardCapacitySlot,
   RewardWithdrawal,
+  XpLedgerEntry,
 } from "@/lib/gateway/types";
-import { ACTIVE_WITHDRAWAL_STATUSES, canCreateClaim, createIdempotencyKey, withdrawalStatusLabel } from "@/lib/rewards";
+import { ACTIVE_WITHDRAWAL_STATUSES, canCreateClaim, capacityModeDescription, createIdempotencyKey, withdrawalStatusLabel, withdrawalXpLabel } from "@/lib/rewards";
 import { cn } from "@/lib/utils";
 
 const FILTERS = ["overall", "vpn", "ai"] as const;
@@ -110,7 +112,7 @@ function CapacityCard({ slot, authenticated, onReserve }: {
           ? `${slot.slots_available ?? 0} slot${slot.slots_available === 1 ? "" : "s"} open`
           : `${slot.slots_requested ?? 0} requested · ${slot.current_capacity ?? 0} active`}
       </p>
-      {slot.kind === "ai" && <p className="mt-2 text-xs text-[var(--text-3)]">{slot.mode === "persistent" ? "Expected to remain available; qualifies through verified availability and usage." : "Contributes while online; earns primarily from verified capacity and usage."}</p>}
+      {slot.kind === "ai" && <p className="mt-2 text-xs text-[var(--text-3)]">{capacityModeDescription(slot.mode)}</p>}
       {slot.kind === "vpn" && <p className="mt-2 text-xs text-[var(--text-3)]">2 vCPU · 2–4 GB RAM · unique static public IPv4 · public permissionless VPN · no firewall configuration</p>}
       {slot.reservation_expires_at && <p className="mt-3 font-mono text-[11px] text-amber-200">Reserved until {new Date(slot.reservation_expires_at).toLocaleString()}</p>}
       {slot.reservable && slot.status.toLowerCase() === "open" && (
@@ -129,7 +131,7 @@ function WithdrawalHistory({ rows }: { rows: RewardWithdrawal[] }) {
       {rows.length === 0 ? <p className="px-5 py-8 text-sm text-[var(--text-2)]">No USDC claims yet.</p> : rows.map((row) => (
         <div key={row.id} className="grid gap-2 border-b border-white/[0.04] px-5 py-4 md:grid-cols-[1fr_auto_auto] md:items-center">
           <div>
-            <p className="font-medium">{row.amount_usdc} USDC · {row.xp_amount.toLocaleString()} XP {row.status === "paid" ? "deducted" : "reserved"}</p>
+            <p className="font-medium">{row.amount_usdc} USDC · {row.xp_amount.toLocaleString()} XP {withdrawalXpLabel(row)}</p>
             <p className="mt-1 text-xs text-[var(--text-3)]">{new Date(row.created_at).toLocaleString()} · {shortAddress(row.payout_wallet)}</p>
             {row.rejection_reason && <p className="mt-1 text-xs text-[var(--danger)]">Reason: {row.rejection_reason}</p>}
           </div>
@@ -223,9 +225,9 @@ function ClaimDialog({ open, onOpenChange, summary, onCreated }: {
   );
 }
 
-function OperatorDashboard({ summary, withdrawals, onRefresh }: { summary: OperatorRewardSummary; withdrawals: RewardWithdrawal[]; onRefresh: () => Promise<void> }) {
+function OperatorDashboard({ summary, withdrawals, ledger, onRefresh }: { summary: OperatorRewardSummary; withdrawals: RewardWithdrawal[]; ledger: XpLedgerEntry[]; onRefresh: () => Promise<void> }) {
   const [claimOpen, setClaimOpen] = useState(false);
-  const disabledReason = summary.payouts_paused ? "Payouts are temporarily paused." : summary.conflicting_withdrawal ? "A withdrawal is already pending or processing." : `Claims open once at least ${summary.minimum_claim_usdc} USDC is available.`;
+  const disabledReason = !summary.verified_solana_wallet ? "Link and verify a Solana payout wallet in your profile before claiming." : summary.payouts_paused ? "Payouts are temporarily paused." : summary.conflicting_withdrawal ? "A withdrawal is already pending or processing." : `Claims open once at least ${summary.minimum_claim_usdc} USDC is available.`;
   return (
     <section className="space-y-5" aria-labelledby="operator-rewards">
       <div className="flex flex-wrap items-end justify-between gap-3"><div><Eyebrow>Operator dashboard</Eyebrow><h2 id="operator-rewards" className="mt-1 text-2xl font-bold">Your Genesis rewards</h2></div><ActionButton onClick={onRefresh}><RefreshCw size={13} /> Refresh</ActionButton></div>
@@ -240,6 +242,7 @@ function OperatorDashboard({ summary, withdrawals, onRefresh }: { summary: Opera
       <div className="grid gap-4 md:grid-cols-3"><StatCard label="Active nodes" value={summary.active_nodes} /><StatCard label="Standby nodes" value={summary.standby_nodes} /><StatCard label="Probation nodes" value={summary.probation_nodes} /></div>
       <div className="grid gap-4 md:grid-cols-2">{summary.nodes.map((node) => <Card key={node.id} className="p-5"><div className="flex justify-between gap-3"><div><MonoLabel>{node.kind} node</MonoLabel><h3 className="mt-1 font-semibold">{node.name}</h3></div><StateBadge value={node.slot_status} /></div><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-[var(--text-3)]">Node quality</dt><dd>{node.quality_band ?? "—"}</dd></div><div><dt className="text-[var(--text-3)]">Uptime</dt><dd>{node.uptime_percent ? `${node.uptime_percent}%` : "—"}</dd></div><div><dt className="text-[var(--text-3)]">Region/model demand</dt><dd>{node.demand_label ?? "—"}</dd></div><div><dt className="text-[var(--text-3)]">Contribution XP</dt><dd>{node.contribution_xp.toLocaleString()}</dd></div></dl>{node.suggestions?.map((suggestion) => <p key={suggestion} className="mt-3 flex gap-2 text-xs text-[var(--accent-hi)]"><Sparkles size={13} /> {suggestion}</p>)}</Card>)}</div>
       {summary.nodes.length === 0 && <Card className="p-6 text-sm text-[var(--text-2)]">No operator nodes yet. Reserve an open capacity slot to get started.</Card>}
+      <Card className="overflow-hidden"><div className="border-b border-white/[0.06] px-5 py-4 font-semibold">XP ledger</div>{ledger.length === 0 ? <p className="px-5 py-8 text-sm text-[var(--text-2)]">No Genesis XP activity yet.</p> : ledger.map((entry) => <div key={entry.id} className="flex flex-col gap-2 border-b border-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-medium">{entry.label}</p><p className="mt-1 text-xs text-[var(--text-3)]">{new Date(entry.created_at).toLocaleString()} · {entry.kind}</p></div><div className="text-right font-mono text-xs"><p>Contribution {entry.contribution_xp_delta >= 0 ? "+" : ""}{entry.contribution_xp_delta} XP</p><p className="mt-1 text-[var(--text-3)]">Retained {entry.retained_xp_delta >= 0 ? "+" : ""}{entry.retained_xp_delta} XP</p></div></div>)}</Card>
       <WithdrawalHistory rows={withdrawals} />
       <ClaimDialog open={claimOpen} onOpenChange={setClaimOpen} summary={summary} onCreated={onRefresh} />
     </section>
@@ -253,6 +256,7 @@ export function GenesisRewardsPage() {
   const [capacity, setCapacity] = useState<RewardCapacitySlot[]>([]);
   const [summary, setSummary] = useState<OperatorRewardSummary | null>(null);
   const [withdrawals, setWithdrawals] = useState<RewardWithdrawal[]>([]);
+  const [ledger, setLedger] = useState<XpLedgerEntry[]>([]);
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("overall");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -267,8 +271,8 @@ export function GenesisRewardsPage() {
   }, []);
 
   const loadOperator = useCallback(async () => {
-    if (!isAuthenticated) { setSummary(null); setWithdrawals([]); return; }
-    try { const [nextSummary, history] = await Promise.all([fetchOperatorRewardSummary(), fetchRewardWithdrawals()]); setSummary(nextSummary); setWithdrawals(history.withdrawals); }
+    if (!isAuthenticated) { setSummary(null); setWithdrawals([]); setLedger([]); return; }
+    try { const [nextSummary, history, xp] = await Promise.all([fetchOperatorRewardSummary(), fetchRewardWithdrawals(), fetchXpLedger()]); setSummary(nextSummary); setWithdrawals(history.withdrawals); setLedger(xp.entries); }
     catch (err) { toast.error(err instanceof GatewayApiError ? err.message : "Could not load operator rewards"); }
   }, [isAuthenticated]);
 
@@ -291,6 +295,6 @@ export function GenesisRewardsPage() {
     <section className="space-y-5"><div><Eyebrow>How it works</Eyebrow><h2 className="mt-1 text-2xl font-bold">Useful work earns upside</h2></div><div className="grid gap-4 md:grid-cols-4">{[["01","Find demand","See the VPN regions and AI capacity Erebrus currently needs."],["02","Run & verify","Reserve a slot and pass node or model verification."],["03","Earn XP","Useful uptime, users, traffic and AI capacity grow Contribution XP."],["04","Choose your upside","Claim eligible USDC now and give up corresponding XP, or preserve more XP."]].map(([n,t,d]) => <Card key={n} className="p-5"><MonoLabel>{n}</MonoLabel><h3 className="mt-3 font-semibold">{t}</h3><p className="mt-2 text-sm text-[var(--text-2)]">{d}</p></Card>)}</div><p className="text-xs text-[var(--text-3)]">XP is wallet-bound and non-transferable. It may qualify operators for future pro-rata network rewards, but has no guaranteed token value or fixed conversion. No staking is required for Season 1.</p></section>
     <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-3"><div><Eyebrow>Public ranking</Eyebrow><h2 className="mt-1 text-2xl font-bold">Contribution leaderboard</h2></div><div className="flex gap-1">{FILTERS.map((item) => <button key={item} onClick={() => { setFilter(item); loadPublic(item); }} className={cn("rounded-lg border px-3 py-1.5 text-xs capitalize", filter === item ? "border-[var(--accent)]/40 bg-[var(--accent)]/15 text-[var(--accent-hi)]" : "border-white/10 text-[var(--text-2)]")}>{item}</button>)}</div></div><Card className="overflow-hidden">{leaderboard.length === 0 ? <p className="p-8 text-sm text-[var(--text-2)]">No leaderboard entries yet.</p> : leaderboard.map((entry) => <div key={`${entry.rank}-${entry.display_name}`} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-white/[0.04] px-5 py-4"><span className="font-mono text-[var(--text-3)]">#{entry.rank}</span><div><p className="font-medium">{entry.display_name}</p><p className="text-xs text-[var(--text-3)]">{entry.active_eligible_nodes} eligible nodes · {entry.contribution_types.map((kind) => kind.toUpperCase()).join(" / ") || "—"}</p></div><strong className="font-mono text-[var(--accent-hi)]">{entry.contribution_xp.toLocaleString()} XP</strong></div>)}</Card></section>
     <section className="space-y-5"><div><Eyebrow>Demand marketplace</Eyebrow><h2 className="mt-1 text-2xl font-bold">Open capacity</h2><p className="mt-2 text-sm text-[var(--text-2)]">Slots are reserved first-come and retained through performance. Standby nodes may still earn XP.</p></div>{capacity.length === 0 ? <Card className="p-8 text-sm text-[var(--text-2)]">No capacity requests are open right now.</Card> : <><div className="flex items-center gap-2"><Server size={16} /><h3 className="font-semibold">VPN</h3></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{slotsByKind.vpn.map((slot) => <CapacityCard key={slot.id} slot={slot} authenticated={isAuthenticated} onReserve={reserve} />)}</div><div className="flex items-center gap-2"><Sparkles size={16} /><h3 className="font-semibold">AI</h3></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{slotsByKind.ai.map((slot) => <CapacityCard key={slot.id} slot={slot} authenticated={isAuthenticated} onReserve={reserve} />)}</div></>}</section>
-    {isAuthenticated && summary ? <OperatorDashboard summary={summary} withdrawals={withdrawals} onRefresh={loadOperator} /> : <Card className="p-7 text-center"><Check className="mx-auto text-[var(--accent-hi)]" /><h2 className="mt-3 text-xl font-semibold">Operator rewards</h2><p className="mx-auto mt-2 max-w-xl text-sm text-[var(--text-2)]">Sign in to see Contribution, Retained and Reserved XP, claimable USDC, rewarded nodes and withdrawal history.</p><AuthModalTrigger><AccentButton className="mt-5">Sign in to view rewards</AccentButton></AuthModalTrigger></Card>}
+    {isAuthenticated && summary ? <OperatorDashboard summary={summary} withdrawals={withdrawals} ledger={ledger} onRefresh={loadOperator} /> : <Card className="p-7 text-center"><Check className="mx-auto text-[var(--accent-hi)]" /><h2 className="mt-3 text-xl font-semibold">Operator rewards</h2><p className="mx-auto mt-2 max-w-xl text-sm text-[var(--text-2)]">Sign in to see Contribution, Retained and Reserved XP, claimable USDC, rewarded nodes and withdrawal history.</p><AuthModalTrigger><AccentButton className="mt-5">Sign in to view rewards</AccentButton></AuthModalTrigger></Card>}
   </main></>;
 }

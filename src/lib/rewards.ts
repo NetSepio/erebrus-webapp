@@ -1,4 +1,4 @@
-import type { OperatorRewardSummary, WithdrawalStatus } from "@/lib/gateway/types";
+import type { GenesisLeaderboardEntry, OperatorRewardSummary, RewardWithdrawal, WithdrawalStatus } from "@/lib/gateway/types";
 
 export const ACTIVE_WITHDRAWAL_STATUSES: WithdrawalStatus[] = [
   "pending",
@@ -7,8 +7,32 @@ export const ACTIVE_WITHDRAWAL_STATUSES: WithdrawalStatus[] = [
 ];
 
 export function canCreateClaim(summary: OperatorRewardSummary): boolean {
-  if (summary.payouts_paused || summary.conflicting_withdrawal) return false;
+  if (!summary.verified_solana_wallet || summary.payouts_paused || summary.conflicting_withdrawal) return false;
   return compareDecimalStrings(summary.claimable_usdc, summary.minimum_claim_usdc) >= 0;
+}
+
+export function withdrawalXpLabel(withdrawal: Pick<RewardWithdrawal, "status" | "reservation_released">): "reserved" | "deducted" | "released" {
+  if (withdrawal.status.toLowerCase() === "paid") return "deducted";
+  if (withdrawal.reservation_released || ["rejected", "failed"].includes(withdrawal.status.toLowerCase())) return "released";
+  return "reserved";
+}
+
+/** Deliberately excludes wallets, payout data, and telemetry from public rows. */
+export function publicLeaderboardRow(entry: GenesisLeaderboardEntry) {
+  return {
+    rank: entry.rank,
+    displayName: entry.display_name,
+    contributionXp: entry.contribution_xp,
+    activeEligibleNodes: entry.active_eligible_nodes,
+    contributionTypes: entry.contribution_types,
+    countryCodes: entry.country_codes,
+  };
+}
+
+export function capacityModeDescription(mode?: string): string {
+  return mode?.toLowerCase() === "persistent"
+    ? "Expected to remain available; qualifies through verified availability and usage."
+    : "Contributes while online; earns primarily from verified capacity and usage.";
 }
 
 export function compareDecimalStrings(left: string, right: string): number {
