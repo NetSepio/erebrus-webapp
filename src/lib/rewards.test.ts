@@ -42,6 +42,7 @@ describe("Genesis reward claim states", () => {
     expect(withdrawalXpLabel({ status: "paid" })).toBe("deducted");
     expect(withdrawalXpLabel({ status: "rejected" })).toBe("released");
     expect(withdrawalXpLabel({ status: "failed", reservation_released: true })).toBe("released");
+    expect(withdrawalXpLabel({ status: "failed" })).toBe("reserved");
   });
 
   it("projects only Contribution XP into public leaderboard rows", () => {

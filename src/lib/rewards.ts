@@ -4,6 +4,9 @@ export const ACTIVE_WITHDRAWAL_STATUSES: WithdrawalStatus[] = [
   "pending",
   "approved",
   "processing",
+  // Failed payouts retain their reservation so an admin can safely reconcile
+  // and retry them without exposing the same entitlement to a second claim.
+  "failed",
 ];
 
 export function canCreateClaim(summary: OperatorRewardSummary): boolean {
@@ -13,7 +16,7 @@ export function canCreateClaim(summary: OperatorRewardSummary): boolean {
 
 export function withdrawalXpLabel(withdrawal: Pick<RewardWithdrawal, "status" | "reservation_released">): "reserved" | "deducted" | "released" {
   if (withdrawal.status.toLowerCase() === "paid") return "deducted";
-  if (withdrawal.reservation_released || ["rejected", "failed"].includes(withdrawal.status.toLowerCase())) return "released";
+  if (withdrawal.reservation_released || withdrawal.status.toLowerCase() === "rejected") return "released";
   return "reserved";
 }
 

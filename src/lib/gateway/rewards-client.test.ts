@@ -5,6 +5,7 @@ vi.mock("@/context/appkit", () => ({ getCurrentAuthToken: () => "test-token" }))
 import {
   approveRewardWithdrawal,
   createRewardWithdrawal,
+  fetchAdminRewardsSummary,
   fetchAdminRewardWithdrawals,
   fetchRewardWithdrawals,
   GatewayApiError,
@@ -23,48 +24,63 @@ describe("Genesis rewards Gateway client", () => {
 
   it("renders partial and full claim previews exactly as calculated by Gateway", async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(json({ amount_usdc: "4.00", xp_to_reserve: 2000, projected_retained_xp: 8000, payout_wallet: "sol", network: "solana", token: "USDC" }))
-      .mockResolvedValueOnce(json({ amount_usdc: "8.00", xp_to_reserve: 4000, projected_retained_xp: 6000, payout_wallet: "sol", network: "solana", token: "USDC" }));
+      .mockResolvedValueOnce(json({ amount_usdc: 4_000_000, xp_to_reserve: 2000, projected_retained_xp: 8000, payout_wallet: "sol", network: "solana", token: "USDC" }))
+      .mockResolvedValueOnce(json({ amount_usdc: 8_000_000, xp_to_reserve: 4000, projected_retained_xp: 6000, payout_wallet: "sol", network: "solana", token: "USDC" }));
     expect((await previewRewardClaim("4.00")).xp_to_reserve).toBe(2000);
-    expect((await previewRewardClaim("8.00")).projected_retained_xp).toBe(6000);
+    const full = await previewRewardClaim("8.00");
+    expect(full.projected_retained_xp).toBe(6000);
+    expect(full.amount_usdc).toBe("8.00");
   });
 
   it("sends and preserves an idempotency key when creating a claim", async () => {
-    vi.mocked(fetch).mockResolvedValue(json({ id: "w1", status: "pending" }));
-    await createRewardWithdrawal("5.00", "idem-123");
+    const key = "00000000-0000-4000-8000-000000000123";
+    vi.mocked(fetch).mockResolvedValue(json({ withdrawal_id: "w1", amount_usdc: 5_000_000, reserved_xp: 2000, status: "pending" }));
+    await createRewardWithdrawal("5.00", key, "sol-wallet");
     const [, init] = vi.mocked(fetch).mock.calls[0];
-    expect(new Headers(init?.headers).get("Idempotency-Key")).toBe("idem-123");
-    expect(String(init?.body)).toContain('"idempotency_key":"idem-123"');
+    expect(new Headers(init?.headers).get("Idempotency-Key")).toBe(key);
+    expect(JSON.parse(String(init?.body))).toEqual({ amount_usdc: "5.00", payout_address: "sol-wallet", idempotency_key: key });
   });
 
   it.each([400, 401, 403, 409])("preserves Gateway claim error status %s", async (status) => {
     vi.mocked(fetch).mockResolvedValue(json({ error: `error-${status}` }, status));
-    const error = await createRewardWithdrawal("9.00", "idem").catch((value) => value);
+    const error = await createRewardWithdrawal("9.00", "00000000-0000-4000-8000-000000000124", "sol-wallet").catch((value) => value);
     expect(error).toBeInstanceOf(GatewayApiError);
     expect(error.status).toBe(status);
   });
 
   it("keeps approval processing until a later authoritative refresh reports paid", async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(json({ id: "w1", status: "processing" }))
-      .mockResolvedValueOnce(json({ withdrawals: [{ id: "w1", status: "paid", transaction_signature: "sig" }] }));
-    expect((await approveRewardWithdrawal("w1")).status).toBe("processing");
+      .mockResolvedValueOnce(json({ status: "approved" }))
+      .mockResolvedValueOnce(json({ withdrawals: [{ id: "w1", status: "paid", amount_usdc: 5_000_000, reserved_xp: 2000, payout_address: "sol", created_at: "2026-01-01T00:00:00Z", payout_attempt: { signature: "sig" } }] }));
+    expect((await approveRewardWithdrawal("w1")).status).toBe("approved");
     expect((await fetchAdminRewardWithdrawals()).withdrawals[0].status).toBe("paid");
   });
 
   it("supports rejection and Gateway-authorized payout retry", async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(json({ id: "w1", status: "rejected", rejection_reason: "Not eligible" }))
-      .mockResolvedValueOnce(json({ id: "w2", status: "processing", retryable: false }));
+      .mockResolvedValueOnce(json({ status: "rejected" }))
+      .mockResolvedValueOnce(json({ status: "approved" }));
     expect((await rejectRewardWithdrawal("w1", "Not eligible")).status).toBe("rejected");
-    expect((await retryRewardWithdrawal("w2")).status).toBe("processing");
+    expect((await retryRewardWithdrawal("w2")).status).toBe("approved");
+    expect(String(vi.mocked(fetch).mock.calls[1][0])).toContain("/admin/rewards/withdrawals/w2/approve");
+  });
+
+  it("uses authoritative treasury base-unit balances in the admin summary", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({ id: "s1", name: "Genesis", status: "active", xp_multiplier: 1.5, min_payout_usdc: 5_000_000, total_budget_usdc: 500_000_000, vpn_envelope_usdc: 275_000_000, ai_envelope_usdc: 200_000_000, reserve_usdc: 25_000_000, spent_usdc: 0, reserved_usdc: 0 }))
+      .mockResolvedValueOnce(json({ payouts_paused: false }))
+      .mockResolvedValueOnce(json({ treasury_address: "treasury", usdc_balance: 12_345_678, sol_balance_lamports: 1_250_000_000 }));
+    const summary = await fetchAdminRewardsSummary();
+    expect(summary.treasury_usdc_balance).toBe("12.345678");
+    expect(summary.treasury_sol_balance).toBe("1.2500");
   });
 
   it("can reconcile an ambiguous create failure by refetching active history", async () => {
     vi.mocked(fetch)
       .mockRejectedValueOnce(new TypeError("network timeout"))
-      .mockResolvedValueOnce(json({ withdrawals: [{ id: "w1", status: "pending" }] }));
-    await expect(createRewardWithdrawal("5.00", "idem-timeout")).rejects.toThrow("network timeout");
+      .mockResolvedValueOnce(json({ withdrawals: [{ id: "w1", status: "pending", amount_usdc: 5_000_000, reserved_xp: 2000, payout_address: "sol", created_at: "2026-01-01T00:00:00Z" }] }));
+    await expect(createRewardWithdrawal("5.00", "00000000-0000-4000-8000-000000000125", "sol")).rejects.toThrow("network timeout");
     expect((await fetchRewardWithdrawals()).withdrawals[0].status).toBe("pending");
+    expect(String(vi.mocked(fetch).mock.calls[1][0])).toContain("/rewards/me/withdrawals");
   });
 });

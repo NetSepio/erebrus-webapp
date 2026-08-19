@@ -684,8 +684,81 @@ export async function fetchLeaderboard(params?: {
 
 // ── Genesis Season rewards ─────────────────────────────────────────────────────────────────
 
+type RawRewardSeason = {
+  id: string; name: string; status: string; start_at?: string; end_at?: string;
+  xp_multiplier: number; min_payout_usdc: number; total_budget_usdc: number;
+  vpn_envelope_usdc: number; ai_envelope_usdc: number; reserve_usdc: number;
+  spent_usdc: number; reserved_usdc: number; payouts_paused?: boolean;
+};
+
+type RawRewardWithdrawal = {
+  id: string; created_at: string; amount_usdc: number; reserved_xp: number;
+  payout_address: string; status: string; admin_reason?: string;
+  payout_attempt?: { signature?: string; status?: string };
+};
+
+function formatUSDCBaseUnits(value: number | string): string {
+  const units = Number(value);
+  if (!Number.isSafeInteger(units) || units < 0) throw new Error("Gateway returned an invalid USDC base-unit value");
+  const whole = Math.floor(units / 1_000_000);
+  let fraction = (units % 1_000_000).toString().padStart(6, "0");
+  while (fraction.length > 2 && fraction.endsWith("0")) fraction = fraction.slice(0, -1);
+  return `${whole}.${fraction}`;
+}
+
+function formatSOLBaseUnits(value: number | string): string {
+  const lamports = Number(value);
+  if (!Number.isSafeInteger(lamports) || lamports < 0) throw new Error("Gateway returned an invalid SOL base-unit value");
+  const whole = Math.floor(lamports / 1_000_000_000);
+  let fraction = (lamports % 1_000_000_000).toString().padStart(9, "0");
+  while (fraction.length > 4 && fraction.endsWith("0")) fraction = fraction.slice(0, -1);
+  return `${whole}.${fraction}`;
+}
+
+function normalizeGenesisSeason(raw: RawRewardSeason): GenesisSeason {
+  const remaining = raw.total_budget_usdc - raw.spent_usdc - raw.reserved_usdc;
+  return {
+    id: raw.id,
+    name: raw.name,
+    status: raw.status,
+    starts_at: raw.start_at,
+    ends_at: raw.end_at,
+    duration_weeks: raw.start_at && raw.end_at
+      ? Math.max(1, Math.ceil((Date.parse(raw.end_at) - Date.parse(raw.start_at)) / (7 * 24 * 60 * 60 * 1000)))
+      : undefined,
+    xp_multiplier: String(raw.xp_multiplier),
+    total_budget_usdc: formatUSDCBaseUnits(raw.total_budget_usdc),
+    spent_usdc: formatUSDCBaseUnits(raw.spent_usdc),
+    reserved_usdc: formatUSDCBaseUnits(raw.reserved_usdc),
+    remaining_usdc: formatUSDCBaseUnits(Math.max(0, remaining)),
+    payouts_paused: raw.payouts_paused,
+    buckets: [
+      { key: "vpn", label: "VPN capacity", allocation_usdc: formatUSDCBaseUnits(raw.vpn_envelope_usdc), allocation_percent: "55" },
+      { key: "ai", label: "AI capacity", allocation_usdc: formatUSDCBaseUnits(raw.ai_envelope_usdc), allocation_percent: "40" },
+      { key: "reserve", label: "Season reserve", allocation_usdc: formatUSDCBaseUnits(raw.reserve_usdc), allocation_percent: "5" },
+    ],
+  };
+}
+
+function normalizeRewardWithdrawal(raw: RawRewardWithdrawal): RewardWithdrawal {
+  const status = raw.status.toLowerCase();
+  return {
+    id: raw.id,
+    created_at: raw.created_at,
+    amount_usdc: formatUSDCBaseUnits(raw.amount_usdc),
+    xp_amount: raw.reserved_xp,
+    payout_wallet: raw.payout_address,
+    status: raw.status,
+    rejection_reason: status === "rejected" ? raw.admin_reason : undefined,
+    transaction_signature: raw.payout_attempt?.signature,
+    retryable: status === "failed",
+    reservation_released: status === "rejected",
+  };
+}
+
 export async function fetchCurrentGenesisSeason(): Promise<GenesisSeason | null> {
-  return gatewayFetch("rewards/seasons/current", { auth: false });
+  const raw = await gatewayFetch<RawRewardSeason & { active?: boolean }>("rewards/seasons/current", { auth: false });
+  return raw.active === false ? null : normalizeGenesisSeason(raw);
 }
 
 export async function fetchGenesisLeaderboard(params?: {
@@ -693,73 +766,155 @@ export async function fetchGenesisLeaderboard(params?: {
   season_id?: string;
   limit?: number;
 }): Promise<{ entries: GenesisLeaderboardEntry[] }> {
-  return gatewayFetch("rewards/leaderboard", { params, auth: false });
+  const data = await gatewayFetch<{ entries?: Array<{ rank: number; wallet: string; contribution_xp: number }> }>(
+    "rewards/leaderboard", { params, auth: false }
+  );
+  return { entries: (data.entries ?? []).map((row) => ({
+    rank: row.rank,
+    display_name: row.wallet,
+    contribution_xp: row.contribution_xp,
+    active_eligible_nodes: 0,
+    contribution_types: params?.kind && params.kind !== "overall" ? [params.kind] : [],
+  })) };
 }
 
 export async function fetchRewardCapacity(params?: {
   kind?: "vpn" | "ai";
   status?: string;
 }): Promise<{ slots: RewardCapacitySlot[] }> {
-  return gatewayFetch("rewards/capacity", { params, auth: false });
+  const [slotData, modelData] = await Promise.all([
+    gatewayFetch<{ slots?: Array<{ id: string; slot_type: string; country?: string; city?: string; model_request_id?: string; demand_state: string; state: string; reserved_until?: string }> }>(
+      "rewards/slots", { params: { slot_type: params?.kind === "vpn" ? "vpn" : undefined, state: params?.status }, auth: false }
+    ),
+    gatewayFetch<{ model_requests?: Array<{ id: string; family: string; checkpoint_id: string; quantization?: string; persistent: boolean; target_slots: number }> }>(
+      "rewards/model-requests", { auth: false }
+    ),
+  ]);
+  const models = new Map((modelData.model_requests ?? []).map((model) => [model.id, model]));
+  return { slots: (slotData.slots ?? []).map((raw): RewardCapacitySlot => {
+    const model = raw.model_request_id ? models.get(raw.model_request_id) : undefined;
+    const kind = raw.slot_type === "vpn" ? "vpn" : "ai";
+    return {
+      id: raw.id,
+      kind,
+      status: raw.state,
+      demand_label: raw.demand_state,
+      city: raw.city,
+      country: raw.country,
+      model_family: model?.family,
+      checkpoint: model?.checkpoint_id,
+      quantization: model?.quantization,
+      mode: raw.slot_type === "ai_persistent" ? "persistent" : raw.slot_type === "ai_opportunistic" ? "opportunistic" : undefined,
+      slots_requested: model?.target_slots,
+      slots_available: raw.state === "open" ? 1 : 0,
+      reservation_expires_at: raw.reserved_until,
+      reservable: raw.state === "open",
+    };
+  }).filter((slot) => !params?.kind || slot.kind === params.kind) };
 }
 
 export async function reserveRewardCapacity(id: string): Promise<RewardCapacitySlot> {
-  return gatewayFetch(`rewards/capacity/${id}/reserve`, { method: "POST" });
+  const result = await gatewayFetch<{ status: string }>(`rewards/slots/${id}/reserve`, { method: "POST" });
+  return { id, kind: "vpn", status: result.status, demand_label: "normal", reservable: false };
 }
 
 export async function fetchOperatorRewardSummary(): Promise<OperatorRewardSummary> {
-  return gatewayFetch("rewards/me");
+  const [raw, season, history] = await Promise.all([
+    gatewayFetch<{ season_id: string; verified_solana_wallet?: string; contribution_xp: number; retained_xp: number; reserved_xp: number; claimable_usdc: number; spent_usdc: number }>("rewards/me"),
+    gatewayFetch<RawRewardSeason>("rewards/seasons/current", { auth: false }),
+    fetchRewardWithdrawals(),
+  ]);
+  return {
+    season_id: raw.season_id,
+    contribution_xp: raw.contribution_xp,
+    retained_xp: raw.retained_xp,
+    reserved_xp: raw.reserved_xp,
+    claimable_usdc: formatUSDCBaseUnits(raw.claimable_usdc),
+    claimed_usdc: formatUSDCBaseUnits(raw.spent_usdc),
+    minimum_claim_usdc: formatUSDCBaseUnits(season.min_payout_usdc),
+    verified_solana_wallet: raw.verified_solana_wallet || undefined,
+    conflicting_withdrawal: history.withdrawals.some((row) => ["pending", "approved", "processing", "failed"].includes(row.status.toLowerCase())),
+    payouts_paused: season.payouts_paused,
+    active_nodes: 0,
+    standby_nodes: 0,
+    probation_nodes: 0,
+    nodes: [],
+  };
 }
 
 export async function fetchXpLedger(): Promise<{ entries: XpLedgerEntry[] }> {
-  return gatewayFetch("rewards/me/xp-ledger");
+  const data = await gatewayFetch<{ entries?: Array<{ id: string; created_at: string; event_type: string; points: number; reason?: string }> }>("rewards/me/ledger");
+  return { entries: (data.entries ?? []).map((entry) => {
+    const cashEvent = ["payout_reserve", "payout_release", "payout_deduct"].includes(entry.event_type);
+    return {
+      id: entry.id,
+      created_at: entry.created_at,
+      label: entry.reason || entry.event_type.replaceAll("_", " "),
+      kind: entry.event_type,
+      contribution_xp_delta: cashEvent ? 0 : entry.points,
+      retained_xp_delta: entry.event_type === "payout_deduct" || !cashEvent ? entry.points : 0,
+    };
+  }) };
 }
 
 export async function previewRewardClaim(amountUsdc: string): Promise<ClaimPreview> {
-  return gatewayFetch("rewards/withdrawals/preview", {
+  const raw = await gatewayFetch<{ amount_usdc: number; xp_to_reserve: number; projected_retained_xp: number; payout_wallet: string; network: string; token: string }>("rewards/withdrawals/preview", {
     method: "POST",
     body: JSON.stringify({ amount_usdc: amountUsdc }),
   });
+  return { ...raw, amount_usdc: formatUSDCBaseUnits(raw.amount_usdc) } as ClaimPreview;
 }
 
 export async function fetchRewardWithdrawals(): Promise<{ withdrawals: RewardWithdrawal[] }> {
-  return gatewayFetch("rewards/withdrawals");
+  const data = await gatewayFetch<{ withdrawals?: RawRewardWithdrawal[] }>("rewards/me/withdrawals");
+  return { withdrawals: (data.withdrawals ?? []).map(normalizeRewardWithdrawal) };
 }
 
 export async function createRewardWithdrawal(
   amountUsdc: string,
-  idempotencyKey: string
+  idempotencyKey: string,
+  payoutAddress: string
 ): Promise<RewardWithdrawal> {
-  return gatewayFetch("rewards/withdrawals", {
+  const raw = await gatewayFetch<{ withdrawal_id: string; amount_usdc: number; reserved_xp: number; status: string }>("rewards/withdrawals", {
     method: "POST",
     headers: { "Idempotency-Key": idempotencyKey },
-    body: JSON.stringify({ amount_usdc: amountUsdc, idempotency_key: idempotencyKey }),
+    body: JSON.stringify({ amount_usdc: amountUsdc, payout_address: payoutAddress, idempotency_key: idempotencyKey }),
   });
+  return normalizeRewardWithdrawal({ id: raw.withdrawal_id, created_at: new Date().toISOString(), amount_usdc: raw.amount_usdc, reserved_xp: raw.reserved_xp, payout_address: payoutAddress, status: raw.status });
 }
 
 export async function fetchAdminRewardsSummary(): Promise<AdminRewardsSummary> {
-  return gatewayFetch("admin/rewards/summary");
+  const [season, stats, treasury] = await Promise.all([
+    fetchCurrentGenesisSeason(),
+    gatewayFetch<{ payouts_paused: boolean }>("admin/rewards/seasons/stats"),
+    gatewayFetch<{ treasury_address?: string; usdc_balance: number; sol_balance_lamports: number }>("admin/rewards/treasury"),
+  ]);
+  if (!season) throw new GatewayApiError("No active reward season", 404);
+  return { season, treasury_address: treasury.treasury_address, treasury_usdc_balance: formatUSDCBaseUnits(treasury.usdc_balance), treasury_sol_balance: formatSOLBaseUnits(treasury.sol_balance_lamports), rewards_paused: stats.payouts_paused };
 }
 
 export async function fetchAdminRewardWithdrawals(params?: {
   status?: string;
 }): Promise<{ withdrawals: RewardWithdrawal[] }> {
-  return gatewayFetch("admin/rewards/withdrawals", { params });
+  const data = await gatewayFetch<{ withdrawals?: RawRewardWithdrawal[] }>("admin/rewards/withdrawals", { params });
+  return { withdrawals: (data.withdrawals ?? []).map(normalizeRewardWithdrawal) };
 }
 
 export async function approveRewardWithdrawal(id: string): Promise<RewardWithdrawal> {
-  return gatewayFetch(`admin/rewards/withdrawals/${id}/approve`, { method: "POST" });
+  const result = await gatewayFetch<{ status: string }>(`admin/rewards/withdrawals/${id}/approve`, { method: "POST" });
+  return normalizeRewardWithdrawal({ id, created_at: new Date().toISOString(), amount_usdc: 0, reserved_xp: 0, payout_address: "", status: result.status });
 }
 
 export async function rejectRewardWithdrawal(id: string, reason: string): Promise<RewardWithdrawal> {
-  return gatewayFetch(`admin/rewards/withdrawals/${id}/reject`, {
+  const result = await gatewayFetch<{ status: string }>(`admin/rewards/withdrawals/${id}/reject`, {
     method: "POST",
     body: JSON.stringify({ reason }),
   });
+  return { ...normalizeRewardWithdrawal({ id, created_at: new Date().toISOString(), amount_usdc: 0, reserved_xp: 0, payout_address: "", status: result.status, admin_reason: reason }), rejection_reason: reason };
 }
 
 export async function retryRewardWithdrawal(id: string): Promise<RewardWithdrawal> {
-  return gatewayFetch(`admin/rewards/withdrawals/${id}/retry`, { method: "POST" });
+  return approveRewardWithdrawal(id);
 }
 
 // ── Perks & Social ─────────────────────────────────────────────────────────

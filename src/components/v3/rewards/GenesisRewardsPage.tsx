@@ -175,7 +175,7 @@ function ClaimDialog({ open, onOpenChange, summary, onCreated }: {
     if (!preview || !confirmed || submitting) return;
     setSubmitting(true);
     try {
-      await createRewardWithdrawal(preview.amount_usdc, key);
+      await createRewardWithdrawal(preview.amount_usdc, key, preview.payout_wallet);
       toast.success("Withdrawal request submitted for review");
       await onCreated();
       onOpenChange(false);
