@@ -819,11 +819,22 @@ export async function reserveRewardCapacity(id: string): Promise<RewardCapacityS
 }
 
 export async function fetchOperatorRewardSummary(): Promise<OperatorRewardSummary> {
-  const [raw, season, history] = await Promise.all([
+  const [raw, season, history, nodeData] = await Promise.all([
     gatewayFetch<{ season_id: string; verified_solana_wallet?: string; contribution_xp: number; retained_xp: number; reserved_xp: number; claimable_usdc: number; spent_usdc: number }>("rewards/me"),
     gatewayFetch<RawRewardSeason>("rewards/seasons/current", { auth: false }),
     fetchRewardWithdrawals(),
+    gatewayFetch<{ nodes?: Array<{ node_id: string; node_type: string; slot_status: string; contribution_xp: number; cash_entitlement_usdc: number; average_quality_score: number }> }>("rewards/me/nodes"),
   ]);
+  const nodes = (nodeData.nodes ?? []).map((node): import("./types").OperatorRewardNode => ({
+    id: node.node_id,
+    name: node.node_id,
+    kind: node.node_type === "vpn" ? "vpn" : "ai",
+    slot_status: node.slot_status,
+    quality_band: node.average_quality_score >= 0.9 ? "excellent" : node.average_quality_score >= 0.75 ? "good" : node.average_quality_score > 0 ? "needs attention" : undefined,
+    contribution_xp: node.contribution_xp,
+    retained_xp: 0,
+    claimable_usdc: formatUSDCBaseUnits(node.cash_entitlement_usdc),
+  }));
   return {
     season_id: raw.season_id,
     contribution_xp: raw.contribution_xp,
@@ -835,10 +846,10 @@ export async function fetchOperatorRewardSummary(): Promise<OperatorRewardSummar
     verified_solana_wallet: raw.verified_solana_wallet || undefined,
     conflicting_withdrawal: history.withdrawals.some((row) => ["pending", "approved", "processing", "failed"].includes(row.status.toLowerCase())),
     payouts_paused: season.payouts_paused,
-    active_nodes: 0,
-    standby_nodes: 0,
-    probation_nodes: 0,
-    nodes: [],
+    active_nodes: nodes.filter((node) => node.slot_status === "active").length,
+    standby_nodes: nodes.filter((node) => node.slot_status === "standby" || node.slot_status === "settled").length,
+    probation_nodes: nodes.filter((node) => node.slot_status === "probation").length,
+    nodes,
   };
 }
 

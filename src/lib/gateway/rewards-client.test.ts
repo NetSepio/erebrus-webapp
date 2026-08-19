@@ -6,6 +6,8 @@ import {
   approveRewardWithdrawal,
   createRewardWithdrawal,
   fetchAdminRewardsSummary,
+  fetchGenesisLeaderboard,
+  fetchOperatorRewardSummary,
   fetchAdminRewardWithdrawals,
   fetchRewardWithdrawals,
   GatewayApiError,
@@ -30,6 +32,24 @@ describe("Genesis rewards Gateway client", () => {
     const full = await previewRewardClaim("8.00");
     expect(full.projected_retained_xp).toBe(6000);
     expect(full.amount_usdc).toBe("8.00");
+  });
+
+  it("requests authoritative category leaderboards", async () => {
+    vi.mocked(fetch).mockResolvedValue(json({ entries: [{ rank: 1, wallet: "reward…ator", contribution_xp: 123 }] }));
+    const result = await fetchGenesisLeaderboard({ kind: "vpn", limit: 5 });
+    expect(result.entries[0].contribution_xp).toBe(123);
+    expect(String(vi.mocked(fetch).mock.calls[0][0])).toContain("kind=vpn");
+  });
+
+  it("builds operator node counts from finalized Gateway reward nodes", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({ season_id: "s1", verified_solana_wallet: "sol", contribution_xp: 300, retained_xp: 300, reserved_xp: 0, claimable_usdc: 3_000_000, spent_usdc: 0 }))
+      .mockResolvedValueOnce(json({ id: "s1", name: "Genesis", status: "active", xp_multiplier: 1.5, min_payout_usdc: 5_000_000, total_budget_usdc: 500_000_000, vpn_envelope_usdc: 275_000_000, ai_envelope_usdc: 200_000_000, reserve_usdc: 25_000_000, spent_usdc: 0, reserved_usdc: 0 }))
+      .mockResolvedValueOnce(json({ withdrawals: [] }))
+      .mockResolvedValueOnce(json({ nodes: [{ node_id: "n1", node_type: "vpn", slot_status: "active", contribution_xp: 300, cash_entitlement_usdc: 3_000_000, average_quality_score: 0.95 }] }));
+    const summary = await fetchOperatorRewardSummary();
+    expect(summary.active_nodes).toBe(1);
+    expect(summary.nodes[0]).toMatchObject({ id: "n1", kind: "vpn", contribution_xp: 300, quality_band: "excellent" });
   });
 
   it("sends and preserves an idempotency key when creating a claim", async () => {
