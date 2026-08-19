@@ -558,6 +558,7 @@ export interface RewardWithdrawal {
   retained_xp?: number;
   related_nodes?: string[];
   flags?: string[];
+  season_remaining_after_payment?: string;
 }
 
 export interface AdminRewardsSummary {
