@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   fetchProfile,
+  fetchRank,
   fetchReferrals,
   fetchSocialAccounts,
   redeemReferralCode,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/gateway/client";
 import type {
   GatewayProfile,
+  GatewayRank,
   GatewayReferral,
   GatewaySocialAccount,
 } from "@/lib/gateway/types";
@@ -44,6 +46,7 @@ export default function ProfilePage() {
   const { isAuthenticating, linkWallet } = useWalletAuth();
   const [profile, setProfile] = useState<GatewayProfile | null>(null);
   const [referral, setReferral] = useState<GatewayReferral | null>(null);
+  const [rank, setRank] = useState<GatewayRank | null>(null);
   const [nfts, setNfts] = useState<HeliusNft[]>([]);
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState("");
@@ -61,10 +64,12 @@ export default function ProfilePage() {
   useEffect(() => {
     Promise.all([
       fetchProfile(),
+      fetchRank().catch(() => null),
       fetchReferrals().catch(() => null),
       fetchSocialAccounts().catch(() => []),
-    ]).then(([p, r, s]) => {
+    ]).then(([p, xp, r, s]) => {
       setProfile(p);
+      setRank(xp);
       setReferral(r);
       setSocials(s);
     });
@@ -486,6 +491,50 @@ export default function ProfilePage() {
           </Card>
         )}
 
+        {rank && (
+          <Card className="p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="font-semibold">Lifetime XP</div>
+                <p className="mt-1 text-xs text-[var(--text-2)]">
+                  Account rank XP from qualified referrals, node uptime, and other platform activity.
+                  This is separate from Genesis Season cash rewards.
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-[var(--accent-hi)]">
+                  {rank.xp_earned.toLocaleString()}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-[var(--text-3)]">
+                  XP earned
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-lg bg-white/[0.03] p-3">
+                <div className="text-lg font-semibold">{rank.tier_name}</div>
+                <div className="text-[11px] text-[var(--text-3)]">Tier {rank.tier}</div>
+              </div>
+              <div className="rounded-lg bg-white/[0.03] p-3">
+                <div className="text-lg font-semibold">{rank.xp_claimable.toLocaleString()}</div>
+                <div className="text-[11px] text-[var(--text-3)]">Claimable XP</div>
+              </div>
+              <div className="rounded-lg bg-white/[0.03] p-3">
+                <div className="text-lg font-semibold">
+                  {(rank.breakdown_by_kind?.referral_qualified ?? 0).toLocaleString()}
+                </div>
+                <div className="text-[11px] text-[var(--text-3)]">Referral XP</div>
+              </div>
+              <div className="rounded-lg bg-white/[0.03] p-3">
+                <div className="text-lg font-semibold">
+                  {(rank.breakdown_by_kind?.operator_uptime_day ?? 0).toLocaleString()}
+                </div>
+                <div className="text-[11px] text-[var(--text-3)]">Node uptime XP</div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {referral?.code && (
           <Card
             className="p-6"
@@ -497,8 +546,8 @@ export default function ProfilePage() {
           >
             <div className="font-semibold">Invite friends, earn XP</div>
             <p className="mt-1 text-xs leading-relaxed text-[var(--text-2)]">
-              Share your code — when a friend joins, you both earn XP. Claim XP on the Rewards
-              page for perks.
+              Share your code — when a friend creates their workspace, you both earn lifetime XP
+              toward account rank and perks.
             </p>
             <div className="mt-4 flex items-center gap-2 rounded-[11px] border border-dashed border-[var(--accent)]/35 bg-[var(--accent)]/5 px-3.5 py-3">
               <span className="flex-1 font-mono text-sm tracking-wide text-[var(--accent-hi)]">
@@ -520,9 +569,9 @@ export default function ProfilePage() {
                 <div className="text-[var(--text-3)]">qualified</div>
               </div>
             </div>
-            {referral.referred_by ? (
+            {referral.referral_bound ? (
               <p className="mt-4 border-t border-white/[0.06] pt-3 font-mono text-[11px] text-[var(--text-3)]">
-                Invited by {referral.referred_by}
+                {referral.referred_by ? `Invited by ${referral.referred_by}` : "Invite code applied"}
               </p>
             ) : (
               <div className="mt-4 border-t border-white/[0.06] pt-3">

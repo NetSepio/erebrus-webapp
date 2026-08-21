@@ -403,6 +403,8 @@ export interface GatewayRank {
 export interface GatewayReferral {
   code: string;
   referred_count: number;
+  /** True even when the referrer has no wallet (email/social account). */
+  referral_bound: boolean;
   /** Truncated wallet of whoever invited this account, when bound. */
   referred_by?: string;
   recent?: Array<{ wallet: string; qualified: boolean; joined_at: string }>;
