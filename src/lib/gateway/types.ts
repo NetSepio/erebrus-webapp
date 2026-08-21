@@ -403,6 +403,8 @@ export interface GatewayRank {
 export interface GatewayReferral {
   code: string;
   referred_count: number;
+  /** True even when the referrer has no wallet (email/social account). */
+  referral_bound: boolean;
   /** Truncated wallet of whoever invited this account, when bound. */
   referred_by?: string;
   recent?: Array<{ wallet: string; qualified: boolean; joined_at: string }>;
@@ -423,6 +425,150 @@ export interface GatewayPerk {
   type: string;
   tier_required: number;
   unlocked: boolean;
+}
+
+// Genesis rewards API. Monetary values remain decimal strings so the browser
+// never becomes the authority for USDC arithmetic.
+export type GenesisSeasonStatus = "upcoming" | "active" | "finalized" | "paused" | string;
+export type RewardCapacityStatus = "open" | "reserved" | "active" | "full" | string;
+export type WithdrawalStatus =
+  | "pending"
+  | "approved"
+  | "processing"
+  | "paid"
+  | "rejected"
+  | "failed"
+  | string;
+
+export interface GenesisBudgetBucket {
+  key: "vpn" | "ai" | "reserve" | string;
+  label: string;
+  allocation_usdc: string;
+  allocation_percent?: string;
+}
+
+export interface GenesisSeason {
+  id: string;
+  name: string;
+  status: GenesisSeasonStatus;
+  starts_at?: string;
+  ends_at?: string;
+  duration_weeks?: number;
+  current_week?: number;
+  xp_multiplier?: string;
+  focus?: string[];
+  total_budget_usdc: string;
+  spent_usdc: string;
+  reserved_usdc: string;
+  remaining_usdc: string;
+  buckets: GenesisBudgetBucket[];
+  payouts_paused?: boolean;
+}
+
+export interface GenesisLeaderboardEntry {
+  rank: number;
+  display_name: string;
+  contribution_xp: number;
+  active_eligible_nodes: number;
+  contribution_types: Array<"vpn" | "ai" | "drop" | string>;
+  country_codes?: string[];
+}
+
+export interface RewardCapacitySlot {
+  id: string;
+  kind: "vpn" | "ai";
+  status: RewardCapacityStatus;
+  demand_label: string;
+  city?: string;
+  country?: string;
+  model_family?: string;
+  checkpoint?: string;
+  quantization?: string;
+  mode?: "persistent" | "opportunistic" | string;
+  slots_requested?: number;
+  slots_available?: number;
+  current_capacity?: number;
+  requirements?: string[];
+  reservation_expires_at?: string;
+  operator_verification_status?: string;
+  reservable?: boolean;
+}
+
+export interface OperatorRewardNode {
+  id: string;
+  name: string;
+  kind: "vpn" | "ai" | string;
+  slot_status: string;
+  quality_band?: string;
+  uptime_percent?: string;
+  demand_label?: string;
+  contribution_xp: number;
+  retained_xp: number;
+  claimable_usdc: string;
+  suggestions?: string[];
+}
+
+export interface OperatorRewardSummary {
+  season_id: string;
+  contribution_xp: number;
+  retained_xp: number;
+  reserved_xp: number;
+  claimable_usdc: string;
+  claimed_usdc: string;
+  minimum_claim_usdc: string;
+  verified_solana_wallet?: string;
+  conflicting_withdrawal?: boolean;
+  payouts_paused?: boolean;
+  active_nodes: number;
+  standby_nodes: number;
+  probation_nodes: number;
+  nodes: OperatorRewardNode[];
+}
+
+export interface XpLedgerEntry {
+  id: string;
+  created_at: string;
+  label: string;
+  kind: string;
+  contribution_xp_delta: number;
+  retained_xp_delta: number;
+  status?: string;
+}
+
+export interface ClaimPreview {
+  amount_usdc: string;
+  xp_to_reserve: number;
+  projected_retained_xp: number;
+  payout_wallet: string;
+  network: "solana" | string;
+  token: "USDC" | string;
+}
+
+export interface RewardWithdrawal {
+  id: string;
+  created_at: string;
+  amount_usdc: string;
+  xp_amount: number;
+  payout_wallet: string;
+  status: WithdrawalStatus;
+  rejection_reason?: string;
+  transaction_signature?: string;
+  retryable?: boolean;
+  reservation_released?: boolean;
+  operator_name?: string;
+  contribution_xp?: number;
+  retained_xp?: number;
+  related_nodes?: string[];
+  flags?: string[];
+  season_remaining_after_payment?: string;
+}
+
+export interface AdminRewardsSummary {
+  season: GenesisSeason;
+  treasury_address?: string;
+  treasury_usdc_balance: string;
+  treasury_sol_balance: string;
+  rewards_paused: boolean;
 }
 
 /** Operator org node view (`GET /api/v2/operator/nodes`). */

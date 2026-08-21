@@ -45,6 +45,7 @@ import { toast } from "sonner";
 import { truncateAddress } from "@/lib/design";
 import { regionZoneLabel } from "@/lib/regions";
 import { ORG_PLAN_IDS, orgPlanLabel } from "@/lib/org-plans";
+import { AdminRewardsPanel } from "./AdminRewardsPanel";
 
 // Org plans the platform admin can assign manually (self-serve upgrades land
 // with payments later). Mirrors the gateway's normalizeOrgPlan whitelist.
@@ -312,6 +313,9 @@ export function AdminConsole() {
           </TabsTrigger>
           <TabsTrigger value="perks" className={v3TabsTriggerClass}>
             Perks
+          </TabsTrigger>
+          <TabsTrigger value="rewards" className={v3TabsTriggerClass}>
+            Genesis rewards
           </TabsTrigger>
           <TabsTrigger value="deletion-requests" className={v3TabsTriggerClass}>
             Deletion requests
@@ -664,6 +668,10 @@ export function AdminConsole() {
               Grant perk
             </AccentButton>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="rewards" className="mt-4">
+          <AdminRewardsPanel />
         </TabsContent>
 
         <TabsContent value="deletion-requests" className="mt-4 space-y-3">

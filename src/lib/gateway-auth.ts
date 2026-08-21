@@ -82,14 +82,30 @@ async function completeAuth(
     throw new Error("Gateway did not return a session token");
   }
 
-  clearReferralCode(); // consumed — the gateway bound it (or ignored it)
-  return { token, userId, role, walletAddress: publicKey };
+  const session = { token, userId, role, walletAddress: publicKey };
+  await clearReferralCodeWhenBound(session);
+  return session;
 }
 
 /** Browser → `/api/gateway/<path>`; server → `<gateway>/api/v2/<path>`. */
 function gatewayAuthUrl(path: string): string {
   const base = authBase();
   return typeof window !== "undefined" ? `${base}${path}` : `${base}api/v2/${path}`;
+}
+
+// Keep an unconfirmed invite in local storage. In particular, an invalid code
+// must remain visible/retryable instead of disappearing after a successful
+// login whose authentication was otherwise unrelated to referral binding.
+async function clearReferralCodeWhenBound(session: AuthSession): Promise<void> {
+  if (!storedReferralCode()) return;
+  try {
+    const { data } = await axios.get(gatewayAuthUrl("referrals/me"), {
+      headers: { Authorization: `Bearer ${session.token}` },
+    });
+    if (data?.referral_bound === true) clearReferralCode();
+  } catch {
+    // Authentication remains successful; retry referral confirmation later.
+  }
 }
 
 function parseSession(data: unknown): AuthSession {
@@ -119,7 +135,7 @@ export async function emailLoginVerify(email: string, code: string): Promise<Aut
     ...(ref ? { ref } : {}),
   });
   const session = parseSession(data);
-  clearReferralCode();
+  await clearReferralCodeWhenBound(session);
   return session;
 }
 
@@ -150,7 +166,7 @@ export async function googleLogin(idToken: string): Promise<AuthSession> {
     ...(ref ? { ref } : {}),
   });
   const session = parseSession(data);
-  clearReferralCode();
+  await clearReferralCodeWhenBound(session);
   return session;
 }
 
@@ -167,7 +183,7 @@ export async function appleLogin(
   if (ref) body.ref = ref;
   const { data } = await axios.post(gatewayAuthUrl("auth/apple"), body);
   const session = parseSession(data);
-  clearReferralCode();
+  await clearReferralCodeWhenBound(session);
   return session;
 }
 

@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { appPageMetadata } from "@/lib/seo";
 
 export const metadata = appPageMetadata({
-  title: "Rewards & XP",
-  description: "Earn XP, claim rewards, and track your Erebrus operator tier.",
+  title: "Erebrus Genesis Season",
+  description: "Run what the network needs. Earn for what you contribute.",
   path: "/rewards",
 });
 
