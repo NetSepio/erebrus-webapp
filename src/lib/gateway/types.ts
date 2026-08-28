@@ -447,7 +447,7 @@ export interface GenesisBudgetBucket {
   allocation_percent?: string;
 }
 
-export interface GenesisSeason {
+export interface GenesisSeasonPreview {
   id: string;
   name: string;
   status: GenesisSeasonStatus;
@@ -456,6 +456,10 @@ export interface GenesisSeason {
   duration_weeks?: number;
   current_week?: number;
   xp_multiplier?: string;
+  applications_open?: boolean;
+}
+
+export interface GenesisSeason extends GenesisSeasonPreview {
   focus?: string[];
   total_budget_usdc: string;
   spent_usdc: string;
@@ -463,6 +467,53 @@ export interface GenesisSeason {
   remaining_usdc: string;
   buckets: GenesisBudgetBucket[];
   payouts_paused?: boolean;
+  minimum_claim_usdc?: string;
+}
+
+export type RewardApplicationStatus = "pending" | "approved" | "rejected" | "withdrawn" | string;
+
+export interface RewardOperatorApplication {
+  id: string;
+  season_id: string;
+  operator_id: string;
+  status: RewardApplicationStatus;
+  service_types: Array<"vpn" | "ai" | string>;
+  node_ids: string[];
+  country: string;
+  city?: string;
+  infrastructure: string;
+  experience: string;
+  availability_hours: number;
+  public_vpn_consent: boolean;
+  terms_accepted: boolean;
+  review_note?: string;
+  submitted_at: string;
+  reviewed_at?: string;
+  operator_name?: string;
+  operator_email?: string;
+  operator_wallet?: string;
+}
+
+export interface RewardAccess {
+  season_available: boolean;
+  season_started?: boolean;
+  applications_open?: boolean;
+  approved: boolean;
+  can_view_rewards: boolean;
+  season?: GenesisSeasonPreview | GenesisSeason;
+  application?: RewardOperatorApplication;
+}
+
+export interface RewardApplicationInput {
+  service_types: Array<"vpn" | "ai">;
+  node_ids: string[];
+  country: string;
+  city?: string;
+  infrastructure: string;
+  experience: string;
+  availability_hours: number;
+  public_vpn_consent: boolean;
+  terms_accepted: boolean;
 }
 
 export interface GenesisLeaderboardEntry {
