@@ -46,6 +46,7 @@ import type {
   GatewaySocialAccount,
   GatewayVpnClient,
   GenesisSeason,
+  GenesisSeasonPreview,
   GenesisLeaderboardEntry,
   RewardCapacitySlot,
   OperatorRewardSummary,
@@ -53,6 +54,9 @@ import type {
   ClaimPreview,
   RewardWithdrawal,
   AdminRewardsSummary,
+  RewardAccess,
+  RewardApplicationInput,
+  RewardOperatorApplication,
 } from "./types";
 
 const CLIENT_HEADER = "webapp";
@@ -691,6 +695,10 @@ type RawRewardSeason = {
   spent_usdc: number; reserved_usdc: number; payouts_paused?: boolean;
 };
 
+type RawRewardSeasonPreview = Pick<RawRewardSeason, "id" | "name" | "status" | "start_at" | "end_at" | "xp_multiplier"> & {
+  applications_open?: boolean;
+};
+
 type RawRewardWithdrawal = {
   id: string; created_at: string; amount_usdc: number; reserved_xp: number;
   payout_address: string; status: string; admin_reason?: string;
@@ -732,11 +740,27 @@ function normalizeGenesisSeason(raw: RawRewardSeason): GenesisSeason {
     reserved_usdc: formatUSDCBaseUnits(raw.reserved_usdc),
     remaining_usdc: formatUSDCBaseUnits(Math.max(0, remaining)),
     payouts_paused: raw.payouts_paused,
+    minimum_claim_usdc: formatUSDCBaseUnits(raw.min_payout_usdc),
     buckets: [
       { key: "vpn", label: "VPN capacity", allocation_usdc: formatUSDCBaseUnits(raw.vpn_envelope_usdc), allocation_percent: "55" },
       { key: "ai", label: "AI capacity", allocation_usdc: formatUSDCBaseUnits(raw.ai_envelope_usdc), allocation_percent: "40" },
       { key: "reserve", label: "Season reserve", allocation_usdc: formatUSDCBaseUnits(raw.reserve_usdc), allocation_percent: "5" },
     ],
+  };
+}
+
+function normalizeGenesisSeasonPreview(raw: RawRewardSeasonPreview): GenesisSeasonPreview {
+  return {
+    id: raw.id,
+    name: raw.name,
+    status: raw.status,
+    starts_at: raw.start_at,
+    ends_at: raw.end_at,
+    duration_weeks: raw.start_at && raw.end_at
+      ? Math.max(1, Math.ceil((Date.parse(raw.end_at) - Date.parse(raw.start_at)) / (7 * 24 * 60 * 60 * 1000)))
+      : undefined,
+    xp_multiplier: String(raw.xp_multiplier),
+    applications_open: raw.applications_open,
   };
 }
 
@@ -756,9 +780,25 @@ function normalizeRewardWithdrawal(raw: RawRewardWithdrawal): RewardWithdrawal {
   };
 }
 
-export async function fetchCurrentGenesisSeason(): Promise<GenesisSeason | null> {
-  const raw = await gatewayFetch<RawRewardSeason & { active?: boolean }>("rewards/seasons/current", { auth: false });
-  return raw.active === false ? null : normalizeGenesisSeason(raw);
+export async function fetchCurrentGenesisSeason(): Promise<GenesisSeasonPreview | null> {
+  const raw = await gatewayFetch<RawRewardSeasonPreview & { active?: boolean }>("rewards/seasons/current", { auth: false });
+  return raw.id ? normalizeGenesisSeasonPreview(raw) : null;
+}
+
+export async function fetchRewardAccess(): Promise<RewardAccess> {
+  const raw = await gatewayFetch<Omit<RewardAccess, "season"> & { season?: RawRewardSeason | RawRewardSeasonPreview }>("rewards/access");
+  return {
+    ...raw,
+    season: raw.season
+      ? raw.can_view_rewards
+        ? normalizeGenesisSeason(raw.season as RawRewardSeason)
+        : normalizeGenesisSeasonPreview(raw.season as RawRewardSeasonPreview)
+      : undefined,
+  };
+}
+
+export async function submitRewardApplication(input: RewardApplicationInput): Promise<RewardOperatorApplication> {
+  return gatewayFetch("rewards/applications", { method: "POST", body: JSON.stringify(input) });
 }
 
 export async function fetchGenesisLeaderboard(params?: {
@@ -767,7 +807,7 @@ export async function fetchGenesisLeaderboard(params?: {
   limit?: number;
 }): Promise<{ entries: GenesisLeaderboardEntry[] }> {
   const data = await gatewayFetch<{ entries?: Array<{ rank: number; wallet: string; contribution_xp: number }> }>(
-    "rewards/leaderboard", { params, auth: false }
+    "rewards/leaderboard", { params }
   );
   return { entries: (data.entries ?? []).map((row) => ({
     rank: row.rank,
@@ -784,10 +824,10 @@ export async function fetchRewardCapacity(params?: {
 }): Promise<{ slots: RewardCapacitySlot[] }> {
   const [slotData, modelData] = await Promise.all([
     gatewayFetch<{ slots?: Array<{ id: string; slot_type: string; country?: string; city?: string; model_request_id?: string; demand_state: string; state: string; reserved_until?: string }> }>(
-      "rewards/slots", { params: { slot_type: params?.kind === "vpn" ? "vpn" : undefined, state: params?.status }, auth: false }
+      "rewards/slots", { params: { slot_type: params?.kind === "vpn" ? "vpn" : undefined, state: params?.status } }
     ),
     gatewayFetch<{ model_requests?: Array<{ id: string; family: string; checkpoint_id: string; quantization?: string; persistent: boolean; target_slots: number }> }>(
-      "rewards/model-requests", { auth: false }
+      "rewards/model-requests"
     ),
   ]);
   const models = new Map((modelData.model_requests ?? []).map((model) => [model.id, model]));
@@ -819,12 +859,16 @@ export async function reserveRewardCapacity(id: string): Promise<RewardCapacityS
 }
 
 export async function fetchOperatorRewardSummary(): Promise<OperatorRewardSummary> {
-  const [raw, season, history, nodeData] = await Promise.all([
+  const [raw, access, history, nodeData] = await Promise.all([
     gatewayFetch<{ season_id: string; verified_solana_wallet?: string; contribution_xp: number; retained_xp: number; reserved_xp: number; claimable_usdc: number; spent_usdc: number }>("rewards/me"),
-    gatewayFetch<RawRewardSeason>("rewards/seasons/current", { auth: false }),
+    fetchRewardAccess(),
     fetchRewardWithdrawals(),
     gatewayFetch<{ nodes?: Array<{ node_id: string; node_type: string; slot_status: string; contribution_xp: number; cash_entitlement_usdc: number; average_quality_score: number }> }>("rewards/me/nodes"),
   ]);
+  if (!access.can_view_rewards || !access.season || !("buckets" in access.season)) {
+    throw new GatewayApiError("Operator rewards are not available for this account", 403, "REWARD_ACCESS_REQUIRED");
+  }
+  const season = access.season as GenesisSeason;
   const nodes = (nodeData.nodes ?? []).map((node): import("./types").OperatorRewardNode => ({
     id: node.node_id,
     name: node.node_id,
@@ -842,7 +886,7 @@ export async function fetchOperatorRewardSummary(): Promise<OperatorRewardSummar
     reserved_xp: raw.reserved_xp,
     claimable_usdc: formatUSDCBaseUnits(raw.claimable_usdc),
     claimed_usdc: formatUSDCBaseUnits(raw.spent_usdc),
-    minimum_claim_usdc: formatUSDCBaseUnits(season.min_payout_usdc),
+    minimum_claim_usdc: season.minimum_claim_usdc ?? "0.00",
     verified_solana_wallet: raw.verified_solana_wallet || undefined,
     conflicting_withdrawal: history.withdrawals.some((row) => ["pending", "approved", "processing", "failed"].includes(row.status.toLowerCase())),
     payouts_paused: season.payouts_paused,
@@ -895,13 +939,20 @@ export async function createRewardWithdrawal(
 }
 
 export async function fetchAdminRewardsSummary(): Promise<AdminRewardsSummary> {
-  const [season, stats, treasury] = await Promise.all([
-    fetchCurrentGenesisSeason(),
-    gatewayFetch<{ payouts_paused: boolean }>("admin/rewards/seasons/stats"),
+  const [stats, treasury] = await Promise.all([
+    gatewayFetch<{ season_id: string; name: string; status: string; start_at?: string; end_at?: string; xp_multiplier: number; min_payout_usdc: number; total_budget: number; spent: number; reserved: number; remaining: number; vpn_envelope: number; ai_envelope: number; reserve: number; payouts_paused: boolean }>("admin/rewards/seasons/stats"),
     gatewayFetch<{ treasury_address?: string; usdc_balance: number; sol_balance_lamports: number }>("admin/rewards/treasury"),
   ]);
-  if (!season) throw new GatewayApiError("No active reward season", 404);
+  const season = normalizeGenesisSeason({ id: stats.season_id, name: stats.name, status: stats.status, start_at: stats.start_at, end_at: stats.end_at, xp_multiplier: stats.xp_multiplier, min_payout_usdc: stats.min_payout_usdc, total_budget_usdc: stats.total_budget, vpn_envelope_usdc: stats.vpn_envelope, ai_envelope_usdc: stats.ai_envelope, reserve_usdc: stats.reserve, spent_usdc: stats.spent, reserved_usdc: stats.reserved, payouts_paused: stats.payouts_paused });
   return { season, treasury_address: treasury.treasury_address, treasury_usdc_balance: formatUSDCBaseUnits(treasury.usdc_balance), treasury_sol_balance: formatSOLBaseUnits(treasury.sol_balance_lamports), rewards_paused: stats.payouts_paused };
+}
+
+export async function fetchAdminRewardApplications(status = "pending"): Promise<{ applications: RewardOperatorApplication[] }> {
+  return gatewayFetch("admin/rewards/applications", { params: { status } });
+}
+
+export async function reviewRewardApplication(id: string, decision: "approve" | "reject", note: string): Promise<RewardOperatorApplication> {
+  return gatewayFetch(`admin/rewards/applications/${id}/${decision}`, { method: "POST", body: JSON.stringify({ note }) });
 }
 
 export async function fetchAdminRewardWithdrawals(params?: {

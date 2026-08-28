@@ -2,32 +2,40 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Copy, ExternalLink, Loader2, RefreshCw, Server, Sparkles } from "lucide-react";
+import { Clock3, Copy, ExternalLink, Loader2, RefreshCw, Server, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { AuthModalTrigger } from "@/components/v3/AuthModal";
 import { AccentButton, ActionButton, Card, Eyebrow, MonoLabel, StatCard } from "@/components/v3/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useWalletAuth } from "@/context/appkit";
 import {
   createRewardWithdrawal,
   fetchCurrentGenesisSeason,
   fetchGenesisLeaderboard,
+  fetchOperatorNodes,
   fetchOperatorRewardSummary,
+  fetchRewardAccess,
   fetchRewardCapacity,
   fetchRewardWithdrawals,
   fetchXpLedger,
   GatewayApiError,
   previewRewardClaim,
   reserveRewardCapacity,
+  submitRewardApplication,
 } from "@/lib/gateway/client";
 import type {
   ClaimPreview,
   GenesisLeaderboardEntry,
   GenesisSeason,
+  GenesisSeasonPreview,
+  GatewayOperatorNode,
   OperatorRewardSummary,
   RewardCapacitySlot,
+  RewardAccess,
+  RewardApplicationInput,
   RewardWithdrawal,
   XpLedgerEntry,
 } from "@/lib/gateway/types";
@@ -117,7 +125,7 @@ function CapacityCard({ slot, authenticated, onReserve }: {
       {slot.reservation_expires_at && <p className="mt-3 font-mono text-[11px] text-amber-200">Reserved until {new Date(slot.reservation_expires_at).toLocaleString()}</p>}
       {slot.reservable && slot.status.toLowerCase() === "open" && (
         <div className="mt-auto pt-5">
-          {authenticated ? <ActionButton onClick={() => onReserve(slot)}>Reserve slot</ActionButton> : <AuthModalTrigger><ActionButton>Sign in to reserve</ActionButton></AuthModalTrigger>}
+          {authenticated ? <ActionButton onClick={() => onReserve(slot)}>Reserve capacity</ActionButton> : <AuthModalTrigger><ActionButton>Sign in to reserve capacity</ActionButton></AuthModalTrigger>}
         </div>
       )}
     </Card>
@@ -249,9 +257,66 @@ function OperatorDashboard({ summary, withdrawals, ledger, onRefresh }: { summar
   );
 }
 
+function OperatorApplicationForm({ nodes, onSubmitted }: { nodes: GatewayOperatorNode[]; onSubmitted: () => Promise<void> }) {
+  const [services, setServices] = useState<Array<"vpn" | "ai">>([]);
+  const [nodeIds, setNodeIds] = useState<string[]>([]);
+  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
+  const [infrastructure, setInfrastructure] = useState("");
+  const [experience, setExperience] = useState("");
+  const [hours, setHours] = useState("168");
+  const [vpnConsent, setVpnConsent] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const toggleService = (service: "vpn" | "ai") => setServices((current) => current.includes(service) ? current.filter((item) => item !== service) : [...current, service]);
+  const toggleNode = (id: string) => setNodeIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const valid = services.length > 0 && nodeIds.length > 0 && Boolean(country.trim()) && infrastructure.trim().length >= 20 && experience.trim().length >= 20 && Number(hours) >= 1 && Number(hours) <= 168 && terms && (!services.includes("vpn") || vpnConsent);
+  const submit = async () => {
+    if (!valid || submitting) return;
+    setSubmitting(true);
+    try {
+      const body: RewardApplicationInput = { service_types: services, node_ids: nodeIds, country: country.trim(), city: city.trim() || undefined, infrastructure: infrastructure.trim(), experience: experience.trim(), availability_hours: Number(hours), public_vpn_consent: vpnConsent, terms_accepted: terms };
+      await submitRewardApplication(body);
+      toast.success("Application submitted for review");
+      await onSubmitted();
+    } catch (error) {
+      toast.error(error instanceof GatewayApiError ? error.message : "Could not submit the application");
+    } finally { setSubmitting(false); }
+  };
+  if (nodes.length === 0) return <Card className="p-7 text-center"><Server className="mx-auto text-[var(--accent-hi)]" /><h2 className="mt-3 text-xl font-semibold">Add a node before applying</h2><p className="mx-auto mt-2 max-w-xl text-sm text-[var(--text-2)]">Applications must reference at least one node attached to an organization you operate. Register and bring a node online, then return here.</p><Link href="/dashboard" className="mt-5 inline-flex text-sm text-[var(--accent-hi)]">Open node operator dashboard →</Link></Card>;
+  return <Card className="p-6 md:p-8">
+    <div className="max-w-3xl"><Eyebrow>Operator application</Eyebrow><h2 className="mt-2 text-2xl font-bold">Apply for Season participation</h2><p className="mt-2 text-sm text-[var(--text-2)]">Approval grants access to capacity requests and the Season dashboard. It does not credit 500 USDC to your account or guarantee a payout. Only verified, finalized contribution can become claimable.</p></div>
+    <div className="mt-7 grid gap-6 lg:grid-cols-2">
+      <div><label className="text-sm font-medium">Services you can operate</label><div className="mt-2 flex gap-3">{(["vpn","ai"] as const).map((service) => <label key={service} className="flex flex-1 items-center gap-3 rounded-xl border border-white/10 p-4"><Checkbox checked={services.includes(service)} onCheckedChange={() => toggleService(service)} /><span className="uppercase">{service}</span></label>)}</div></div>
+      <div><label htmlFor="availability" className="text-sm font-medium">Expected weekly availability (hours)</label><Input id="availability" type="number" min={1} max={168} value={hours} onChange={(event) => setHours(event.target.value)} className="mt-2 border-white/10 bg-white/[0.04]" /></div>
+      <div className="lg:col-span-2"><label className="text-sm font-medium">Nodes included in this application</label><div className="mt-2 grid gap-2 sm:grid-cols-2">{nodes.map((node) => <label key={node.id} className="flex items-start gap-3 rounded-xl border border-white/10 p-3"><Checkbox className="mt-0.5" checked={nodeIds.includes(node.id)} onCheckedChange={() => toggleNode(node.id)} /><span><span className="block text-sm font-medium">{node.name || node.id}</span><span className="font-mono text-[10px] text-[var(--text-3)]">{node.region || "Unknown region"} · {node.status}</span></span></label>)}</div></div>
+      <div><label htmlFor="country" className="text-sm font-medium">Operating country</label><Input id="country" value={country} onChange={(event) => setCountry(event.target.value)} className="mt-2 border-white/10 bg-white/[0.04]" placeholder="Country" /></div>
+      <div><label htmlFor="city" className="text-sm font-medium">City or region (optional)</label><Input id="city" value={city} onChange={(event) => setCity(event.target.value)} className="mt-2 border-white/10 bg-white/[0.04]" placeholder="City / region" /></div>
+      <div><label htmlFor="infrastructure" className="text-sm font-medium">Infrastructure and connectivity</label><Textarea id="infrastructure" value={infrastructure} onChange={(event) => setInfrastructure(event.target.value)} className="mt-2 border-white/10 bg-white/[0.04]" placeholder="CPU/GPU, memory, bandwidth, static IP, hosting provider…" /></div>
+      <div><label htmlFor="experience" className="text-sm font-medium">Operating experience and reliability plan</label><Textarea id="experience" value={experience} onChange={(event) => setExperience(event.target.value)} className="mt-2 border-white/10 bg-white/[0.04]" placeholder="Relevant operations experience, monitoring and incident response…" /></div>
+    </div>
+    <div className="mt-6 space-y-3">
+      {services.includes("vpn") && <label className="flex items-start gap-3 rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-4 text-sm"><Checkbox className="mt-0.5" checked={vpnConsent} onCheckedChange={(value) => setVpnConsent(value === true)} /><span>I can operate a public permissionless VPN node with a unique static public IPv4 and understand that firewall-enabled public nodes are ineligible.</span></label>}
+      <label className="flex items-start gap-3 rounded-xl border border-white/10 p-4 text-sm"><Checkbox className="mt-0.5" checked={terms} onCheckedChange={(value) => setTerms(value === true)} /><span>I confirm these details are accurate, consent to eligibility and anti-abuse verification, and understand approval and displayed pool capacity do not guarantee personal earnings.</span></label>
+    </div>
+    <AccentButton className="mt-6" disabled={!valid || submitting} onClick={submit}>{submitting ? "Submitting…" : "Submit application"}</AccentButton>
+  </Card>;
+}
+
+function ApplicationState({ access, nodes, onRefresh }: { access: RewardAccess; nodes: GatewayOperatorNode[]; onRefresh: () => Promise<void> }) {
+  const application = access.application;
+  if (!application) return access.applications_open ? <OperatorApplicationForm nodes={nodes} onSubmitted={onRefresh} /> : <Card className="p-7 text-center"><Clock3 className="mx-auto text-amber-200" /><h2 className="mt-3 text-xl font-semibold">Applications are closed</h2><p className="mt-2 text-sm text-[var(--text-2)]">This Season is not currently accepting new operators.</p></Card>;
+  if (application.status === "pending") return <Card className="p-7"><div className="flex items-start gap-4"><Clock3 className="mt-1 text-amber-200" /><div><StateBadge value="pending review" /><h2 className="mt-3 text-xl font-semibold">Your operator application is under review</h2><p className="mt-2 text-sm text-[var(--text-2)]">Submitted {new Date(application.submitted_at).toLocaleString()}. Capacity reservation, balances and claims stay locked until an administrator approves the application.</p><p className="mt-3 text-xs text-[var(--text-3)]">Services: {application.service_types.map((item) => item.toUpperCase()).join(" / ")} · {application.node_ids.length} node{application.node_ids.length === 1 ? "" : "s"}</p></div></div></Card>;
+  if (application.status === "rejected") return <div className="space-y-5"><Card className="border-[var(--danger)]/30 p-7"><StateBadge value="not accepted" /><h2 className="mt-3 text-xl font-semibold">This application was not accepted</h2><p className="mt-2 text-sm text-[var(--text-2)]">{application.review_note || "The review team could not verify eligibility from the submitted details."}</p>{access.applications_open && <p className="mt-3 text-xs text-[var(--text-3)]">You may correct the details and submit a new application below.</p>}</Card>{access.applications_open && <OperatorApplicationForm nodes={nodes} onSubmitted={onRefresh} />}</div>;
+  if (application.status === "approved" && !access.season_started) return <Card className="p-7"><ShieldCheck className="text-emerald-300" /><StateBadge value="accepted" /><h2 className="mt-3 text-xl font-semibold">You are accepted for this Season</h2><p className="mt-2 text-sm text-[var(--text-2)]">The Season dashboard and capacity requests unlock when the Season starts{access.season?.starts_at ? ` on ${new Date(access.season.starts_at).toLocaleString()}` : ""}. Approval itself does not create a cash balance.</p></Card>;
+  return null;
+}
+
 export function GenesisRewardsPage() {
   const { isAuthenticated } = useWalletAuth();
-  const [season, setSeason] = useState<GenesisSeason | null>(null);
+  const [preview, setPreview] = useState<GenesisSeasonPreview | null>(null);
+  const [access, setAccess] = useState<RewardAccess | null>(null);
+  const [operatorNodes, setOperatorNodes] = useState<GatewayOperatorNode[]>([]);
   const [leaderboard, setLeaderboard] = useState<GenesisLeaderboardEntry[]>([]);
   const [capacity, setCapacity] = useState<RewardCapacitySlot[]>([]);
   const [summary, setSummary] = useState<OperatorRewardSummary | null>(null);
@@ -261,40 +326,52 @@ export function GenesisRewardsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadPublic = useCallback(async (kind: (typeof FILTERS)[number] = "overall") => {
+  const loadPublic = useCallback(async () => {
     setError(null);
     try {
-      const [nextSeason, board, slots] = await Promise.all([fetchCurrentGenesisSeason(), fetchGenesisLeaderboard({ kind, limit: 50 }), fetchRewardCapacity()]);
-      setSeason(nextSeason); setLeaderboard(board.entries); setCapacity(slots.slots);
+      setPreview(await fetchCurrentGenesisSeason());
     } catch (err) { setError(err instanceof GatewayApiError ? err.message : "Genesis data is temporarily unavailable."); }
     finally { setLoading(false); }
   }, []);
 
-  const loadOperator = useCallback(async () => {
-    if (!isAuthenticated) { setSummary(null); setWithdrawals([]); setLedger([]); return; }
-    try { const [nextSummary, history, xp] = await Promise.all([fetchOperatorRewardSummary(), fetchRewardWithdrawals(), fetchXpLedger()]); setSummary(nextSummary); setWithdrawals(history.withdrawals); setLedger(xp.entries); }
-    catch (err) { toast.error(err instanceof GatewayApiError ? err.message : "Could not load operator rewards"); }
+  const loadAccess = useCallback(async (kind: (typeof FILTERS)[number] = "overall") => {
+    if (!isAuthenticated) { setAccess(null); setOperatorNodes([]); setSummary(null); setCapacity([]); setLeaderboard([]); return; }
+    try {
+      const nextAccess = await fetchRewardAccess();
+      setAccess(nextAccess);
+      if (!nextAccess.can_view_rewards) {
+        const nodes = nextAccess.applications_open ? await fetchOperatorNodes().catch(() => []) : [];
+        setOperatorNodes(nodes); setSummary(null); setCapacity([]); setLeaderboard([]); setWithdrawals([]); setLedger([]);
+        return;
+      }
+      const [board, slots, nextSummary, history, xp] = await Promise.all([fetchGenesisLeaderboard({ kind, limit: 50 }), fetchRewardCapacity(), fetchOperatorRewardSummary(), fetchRewardWithdrawals(), fetchXpLedger()]);
+      const approvedServices = new Set(nextAccess.application?.service_types ?? []);
+      setLeaderboard(board.entries); setCapacity(slots.slots.filter((slot) => approvedServices.has(slot.kind))); setSummary(nextSummary); setWithdrawals(history.withdrawals); setLedger(xp.entries);
+    } catch (err) { toast.error(err instanceof GatewayApiError ? err.message : "Could not load operator rewards"); }
   }, [isAuthenticated]);
 
   useEffect(() => { loadPublic(); }, [loadPublic]);
-  useEffect(() => { loadOperator(); }, [loadOperator]);
+  useEffect(() => { loadAccess(); }, [loadAccess]);
   const slotsByKind = useMemo(() => ({ vpn: capacity.filter((slot) => slot.kind === "vpn"), ai: capacity.filter((slot) => slot.kind === "ai") }), [capacity]);
+  const season = access?.can_view_rewards && access.season && "buckets" in access.season ? access.season as GenesisSeason : null;
 
-  const reserve = async (slot: RewardCapacitySlot) => { try { await reserveRewardCapacity(slot.id); toast.success("Capacity reserved. Complete verification before the reservation expires."); await loadPublic(); } catch (err) { toast.error(err instanceof GatewayApiError ? err.message : "Could not reserve this slot"); } };
+  const reserve = async (slot: RewardCapacitySlot) => { try { await reserveRewardCapacity(slot.id); toast.success("Capacity request reserved for 48 hours. This is not a cash reservation; complete node verification before it expires."); await loadAccess(filter); } catch (err) { toast.error(err instanceof GatewayApiError ? err.message : "Could not reserve this slot"); } };
 
   return <><PublicHeader /><main className="mx-auto w-full max-w-7xl space-y-16 px-4 pb-20 pt-8 md:px-8">
     <section className="relative overflow-hidden rounded-3xl border border-[var(--accent)]/20 bg-[radial-gradient(circle_at_90%_10%,rgba(255,107,53,.18),transparent_35%),linear-gradient(180deg,#131318,#0d0d11)] p-7 md:p-12">
       <Eyebrow>Erebrus Genesis Season</Eyebrow><h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight md:text-6xl">Run what the network needs. Earn for what you contribute.</h1>
       <p className="mt-5 max-w-2xl text-[var(--text-2)]">A demand-gated six-week Season rewarding useful VPN and AI capacity. Cash subsidies depend on network demand and verified contribution—never passive mining or guaranteed reimbursement.</p>
-      <div className="mt-7 flex flex-wrap gap-3">{season ? <><StateBadge value={season.status} /><StateBadge value={`${season.duration_weeks ?? 6} weeks`} /><StateBadge value={`${season.total_budget_usdc} USDC pool`} />{season.xp_multiplier && <StateBadge value={`${season.xp_multiplier}x Genesis XP`} />}</> : !loading && <StateBadge value="No active Season" />}</div>
+      <div className="mt-7 flex flex-wrap gap-3">{preview ? <><StateBadge value={preview.status} /><StateBadge value={`${preview.duration_weeks ?? 6} weeks`} />{preview.xp_multiplier && <StateBadge value={`${preview.xp_multiplier}x Genesis XP`} />}</> : !loading && <StateBadge value="No scheduled Season" />}</div>
     </section>
     {loading && <div className="flex justify-center py-14"><Loader2 className="animate-spin text-[var(--accent)]" /></div>}
     {error && <Card className="p-6 text-center"><p className="text-[var(--danger)]">{error}</p><ActionButton className="mt-4" onClick={() => loadPublic()}>Try again</ActionButton></Card>}
-    {!loading && !error && !season && <Card className="p-8 text-center"><h2 className="text-xl font-semibold">No active Genesis Season</h2><p className="mt-2 text-sm text-[var(--text-2)]">Check back when Gateway announces the next Season window.</p></Card>}
-    {season && <section className="space-y-5"><div><Eyebrow>Gateway budget state</Eyebrow><h2 className="mt-1 text-2xl font-bold">Season pool</h2></div><BudgetPanel season={season} /></section>}
-    <section className="space-y-5"><div><Eyebrow>How it works</Eyebrow><h2 className="mt-1 text-2xl font-bold">Useful work earns upside</h2></div><div className="grid gap-4 md:grid-cols-4">{[["01","Find demand","See the VPN regions and AI capacity Erebrus currently needs."],["02","Run & verify","Reserve a slot and pass node or model verification."],["03","Earn XP","Useful uptime, users, traffic and AI capacity grow Contribution XP."],["04","Choose your upside","Claim eligible USDC now and give up corresponding XP, or preserve more XP."]].map(([n,t,d]) => <Card key={n} className="p-5"><MonoLabel>{n}</MonoLabel><h3 className="mt-3 font-semibold">{t}</h3><p className="mt-2 text-sm text-[var(--text-2)]">{d}</p></Card>)}</div><p className="text-xs text-[var(--text-3)]">XP is wallet-bound and non-transferable. It may qualify operators for future pro-rata network rewards, but has no guaranteed token value or fixed conversion. No staking is required for Season 1.</p></section>
-    <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-3"><div><Eyebrow>Public ranking</Eyebrow><h2 className="mt-1 text-2xl font-bold">Contribution leaderboard</h2></div><div className="flex gap-1">{FILTERS.map((item) => <button key={item} onClick={() => { setFilter(item); loadPublic(item); }} className={cn("rounded-lg border px-3 py-1.5 text-xs capitalize", filter === item ? "border-[var(--accent)]/40 bg-[var(--accent)]/15 text-[var(--accent-hi)]" : "border-white/10 text-[var(--text-2)]")}>{item}</button>)}</div></div><Card className="overflow-hidden">{leaderboard.length === 0 ? <p className="p-8 text-sm text-[var(--text-2)]">No leaderboard entries yet.</p> : leaderboard.map((entry) => <div key={`${entry.rank}-${entry.display_name}`} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-white/[0.04] px-5 py-4"><span className="font-mono text-[var(--text-3)]">#{entry.rank}</span><div><p className="font-medium">{entry.display_name}</p><p className="text-xs text-[var(--text-3)]">{entry.active_eligible_nodes} eligible nodes · {entry.contribution_types.map((kind) => kind.toUpperCase()).join(" / ") || "—"}</p></div><strong className="font-mono text-[var(--accent-hi)]">{entry.contribution_xp.toLocaleString()} XP</strong></div>)}</Card></section>
-    <section className="space-y-5"><div><Eyebrow>Demand marketplace</Eyebrow><h2 className="mt-1 text-2xl font-bold">Open capacity</h2><p className="mt-2 text-sm text-[var(--text-2)]">Slots are reserved first-come and retained through performance. Standby nodes may still earn XP.</p></div>{capacity.length === 0 ? <Card className="p-8 text-sm text-[var(--text-2)]">No capacity requests are open right now.</Card> : <><div className="flex items-center gap-2"><Server size={16} /><h3 className="font-semibold">VPN</h3></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{slotsByKind.vpn.map((slot) => <CapacityCard key={slot.id} slot={slot} authenticated={isAuthenticated} onReserve={reserve} />)}</div><div className="flex items-center gap-2"><Sparkles size={16} /><h3 className="font-semibold">AI</h3></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{slotsByKind.ai.map((slot) => <CapacityCard key={slot.id} slot={slot} authenticated={isAuthenticated} onReserve={reserve} />)}</div></>}</section>
-    {isAuthenticated && summary ? <OperatorDashboard summary={summary} withdrawals={withdrawals} ledger={ledger} onRefresh={loadOperator} /> : <Card className="p-7 text-center"><Check className="mx-auto text-[var(--accent-hi)]" /><h2 className="mt-3 text-xl font-semibold">Operator rewards</h2><p className="mx-auto mt-2 max-w-xl text-sm text-[var(--text-2)]">Sign in to see Contribution, Retained and Reserved XP, claimable USDC, rewarded nodes and withdrawal history.</p><AuthModalTrigger><AccentButton className="mt-5">Sign in to view rewards</AccentButton></AuthModalTrigger></Card>}
+    {!loading && !error && !preview && <Card className="p-8 text-center"><h2 className="text-xl font-semibold">No Genesis Season is scheduled</h2><p className="mt-2 text-sm text-[var(--text-2)]">Check back when Gateway announces the next application window.</p></Card>}
+    <section className="space-y-5"><div><Eyebrow>How participation works</Eyebrow><h2 className="mt-1 text-2xl font-bold">Apply, qualify, contribute, then claim</h2></div><div className="grid gap-4 md:grid-cols-4">{[["01","Apply","Submit your nodes, infrastructure and operating plan."],["02","Get accepted","The review team verifies ownership, capacity and eligibility."],["03","Run verified work","Approved operators reserve capacity and build finalized Contribution XP."],["04","Claim if eligible","Only your finalized claimable balance can be withdrawn—never the global pool."]].map(([n,t,d]) => <Card key={n} className="p-5"><MonoLabel>{n}</MonoLabel><h3 className="mt-3 font-semibold">{t}</h3><p className="mt-2 text-sm text-[var(--text-2)]">{d}</p></Card>)}</div><p className="text-xs text-[var(--text-3)]">The Season treasury is a shared network budget, not 500 USDC deposited into each account. Approval enables participation but does not guarantee earnings. XP is wallet-bound, non-transferable and has no guaranteed token value.</p></section>
+    {!isAuthenticated && preview && <Card className="p-8 text-center"><ShieldCheck className="mx-auto text-[var(--accent-hi)]" /><h2 className="mt-3 text-xl font-semibold">Operator access is application-based</h2><p className="mx-auto mt-2 max-w-xl text-sm text-[var(--text-2)]">Sign in to apply or check your review status. Season budgets, capacity reservation, balances and claims are shown only to accepted operators after the Season starts.</p><AuthModalTrigger><AccentButton className="mt-5">Sign in to apply</AccentButton></AuthModalTrigger></Card>}
+    {isAuthenticated && access && !access.can_view_rewards && <ApplicationState access={access} nodes={operatorNodes} onRefresh={() => loadAccess(filter)} />}
+    {season && <><section className="space-y-5"><div><Eyebrow>Shared network treasury</Eyebrow><h2 className="mt-1 text-2xl font-bold">Season pool—not your account balance</h2><p className="mt-2 text-sm text-[var(--text-2)]">These values describe the total program budget across every accepted operator. Your withdrawable amount appears only as “Claimable USDC” in your dashboard below.</p></div><BudgetPanel season={season} /></section>
+    <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-3"><div><Eyebrow>Accepted operators</Eyebrow><h2 className="mt-1 text-2xl font-bold">Contribution leaderboard</h2></div><div className="flex gap-1">{FILTERS.map((item) => <button key={item} onClick={() => { setFilter(item); loadAccess(item); }} className={cn("rounded-lg border px-3 py-1.5 text-xs capitalize", filter === item ? "border-[var(--accent)]/40 bg-[var(--accent)]/15 text-[var(--accent-hi)]" : "border-white/10 text-[var(--text-2)]")}>{item}</button>)}</div></div><Card className="overflow-hidden">{leaderboard.length === 0 ? <p className="p-8 text-sm text-[var(--text-2)]">No finalized contribution yet.</p> : leaderboard.map((entry) => <div key={`${entry.rank}-${entry.display_name}`} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-white/[0.04] px-5 py-4"><span className="font-mono text-[var(--text-3)]">#{entry.rank}</span><div><p className="font-medium">{entry.display_name}</p><p className="text-xs text-[var(--text-3)]">{entry.contribution_types.map((kind) => kind.toUpperCase()).join(" / ") || "Verified contribution"}</p></div><strong className="font-mono text-[var(--accent-hi)]">{entry.contribution_xp.toLocaleString()} XP</strong></div>)}</Card></section>
+    <section className="space-y-5"><div><Eyebrow>Capacity requests</Eyebrow><h2 className="mt-1 text-2xl font-bold">Reserve infrastructure capacity</h2><p className="mt-2 text-sm text-[var(--text-2)]">“Reserve” holds an infrastructure slot for verification for 48 hours. It does not reserve or credit USDC.</p></div>{capacity.length === 0 ? <Card className="p-8 text-sm text-[var(--text-2)]">No capacity requests are open right now.</Card> : <><div className="flex items-center gap-2"><Server size={16} /><h3 className="font-semibold">VPN</h3></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{slotsByKind.vpn.map((slot) => <CapacityCard key={slot.id} slot={slot} authenticated onReserve={reserve} />)}</div><div className="flex items-center gap-2"><Sparkles size={16} /><h3 className="font-semibold">AI</h3></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{slotsByKind.ai.map((slot) => <CapacityCard key={slot.id} slot={slot} authenticated onReserve={reserve} />)}</div></>}</section>
+    {summary && <OperatorDashboard summary={summary} withdrawals={withdrawals} ledger={ledger} onRefresh={() => loadAccess(filter)} />}</>}
   </main></>;
 }

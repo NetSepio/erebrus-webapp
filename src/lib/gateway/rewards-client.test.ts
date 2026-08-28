@@ -7,6 +7,7 @@ import {
   createRewardWithdrawal,
   fetchAdminRewardsSummary,
   fetchGenesisLeaderboard,
+  fetchRewardAccess,
   fetchOperatorRewardSummary,
   fetchAdminRewardWithdrawals,
   fetchRewardWithdrawals,
@@ -14,6 +15,7 @@ import {
   previewRewardClaim,
   rejectRewardWithdrawal,
   retryRewardWithdrawal,
+  submitRewardApplication,
 } from "./client";
 
 function json(body: unknown, status = 200): Response {
@@ -44,7 +46,7 @@ describe("Genesis rewards Gateway client", () => {
   it("builds operator node counts from finalized Gateway reward nodes", async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(json({ season_id: "s1", verified_solana_wallet: "sol", contribution_xp: 300, retained_xp: 300, reserved_xp: 0, claimable_usdc: 3_000_000, spent_usdc: 0 }))
-      .mockResolvedValueOnce(json({ id: "s1", name: "Genesis", status: "active", xp_multiplier: 1.5, min_payout_usdc: 5_000_000, total_budget_usdc: 500_000_000, vpn_envelope_usdc: 275_000_000, ai_envelope_usdc: 200_000_000, reserve_usdc: 25_000_000, spent_usdc: 0, reserved_usdc: 0 }))
+      .mockResolvedValueOnce(json({ can_view_rewards: true, approved: true, season_started: true, season: { id: "s1", name: "Genesis", status: "active", xp_multiplier: 1.5, min_payout_usdc: 5_000_000, total_budget_usdc: 500_000_000, vpn_envelope_usdc: 275_000_000, ai_envelope_usdc: 200_000_000, reserve_usdc: 25_000_000, spent_usdc: 0, reserved_usdc: 0 } }))
       .mockResolvedValueOnce(json({ withdrawals: [] }))
       .mockResolvedValueOnce(json({ nodes: [{ node_id: "n1", node_type: "vpn", slot_status: "active", contribution_xp: 300, cash_entitlement_usdc: 3_000_000, average_quality_score: 0.95 }] }));
     const summary = await fetchOperatorRewardSummary();
@@ -87,12 +89,23 @@ describe("Genesis rewards Gateway client", () => {
 
   it("uses authoritative treasury base-unit balances in the admin summary", async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(json({ id: "s1", name: "Genesis", status: "active", xp_multiplier: 1.5, min_payout_usdc: 5_000_000, total_budget_usdc: 500_000_000, vpn_envelope_usdc: 275_000_000, ai_envelope_usdc: 200_000_000, reserve_usdc: 25_000_000, spent_usdc: 0, reserved_usdc: 0 }))
-      .mockResolvedValueOnce(json({ payouts_paused: false }))
+      .mockResolvedValueOnce(json({ season_id: "s1", name: "Genesis", status: "active", xp_multiplier: 1.5, min_payout_usdc: 5_000_000, total_budget: 500_000_000, vpn_envelope: 275_000_000, ai_envelope: 200_000_000, reserve: 25_000_000, spent: 0, reserved: 0, remaining: 500_000_000, payouts_paused: false }))
       .mockResolvedValueOnce(json({ treasury_address: "treasury", usdc_balance: 12_345_678, sol_balance_lamports: 1_250_000_000 }));
     const summary = await fetchAdminRewardsSummary();
     expect(summary.treasury_usdc_balance).toBe("12.345678");
     expect(summary.treasury_sol_balance).toBe("1.2500");
+  });
+
+  it("keeps treasury fields out of pre-approval access and submits the application contract", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({ season_available: true, season_started: false, applications_open: true, approved: false, can_view_rewards: false, season: { id: "s1", name: "Genesis", status: "upcoming", xp_multiplier: 1.5 } }))
+      .mockResolvedValueOnce(json({ id: "a1", status: "pending" }, 201));
+    const access = await fetchRewardAccess();
+    expect(access.can_view_rewards).toBe(false);
+    expect(access.season).not.toHaveProperty("total_budget_usdc");
+    await submitRewardApplication({ service_types: ["vpn"], node_ids: ["n1"], country: "India", infrastructure: "Static IPv4 with monitored redundant connectivity", experience: "Production operations with incident response coverage", availability_hours: 168, public_vpn_consent: true, terms_accepted: true });
+    expect(String(vi.mocked(fetch).mock.calls[1][0])).toContain("/rewards/applications");
+    expect(JSON.parse(String(vi.mocked(fetch).mock.calls[1][1]?.body))).toMatchObject({ node_ids: ["n1"], terms_accepted: true });
   });
 
   it("can reconcile an ambiguous create failure by refetching active history", async () => {
