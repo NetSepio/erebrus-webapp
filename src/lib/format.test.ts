@@ -2,6 +2,7 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   clientActivity,
   formatBytes,
+  formatDateTime,
   isRecentTimestamp,
   timestampMs,
 } from "./format";
@@ -39,6 +40,20 @@ describe("timestampMs", () => {
     expect(timestampMs("2023-01-01T00:00:00.000Z")).toBe(
       Date.parse("2023-01-01T00:00:00.000Z")
     );
+  });
+});
+
+describe("formatDateTime", () => {
+  it("includes the clock time for ISO timestamps", () => {
+    expect(
+      formatDateTime("2026-08-28T14:35:00.000Z", "en-US", {
+        timeZone: "UTC",
+      })
+    ).toBe("Aug 28, 2026, 2:35 PM");
+  });
+
+  it("returns a placeholder for missing timestamps", () => {
+    expect(formatDateTime("")).toBe("—");
   });
 });
 

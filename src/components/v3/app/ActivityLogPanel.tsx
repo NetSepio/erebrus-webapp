@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchActivity } from "@/lib/gateway/client";
 import type { GatewayActivity } from "@/lib/gateway/types";
+import { formatDateTime } from "@/lib/format";
 import { AccentButton, Card } from "@/components/v3/ui";
 
 export function ActivityLogPanel() {
@@ -42,20 +43,25 @@ export function ActivityLogPanel() {
         activity.map((a) => (
           <div
             key={a.id}
-            className="flex items-center gap-3.5 border-b border-white/[0.04] px-5 py-3.5"
+            className="flex items-start gap-3.5 border-b border-white/[0.04] px-5 py-3.5"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-[var(--accent)]/10 font-mono text-sm text-[var(--accent-hi)]">
               ◎
             </span>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium">{a.action}</div>
-              <div className="font-mono text-[11px] text-[var(--text-3)]">
-                {[a.ip, a.device, a.app].filter(Boolean).join(" · ")}
+            <div className="min-w-0 flex-1 sm:flex sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">{a.action}</div>
+                <div className="font-mono text-[11px] text-[var(--text-3)]">
+                  {[a.ip, a.device, a.app].filter(Boolean).join(" · ")}
+                </div>
               </div>
+              <time
+                dateTime={a.created_at}
+                className="mt-1 block shrink-0 font-mono text-[11px] text-[var(--text-3)] sm:mt-0 sm:text-right"
+              >
+                {formatDateTime(a.created_at)}
+              </time>
             </div>
-            <span className="shrink-0 font-mono text-[11px] text-[var(--text-3)]">
-              {new Date(a.created_at).toLocaleDateString()}
-            </span>
           </div>
         ))
       )}

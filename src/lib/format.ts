@@ -41,6 +41,24 @@ export function formatRelativeTime(input?: string | number | null): string {
   return `${day}d ago`;
 }
 
+/** Locale-aware date + time for audit/activity timestamps. */
+export function formatDateTime(
+  input?: string | number | null,
+  locale?: Intl.LocalesArgument,
+  options: Intl.DateTimeFormatOptions = {}
+): string {
+  const ms = timestampMs(input);
+  if (ms == null) return "—";
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    ...options,
+  }).format(new Date(ms));
+}
+
 /** Pick label + timestamp for node liveness UI (matches VPN app logic). */
 export function nodeActivityDisplay(
   node: {
