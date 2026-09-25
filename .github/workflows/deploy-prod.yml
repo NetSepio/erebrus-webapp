@@ -1,31 +1,18 @@
-name: deploy-dev
+name: deploy-prod
 
-# Dev pipeline: every push to any branch except prod runs the ci checks, then
-# builds :dev and deploys it to https://dev.erebrus.io. Production lives in
-# deploy-prod.yml (called from ci.yml on prod only).
-#
-# Dev server has no Traefik — Caddy from the gateway dev stack fronts the
-# webapp (see deploy/docker-compose.dev.yml).
-
+# Production pipeline. Called from ci.yml after the build job passes on a push
+# to prod. Every other branch deploys to dev via deploy-dev.yml.
+# Runs as a reusable workflow so the workflow file from the pushed commit is used
+# (a workflow_run trigger always uses the default branch's copy).
 on:
-  push:
-    branches-ignore: [prod]
+  workflow_call:
 
 permissions:
   contents: read
 
-# One dev server: queue deploys instead of running them in parallel.
-concurrency:
-  group: deploy-dev
-  cancel-in-progress: false
-
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yml
-    secrets: inherit
-
   deploy:
-    needs: ci
+    if: github.ref_name == 'prod'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,27 +24,26 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Build and push image (development)
+      - name: Build and push image (production)
         env:
-          DEV_ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
         run: |
-          echo "$DEV_ENV_FILE" > .env.local
-          export TAG=dev
+          echo "$PROD_ENV_FILE" > .env
+          export TAG=prod
           export GITHUB_REF_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:${{ github.sha }}
           export GITHUB_BRANCH_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:$TAG
           docker build --build-arg version=${{ github.sha }} \
             -t "$GITHUB_REF_IMAGE" -t "$GITHUB_BRANCH_IMAGE" .
           docker push "$GITHUB_REF_IMAGE"
           docker push "$GITHUB_BRANCH_IMAGE"
-          rm -f .env.local
+          rm -f .env
 
-
-      - name: Copy compose manifest to development server
+      - name: Copy compose manifest to production server
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEV_REMOTE_SERVER_KEY }}
-          SSH_HOST: ${{ secrets.DEV_REMOTE_SERVER_ADDRESS }}
-          SSH_USER: ${{ secrets.DEV_SERVER_USERNAME }}
-          SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_REMOTE_SERVER_KEY }}
+          SSH_HOST: ${{ secrets.PROD_REMOTE_SERVER_ADDRESS }}
+          SSH_USER: ${{ secrets.PROD_SERVER_USERNAME }}
+          SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
         run: |
           set -euo pipefail
           install -m 700 -d ~/.ssh
@@ -67,24 +53,26 @@ jobs:
           # scp uses -P (uppercase) for port; ssh uses -p (lowercase).
           SCP_OPTS=(-i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -P "${SSH_PORT:-22}")
           SSH_TARGET="${SSH_USER}@${SSH_HOST}"
-          ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "mkdir -p ~/erebrus-webapp-dev"
-          scp "${SCP_OPTS[@]}" deploy/docker-compose.dev.yml "${SSH_TARGET}:~/erebrus-webapp-dev/"
+          ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "mkdir -p ~/erebrus-webapp"
+          scp "${SCP_OPTS[@]}" deploy/docker-compose.yml "${SSH_TARGET}:~/erebrus-webapp/"
           rm -f ~/.ssh/deploy_key
 
-      - name: Deploy to development server
+      - name: Deploy to production server
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.DEV_REMOTE_SERVER_ADDRESS }}
-          username: ${{ secrets.DEV_SERVER_USERNAME }}
-          key: ${{ secrets.DEV_REMOTE_SERVER_KEY }}
-          port: ${{ secrets.DEV_SSH_PORT }}
+          host: ${{ secrets.PROD_REMOTE_SERVER_ADDRESS }}
+          username: ${{ secrets.PROD_SERVER_USERNAME }}
+          key: ${{ secrets.PROD_REMOTE_SERVER_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT }}
           script: |
             set -euo pipefail
-            export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:dev
-            export WEBAPP_CONTAINER_NAME=erebrus-frontend-dev
-            export WEBAPP_HOST_PORT=4041
+            export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:prod
+            export WEBAPP_CONTAINER_NAME=erebrus-frontend
+            export WEBAPP_ROUTER=erebrus-webapp
+            export WEBAPP_HOST=erebrus.io
+            export WEBAPP_HOST_PORT=4040
 
-            cd ~/erebrus-webapp-dev
+            cd ~/erebrus-webapp
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
             # One-time migration: remove the old container started by plain `docker run`,
@@ -94,8 +82,8 @@ jobs:
               docker rm -f "$WEBAPP_CONTAINER_NAME"
             fi
 
-            docker compose -f docker-compose.dev.yml -p erebrus-webapp-dev pull
-            docker compose -f docker-compose.dev.yml -p erebrus-webapp-dev up -d --remove-orphans
+            docker compose -p erebrus-webapp pull
+            docker compose -p erebrus-webapp up -d --remove-orphans
 
             for i in $(seq 1 30); do
               curl -fsS -o /dev/null --max-time 2 "http://127.0.0.1:${WEBAPP_HOST_PORT}/" && break
