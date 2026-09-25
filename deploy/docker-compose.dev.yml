@@ -1,0 +1,38 @@
+# Dev webapp stack (Next.js behind Caddy).
+#
+# Dev server has no Traefik. Caddy (erebrus-caddy-dev) belongs to the gateway
+# dev stack and proxies https://dev.erebrus.io -> erebrus-frontend-dev:3000,
+# so the webapp joins that stack's network. Caddyfile.dev lives in the gateway
+# repo.
+#
+# Deploy (manual or CI):
+#   cd ~/erebrus-webapp-dev
+#   export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:dev
+#   docker compose -f docker-compose.dev.yml -p erebrus-webapp-dev pull
+#   docker compose -f docker-compose.dev.yml -p erebrus-webapp-dev up -d
+#
+# Env vars are baked into the image at build time (DEV_ENV_FILE in CI).
+
+services:
+  webapp:
+    image: ${WEBAPP_IMAGE:-ghcr.io/netsepio/erebrus-webapp:dev}
+    container_name: ${WEBAPP_CONTAINER_NAME:-erebrus-frontend-dev}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    # Local health checks / CI curl only — public access goes through Caddy.
+    ports:
+      - "127.0.0.1:${WEBAPP_HOST_PORT:-4041}:3000"
+    networks:
+      - erebrus_dev_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  erebrus_dev_network:
+    name: erebrus-gateway-dev_erebrus_dev_network
+    external: true
