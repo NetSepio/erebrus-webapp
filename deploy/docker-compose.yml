@@ -1,0 +1,43 @@
+# Erebrus webapp stack (Next.js behind Traefik).
+#
+# Server layout (one-time):
+#   Traefik on external network erebrus_gateway_network
+#
+# Deploy (manual or CI):
+#   cd ~/erebrus-webapp
+#   export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:prod
+#   docker compose pull && docker compose up -d
+#
+# Env vars are baked into the image at build time (.env / .env.local in CI),
+# so no env_file is needed on the server.
+
+services:
+  webapp:
+    image: ${WEBAPP_IMAGE:-ghcr.io/netsepio/erebrus-webapp:prod}
+    container_name: ${WEBAPP_CONTAINER_NAME:-erebrus-frontend}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    # Local health checks / CI curl only — not reachable from the public internet.
+    ports:
+      - "127.0.0.1:${WEBAPP_HOST_PORT:-4040}:3000"
+    networks:
+      - erebrus_gateway_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=erebrus_gateway_network
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.rule=Host(`${WEBAPP_HOST:-erebrus.io}`)
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.entrypoints=websecure
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.tls=true
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.services.${WEBAPP_ROUTER:-erebrus-webapp}.loadbalancer.server.port=3000
+
+networks:
+  erebrus_gateway_network:
+    external: true

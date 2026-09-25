@@ -58,6 +58,26 @@ jobs:
           docker push "$GITHUB_BRANCH_IMAGE"
           rm -f .env
 
+      - name: Copy compose manifest to development server
+        if: github.event.workflow_run.head_branch == 'main'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEV_REMOTE_SERVER_KEY }}
+          SSH_HOST: ${{ secrets.DEV_REMOTE_SERVER_ADDRESS }}
+          SSH_USER: ${{ secrets.DEV_SERVER_USERNAME }}
+          SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_OPTS=(-i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -p "${SSH_PORT:-22}")
+          # scp uses -P (uppercase) for port; ssh uses -p (lowercase).
+          SCP_OPTS=(-i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -P "${SSH_PORT:-22}")
+          SSH_TARGET="${SSH_USER}@${SSH_HOST}"
+          ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "mkdir -p ~/erebrus-webapp-dev"
+          scp "${SCP_OPTS[@]}" deploy/docker-compose.yml "${SSH_TARGET}:~/erebrus-webapp-dev/"
+          rm -f ~/.ssh/deploy_key
+
       - name: Deploy to development server
         if: github.event.workflow_run.head_branch == 'main'
         uses: appleboy/ssh-action@v1.2.0
@@ -67,11 +87,52 @@ jobs:
           key: ${{ secrets.DEV_REMOTE_SERVER_KEY }}
           port: ${{ secrets.DEV_SSH_PORT }}
           script: |
-            docker rm -f erebrus-frontend-dev || true
-            docker rmi ghcr.io/netsepio/erebrus-webapp:main || true
+            set -euo pipefail
+            export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:main
+            export WEBAPP_CONTAINER_NAME=erebrus-frontend-dev
+            export WEBAPP_ROUTER=erebrus-webapp-dev
+            export WEBAPP_HOST=dev.erebrus.io
+            export WEBAPP_HOST_PORT=4041
+
+            cd ~/erebrus-webapp-dev
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-            docker pull ghcr.io/netsepio/erebrus-webapp:main
-            docker run --name="erebrus-frontend-dev" --restart=always -p 4041:3000 --net=bridge -d ghcr.io/netsepio/erebrus-webapp:main
+
+            # One-time migration: remove the old container started by plain `docker run`,
+            # otherwise compose fails on the container_name conflict.
+            if docker inspect "$WEBAPP_CONTAINER_NAME" >/dev/null 2>&1 && \
+               [[ -z "$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$WEBAPP_CONTAINER_NAME")" ]]; then
+              docker rm -f "$WEBAPP_CONTAINER_NAME"
+            fi
+
+            docker compose -p erebrus-webapp-dev pull
+            docker compose -p erebrus-webapp-dev up -d --remove-orphans
+
+            for i in $(seq 1 30); do
+              curl -fsS -o /dev/null --max-time 2 "http://127.0.0.1:${WEBAPP_HOST_PORT}/" && break
+              sleep 1
+            done
+
+            docker image prune -f
+
+      - name: Copy compose manifest to production server
+        if: github.event.workflow_run.head_branch == 'prod'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_REMOTE_SERVER_KEY }}
+          SSH_HOST: ${{ secrets.PROD_REMOTE_SERVER_ADDRESS }}
+          SSH_USER: ${{ secrets.PROD_SERVER_USERNAME }}
+          SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_OPTS=(-i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -p "${SSH_PORT:-22}")
+          # scp uses -P (uppercase) for port; ssh uses -p (lowercase).
+          SCP_OPTS=(-i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -P "${SSH_PORT:-22}")
+          SSH_TARGET="${SSH_USER}@${SSH_HOST}"
+          ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "mkdir -p ~/erebrus-webapp"
+          scp "${SCP_OPTS[@]}" deploy/docker-compose.yml "${SSH_TARGET}:~/erebrus-webapp/"
+          rm -f ~/.ssh/deploy_key
 
       - name: Deploy to production server
         if: github.event.workflow_run.head_branch == 'prod'
@@ -82,8 +143,29 @@ jobs:
           key: ${{ secrets.PROD_REMOTE_SERVER_KEY }}
           port: ${{ secrets.PROD_SSH_PORT }}
           script: |
-            docker rm -f erebrus-frontend || true
-            docker rmi ghcr.io/netsepio/erebrus-webapp:prod || true
+            set -euo pipefail
+            export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:prod
+            export WEBAPP_CONTAINER_NAME=erebrus-frontend
+            export WEBAPP_ROUTER=erebrus-webapp
+            export WEBAPP_HOST=erebrus.io
+            export WEBAPP_HOST_PORT=4040
+
+            cd ~/erebrus-webapp
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-            docker pull ghcr.io/netsepio/erebrus-webapp:prod
-            docker run --name="erebrus-frontend" --restart=always -p 4040:3000 --net=bridge -d ghcr.io/netsepio/erebrus-webapp:prod
+
+            # One-time migration: remove the old container started by plain `docker run`,
+            # otherwise compose fails on the container_name conflict.
+            if docker inspect "$WEBAPP_CONTAINER_NAME" >/dev/null 2>&1 && \
+               [[ -z "$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$WEBAPP_CONTAINER_NAME")" ]]; then
+              docker rm -f "$WEBAPP_CONTAINER_NAME"
+            fi
+
+            docker compose -p erebrus-webapp pull
+            docker compose -p erebrus-webapp up -d --remove-orphans
+
+            for i in $(seq 1 30); do
+              curl -fsS -o /dev/null --max-time 2 "http://127.0.0.1:${WEBAPP_HOST_PORT}/" && break
+              sleep 1
+            done
+
+            docker image prune -f
