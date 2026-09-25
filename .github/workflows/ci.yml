@@ -52,3 +52,9 @@ jobs:
           NEXT_PUBLIC_HELIUS_API_KEY=$HELIUS
           EOF
       - run: pnpm build
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'prod')
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
