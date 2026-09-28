@@ -1,11 +1,55 @@
-# Prod server compose manifest, copied by .github/workflows/docker-publish.yml.
-# NEXT_PUBLIC_* vars are baked into the image at build time (see docker-publish.yml),
-# so no runtime .env is needed here — unlike the gateway, which reads secrets at startup.
+# Production webapp stack (Next.js behind Traefik).
+#
+# Server layout (one-time):
+#   Traefik on external network erebrus_gateway_network
+#
+# Deploy (manual or CI):
+#   cd ~/erebrus-webapp
+#   export WEBAPP_IMAGE=ghcr.io/netsepio/erebrus-webapp:prod
+#   docker compose pull && docker compose up -d
+#
+# Dev uses deploy/docker-compose.dev.yml (Caddy, no Traefik).
+#
+# Env vars are baked into the image at build time (.env / .env.local in CI),
+# so no env_file is needed on the server.
 
 services:
   webapp:
     image: ${WEBAPP_IMAGE:-ghcr.io/netsepio/erebrus-webapp:prod}
     container_name: ${WEBAPP_CONTAINER_NAME:-erebrus-frontend}
-    restart: always
+    restart: unless-stopped
+    expose:
+      - "3000"
+    # Local health checks / CI curl only — not reachable from the public internet.
     ports:
-      - "4040:3000"
+      - "127.0.0.1:${WEBAPP_HOST_PORT:-4040}:3000"
+    networks:
+      - erebrus_gateway_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=erebrus_gateway_network
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.rule=Host(`${WEBAPP_HOST:-erebrus.io}`)
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.entrypoints=websecure
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.tls=true
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.services.${WEBAPP_ROUTER:-erebrus-webapp}.loadbalancer.server.port=3000
+      # www.<host> -> <host> (permanent redirect; router also gets its own cert)
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}-www.rule=Host(`www.${WEBAPP_HOST:-erebrus.io}`)
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}-www.entrypoints=websecure
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}-www.tls=true
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}-www.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}-www.service=${WEBAPP_ROUTER:-erebrus-webapp}
+      - traefik.http.routers.${WEBAPP_ROUTER:-erebrus-webapp}-www.middlewares=${WEBAPP_ROUTER:-erebrus-webapp}-www-redirect
+      - traefik.http.middlewares.${WEBAPP_ROUTER:-erebrus-webapp}-www-redirect.redirectregex.regex=^https://www\.(.+)
+      - traefik.http.middlewares.${WEBAPP_ROUTER:-erebrus-webapp}-www-redirect.redirectregex.replacement=https://$${1}
+      - traefik.http.middlewares.${WEBAPP_ROUTER:-erebrus-webapp}-www-redirect.redirectregex.permanent=true
+
+networks:
+  erebrus_gateway_network:
+    external: true

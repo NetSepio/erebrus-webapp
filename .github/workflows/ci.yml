@@ -1,9 +1,12 @@
 name: ci
 
+# Runs directly on pushes to prod and on pull requests; every other branch runs
+# it through deploy-dev.yml (workflow_call) before deploying to dev.
 on:
   push:
-    branches: [main, prod]
+    branches: [prod]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
@@ -52,3 +55,9 @@ jobs:
           NEXT_PUBLIC_HELIUS_API_KEY=$HELIUS
           EOF
       - run: pnpm build
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref_name == 'prod'
+    uses: ./.github/workflows/deploy-prod.yml
+    secrets: inherit
