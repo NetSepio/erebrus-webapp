@@ -75,10 +75,11 @@ jobs:
             cd ~/erebrus-webapp
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
 
-            # One-time migration: remove the old container started by plain `docker run`,
+            # Remove a container with this name that this compose project doesn't own
+            # (plain `docker run`, or a legacy workflow using another project name),
             # otherwise compose fails on the container_name conflict.
             if docker inspect "$WEBAPP_CONTAINER_NAME" >/dev/null 2>&1 && \
-               [[ -z "$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$WEBAPP_CONTAINER_NAME")" ]]; then
+               [[ "$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$WEBAPP_CONTAINER_NAME")" != "erebrus-webapp" ]]; then
               docker rm -f "$WEBAPP_CONTAINER_NAME"
             fi
 
