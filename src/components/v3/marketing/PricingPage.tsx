@@ -35,6 +35,7 @@ import {
   billingErrorMessage,
   canCheckout,
   formatMinor,
+  planOpenForCheckout,
   priceForInterval,
   safeCheckoutUrl,
   type BillingInterval,
@@ -47,7 +48,6 @@ import {
   COMPARISON_ROWS,
   getInheritsLabel,
   getDisplayPrice,
-  getAdditionalSeatPrice,
   getComparisonPrice,
   getComparisonMonthlyEquivalent,
   COMMUNITY_EDITION_FEATURE,
@@ -300,9 +300,9 @@ function PlanCard({
             <div className="text-xs font-medium text-[var(--text-2)]">
               {plan.additionalSeats.label}
             </div>
-            <div className="mt-1 font-mono text-xs text-[var(--text-3)]">
-              {getAdditionalSeatPrice(plan.additionalSeats, period)}
-            </div>
+            <span className="mt-1.5 inline-block rounded-full border border-white/[0.1] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-[var(--text-3)]">
+              Coming soon
+            </span>
           </div>
         )}
       </div>
@@ -571,7 +571,12 @@ export function PricingPageContent() {
 
   const resolveCta = (plan: (typeof PRICING_PLANS)[number]): PlanCta => {
     if (plan.id === "personal.basic") return { kind: "free" };
-    if (!authed) return { kind: "signin" };
+    if (!authed) {
+      const catalogLoaded = Object.keys(billingPlans).length > 0;
+      return catalogLoaded && !planOpenForCheckout(billingPlans[plan.id], intervalFor(period))
+        ? { kind: "unavailable", reason: "Plan launching soon" }
+        : { kind: "signin" };
+    }
     if (catalogError || accountError) return { kind: "unavailable", reason: "Could not load checkout details. Use Retry on this page." };
     if (recoveryOrgId && recoveryOrgId === selectedOrg?.id) return { kind: "unavailable", reason: "Review workspace billing before another purchase." };
     if (orgsLoading || emailVerified === null) return { kind: "loading" };
@@ -586,7 +591,7 @@ export function PricingPageContent() {
     if (!price) {
       return { kind: "unavailable", reason: "Not available for this interval" };
     }
-    if (!price.checkout_enabled) {
+    if (!planOpenForCheckout(billingPlans[plan.id], intervalFor(period))) {
       return { kind: "unavailable", reason: "Plan launching soon" };
     }
     return { kind: "upgrade" };

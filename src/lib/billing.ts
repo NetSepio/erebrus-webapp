@@ -32,6 +32,14 @@ export function priceForInterval(
   return plan?.billing_prices.find((p) => p.billing_interval === interval);
 }
 
+/** True only when the catalog offers the plan for this interval with checkout enabled. */
+export function planOpenForCheckout(
+  plan: GatewayBillingPlan | undefined,
+  interval: BillingInterval
+): boolean {
+  return priceForInterval(plan, interval)?.checkout_enabled === true;
+}
+
 /**
  * Initial release scope: Basic (free) → paid checkout only. Paid-to-paid
  * upgrades, interval changes and Enterprise (contact sales) are not supported.

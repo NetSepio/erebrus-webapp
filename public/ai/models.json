@@ -1,7 +1,7 @@
 {
   "schema_version": "1.2.0",
-  "catalog_version": "2026.08.16",
-  "generated_at": "2026-08-16T12:19:26.000Z",
+  "catalog_version": "2026.09.28",
+  "generated_at": "2026-09-28T13:49:52.000Z",
   "publisher": {
     "name": "Erebrus AI",
     "organization": "NetSepio",
@@ -9,7 +9,7 @@
     "description": "Curated local AI models for private inference on phones, laptops, desktops and nearby Erebrus workspaces."
   },
   "catalog_policy": {
-    "model_count": 32,
+    "model_count": 47,
     "primary_format": "GGUF and MLX",
     "primary_backend": "device-selected",
     "default_quantization_policy": "Prefer Q4_K_M for balanced quality unless a model has a native or specialized quantization.",
@@ -19,7 +19,8 @@
     "integrity_policy": "Every downloadable file is pinned to an immutable repository revision with exact byte size and SHA-256.",
     "runtime_policy": "Every entry remains erebrus_runtime_verification=pending until tested with the exact runtime shipped by Erebrus AI.",
     "provenance_policy": "Each variant identifies whether it is publisher-official or a community conversion and names its source repository.",
-    "recommendation_policy": "Catalog tiers and sort order provide editorial guidance; clients must apply runtime backend, platform and usable-memory safety checks."
+    "recommendation_policy": "Catalog tiers and sort order provide editorial guidance; clients must apply runtime backend, platform and usable-memory safety checks.",
+    "content_safety_policy": "Some entries are community 'abliterated' or 'uncensored' builds with reduced safety alignment (collection 'uncensored', content_safety.alignment='reduced'). Clients should gate and warn before enabling these."
   },
   "device_tiers": [
     {
@@ -61,7 +62,8 @@
       "coding",
       "vision",
       "workspace",
-      "experimental"
+      "experimental",
+      "uncensored"
     ],
     "release_channels": [
       "stable",
@@ -10022,6 +10024,3997 @@
         }
       ],
       "preferred_variant_id": "bonsai-27b-q1-gguf-q1-0"
+    },
+    {
+      "id": "qwen3-30b-a3b-thinking-2507",
+      "slug": "qwen3-30b-a3b-thinking-2507",
+      "name": "Qwen3 30B-A3B Thinking 2507",
+      "family": "Qwen3 MoE",
+      "variant": "Thinking",
+      "publisher": "Qwen / Unsloth",
+      "description": "A mixture-of-experts reasoning model (30B total, ~3B active) with an explicit thinking mode; large-model reasoning that stays responsive on 24 GB machines.",
+      "tags": [
+        "moe",
+        "reasoning",
+        "thinking",
+        "tools",
+        "qwen"
+      ],
+      "collections": [
+        "reasoning",
+        "workspace",
+        "everyday"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3moe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization",
+        "structured_output",
+        "tool_use"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation"
+      ],
+      "limitations": [
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF",
+          "revision": "a9b37aaac12b2bd0098783a443429543dd76a14d",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/resolve/a9b37aaac12b2bd0098783a443429543dd76a14d/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556686752,
+          "sha256": "b7380c816fca5a03b746be3d42773fb9a1c4b3bb4b3a1f3d9c2aeb10a720cba6",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 300,
+        "badges": [
+          "MoE",
+          "Reasoning",
+          "Thinking"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-30b-a3b-thinking-2507-gguf-q4-k-m",
+          "model_id": "qwen3-30b-a3b-thinking-2507",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF",
+              "revision": "a9b37aaac12b2bd0098783a443429543dd76a14d",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/resolve/a9b37aaac12b2bd0098783a443429543dd76a14d/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556686752,
+              "sha256": "b7380c816fca5a03b746be3d42773fb9a1c4b3bb4b3a1f3d9c2aeb10a720cba6",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-30b-a3b-thinking-2507-gguf-q4-k-m"
+    },
+    {
+      "id": "qwen3-vl-30b-a3b-instruct",
+      "slug": "qwen3-vl-30b-a3b-instruct",
+      "name": "Qwen3-VL 30B-A3B Instruct",
+      "family": "Qwen3-VL MoE",
+      "variant": "Instruct",
+      "publisher": "Qwen / Unsloth",
+      "description": "An efficient vision-language MoE (30B total, ~3B active) for image understanding with large-model quality on 24 GB machines.",
+      "tags": [
+        "moe",
+        "vision",
+        "multimodal",
+        "tools",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "everyday",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3vlmoe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "summarization",
+        "structured_output",
+        "tool_use"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+          "revision": "0af19e7479857aa7f3246466a4ad16c7e7299639",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/resolve/0af19e7479857aa7f3246466a4ad16c7e7299639/Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556688096,
+          "sha256": "7ea0a652b4bda1c1911a93a79a7cd98b92011dfea078e87328285294b2b4ab44",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-BF16.gguf",
+          "repository_id": "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+          "revision": "0af19e7479857aa7f3246466a4ad16c7e7299639",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/resolve/0af19e7479857aa7f3246466a4ad16c7e7299639/mmproj-BF16.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/mmproj-BF16.gguf",
+          "file_size_display": "about 1.1 GB",
+          "file_size_bytes": 1087039168,
+          "sha256": "cf6561a7cc618bbfa25dffc484c1c27b506df20b05cdc65f2626ad0df80beccb",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 301,
+        "badges": [
+          "MoE",
+          "Vision",
+          "Efficient"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-vl-30b-a3b-instruct-gguf-q4-k-m",
+          "model_id": "qwen3-vl-30b-a3b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+              "revision": "0af19e7479857aa7f3246466a4ad16c7e7299639",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/resolve/0af19e7479857aa7f3246466a4ad16c7e7299639/Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556688096,
+              "sha256": "7ea0a652b4bda1c1911a93a79a7cd98b92011dfea078e87328285294b2b4ab44",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-BF16.gguf",
+              "repository_id": "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+              "revision": "0af19e7479857aa7f3246466a4ad16c7e7299639",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/resolve/0af19e7479857aa7f3246466a4ad16c7e7299639/mmproj-BF16.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF/mmproj-BF16.gguf",
+              "file_size_display": "about 1.1 GB",
+              "file_size_bytes": 1087039168,
+              "sha256": "cf6561a7cc618bbfa25dffc484c1c27b506df20b05cdc65f2626ad0df80beccb",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-vl-30b-a3b-instruct-gguf-q4-k-m"
+    },
+    {
+      "id": "qwen3-vl-30b-a3b-thinking",
+      "slug": "qwen3-vl-30b-a3b-thinking",
+      "name": "Qwen3-VL 30B-A3B Thinking",
+      "family": "Qwen3-VL MoE",
+      "variant": "Thinking",
+      "publisher": "Qwen / Unsloth",
+      "description": "Vision-language MoE with an explicit thinking mode (30B total, ~3B active) for reasoning over images on 24 GB machines.",
+      "tags": [
+        "moe",
+        "vision",
+        "multimodal",
+        "thinking",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "reasoning",
+        "workspace"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3vlmoe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "summarization",
+        "structured_output",
+        "tool_use"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-VL-30B-A3B-Thinking-Q4_K_M.gguf",
+          "repository_id": "unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF",
+          "revision": "b74cad680eae891408c586ee8ac64d3cd87f0d78",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/resolve/b74cad680eae891408c586ee8ac64d3cd87f0d78/Qwen3-VL-30B-A3B-Thinking-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/Qwen3-VL-30B-A3B-Thinking-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556688000,
+          "sha256": "b5622d28d2deb398558841fb29060f0ad241bd30f6afe79ed3fcf78d5fbf887b",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-BF16.gguf",
+          "repository_id": "unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF",
+          "revision": "b74cad680eae891408c586ee8ac64d3cd87f0d78",
+          "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/resolve/b74cad680eae891408c586ee8ac64d3cd87f0d78/mmproj-BF16.gguf?download=true",
+          "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/mmproj-BF16.gguf",
+          "file_size_display": "about 1.1 GB",
+          "file_size_bytes": 1087039168,
+          "sha256": "11706025fd02177b3c92b3bb2070d4773fd63bfbc6d976dd1a4bf852ce3f3db0",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "beta",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 302,
+        "badges": [
+          "MoE",
+          "Vision",
+          "Thinking"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-vl-30b-a3b-thinking-gguf-q4-k-m",
+          "model_id": "qwen3-vl-30b-a3b-thinking",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "beta",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "unsloth",
+            "repository_id": "unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-VL-30B-A3B-Thinking-Q4_K_M.gguf",
+              "repository_id": "unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF",
+              "revision": "b74cad680eae891408c586ee8ac64d3cd87f0d78",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/resolve/b74cad680eae891408c586ee8ac64d3cd87f0d78/Qwen3-VL-30B-A3B-Thinking-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/Qwen3-VL-30B-A3B-Thinking-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556688000,
+              "sha256": "b5622d28d2deb398558841fb29060f0ad241bd30f6afe79ed3fcf78d5fbf887b",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-BF16.gguf",
+              "repository_id": "unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF",
+              "revision": "b74cad680eae891408c586ee8ac64d3cd87f0d78",
+              "download_url": "https://huggingface.co/unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/resolve/b74cad680eae891408c586ee8ac64d3cd87f0d78/mmproj-BF16.gguf?download=true",
+              "huggingface_uri": "hf://unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF/mmproj-BF16.gguf",
+              "file_size_display": "about 1.1 GB",
+              "file_size_bytes": 1087039168,
+              "sha256": "11706025fd02177b3c92b3bb2070d4773fd63bfbc6d976dd1a4bf852ce3f3db0",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-vl-30b-a3b-thinking-gguf-q4-k-m"
+    },
+    {
+      "id": "qwen3-omni-30b-a3b-instruct",
+      "slug": "qwen3-omni-30b-a3b-instruct",
+      "name": "Qwen3-Omni 30B-A3B Instruct",
+      "family": "Qwen3-Omni MoE",
+      "variant": "Instruct",
+      "publisher": "Qwen / ggml-org",
+      "description": "An omni-modal MoE (30B total, ~3B active) understanding text, images and audio. Audio support via llama.cpp is early/experimental.",
+      "tags": [
+        "moe",
+        "omni",
+        "vision",
+        "audio",
+        "multimodal",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "everyday",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3omni",
+        "context_length": 65536,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "audio",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "audio_understanding",
+        "reasoning",
+        "structured_output"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-Omni-30B-A3B-Instruct-Q4_K_M.gguf",
+          "repository_id": "ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF",
+          "revision": "6e35a28f4a19b18730f8949b0c579c6429649ab8",
+          "download_url": "https://huggingface.co/ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/resolve/6e35a28f4a19b18730f8949b0c579c6429649ab8/Qwen3-Omni-30B-A3B-Instruct-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/Qwen3-Omni-30B-A3B-Instruct-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18557053952,
+          "sha256": "d9e2876556e7873e02c0359f832432ee2d67ab7dd0cee3efe0f77fd7a1f4dd85",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-Qwen3-Omni-30B-A3B-Instruct-bf16.gguf",
+          "repository_id": "ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF",
+          "revision": "6e35a28f4a19b18730f8949b0c579c6429649ab8",
+          "download_url": "https://huggingface.co/ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/resolve/6e35a28f4a19b18730f8949b0c579c6429649ab8/mmproj-Qwen3-Omni-30B-A3B-Instruct-bf16.gguf?download=true",
+          "huggingface_uri": "hf://ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/mmproj-Qwen3-Omni-30B-A3B-Instruct-bf16.gguf",
+          "file_size_display": "about 2.2 GB",
+          "file_size_bytes": 2207465568,
+          "sha256": "f0dfe825fb692d426362b1ac79678fc08daa4758f7151526cad110515f122883",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": "Omni: audio understanding via llama.cpp is early/experimental."
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 303,
+        "badges": [
+          "MoE",
+          "Omni",
+          "Vision",
+          "Audio"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-omni-30b-a3b-instruct-gguf-q4-k-m",
+          "model_id": "qwen3-omni-30b-a3b-instruct",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "ggml-org",
+            "repository_id": "ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-Omni-30B-A3B-Instruct-Q4_K_M.gguf",
+              "repository_id": "ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF",
+              "revision": "6e35a28f4a19b18730f8949b0c579c6429649ab8",
+              "download_url": "https://huggingface.co/ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/resolve/6e35a28f4a19b18730f8949b0c579c6429649ab8/Qwen3-Omni-30B-A3B-Instruct-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/Qwen3-Omni-30B-A3B-Instruct-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18557053952,
+              "sha256": "d9e2876556e7873e02c0359f832432ee2d67ab7dd0cee3efe0f77fd7a1f4dd85",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-Qwen3-Omni-30B-A3B-Instruct-bf16.gguf",
+              "repository_id": "ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF",
+              "revision": "6e35a28f4a19b18730f8949b0c579c6429649ab8",
+              "download_url": "https://huggingface.co/ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/resolve/6e35a28f4a19b18730f8949b0c579c6429649ab8/mmproj-Qwen3-Omni-30B-A3B-Instruct-bf16.gguf?download=true",
+              "huggingface_uri": "hf://ggml-org/Qwen3-Omni-30B-A3B-Instruct-GGUF/mmproj-Qwen3-Omni-30B-A3B-Instruct-bf16.gguf",
+              "file_size_display": "about 2.2 GB",
+              "file_size_bytes": 2207465568,
+              "sha256": "f0dfe825fb692d426362b1ac79678fc08daa4758f7151526cad110515f122883",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-omni-30b-a3b-instruct-gguf-q4-k-m"
+    },
+    {
+      "id": "qwen3.8-27b-heretic-ara-uncensored",
+      "slug": "qwen3.8-27b-heretic-ara-uncensored",
+      "name": "Qwen3.8 27B Heretic (Uncensored)",
+      "family": "Qwen3.8",
+      "variant": "Heretic",
+      "publisher": "mradermacher (heretic-ara)",
+      "description": "A 'heretic' decensored build of the Qwen3.8-27B vision model. Safety alignment has been modified; may produce content a base model would refuse.",
+      "tags": [
+        "vision",
+        "uncensored",
+        "heretic",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 27000000000,
+        "parameter_label": "27B",
+        "architecture": "qwen3vl",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 18,
+        "recommended_ram_gb": 22,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.8-27B-heretic-ara.Q4_K_M.gguf",
+          "repository_id": "mradermacher/Qwen3.8-27B-heretic-ara-GGUF",
+          "revision": "f69c978f262c983cb312395d18bbce340260e89f",
+          "download_url": "https://huggingface.co/mradermacher/Qwen3.8-27B-heretic-ara-GGUF/resolve/f69c978f262c983cb312395d18bbce340260e89f/Qwen3.8-27B-heretic-ara.Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Qwen3.8-27B-heretic-ara-GGUF/Qwen3.8-27B-heretic-ara.Q4_K_M.gguf",
+          "file_size_display": "about 16.8 GB",
+          "file_size_bytes": 16810715008,
+          "sha256": "cf54665071ba77538690d90dc3b4ae99f3dc4a1a13d1f340dc87b09ac442c22f",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "Qwen3.8-27B-heretic-ara.mmproj-f16.gguf",
+          "repository_id": "mradermacher/Qwen3.8-27B-heretic-ara-GGUF",
+          "revision": "f69c978f262c983cb312395d18bbce340260e89f",
+          "download_url": "https://huggingface.co/mradermacher/Qwen3.8-27B-heretic-ara-GGUF/resolve/f69c978f262c983cb312395d18bbce340260e89f/Qwen3.8-27B-heretic-ara.mmproj-f16.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Qwen3.8-27B-heretic-ara-GGUF/Qwen3.8-27B-heretic-ara.mmproj-f16.gguf",
+          "file_size_display": "927 MB",
+          "file_size_bytes": 927607136,
+          "sha256": "4b0fc77ddfe91e85b7615ca1630e17ddee54b8adfbffb141228c45a75549d30e",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 320,
+        "badges": [
+          "Uncensored",
+          "Vision",
+          "27B"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/Qwen3.8-27B-heretic-ara-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.8-27b-heretic-ara-uncensored-gguf-q4-k-m",
+          "model_id": "qwen3.8-27b-heretic-ara-uncensored",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 18,
+          "recommended_ram_gb": 22,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/Qwen3.8-27B-heretic-ara-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.8-27B-heretic-ara.Q4_K_M.gguf",
+              "repository_id": "mradermacher/Qwen3.8-27B-heretic-ara-GGUF",
+              "revision": "f69c978f262c983cb312395d18bbce340260e89f",
+              "download_url": "https://huggingface.co/mradermacher/Qwen3.8-27B-heretic-ara-GGUF/resolve/f69c978f262c983cb312395d18bbce340260e89f/Qwen3.8-27B-heretic-ara.Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Qwen3.8-27B-heretic-ara-GGUF/Qwen3.8-27B-heretic-ara.Q4_K_M.gguf",
+              "file_size_display": "about 16.8 GB",
+              "file_size_bytes": 16810715008,
+              "sha256": "cf54665071ba77538690d90dc3b4ae99f3dc4a1a13d1f340dc87b09ac442c22f",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "Qwen3.8-27B-heretic-ara.mmproj-f16.gguf",
+              "repository_id": "mradermacher/Qwen3.8-27B-heretic-ara-GGUF",
+              "revision": "f69c978f262c983cb312395d18bbce340260e89f",
+              "download_url": "https://huggingface.co/mradermacher/Qwen3.8-27B-heretic-ara-GGUF/resolve/f69c978f262c983cb312395d18bbce340260e89f/Qwen3.8-27B-heretic-ara.mmproj-f16.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Qwen3.8-27B-heretic-ara-GGUF/Qwen3.8-27B-heretic-ara.mmproj-f16.gguf",
+              "file_size_display": "927 MB",
+              "file_size_bytes": 927607136,
+              "sha256": "4b0fc77ddfe91e85b7615ca1630e17ddee54b8adfbffb141228c45a75549d30e",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.8-27b-heretic-ara-uncensored-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "heretic",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3.8-27b-abliterated",
+      "slug": "qwen3.8-27b-abliterated",
+      "name": "Qwen3.8 27B Abliterated",
+      "family": "Qwen3.8",
+      "variant": "Abliterated",
+      "publisher": "Blackfrost-AI",
+      "description": "An abliterated (refusal-direction removed) build of the Qwen3.8-27B vision model. Reduced safety alignment.",
+      "tags": [
+        "vision",
+        "uncensored",
+        "abliterated",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 27000000000,
+        "parameter_label": "27B",
+        "architecture": "qwen3vl",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 18,
+        "recommended_ram_gb": 22,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.8-27B-ABLITERATED-Q4_K_M.gguf",
+          "repository_id": "Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF",
+          "revision": "994bb4e69663ec880a4d9a61604e6debc3a49b9a",
+          "download_url": "https://huggingface.co/Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/resolve/994bb4e69663ec880a4d9a61604e6debc3a49b9a/Qwen3.8-27B-ABLITERATED-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/Qwen3.8-27B-ABLITERATED-Q4_K_M.gguf",
+          "file_size_display": "about 16.8 GB",
+          "file_size_bytes": 16810716384,
+          "sha256": "5d53637a59cfcd3a4d8354e254ffd44943e5a693da2405a3e228c62962355509",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-Qwen3.8-27B-ABLITERATED-F16.gguf",
+          "repository_id": "Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF",
+          "revision": "994bb4e69663ec880a4d9a61604e6debc3a49b9a",
+          "download_url": "https://huggingface.co/Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/resolve/994bb4e69663ec880a4d9a61604e6debc3a49b9a/mmproj-Qwen3.8-27B-ABLITERATED-F16.gguf?download=true",
+          "huggingface_uri": "hf://Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/mmproj-Qwen3.8-27B-ABLITERATED-F16.gguf",
+          "file_size_display": "927 MB",
+          "file_size_bytes": 927607424,
+          "sha256": "2284099ce864f1023d721e6ef5eaef32bb56abdbc1dc561c6d91300f12ef2e4b",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 321,
+        "badges": [
+          "Uncensored",
+          "Vision",
+          "27B"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.8-27b-abliterated-gguf-q4-k-m",
+          "model_id": "qwen3.8-27b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 18,
+          "recommended_ram_gb": 22,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "Blackfrost-AI",
+            "repository_id": "Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.8-27B-ABLITERATED-Q4_K_M.gguf",
+              "repository_id": "Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF",
+              "revision": "994bb4e69663ec880a4d9a61604e6debc3a49b9a",
+              "download_url": "https://huggingface.co/Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/resolve/994bb4e69663ec880a4d9a61604e6debc3a49b9a/Qwen3.8-27B-ABLITERATED-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/Qwen3.8-27B-ABLITERATED-Q4_K_M.gguf",
+              "file_size_display": "about 16.8 GB",
+              "file_size_bytes": 16810716384,
+              "sha256": "5d53637a59cfcd3a4d8354e254ffd44943e5a693da2405a3e228c62962355509",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-Qwen3.8-27B-ABLITERATED-F16.gguf",
+              "repository_id": "Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF",
+              "revision": "994bb4e69663ec880a4d9a61604e6debc3a49b9a",
+              "download_url": "https://huggingface.co/Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/resolve/994bb4e69663ec880a4d9a61604e6debc3a49b9a/mmproj-Qwen3.8-27B-ABLITERATED-F16.gguf?download=true",
+              "huggingface_uri": "hf://Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF/mmproj-Qwen3.8-27B-ABLITERATED-F16.gguf",
+              "file_size_display": "927 MB",
+              "file_size_bytes": 927607424,
+              "sha256": "2284099ce864f1023d721e6ef5eaef32bb56abdbc1dc561c6d91300f12ef2e4b",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.8-27b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3.8-27b-uncensored",
+      "slug": "qwen3.8-27b-uncensored",
+      "name": "Qwen3.8 27B Uncensored",
+      "family": "Qwen3.8",
+      "variant": "Uncensored",
+      "publisher": "JonathanColetti",
+      "description": "An uncensored community build of the Qwen3.8-27B vision model. Reduced safety alignment.",
+      "tags": [
+        "vision",
+        "uncensored",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 27000000000,
+        "parameter_label": "27B",
+        "architecture": "qwen3vl",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 18,
+        "recommended_ram_gb": 22,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3.8-27B-Uncensored-Q4_K_M.gguf",
+          "repository_id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+          "revision": "45d0fc0ad6cfcf9eeee6008ddaea925536409b18",
+          "download_url": "https://huggingface.co/JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/resolve/45d0fc0ad6cfcf9eeee6008ddaea925536409b18/Qwen3.8-27B-Uncensored-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q4_K_M.gguf",
+          "file_size_display": "about 16.8 GB",
+          "file_size_bytes": 16810714528,
+          "sha256": "4c5e2db039e9325ac7724c8846c71356a24ad1cdfa28002d73ecb6be645f9675",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-Qwen3.8-27B-Uncensored-F16.gguf",
+          "repository_id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+          "revision": "45d0fc0ad6cfcf9eeee6008ddaea925536409b18",
+          "download_url": "https://huggingface.co/JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/resolve/45d0fc0ad6cfcf9eeee6008ddaea925536409b18/mmproj-Qwen3.8-27B-Uncensored-F16.gguf?download=true",
+          "huggingface_uri": "hf://JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/mmproj-Qwen3.8-27B-Uncensored-F16.gguf",
+          "file_size_display": "927 MB",
+          "file_size_bytes": 927606912,
+          "sha256": "5ac423f8a29059dc24e51bc6a43e9380dcd57a9347f28b62591e0b3f60b7081c",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 322,
+        "badges": [
+          "Uncensored",
+          "Vision",
+          "27B"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3.8-27b-uncensored-gguf-q4-k-m",
+          "model_id": "qwen3.8-27b-uncensored",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 18,
+          "recommended_ram_gb": 22,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "JonathanColetti",
+            "repository_id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3.8-27B-Uncensored-Q4_K_M.gguf",
+              "repository_id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+              "revision": "45d0fc0ad6cfcf9eeee6008ddaea925536409b18",
+              "download_url": "https://huggingface.co/JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/resolve/45d0fc0ad6cfcf9eeee6008ddaea925536409b18/Qwen3.8-27B-Uncensored-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q4_K_M.gguf",
+              "file_size_display": "about 16.8 GB",
+              "file_size_bytes": 16810714528,
+              "sha256": "4c5e2db039e9325ac7724c8846c71356a24ad1cdfa28002d73ecb6be645f9675",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-Qwen3.8-27B-Uncensored-F16.gguf",
+              "repository_id": "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF",
+              "revision": "45d0fc0ad6cfcf9eeee6008ddaea925536409b18",
+              "download_url": "https://huggingface.co/JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/resolve/45d0fc0ad6cfcf9eeee6008ddaea925536409b18/mmproj-Qwen3.8-27B-Uncensored-F16.gguf?download=true",
+              "huggingface_uri": "hf://JonathanColetti/Qwen3.8-27B-Uncensored-GGUF/mmproj-Qwen3.8-27B-Uncensored-F16.gguf",
+              "file_size_display": "927 MB",
+              "file_size_bytes": 927606912,
+              "sha256": "5ac423f8a29059dc24e51bc6a43e9380dcd57a9347f28b62591e0b3f60b7081c",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3.8-27b-uncensored-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "uncensored_finetune",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3-coder-30b-a3b-abliterated",
+      "slug": "qwen3-coder-30b-a3b-abliterated",
+      "name": "Qwen3 Coder 30B-A3B Abliterated",
+      "family": "Qwen3 Coder MoE",
+      "variant": "Abliterated",
+      "publisher": "huihui-ai / mradermacher",
+      "description": "An abliterated build of the Qwen3-Coder-30B-A3B MoE (huihui-ai abliteration, mradermacher imatrix quant). Reduced safety alignment for coding tasks.",
+      "tags": [
+        "moe",
+        "coding",
+        "uncensored",
+        "abliterated",
+        "qwen"
+      ],
+      "collections": [
+        "coding",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3moe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "coding",
+        "debugging",
+        "code_explanation",
+        "structured_output",
+        "tool_use",
+        "reasoning"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated.i1-Q4_K_M.gguf",
+          "repository_id": "mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF",
+          "revision": "1fa96afc8a651d0ec8fa85087caa753cd0ab9556",
+          "download_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF/resolve/1fa96afc8a651d0ec8fa85087caa753cd0ab9556/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated.i1-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated.i1-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556689920,
+          "sha256": "bf6c1462967444b5be32b103b793d93b9174c7b589300f9f279c390c7fb59036",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 323,
+        "badges": [
+          "Uncensored",
+          "MoE",
+          "Coding"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-coder-30b-a3b-abliterated-gguf-q4-k-m",
+          "model_id": "qwen3-coder-30b-a3b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated.i1-Q4_K_M.gguf",
+              "repository_id": "mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF",
+              "revision": "1fa96afc8a651d0ec8fa85087caa753cd0ab9556",
+              "download_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF/resolve/1fa96afc8a651d0ec8fa85087caa753cd0ab9556/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated.i1-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated.i1-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556689920,
+              "sha256": "bf6c1462967444b5be32b103b793d93b9174c7b589300f9f279c390c7fb59036",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-coder-30b-a3b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3-vl-30b-a3b-abliterated",
+      "slug": "qwen3-vl-30b-a3b-abliterated",
+      "name": "Qwen3-VL 30B-A3B Abliterated",
+      "family": "Qwen3-VL MoE",
+      "variant": "Abliterated",
+      "publisher": "huihui-ai / noctrex",
+      "description": "An abliterated build of the Qwen3-VL-30B-A3B vision MoE (huihui-ai abliteration). Reduced safety alignment.",
+      "tags": [
+        "moe",
+        "vision",
+        "uncensored",
+        "abliterated",
+        "qwen"
+      ],
+      "collections": [
+        "vision",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3vlmoe",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "reasoning",
+        "structured_output"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-Q4_K_M.gguf",
+          "repository_id": "noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF",
+          "revision": "6f9740ab52d5cefac63d89b65de95c12b48d49a6",
+          "download_url": "https://huggingface.co/noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/resolve/6f9740ab52d5cefac63d89b65de95c12b48d49a6/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18556687872,
+          "sha256": "1e94a65167a39d2ff4427393746d4dbc838f3d163c639d932e9ce983f575eabf",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "mmproj-BF16.gguf",
+          "repository_id": "noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF",
+          "revision": "6f9740ab52d5cefac63d89b65de95c12b48d49a6",
+          "download_url": "https://huggingface.co/noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/resolve/6f9740ab52d5cefac63d89b65de95c12b48d49a6/mmproj-BF16.gguf?download=true",
+          "huggingface_uri": "hf://noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/mmproj-BF16.gguf",
+          "file_size_display": "about 1.1 GB",
+          "file_size_bytes": 1087038976,
+          "sha256": "567b68266af809333340c25b1eecdec0acf79196662e4f629510fef448e12aaf",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 324,
+        "badges": [
+          "Uncensored",
+          "MoE",
+          "Vision"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-vl-30b-a3b-abliterated-gguf-q4-k-m",
+          "model_id": "qwen3-vl-30b-a3b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "noctrex",
+            "repository_id": "noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-Q4_K_M.gguf",
+              "repository_id": "noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF",
+              "revision": "6f9740ab52d5cefac63d89b65de95c12b48d49a6",
+              "download_url": "https://huggingface.co/noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/resolve/6f9740ab52d5cefac63d89b65de95c12b48d49a6/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18556687872,
+              "sha256": "1e94a65167a39d2ff4427393746d4dbc838f3d163c639d932e9ce983f575eabf",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "mmproj-BF16.gguf",
+              "repository_id": "noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF",
+              "revision": "6f9740ab52d5cefac63d89b65de95c12b48d49a6",
+              "download_url": "https://huggingface.co/noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/resolve/6f9740ab52d5cefac63d89b65de95c12b48d49a6/mmproj-BF16.gguf?download=true",
+              "huggingface_uri": "hf://noctrex/Huihui-Qwen3-VL-30B-A3B-Instruct-abliterated-GGUF/mmproj-BF16.gguf",
+              "file_size_display": "about 1.1 GB",
+              "file_size_bytes": 1087038976,
+              "sha256": "567b68266af809333340c25b1eecdec0acf79196662e4f629510fef448e12aaf",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-vl-30b-a3b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3-omni-30b-a3b-thinking-abliterated",
+      "slug": "qwen3-omni-30b-a3b-thinking-abliterated",
+      "name": "Qwen3-Omni 30B-A3B Thinking Abliterated",
+      "family": "Qwen3-Omni MoE",
+      "variant": "Abliterated",
+      "publisher": "huihui-ai / mradermacher",
+      "description": "An abliterated build of the Qwen3-Omni-30B-A3B Thinking MoE (huihui-ai). Text/image/audio; audio via llama.cpp is early. Reduced safety alignment.",
+      "tags": [
+        "moe",
+        "omni",
+        "vision",
+        "audio",
+        "uncensored",
+        "abliterated"
+      ],
+      "collections": [
+        "vision",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 30500000000,
+        "parameter_label": "30B-A3B (3B active)",
+        "architecture": "qwen3omni",
+        "context_length": 65536,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "audio",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "audio_understanding",
+        "reasoning"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 20,
+        "recommended_ram_gb": 24,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.Q4_K_M.gguf",
+          "repository_id": "mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF",
+          "revision": "5b484587a789a006671c9b685c40e30d6b580446",
+          "download_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/resolve/5b484587a789a006671c9b685c40e30d6b580446/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.Q4_K_M.gguf",
+          "file_size_display": "about 18.6 GB",
+          "file_size_bytes": 18557054144,
+          "sha256": "3bf0fc4dc70e372797238f0b76530499c26794e1df500d2a3ac9fd1a04104d82",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.mmproj-f16.gguf",
+          "repository_id": "mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF",
+          "revision": "5b484587a789a006671c9b685c40e30d6b580446",
+          "download_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/resolve/5b484587a789a006671c9b685c40e30d6b580446/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.mmproj-f16.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.mmproj-f16.gguf",
+          "file_size_display": "about 2.2 GB",
+          "file_size_bytes": 2203927104,
+          "sha256": "ad02c31f90b38a4947f38a058f57bf907ffc8b0bf238aaa54962d4e170c80f3d",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": "Omni: audio understanding via llama.cpp is early/experimental."
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 325,
+        "badges": [
+          "Uncensored",
+          "Omni",
+          "Vision"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-omni-30b-a3b-thinking-abliterated-gguf-q4-k-m",
+          "model_id": "qwen3-omni-30b-a3b-thinking-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 20,
+          "recommended_ram_gb": 24,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.Q4_K_M.gguf",
+              "repository_id": "mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF",
+              "revision": "5b484587a789a006671c9b685c40e30d6b580446",
+              "download_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/resolve/5b484587a789a006671c9b685c40e30d6b580446/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.Q4_K_M.gguf",
+              "file_size_display": "about 18.6 GB",
+              "file_size_bytes": 18557054144,
+              "sha256": "3bf0fc4dc70e372797238f0b76530499c26794e1df500d2a3ac9fd1a04104d82",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.mmproj-f16.gguf",
+              "repository_id": "mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF",
+              "revision": "5b484587a789a006671c9b685c40e30d6b580446",
+              "download_url": "https://huggingface.co/mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/resolve/5b484587a789a006671c9b685c40e30d6b580446/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.mmproj-f16.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated-GGUF/Huihui-Qwen3-Omni-30B-A3B-Thinking-abliterated.mmproj-f16.gguf",
+              "file_size_display": "about 2.2 GB",
+              "file_size_bytes": 2203927104,
+              "sha256": "ad02c31f90b38a4947f38a058f57bf907ffc8b0bf238aaa54962d4e170c80f3d",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-omni-30b-a3b-thinking-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "gemma-3-12b-abliterated",
+      "slug": "gemma-3-12b-abliterated",
+      "name": "Gemma 3 12B Abliterated",
+      "family": "Gemma 3",
+      "variant": "Abliterated",
+      "publisher": "mlabonne / mradermacher",
+      "description": "An abliterated build of Gemma 3 12B IT (text-only GGUF, no vision projector). Reduced safety alignment; Gemma Terms of Use still apply.",
+      "tags": [
+        "uncensored",
+        "abliterated",
+        "gemma"
+      ],
+      "collections": [
+        "everyday",
+        "uncensored",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 12000000000,
+        "parameter_label": "12B",
+        "architecture": "gemma3",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "not_recommended",
+        "minimum_ram_gb": 10,
+        "recommended_ram_gb": 16,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "gemma-3-12b-it-abliterated.Q4_K_M.gguf",
+          "repository_id": "mradermacher/gemma-3-12b-it-abliterated-GGUF",
+          "revision": "c491abbca861032ccd0156b2dde9cf35f5bff9c6",
+          "download_url": "https://huggingface.co/mradermacher/gemma-3-12b-it-abliterated-GGUF/resolve/c491abbca861032ccd0156b2dde9cf35f5bff9c6/gemma-3-12b-it-abliterated.Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/gemma-3-12b-it-abliterated-GGUF/gemma-3-12b-it-abliterated.Q4_K_M.gguf",
+          "file_size_display": "about 7.3 GB",
+          "file_size_bytes": 7300778944,
+          "sha256": "914c8281afc1fc15c9bb03ded97b8cd924910e428892f6c9b17c19c5378747db",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "gemma-terms",
+        "name": "Gemma Terms of Use",
+        "url": "https://ai.google.dev/gemma/terms",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 326,
+        "badges": [
+          "Uncensored",
+          "12B"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/gemma-3-12b-it-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "gemma-3-12b-abliterated-gguf-q4-k-m",
+          "model_id": "gemma-3-12b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 10,
+          "recommended_ram_gb": 16,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/gemma-3-12b-it-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "gemma-3-12b-it-abliterated.Q4_K_M.gguf",
+              "repository_id": "mradermacher/gemma-3-12b-it-abliterated-GGUF",
+              "revision": "c491abbca861032ccd0156b2dde9cf35f5bff9c6",
+              "download_url": "https://huggingface.co/mradermacher/gemma-3-12b-it-abliterated-GGUF/resolve/c491abbca861032ccd0156b2dde9cf35f5bff9c6/gemma-3-12b-it-abliterated.Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/gemma-3-12b-it-abliterated-GGUF/gemma-3-12b-it-abliterated.Q4_K_M.gguf",
+              "file_size_display": "about 7.3 GB",
+              "file_size_bytes": 7300778944,
+              "sha256": "914c8281afc1fc15c9bb03ded97b8cd924910e428892f6c9b17c19c5378747db",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "gemma-3-12b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3-vl-8b-abliterated",
+      "slug": "qwen3-vl-8b-abliterated",
+      "name": "Qwen3-VL 8B Abliterated",
+      "family": "Qwen3-VL",
+      "variant": "Abliterated",
+      "publisher": "huihui-ai / mradermacher",
+      "description": "A compact abliterated vision model (Qwen3-VL 8B, huihui-ai) that can run on high-memory recent phones and laptops. Reduced safety alignment.",
+      "tags": [
+        "vision",
+        "uncensored",
+        "abliterated",
+        "qwen",
+        "mobile"
+      ],
+      "collections": [
+        "vision",
+        "uncensored",
+        "mobile",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 8000000000,
+        "parameter_label": "8B",
+        "architecture": "qwen3vl",
+        "context_length": 262144,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text",
+          "image"
+        ],
+        "upstream_input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "vision",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation",
+        "Image understanding"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Vision requires the mmproj projector file",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": true,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 7,
+        "recommended_ram_gb": 10,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Qwen3-VL-8B-Instruct-abliterated.Q4_K_M.gguf",
+          "repository_id": "mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF",
+          "revision": "292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269",
+          "download_url": "https://huggingface.co/mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/resolve/292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269/Qwen3-VL-8B-Instruct-abliterated.Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/Qwen3-VL-8B-Instruct-abliterated.Q4_K_M.gguf",
+          "file_size_display": "about 5.0 GB",
+          "file_size_bytes": 5027785792,
+          "sha256": "713d7cfeb8e1eccb3c92838c26d3fc5c99d238ce161caa3b3d5e3133ec491f42",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        },
+        {
+          "role": "mmproj",
+          "format": "gguf",
+          "quantization": "F16",
+          "filename": "Qwen3-VL-8B-Instruct-abliterated.mmproj-f16.gguf",
+          "repository_id": "mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF",
+          "revision": "292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269",
+          "download_url": "https://huggingface.co/mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/resolve/292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269/Qwen3-VL-8B-Instruct-abliterated.mmproj-f16.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/Qwen3-VL-8B-Instruct-abliterated.mmproj-f16.gguf",
+          "file_size_display": "about 1.2 GB",
+          "file_size_bytes": 1159030336,
+          "sha256": "fe1a01686420659ecfc442347ea8d07ab43e2eaafc9c9e709910a73d992b99b2",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "mmproj"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": "libmtmd",
+        "requires_mmproj": true,
+        "minimum_runtime_version": "recent llama.cpp build with Qwen3-VL/libmtmd support",
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 327,
+        "badges": [
+          "Uncensored",
+          "Vision",
+          "Compact"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-vl-8b-abliterated-gguf-q4-k-m",
+          "model_id": "qwen3-vl-8b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 7,
+          "recommended_ram_gb": 10,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Qwen3-VL-8B-Instruct-abliterated.Q4_K_M.gguf",
+              "repository_id": "mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF",
+              "revision": "292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269",
+              "download_url": "https://huggingface.co/mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/resolve/292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269/Qwen3-VL-8B-Instruct-abliterated.Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/Qwen3-VL-8B-Instruct-abliterated.Q4_K_M.gguf",
+              "file_size_display": "about 5.0 GB",
+              "file_size_bytes": 5027785792,
+              "sha256": "713d7cfeb8e1eccb3c92838c26d3fc5c99d238ce161caa3b3d5e3133ec491f42",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            },
+            {
+              "role": "mmproj",
+              "format": "gguf",
+              "quantization": "F16",
+              "filename": "Qwen3-VL-8B-Instruct-abliterated.mmproj-f16.gguf",
+              "repository_id": "mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF",
+              "revision": "292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269",
+              "download_url": "https://huggingface.co/mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/resolve/292ee2bd5d0f1c49e1fb82b0fbd98cb3dbfb6269/Qwen3-VL-8B-Instruct-abliterated.mmproj-f16.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Qwen3-VL-8B-Instruct-abliterated-GGUF/Qwen3-VL-8B-Instruct-abliterated.mmproj-f16.gguf",
+              "file_size_display": "about 1.2 GB",
+              "file_size_bytes": 1159030336,
+              "sha256": "fe1a01686420659ecfc442347ea8d07ab43e2eaafc9c9e709910a73d992b99b2",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "mmproj"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-vl-8b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "qwen3-8b-abliterated",
+      "slug": "qwen3-8b-abliterated",
+      "name": "Qwen3 8B Abliterated",
+      "family": "Qwen3",
+      "variant": "Abliterated",
+      "publisher": "mlabonne / bartowski",
+      "description": "A compact abliterated Qwen3 8B (mlabonne abliteration, bartowski quant) for high-memory phones and laptops. Reduced safety alignment.",
+      "tags": [
+        "uncensored",
+        "abliterated",
+        "qwen",
+        "mobile"
+      ],
+      "collections": [
+        "everyday",
+        "uncensored",
+        "mobile",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 8000000000,
+        "parameter_label": "8B",
+        "architecture": "qwen3",
+        "context_length": 40960,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 6,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf",
+          "repository_id": "bartowski/mlabonne_Qwen3-8B-abliterated-GGUF",
+          "revision": "0e66e6f836c802246b69941780ec8ef32670dc09",
+          "download_url": "https://huggingface.co/bartowski/mlabonne_Qwen3-8B-abliterated-GGUF/resolve/0e66e6f836c802246b69941780ec8ef32670dc09/mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://bartowski/mlabonne_Qwen3-8B-abliterated-GGUF/mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf",
+          "file_size_display": "about 5.0 GB",
+          "file_size_bytes": 5027784288,
+          "sha256": "361557e69ad101ee22b1baf427283b7ddcf81bc7532b8cee8ac2c6b4d1b81ead",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": false
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 328,
+        "badges": [
+          "Uncensored",
+          "Compact"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/bartowski/mlabonne_Qwen3-8B-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "qwen3-8b-abliterated-gguf-q4-k-m",
+          "model_id": "qwen3-8b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 8,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "bartowski",
+            "repository_id": "bartowski/mlabonne_Qwen3-8B-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf",
+              "repository_id": "bartowski/mlabonne_Qwen3-8B-abliterated-GGUF",
+              "revision": "0e66e6f836c802246b69941780ec8ef32670dc09",
+              "download_url": "https://huggingface.co/bartowski/mlabonne_Qwen3-8B-abliterated-GGUF/resolve/0e66e6f836c802246b69941780ec8ef32670dc09/mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://bartowski/mlabonne_Qwen3-8B-abliterated-GGUF/mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf",
+              "file_size_display": "about 5.0 GB",
+              "file_size_bytes": 5027784288,
+              "sha256": "361557e69ad101ee22b1baf427283b7ddcf81bc7532b8cee8ac2c6b4d1b81ead",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "qwen3-8b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "llama-3.1-8b-abliterated",
+      "slug": "llama-3.1-8b-abliterated",
+      "name": "Llama 3.1 8B Abliterated",
+      "family": "Llama 3.1",
+      "variant": "Abliterated",
+      "publisher": "mlabonne / mradermacher",
+      "description": "A compact abliterated Llama 3.1 8B Instruct for high-memory phones and laptops. Reduced safety alignment; Llama 3 Community License applies.",
+      "tags": [
+        "uncensored",
+        "abliterated",
+        "llama",
+        "mobile"
+      ],
+      "collections": [
+        "everyday",
+        "uncensored",
+        "mobile",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 8000000000,
+        "parameter_label": "8B",
+        "architecture": "llama",
+        "context_length": 131072,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 6,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "Llama-3.1-8B-Instruct-abliterated.Q4_K_M.gguf",
+          "repository_id": "mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF",
+          "revision": "6948e1fbb43f27d9d86d7774ef5cdc237602b74c",
+          "download_url": "https://huggingface.co/mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF/resolve/6948e1fbb43f27d9d86d7774ef5cdc237602b74c/Llama-3.1-8B-Instruct-abliterated.Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF/Llama-3.1-8B-Instruct-abliterated.Q4_K_M.gguf",
+          "file_size_display": "about 4.9 GB",
+          "file_size_bytes": 4920739200,
+          "sha256": "6add644831fec239c25c8c7e3028aecac26820c6d72100a9730fd90b594a4314",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Application distributors should re-check the upstream license before mirroring or redistributing weights.",
+        "id": "llama-3-community",
+        "name": "Llama 3 Community License",
+        "url": "https://www.llama.com/llama3/license/",
+        "commercial_use": true,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 329,
+        "badges": [
+          "Uncensored",
+          "Compact"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "llama-3.1-8b-abliterated-gguf-q4-k-m",
+          "model_id": "llama-3.1-8b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 8,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "Llama-3.1-8B-Instruct-abliterated.Q4_K_M.gguf",
+              "repository_id": "mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF",
+              "revision": "6948e1fbb43f27d9d86d7774ef5cdc237602b74c",
+              "download_url": "https://huggingface.co/mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF/resolve/6948e1fbb43f27d9d86d7774ef5cdc237602b74c/Llama-3.1-8B-Instruct-abliterated.Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Llama-3.1-8B-Instruct-abliterated-GGUF/Llama-3.1-8B-Instruct-abliterated.Q4_K_M.gguf",
+              "file_size_display": "about 4.9 GB",
+              "file_size_bytes": 4920739200,
+              "sha256": "6add644831fec239c25c8c7e3028aecac26820c6d72100a9730fd90b594a4314",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "llama-3.1-8b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
+    },
+    {
+      "id": "ministral-8b-abliterated",
+      "slug": "ministral-8b-abliterated",
+      "name": "Ministral 8B Abliterated",
+      "family": "Ministral",
+      "variant": "Abliterated",
+      "publisher": "mistralai (base) / mradermacher",
+      "description": "A compact abliterated Ministral 8B Instruct 2410. Reduced safety alignment. NOTE: base model is under the non-commercial Mistral Research License.",
+      "tags": [
+        "uncensored",
+        "abliterated",
+        "mistral",
+        "mobile"
+      ],
+      "collections": [
+        "everyday",
+        "uncensored",
+        "mobile",
+        "experimental"
+      ],
+      "popularity": {
+        "tier": "medium",
+        "basis": [
+          "community adoption",
+          "availability of maintained GGUF builds",
+          "local-inference ecosystem support"
+        ],
+        "mutable_download_counts_included": false
+      },
+      "model": {
+        "parameter_count": 8000000000,
+        "parameter_label": "8B",
+        "architecture": "llama",
+        "context_length": 32768,
+        "recommended_context_length": 32768
+      },
+      "modalities": {
+        "runtime_input": [
+          "text"
+        ],
+        "upstream_input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "summarization"
+      ],
+      "best_for": [
+        "Local assistant",
+        "Research and experimentation"
+      ],
+      "limitations": [
+        "Reduced/removed safety alignment",
+        "Community/curated metadata; not yet runtime-verified by Erebrus"
+      ],
+      "languages": [
+        "multilingual"
+      ],
+      "supports_tools": true,
+      "supports_json": true,
+      "supports_vision": false,
+      "device_support": {
+        "tiers": [
+          "laptop",
+          "desktop",
+          "gpu"
+        ],
+        "recommended_tier": "laptop",
+        "mobile_status": "supported_on_recent_devices",
+        "minimum_ram_gb": 6,
+        "recommended_ram_gb": 8,
+        "gpu_recommended": false,
+        "gpu_required": false,
+        "minimum_vram_gb": 0,
+        "recommended_vram_gb": 0,
+        "platforms": [
+          "android-arm64",
+          "ios-arm64",
+          "linux-x86_64",
+          "macos-arm64",
+          "windows-x86_64"
+        ]
+      },
+      "artifacts": [
+        {
+          "role": "model",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "filename": "ministral-8B-Instruct-2410-abliterated.Q4_K_M.gguf",
+          "repository_id": "mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF",
+          "revision": "9779920294ca4abb1d5aaae105b190fb0001d186",
+          "download_url": "https://huggingface.co/mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF/resolve/9779920294ca4abb1d5aaae105b190fb0001d186/ministral-8B-Instruct-2410-abliterated.Q4_K_M.gguf?download=true",
+          "huggingface_uri": "hf://mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF/ministral-8B-Instruct-2410-abliterated.Q4_K_M.gguf",
+          "file_size_display": "about 4.9 GB",
+          "file_size_bytes": 4911500896,
+          "sha256": "c10e031654a513eea795235234307f404d4be4d3b7dce511a9ccafcc01979956",
+          "recommended": true,
+          "backend": "llama.cpp",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "notes": null,
+          "required": true,
+          "id": "model-q4-k-m"
+        }
+      ],
+      "runtime": {
+        "preferred_backend": "llama.cpp",
+        "compatible_backends": [
+          "llama.cpp"
+        ],
+        "chat_template_source": "gguf_metadata",
+        "supports_gpu_offload": true,
+        "supports_mmap": true,
+        "multimodal_api": null,
+        "requires_mmproj": false,
+        "minimum_runtime_version": null,
+        "notes": null
+      },
+      "generation_defaults": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0.0,
+        "max_tokens": 1024,
+        "repeat_penalty": 1.05,
+        "seed": -1,
+        "stop_sequences": []
+      },
+      "license": {
+        "review_status": "reviewed_at_catalog_level",
+        "notes": "Non-commercial / research license. Commercial use requires a separate license from Mistral AI. Verify before any commercial distribution.",
+        "id": "mistral-research",
+        "name": "Mistral Research License (MRL-0.1)",
+        "url": "https://mistral.ai/licenses/MRL-0.1.md",
+        "commercial_use": false,
+        "redistribution": true,
+        "attribution_required": true,
+        "custom_license": true
+      },
+      "status": {
+        "catalog_state": "active",
+        "release_channel": "experimental",
+        "metadata_status": "catalog_curated",
+        "erebrus_runtime_verification": "pending",
+        "verified_at": null,
+        "minimum_app_version": "1.0.0",
+        "deprecation": null
+      },
+      "display": {
+        "featured": false,
+        "sort_order": 330,
+        "badges": [
+          "Uncensored",
+          "Compact"
+        ]
+      },
+      "sources": {
+        "gguf_repository_url": "https://huggingface.co/mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF",
+        "artifact_revision_policy": "pinned to an immutable commit revision"
+      },
+      "variants": [
+        {
+          "variant_id": "ministral-8b-abliterated-gguf-q4-k-m",
+          "model_id": "ministral-8b-abliterated",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "platforms": [
+            "android-arm64",
+            "ios-arm64",
+            "linux-x86_64",
+            "macos-arm64",
+            "windows-x86_64"
+          ],
+          "compatible_backends": [
+            "llama.cpp"
+          ],
+          "minimum_ram_gb": 6,
+          "recommended_ram_gb": 8,
+          "release_channel": "experimental",
+          "status": "active",
+          "provenance": {
+            "kind": "community_conversion",
+            "publisher": "mradermacher",
+            "repository_id": "mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF",
+            "verification": "immutable_revision_size_and_sha256"
+          },
+          "files": [
+            {
+              "role": "model",
+              "format": "gguf",
+              "quantization": "Q4_K_M",
+              "filename": "ministral-8B-Instruct-2410-abliterated.Q4_K_M.gguf",
+              "repository_id": "mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF",
+              "revision": "9779920294ca4abb1d5aaae105b190fb0001d186",
+              "download_url": "https://huggingface.co/mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF/resolve/9779920294ca4abb1d5aaae105b190fb0001d186/ministral-8B-Instruct-2410-abliterated.Q4_K_M.gguf?download=true",
+              "huggingface_uri": "hf://mradermacher/Ministral-8B-Instruct-2410-abliterated-GGUF/ministral-8B-Instruct-2410-abliterated.Q4_K_M.gguf",
+              "file_size_display": "about 4.9 GB",
+              "file_size_bytes": 4911500896,
+              "sha256": "c10e031654a513eea795235234307f404d4be4d3b7dce511a9ccafcc01979956",
+              "recommended": true,
+              "backend": "llama.cpp",
+              "platforms": [
+                "android-arm64",
+                "ios-arm64",
+                "linux-x86_64",
+                "macos-arm64",
+                "windows-x86_64"
+              ],
+              "notes": null,
+              "required": true,
+              "artifact_id": "model-q4-k-m"
+            }
+          ]
+        }
+      ],
+      "preferred_variant_id": "ministral-8b-abliterated-gguf-q4-k-m",
+      "content_safety": {
+        "alignment": "reduced",
+        "method": "abliterated",
+        "gate_recommended": true,
+        "notes": "Safety alignment was removed or reduced by a community modification; this model may produce content that an aligned base model would refuse. Erebrus AI should gate access and warn users."
+      }
     }
   ]
 }

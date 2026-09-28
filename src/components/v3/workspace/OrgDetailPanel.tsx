@@ -263,7 +263,6 @@ export function OrgDetailPanel({
   const canUseShieldProfile =
     canUseSentinelProfile ||
     org?.plan === "personal.pro" ||
-    org?.plan === "personal.starter" ||
     org?.plan === "business.launch" ||
     (entitlements?.shield_instances_included ?? 0) > 0;
 
@@ -320,7 +319,7 @@ export function OrgDetailPanel({
         setEditName(o.name);
         setEditSlug(o.slug ?? "");
         setEditPublicProfile(o.public_profile_enabled ?? false);
-      });
+      }).catch(() => undefined);
       toast.success("Workspace settings saved");
     } catch (e) {
       toast.error(e instanceof GatewayApiError ? e.message : "Failed to save workspace settings");
@@ -791,7 +790,7 @@ export function OrgDetailPanel({
                           >
                             Revoke seat
                           </ActionButton>
-                        ) : (
+                        ) : seatsAvailable ? (
                           <ActionButton
                             type="button"
                             variant="accent"
@@ -807,7 +806,7 @@ export function OrgDetailPanel({
                           >
                             Assign seat
                           </ActionButton>
-                        ))}
+                        ) : null)}
                       {isPrivileged && m.role !== "owner" && (
                         <select
                           value={m.role}

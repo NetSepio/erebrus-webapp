@@ -17,7 +17,6 @@ const benefits = [
   "Multiple device configs",
   "Workspace operator tools",
   "Local Drop transfer + optional storage",
-  "XP rewards and rank perks",
 ];
 
 export default function SubscribePage() {
@@ -57,8 +56,8 @@ export default function SubscribePage() {
         <Eyebrow>Organization plans</Eyebrow>
         <h2 className="mt-2 text-2xl font-bold tracking-tight">Access follows your workspace</h2>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[var(--text-2)]">
-          Your tier is set by the organizations you belong to and the seats you hold. Upgrade a
-          workspace plan or add a paid seat to unlock more.
+          Your tier is set by the organizations you belong to. Upgrade a workspace plan to unlock
+          more.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/pricing">
@@ -108,7 +107,7 @@ export default function SubscribePage() {
               <Link href="/workspace" className="text-[var(--accent-hi)]">
                 Create one
               </Link>{" "}
-              to manage plans and seats.
+              to manage plans.
             </p>
           ) : (
             orgs.map((org) => (

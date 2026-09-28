@@ -45,9 +45,14 @@ function socialLoginErrorMessage(provider: "google" | "apple", error: unknown): 
     const body = error.response?.data as { error?: string } | undefined;
     if (body?.error) return body.error;
     if (error.response?.status === 503) {
+      if (process.env.NODE_ENV === "development") {
+        return provider === "google"
+          ? "Google sign-in is not enabled on the gateway — add this web client ID to GOOGLE_CLIENT_IDS"
+          : "Apple sign-in is not enabled on the gateway — add your client ID to APPLE_CLIENT_IDS";
+      }
       return provider === "google"
-        ? "Google sign-in is not enabled on the gateway — add this web client ID to GOOGLE_CLIENT_IDS"
-        : "Apple sign-in is not enabled on the gateway — add your client ID to APPLE_CLIENT_IDS";
+        ? "Google sign-in is temporarily unavailable"
+        : "Apple sign-in is temporarily unavailable";
     }
   }
   return provider === "google" ? "Google sign-in failed — try again" : "Apple sign-in failed — try again";
@@ -351,7 +356,7 @@ export function AuthModalProvider({
                 aria-hidden
               />
             )}
-            {!emailEnabled && (
+            {!emailEnabled && process.env.NODE_ENV === "development" && (
               <p className="text-center font-mono text-[10px] text-[var(--text-3)]">
                 Email sign-in requires RESEND_API_KEY on the gateway
               </p>

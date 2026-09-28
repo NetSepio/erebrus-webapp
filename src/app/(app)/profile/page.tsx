@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchProfile,
   fetchRank,
@@ -45,7 +45,7 @@ export default function ProfilePage() {
   const { address } = useAppKitAccount();
   const { caipNetworkId } = useAppKitNetworkCore();
   const { open: openAppKit } = useAppKit();
-  const { isAuthenticating, linkWallet } = useWalletAuth();
+  const { isAuthenticating, linkWallet, sessionWallet } = useWalletAuth();
   const { entitlement } = useEntitlement();
   const [profile, setProfile] = useState<GatewayProfile | null>(null);
   const [referral, setReferral] = useState<GatewayReferral | null>(null);
@@ -64,19 +64,27 @@ export default function ProfilePage() {
   const [redeeming, setRedeeming] = useState(false);
   const [socials, setSocials] = useState<GatewaySocialAccount[]>([]);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  useEffect(() => {
+  const [loadError, setLoadError] = useState(false);
+  const loadProfile = useCallback(() => {
     Promise.all([
       fetchProfile(),
       fetchRank().catch(() => null),
       fetchReferrals().catch(() => null),
       fetchSocialAccounts().catch(() => []),
-    ]).then(([p, xp, r, s]) => {
-      setProfile(p);
-      setRank(xp);
-      setReferral(r);
-      setSocials(s);
-    });
+    ])
+      .then(([p, xp, r, s]) => {
+        setProfile(p);
+        setRank(xp);
+        setReferral(r);
+        setSocials(s);
+        setLoadError(false);
+      })
+      .catch(() => setLoadError(true));
   }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   useEffect(() => {
     if (!address || !caipNetworkId?.startsWith("solana:")) {
@@ -222,7 +230,7 @@ export default function ProfilePage() {
   };
 
   // Gateway truth: only a wallet attached to the account counts as linked.
-  const walletAddress = (profile ? profile.wallet_address : address || "").trim();
+  const walletAddress = ((profile ? profile.wallet_address : sessionWallet) || "").trim();
   const walletDisplay = walletAddress
     ? responsiveWalletAddress(walletAddress)
     : null;
@@ -231,6 +239,16 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
+        {loadError && (
+          <Card className="flex flex-wrap items-center justify-between gap-3 border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4 text-sm">
+            <p role="alert" className="text-[var(--danger)]">
+              We couldn&apos;t load your profile.
+            </p>
+            <ActionButton variant="neutral" onClick={loadProfile}>
+              Retry
+            </ActionButton>
+          </Card>
+        )}
         <Card className="p-6">
           <div className="flex items-center gap-3.5">
             <button

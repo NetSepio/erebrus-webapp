@@ -2,9 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/auth-session", () => ({ getCurrentAuthToken: () => null, invalidateSession: vi.fn() }));
 
-import { billingErrorMessage, billingReturnPhase, safeCheckoutUrl } from "./billing";
+import { billingErrorMessage, billingReturnPhase, planOpenForCheckout, safeCheckoutUrl } from "./billing";
 import { GatewayApiError } from "./gateway/client";
-import type { GatewayBillingStatus } from "./gateway/types";
+import type { GatewayBillingPlan, GatewayBillingStatus } from "./gateway/types";
 
 const status = (overrides: Partial<GatewayBillingStatus> = {}): GatewayBillingStatus => ({
   org_id: "org", plan_id: "personal.basic", billing_managed: false,
@@ -26,6 +26,24 @@ describe("billing confirmation", () => {
 
   it.each(["past_due", "on_hold", "failed", "paused"])("recognizes %s subscriptions", (provider_status) => {
     expect(billingReturnPhase(status({ provider_status }))).toBe("payment-issue");
+  });
+});
+
+describe("plan checkout availability", () => {
+  const plan = (checkout_enabled: boolean): GatewayBillingPlan => ({
+    id: "personal.starter", family: "personal", tier: "starter", name: "Starter",
+    period_days: 30, max_clients: 3,
+    billing_prices: [{ plan_id: "personal.starter", billing_interval: "monthly", currency: "USD", amount_minor: 499, checkout_enabled }],
+  });
+
+  it("is closed when the catalog has no plan or no price for the interval", () => {
+    expect(planOpenForCheckout(undefined, "monthly")).toBe(false);
+    expect(planOpenForCheckout(plan(true), "yearly")).toBe(false);
+  });
+
+  it("follows the gateway checkout flag", () => {
+    expect(planOpenForCheckout(plan(false), "monthly")).toBe(false);
+    expect(planOpenForCheckout(plan(true), "monthly")).toBe(true);
   });
 });
 

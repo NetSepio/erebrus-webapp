@@ -115,7 +115,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     },
     bestFor: ["Individual VPN users", "Builders", "Developers", "API users"],
     cta: "Upgrade to Starter",
-    ctaEnabled: false,
+    ctaEnabled: true,
     edgeBadge: "For builders",
   },
   {
