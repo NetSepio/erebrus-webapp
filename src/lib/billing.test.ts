@@ -45,6 +45,10 @@ describe("plan checkout availability", () => {
     expect(planOpenForCheckout(plan(false), "monthly")).toBe(false);
     expect(planOpenForCheckout(plan(true), "monthly")).toBe(true);
   });
+
+  it("is closed when an older gateway omits billing_prices", () => {
+    expect(planOpenForCheckout({ ...plan(true), billing_prices: undefined }, "monthly")).toBe(false);
+  });
 });
 
 describe("checkout links", () => {

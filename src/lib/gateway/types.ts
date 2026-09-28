@@ -795,7 +795,7 @@ export interface GatewayBillingPlan {
   name: string;
   period_days: number;
   max_clients: number;
-  billing_prices: GatewayBillingPrice[];
+  billing_prices?: GatewayBillingPrice[];
 }
 
 export type GatewayCheckoutAttemptStatus =

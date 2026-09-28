@@ -29,7 +29,7 @@ export function priceForInterval(
   plan: GatewayBillingPlan | undefined,
   interval: BillingInterval
 ): GatewayBillingPrice | undefined {
-  return plan?.billing_prices.find((p) => p.billing_interval === interval);
+  return plan?.billing_prices?.find((p) => p.billing_interval === interval);
 }
 
 /** True only when the catalog offers the plan for this interval with checkout enabled. */
