@@ -14,6 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useWalletAuth } from "@/context/appkit";
 import {
@@ -35,6 +45,7 @@ import {
   billingErrorMessage,
   canCheckout,
   formatMinor,
+  multiWorkspaceCheckout,
   planOpenForCheckout,
   priceForInterval,
   safeCheckoutUrl,
@@ -417,6 +428,8 @@ export function PricingPageContent() {
   const [accountError, setAccountError] = useState(false);
   const [retry, setRetry] = useState(0);
   const [recoveryOrgId, setRecoveryOrgId] = useState<string | null>(null);
+  // Purchase next to an existing paid plan waits for an explicit confirm.
+  const [confirmCheckout, setConfirmCheckout] = useState<{ planId: string; otherOrg: { name: string; plan?: string } } | null>(null);
   const checkoutInFlight = useRef(false);
   const checkoutController = useRef<AbortController | null>(null);
 
@@ -509,6 +522,17 @@ export function PricingPageContent() {
     }
   };
 
+  const requestCheckout = (planId: string) => {
+    if (!selectedOrg) return;
+    const multi = multiWorkspaceCheckout(ownedOrgs, selectedOrg.id, planId);
+    if (multi.kind === "blocked") return;
+    if (multi.kind === "warn") {
+      setConfirmCheckout({ planId, otherOrg: multi.org });
+      return;
+    }
+    void startCheckout(planId);
+  };
+
   const startCheckout = async (planId: string) => {
     if (!selectedOrg || checkoutInFlight.current || accountError || catalogError || !emailVerified || recoveryOrgId === selectedOrg.id) return;
     const price = priceForInterval(billingPlans[planId], intervalFor(period));
@@ -584,6 +608,12 @@ export function PricingPageContent() {
     if (!selectedOrg) return { kind: "loading" };
     if (emailVerified === false) return { kind: "verify-email" };
     if (selectedOrg.plan === plan.id) return { kind: "current" };
+    // One personal plan per owner (it already applies to all workspaces);
+    // business plans may still be added to other workspaces.
+    const multi = multiWorkspaceCheckout(ownedOrgs, selectedOrg.id, plan.id);
+    if (multi.kind === "blocked") {
+      return { kind: "unavailable", reason: `${orgPlanLabel(multi.org.plan)} is already active on ${multi.org.name} and applies to all your workspaces` };
+    }
     if (!canCheckout(selectedOrg.plan ?? FREE_PLAN_ID, plan.id)) {
       return { kind: "unavailable", reason: "Plan changes aren't supported yet" };
     }
@@ -619,6 +649,35 @@ export function PricingPageContent() {
 
   return (
     <>
+      <AlertDialog open={!!confirmCheckout} onOpenChange={(open) => { if (!open) setConfirmCheckout(null); }}>
+        <AlertDialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>You already have a paid plan</AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--text-2)]">
+              Your limits come from your best workspace — plans don&apos;t add up.{" "}
+              {confirmCheckout && (
+                <>
+                  {orgPlanLabel(confirmCheckout.otherOrg.plan)} on {confirmCheckout.otherOrg.name} already covers you.
+                  Buying {orgPlanLabel(confirmCheckout.planId)} for {selectedOrg?.name} adds its seats and services to that
+                  workspace only.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/10 bg-white/[0.05]">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const planId = confirmCheckout?.planId;
+                setConfirmCheckout(null);
+                if (planId) void startCheckout(planId);
+              }}
+            >
+              Continue to checkout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <section className="mx-auto max-w-[1180px] px-4 pt-16 pb-6 text-center md:px-8 md:pt-20 md:pb-6">
         <Eyebrow className="mb-4">Plans for the way you connect</Eyebrow>
         <h1 className="mx-auto max-w-[900px] text-4xl font-bold leading-[1.05] tracking-[-0.04em] md:text-[56px]">
@@ -635,7 +694,7 @@ export function PricingPageContent() {
         <p className="mx-auto mt-6 max-w-[900px] text-base leading-relaxed text-[var(--text-2)] md:text-[19px] md:leading-[1.55]">
           {audience === "business"
             ? "Start with a dedicated company gateway, add business firewall protection, and connect private AI services when your team is ready."
-            : "Start free, unlock faster VPN access, or add a dedicated network and Shield protection for a household or small shared group."}
+            : "Start free, upgrade to Starter for more VPN devices, more Drop storage and Gateway API keys, or add a dedicated network and Shield protection for a household or small shared group."}
         </p>
 
         <div className="mt-8 flex flex-col items-center">
@@ -705,7 +764,7 @@ export function PricingPageContent() {
               cta={resolveCta(plan)}
               isCurrent={authed && selectedOrg?.plan === plan.id}
               pending={pendingPlanId !== null}
-              onUpgrade={startCheckout}
+              onUpgrade={requestCheckout}
             />
           ))}
         </div>

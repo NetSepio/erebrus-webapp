@@ -2,7 +2,43 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/auth-session", () => ({ getCurrentAuthToken: () => null, invalidateSession: vi.fn() }));
 
-import { billingErrorMessage, billingReturnPhase, planOpenForCheckout, safeCheckoutUrl } from "./billing";
+import {
+  billingErrorMessage,
+  billingReturnPhase,
+  isPersonalPaidPlan,
+  multiWorkspaceCheckout,
+  planOpenForCheckout,
+  safeCheckoutUrl,
+} from "./billing";
+
+describe("multi-workspace checkout", () => {
+  const starterWs = { id: "a", name: "My Workspace", plan: "personal.starter" };
+  const freeWs = { id: "b", name: "Family", plan: "personal.basic" };
+  const launchWs = { id: "c", name: "Company", plan: "business.launch" };
+
+  it("classifies personal paid plans", () => {
+    expect(isPersonalPaidPlan("personal.starter")).toBe(true);
+    expect(isPersonalPaidPlan("personal.pro")).toBe(true);
+    expect(isPersonalPaidPlan("personal.basic")).toBe(false);
+    expect(isPersonalPaidPlan("business.launch")).toBe(false);
+  });
+
+  it("blocks a second personal plan", () => {
+    expect(multiWorkspaceCheckout([starterWs, freeWs], "b", "personal.starter")).toEqual({ kind: "blocked", org: starterWs });
+  });
+
+  it("allows a business plan next to a personal plan but asks to confirm", () => {
+    expect(multiWorkspaceCheckout([starterWs, freeWs], "b", "business.launch")).toEqual({ kind: "warn", org: starterWs });
+  });
+
+  it("allows a personal plan next to a business plan, with a warning", () => {
+    expect(multiWorkspaceCheckout([launchWs, freeWs], "b", "personal.starter")).toEqual({ kind: "warn", org: launchWs });
+  });
+
+  it("is plain ok when no other workspace is paid", () => {
+    expect(multiWorkspaceCheckout([freeWs], "b", "personal.starter")).toEqual({ kind: "ok" });
+  });
+});
 import { GatewayApiError } from "./gateway/client";
 import type { GatewayBillingPlan, GatewayBillingStatus } from "./gateway/types";
 
@@ -65,6 +101,11 @@ describe("billing recovery messages", () => {
   it("explains expired sessions and owner permissions", () => {
     expect(billingErrorMessage(new GatewayApiError("Unauthorized", 401))).toContain("sign in");
     expect(billingErrorMessage(new GatewayApiError("Forbidden", 403))).toContain("owner");
+  });
+
+  it("explains that a personal plan on another workspace already applies everywhere", () => {
+    const err = new GatewayApiError("x", 409, { error: "x", code: "BILLING_ALREADY_SUBSCRIBED" });
+    expect(billingErrorMessage(err)).toContain("personal plan on another workspace");
   });
 
   it("does not encourage a second purchase after a connection failure", () => {
