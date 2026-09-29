@@ -84,8 +84,13 @@ src/
 ### 1. Authentication Flow
 - Users connect wallet via Reown AppKit
 - Backend verifies wallet signature
-- Free trial granted upon first sign-in
+- Every account gets a free Basic workspace at first sign-in (no trials; access comes only from workspace plans)
 - JWT stored in cookies via `js-cookie`
+
+### Plans & limits (gateway is the source of truth)
+- The gateway enforces every limit; the webapp only displays `GET /subscriptions` → `usage` and maps error `code`s via `src/lib/gateway-errors.ts`.
+- VPN devices count on public nodes only: Basic 1, Starter 3 (`VPN_DEVICE_LIMIT` 409). Paused devices (`suspended_plan_limit`) still count.
+- The header workspace switcher (`src/context/workspace.tsx`) is context only — it never changes limits, which come from the user's best workspace.
 
 ### 2. VPN Configuration
 - Fetch available nodes from `/api/nodes`

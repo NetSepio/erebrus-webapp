@@ -6,6 +6,7 @@ import { Card, ActionButton } from "@/components/v3/ui";
 import { formatBytes, formatRelativeTime } from "@/lib/format";
 import { Download, Trash2, Copy, Share2, Lock, Globe, Check } from "lucide-react";
 import type { DropFile, DropFileStatus } from "@/lib/drop/types";
+import { isShareable, shareLabel, shareLabelTitle } from "@/lib/drop/share";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
@@ -111,6 +112,8 @@ export function DropFileList({
                           <span>owner-only decryption</span>
                         </>
                       )}
+                      <span>·</span>
+                      <span title={shareLabelTitle(file)}>{shareLabel(file)}</span>
                     </div>
                   </div>
                 </div>
@@ -126,7 +129,7 @@ export function DropFileList({
                       CID
                     </ActionButton>
                   )}
-                  {file.visibility === "public" && canDownload && (
+                  {isShareable(file) && canDownload && (
                     <ActionButton
                       variant="neutral"
                       onClick={() => onShare(file)}

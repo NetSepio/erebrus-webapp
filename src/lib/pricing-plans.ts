@@ -90,7 +90,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     subtitle: "Builder Access",
     tagline: "Premium access for individuals and builders.",
     description:
-      "Get faster public VPN nodes, Gateway API access, and premium Drop and AI services.",
+      "Connect more devices, store more on Drop, and build with a Gateway API key.",
     pricing: {
       monthly: 4.99,
       annualEffectiveMonthly: 3.99,
@@ -99,12 +99,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     inheritsFrom: "personal.basic",
     seatsIncluded: { count: 1, label: "Starter seat" },
     includes: [
-      "Faster public VPN nodes",
-      "Higher bandwidth limits",
+      "3 VPN devices on public nodes",
+      "1 GB Drop storage on public nodes",
       "Gateway API key",
-      "Premium Drop services",
-      "Supported AI services",
-      "Build your VPN app",
       "Self-host public/private nodes",
       "Private key management",
     ],
@@ -334,7 +331,7 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
     plan: "Starter",
     subtitle: "Builder Access",
     bestFor: "Individuals and builders",
-    keyIncludes: "Faster public nodes, Gateway API key, Drop/AI access",
+    keyIncludes: "3 VPN devices, 1 GB Drop storage, Gateway API key",
   },
   {
     planId: "personal.pro",

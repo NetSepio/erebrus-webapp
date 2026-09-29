@@ -146,6 +146,54 @@ export interface GatewayVpnClient {
   last_handshake?: string;
 }
 
+/** Device paused because the plan no longer covers it (gateway status). */
+export const VPN_CLIENT_PAUSED_STATUS = "suspended_plan_limit";
+
+/**
+ * Display-only plan & usage summary from `GET /subscriptions` → `usage`.
+ * The gateway enforces every limit; never enforce from these values.
+ */
+export interface GatewayAccountUsage {
+  vpn: {
+    client_limit: number;
+    public_clients: number;
+    paused_clients: number;
+    limit_after_access_ends: number;
+  };
+  drop: {
+    used_bytes: number;
+    reserved_bytes: number;
+    quota_bytes: number;
+    max_file_bytes: number;
+  };
+  api_keys_available: boolean;
+  entitlement_org?: {
+    id: string;
+    name: string;
+    plan: string;
+    role?: string;
+    seats_included?: number;
+    seats_used?: number;
+    paid_access_until?: string | null;
+    cancel_at_period_end?: boolean;
+    billing_status?: string;
+    access_ending?: boolean;
+  };
+}
+
+export interface GatewayAccountSummary {
+  plan_id: string;
+  usage: GatewayAccountUsage | null;
+}
+
+/** In-app plan notification (`GET /account/notifications`). */
+export interface GatewayNotification {
+  id: string;
+  action: "vpn.client.plan_pause" | "vpn.client.plan_restore" | "plan.access_ending" | string;
+  target?: string;
+  created_at: string;
+}
+
 export type OrgMemberRole = "owner" | "node_operator" | "member";
 
 export type DeploymentProfile = "standard" | "shield" | "sentinel";

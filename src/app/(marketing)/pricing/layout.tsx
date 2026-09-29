@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   ...pageMetadata({
     title: "Pricing — Private internet for individuals, teams, and businesses",
     description:
-      "Start free with private access and self-hosted nodes. Upgrade to faster public VPN, dedicated nodes, Community Edition Firewall, Erebrus Firewall, API keys, local Drop transfer, optional storage, and AI services.",
+      "Start free with private access and self-hosted nodes. Upgrade to Starter for more VPN devices, more Drop storage and Gateway API keys. Dedicated nodes and Shield protection are coming soon.",
     path: "/pricing",
     image: null,
     imageAlt: "Erebrus Pricing — Private Access to Sovereign Infrastructure",

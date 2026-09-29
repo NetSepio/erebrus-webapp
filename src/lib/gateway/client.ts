@@ -10,6 +10,9 @@ import {
   normalizeProfile,
 } from "./normalize";
 import type {
+  GatewayAccountSummary,
+  GatewayAccountUsage,
+  GatewayNotification,
   GatewayActivity,
   GatewayAdminNode,
   GatewayAdminOrg,
@@ -181,6 +184,26 @@ export async function provisionVpnClient(body: {
 
 export async function deleteVpnClient(id: string): Promise<void> {
   await gatewayFetch(`vpn/clients/${id}`, { method: "DELETE" });
+}
+
+export async function renameVpnClient(id: string, name: string): Promise<GatewayVpnClient> {
+  const data = await gatewayFetch<Record<string, unknown>>(`vpn/clients/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+  return normalizeClient(data);
+}
+
+/** Plan & usage summary (display only; the gateway enforces limits). */
+export async function fetchAccountSummary(signal?: AbortSignal): Promise<GatewayAccountSummary> {
+  const data = await gatewayFetch<Record<string, unknown>>("subscriptions", { signal });
+  const usage = data?.usage && typeof data.usage === "object" ? (data.usage as GatewayAccountUsage) : null;
+  return { plan_id: String(data?.plan_id ?? "personal.basic"), usage };
+}
+
+export async function fetchAccountNotifications(): Promise<GatewayNotification[]> {
+  const data = await gatewayFetch<{ notifications?: GatewayNotification[] }>("account/notifications");
+  return Array.isArray(data?.notifications) ? data.notifications : [];
 }
 
 export async function fetchVpnClientConfig(id: string): Promise<{ config: string; bundle: Record<string, unknown> }> {
@@ -1196,13 +1219,6 @@ export async function fetchAdminUserOrgs(id: string): Promise<GatewayAdminOrg[]>
       created_at: o.created_at,
       updated_at: o.updated_at,
     };
-  });
-}
-
-export async function setAdminUserPlan(id: string, planId: string): Promise<void> {
-  await gatewayFetch(`admin/users/${id}/plan`, {
-    method: "POST",
-    body: JSON.stringify({ plan_id: planId }),
   });
 }
 

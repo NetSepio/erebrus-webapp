@@ -2,7 +2,27 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/auth-session", () => ({ getCurrentAuthToken: () => null, invalidateSession: vi.fn() }));
 
-import { claimQueuedUploads, isUploadActive, type UploadItem } from "./use-drop-uploads";
+import { claimQueuedUploads, isUploadActive, preUploadCheck, type UploadItem } from "./use-drop-uploads";
+
+describe("preUploadCheck", () => {
+  const quota = { availableBytes: 120_000_000, maxFileBytes: 1_000_000_000 };
+
+  it("warns before an oversized file is uploaded", () => {
+    const r = preUploadCheck([{ name: "movie.mkv", size: 1_400_000_000 }], "public", quota);
+    expect(r).toEqual({ ok: false, message: '"movie.mkv" is 1.4 GB; your plan allows 1 GB per file.' });
+  });
+
+  it("warns when public files exceed the remaining quota", () => {
+    const r = preUploadCheck([{ name: "a", size: 100_000_000 }, { name: "b", size: 50_000_000 }], "public", quota);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.message).toContain("you have 120 MB left");
+  });
+
+  it("does not apply the public quota to workspace uploads, and passes without quota data", () => {
+    expect(preUploadCheck([{ name: "a", size: 500_000_000 }], "private", quota)).toEqual({ ok: true });
+    expect(preUploadCheck([{ name: "a", size: 5 }], "public", null)).toEqual({ ok: true });
+  });
+});
 
 const queued = (id: string): UploadItem => ({
   id, file: new File(["test"], `${id}.txt`), filename: `${id}.txt`, size: 4,

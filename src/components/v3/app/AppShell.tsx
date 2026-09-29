@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils";
 import { AuroraBackground } from "@/components/v3/AuroraBackground";
 import { NotificationBell } from "@/components/v3/app/NotificationBell";
 import { WalletMenu } from "@/components/v3/app/WalletMenu";
-import { AccentButton, iconButtonClass } from "@/components/v3/ui";
+import { PlanUsageCard } from "@/components/v3/app/PlanUsageCard";
+import { WorkspaceSwitcher } from "@/components/v3/app/WorkspaceSwitcher";
+import { iconButtonClass } from "@/components/v3/ui";
 import { AuthModalProvider } from "@/components/v3/AuthModal";
+import { WorkspaceProvider } from "@/context/workspace";
 import { useEntitlement } from "@/hooks/use-entitlement";
-import type { EffectiveEntitlement } from "@/lib/entitlements";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", glyph: "◈" },
@@ -63,33 +65,15 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function PlanCard({ entitlement }: { entitlement: EffectiveEntitlement }) {
-  const isFree = entitlement.tier === "free";
+export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-auto rounded-[14px] border border-white/[0.07] bg-white/[0.02] p-3.5">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="font-mono text-[10.5px] uppercase tracking-wide text-[var(--text-3)]">
-          Plan
-        </span>
-        <span className="font-mono text-[11px] text-[var(--accent-hi)]">
-          {entitlement.planLabel}
-        </span>
-      </div>
-      {entitlement.org?.name && (
-        <p className="mb-3 truncate text-[11px] text-[var(--text-3)]">
-          via {entitlement.org.name}
-        </p>
-      )}
-      <Link href={isFree ? "/subscribe" : "/workspace"}>
-        <AccentButton className="w-full !py-2 !text-[13px]">
-          {isFree ? "Upgrade plan" : "Manage plan"}
-        </AccentButton>
-      </Link>
-    </div>
+    <WorkspaceProvider>
+      <AppShellFrame>{children}</AppShellFrame>
+    </WorkspaceProvider>
   );
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+function AppShellFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { entitlement } = useEntitlement();
@@ -119,7 +103,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="text-lg font-bold tracking-tight">Erebrus</span>
             </Link>
             <SidebarNav />
-            <PlanCard entitlement={entitlement} />
+            <PlanUsageCard compact />
           </aside>
 
           {/* Mobile drawer */}
@@ -142,7 +126,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 </div>
                 <SidebarNav onNavigate={() => setMobileOpen(false)} />
-                <PlanCard entitlement={entitlement} />
+                <div className="mt-3">
+                  <WorkspaceSwitcher />
+                </div>
+                <PlanUsageCard compact />
               </aside>
             </div>
           )}
@@ -166,6 +153,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <div className="hidden sm:block">
+                  <WorkspaceSwitcher />
+                </div>
                 <NotificationBell />
                 <WalletMenu entitlement={entitlement} />
               </div>

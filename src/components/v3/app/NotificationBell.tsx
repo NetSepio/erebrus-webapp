@@ -9,13 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { fetchAccountOrgInvites } from "@/lib/gateway/client";
-import type { GatewayUserOrgInvite } from "@/lib/gateway/types";
+import Link from "next/link";
+import { fetchAccountNotifications, fetchAccountOrgInvites } from "@/lib/gateway/client";
+import type { GatewayNotification, GatewayUserOrgInvite } from "@/lib/gateway/types";
 import {
+  activityNotificationId,
   countUnread,
   inviteNotificationId,
   markNotificationsRead,
+  planNotificationCopy,
 } from "@/lib/notifications";
+import { formatRelativeTime } from "@/lib/format";
 import { invitePreviewLine, invitePreviewSubline } from "@/lib/invite-notifications";
 import { OrgInviteDetailPanel } from "@/components/v3/app/OrgInviteDetailPanel";
 import { iconButtonClass } from "@/components/v3/ui";
@@ -25,18 +29,26 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [detailInvite, setDetailInvite] = useState<GatewayUserOrgInvite | null>(null);
   const [invites, setInvites] = useState<GatewayUserOrgInvite[]>([]);
+  const [planNotes, setPlanNotes] = useState<GatewayNotification[]>([]);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [readTick, setReadTick] = useState(0);
 
-  const notificationIds = invites.map((inv) => inviteNotificationId(inv.org_id));
+  const notificationIds = [
+    ...invites.map((inv) => inviteNotificationId(inv.org_id)),
+    ...planNotes.map((n) => activityNotificationId(n.id)),
+  ];
   const unreadCount = countUnread(notificationIds);
   void readTick;
 
   const reload = useCallback(() => {
     setLoading(true);
-    fetchAccountOrgInvites()
-      .then(setInvites)
-      .catch(() => setInvites([]))
+    Promise.allSettled([fetchAccountOrgInvites(), fetchAccountNotifications()])
+      .then(([inv, notes]) => {
+        if (inv.status === "fulfilled") setInvites(inv.value);
+        if (notes.status === "fulfilled") setPlanNotes(notes.value);
+        setLoadFailed(inv.status === "rejected" && notes.status === "rejected");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -87,14 +99,35 @@ export function NotificationBell() {
               <div className="border-b border-white/[0.06] px-4 py-3">
                 <div className="text-sm font-semibold">Notifications</div>
                 <p className="mt-0.5 text-xs text-[var(--text-3)]">
-                  Tap an invite for full details and actions
+                  Workspace invites and plan updates
                 </p>
               </div>
 
               <div className="max-h-[min(60vh,420px)] overflow-y-auto p-2">
-                {loading && invites.length === 0 ? (
+                {planNotes.map((n) => {
+                  const copy = planNotificationCopy(n.action);
+                  return (
+                    <Link
+                      key={n.id}
+                      href={copy.href}
+                      onClick={() => setOpen(false)}
+                      className="mb-1 block rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 transition-colors hover:border-[var(--accent)]/25 hover:bg-white/[0.04]"
+                    >
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-sm font-semibold leading-snug">{copy.title}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-[var(--text-3)]">{formatRelativeTime(n.created_at)}</span>
+                      </div>
+                      {copy.detail && <p className="mt-1.5 text-xs leading-relaxed text-[var(--text-3)]">{copy.detail}</p>}
+                    </Link>
+                  );
+                })}
+                {loading && invites.length === 0 && planNotes.length === 0 ? (
                   <p className="px-3 py-6 text-center text-sm text-[var(--text-3)]">Loading…</p>
-                ) : invites.length === 0 ? (
+                ) : loadFailed ? (
+                  <p role="alert" className="px-3 py-6 text-center text-sm text-[var(--text-2)]">
+                    Notifications could not be loaded. They&apos;ll refresh automatically.
+                  </p>
+                ) : invites.length === 0 && planNotes.length === 0 ? (
                   <p className="px-3 py-6 text-center text-sm text-[var(--text-2)]">
                     No pending notifications
                   </p>

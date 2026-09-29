@@ -131,6 +131,7 @@ export function normalizeDropUsage(raw: Raw): DropUsage {
     used_bytes: num(raw.used_bytes ?? raw.used),
     reserved_bytes: num(raw.reserved_bytes ?? raw.reserved),
     limit_bytes: rawLimit == null || rawLimit === "" ? null : num(rawLimit),
+    max_file_bytes: raw.max_file_bytes == null ? undefined : num(raw.max_file_bytes),
     tier: normalizeTier(str(raw.tier)),
     entitlement_org_id: str(raw.entitlement_org_id),
     org_id: str(raw.org_id),

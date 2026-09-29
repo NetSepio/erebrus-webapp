@@ -86,6 +86,8 @@ export interface DropUsage {
   reserved_bytes: number;
   /** null means "no fixed limit" (e.g. enterprise, pending review). */
   limit_bytes: number | null;
+  /** Per-file ceiling for the caller's plan, when the gateway reports it. */
+  max_file_bytes?: number;
   tier: EffectiveTier;
   /** Entitlement provenance: org whose seat set the effective tier. */
   entitlement_org_id?: string;

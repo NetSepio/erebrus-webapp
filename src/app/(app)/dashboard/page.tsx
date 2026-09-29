@@ -7,30 +7,38 @@ import {
   fetchVpnClients,
 } from "@/lib/gateway/client";
 import { useOnlineNodes } from "@/context/online-nodes";
-import { resolveEffectiveEntitlement } from "@/lib/entitlements";
+import { useWorkspace } from "@/context/workspace";
+import { describeGatewayError } from "@/lib/gateway-errors";
 import { orgPlanLabel } from "@/lib/org-plans";
-import { AccentButton, Card, StatCard, StatusDot } from "@/components/v3/ui";
+import { AccentButton, ActionButton, Card, StatCard, StatusDot } from "@/components/v3/ui";
+import { PlanEndingBanner, PlanUsageCard } from "@/components/v3/app/PlanUsageCard";
 import type { GatewayOrg, GatewayVpnClient } from "@/lib/gateway/types";
 
 export default function DashboardPage() {
   const { nodes, loading: nodesLoading } = useOnlineNodes({ sortByLoad: false });
+  const { entitlement } = useWorkspace();
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
   const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
-    Promise.all([
-      fetchVpnClients().catch(() => []),
-      fetchOrgsWithStats().catch(() => []),
-    ]).then(([c, o]) => {
-      setClients(c);
-      setOrgs(o);
+    let active = true;
+    Promise.allSettled([fetchVpnClients(), fetchOrgsWithStats()]).then(([c, o]) => {
+      if (!active) return;
+      if (c.status === "fulfilled") setClients(c.value);
+      if (o.status === "fulfilled") setOrgs(o.value);
+      const failed = [c, o].find((r) => r.status === "rejected") as PromiseRejectedResult | undefined;
+      setLoadError(failed ? describeGatewayError(failed.reason).message : null);
       setLoading(false);
     });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [reload]);
 
   const onlineCount = nodes.length;
-  const entitlement = resolveEffectiveEntitlement(orgs);
   const isFree = entitlement.tier === "free";
 
   if (loading || nodesLoading) {
@@ -43,6 +51,15 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
+      <PlanEndingBanner />
+      {loadError && (
+        <Card className="border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4 text-sm">
+          <p role="alert" className="text-[var(--danger)]">{loadError}</p>
+          <ActionButton variant="neutral" className="mt-3" onClick={() => setReload((n) => n + 1)}>
+            Retry
+          </ActionButton>
+        </Card>
+      )}
       <Card
         className="flex flex-col items-start justify-between gap-6 p-6 md:flex-row md:items-center md:p-7"
         style={{
@@ -72,10 +89,12 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <Link href={isFree ? "/subscribe" : "/workspace"}>
+        <Link href={isFree ? "/pricing" : "/workspace"}>
           <AccentButton>{isFree ? "Upgrade plan" : "Manage plan"}</AccentButton>
         </Link>
       </Card>
+
+      <PlanUsageCard />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="VPN status" value={clients.length > 0 ? "Active" : "Idle"} sub={`${clients.length} devices`} valueColor="var(--success)" />

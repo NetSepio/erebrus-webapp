@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { forwardedClientHeaders, gatewayProxyTarget } from "@/lib/gateway-proxy";
 
 function gatewayBase(): string {
   const raw = process.env.NEXT_PUBLIC_GATEWAY_URL?.trim() ?? "https://gateway.erebrus.io/";
@@ -6,13 +7,11 @@ function gatewayBase(): string {
 }
 
 async function proxy(request: NextRequest, pathSegments: string[]) {
-  // Reject traversal segments so a crafted path can't resolve outside `api/v2/`
-  // on the gateway host.
-  if (pathSegments.some((seg) => seg === ".." || seg === ".")) {
+  // Reject any segment that could resolve outside `api/v2/` on the gateway host.
+  const target = gatewayProxyTarget(gatewayBase(), pathSegments);
+  if (!target) {
     return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
-  const path = pathSegments.join("/");
-  const target = new URL(`api/v2/${path}`, gatewayBase());
   request.nextUrl.searchParams.forEach((value, key) => {
     target.searchParams.set(key, value);
   });
@@ -20,6 +19,10 @@ async function proxy(request: NextRequest, pathSegments: string[]) {
   const headers = new Headers();
   headers.set("Accept", request.headers.get("accept") || "application/json");
   headers.set("X-Erebrus-Client", "webapp");
+  // Per-user rate limits on the gateway need the real client IP.
+  for (const [name, value] of Object.entries(forwardedClientHeaders(request.headers))) {
+    headers.set(name, value);
+  }
 
   const auth = request.headers.get("authorization");
   if (auth) headers.set("Authorization", auth);

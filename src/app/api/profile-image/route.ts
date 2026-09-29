@@ -11,14 +11,36 @@ const AUTH_COOKIES = [
   "erebrus_token",
 ];
 
+function gatewayBase(): string {
+  const raw = process.env.NEXT_PUBLIC_GATEWAY_URL?.trim() ?? "https://gateway.erebrus.io/";
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
+/** True only when the gateway accepts one of the caller's session cookies. */
+async function hasValidSession(req: NextRequest): Promise<boolean> {
+  const tokens = AUTH_COOKIES.map((name) => req.cookies.get(name)?.value).filter((t): t is string => !!t);
+  for (const token of new Set(tokens)) {
+    try {
+      const res = await fetch(new URL("api/v2/account/profile", gatewayBase()), {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "X-Erebrus-Client": "webapp" },
+        cache: "no-store",
+      });
+      if (res.ok) return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
 /**
  * Accepts a profile image and adds it to IPFS, returning the bare CID. The
  * caller then PATCHes the CID onto the gateway profile — this route stores
- * nothing itself. Session check is presence-only (the PASETO can only be
- * verified by the gateway); the profile write is still gated by gateway auth.
+ * nothing itself. The session is verified with the gateway first so anonymous
+ * callers cannot pin arbitrary files to the IPFS node.
  */
 export async function POST(req: NextRequest) {
-  if (!AUTH_COOKIES.some((name) => req.cookies.get(name)?.value)) {
+  if (!(await hasValidSession(req))) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 

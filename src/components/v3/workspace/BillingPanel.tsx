@@ -13,6 +13,7 @@ import {
 } from "@/lib/gateway/client";
 import type { GatewayBillingStatus, GatewayOrg } from "@/lib/gateway/types";
 import { isOrgOwner } from "@/lib/gateway/org-permissions";
+import { useOptionalWorkspace } from "@/context/workspace";
 import { orgPlanLabel } from "@/lib/org-plans";
 import {
   billingErrorMessage,
@@ -80,6 +81,7 @@ function NoticeCard({
 }
 
 export function BillingPanel({ org }: { org: GatewayOrg }) {
+  const workspace = useOptionalWorkspace();
   const [status, setStatus] = useState<GatewayBillingStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -168,6 +170,15 @@ export function BillingPanel({ org }: { org: GatewayOrg }) {
   }
 
   const planId = status?.plan_id ?? org.plan ?? org.kind;
+  // What Basic means for this user after paid access ends (gateway numbers).
+  const basicDevices = workspace?.usage?.vpn.limit_after_access_ends ?? 1;
+  const liveDevices = (workspace?.usage?.vpn.public_clients ?? 0) - (workspace?.usage?.vpn.paused_clients ?? 0);
+  const suppliesPlan = workspace?.usage?.entitlement_org?.id === org.id;
+  const toPause = suppliesPlan ? Math.max(0, liveDevices - basicDevices) : 0;
+  const afterBasicShort = `Basic allows ${basicDevices} VPN device${basicDevices === 1 ? "" : "s"} on public nodes.`;
+  const afterBasic = `After that the workspace moves to Basic. ${afterBasicShort}${
+    toPause > 0 ? ` ${toPause} of your devices will be paused (newest first) — remove the ones you don't need.` : ""
+  }`;
   const nextBilling = fmtDate(status?.next_billing_date);
   const paidAccessUntil = fmtDate(status?.paid_access_until);
   const pastDueEnds = fmtDate(status?.past_due_ends_at);
@@ -243,7 +254,15 @@ export function BillingPanel({ org }: { org: GatewayOrg }) {
             <span className="font-semibold text-[var(--text)]">
               {nextBilling ?? paidAccessUntil ?? "the next billing date"}
             </span>
-            {paidAccessUntil ? ` — access remains until ${paidAccessUntil}.` : "."}
+            {paidAccessUntil ? ` — access remains until ${paidAccessUntil}.` : "."} {afterBasic}
+          </p>
+        </NoticeCard>
+      )}
+
+      {(status?.provider_status === "cancelled" || status?.provider_status === "expired") && (
+        <NoticeCard>
+          <p className="min-w-0 flex-1">
+            This subscription has ended and the workspace is on Basic. {afterBasicShort} Upgrade again from Plans at any time.
           </p>
         </NoticeCard>
       )}
@@ -256,7 +275,8 @@ export function BillingPanel({ org }: { org: GatewayOrg }) {
               ? `A payment is past due${
                   pastDueEnds ? ` — resolve it by ${pastDueEnds}` : ""
                 } to keep your subscription active.`
-              : "This subscription is on hold due to a payment issue."}
+              : "This subscription is on hold due to a payment issue. Update your payment method to restore paid access."}{" "}
+            {status.provider_status === "on_hold" ? afterBasicShort : ""}
           </p>
         </NoticeCard>
       )}
@@ -311,7 +331,7 @@ export function BillingPanel({ org }: { org: GatewayOrg }) {
               Cancellation takes effect on{" "}
               {nextBilling ?? "the next billing date"}. Your workspace keeps
               paid access
-              {paidAccessUntil ? ` until ${paidAccessUntil}` : " until then"}.
+              {paidAccessUntil ? ` until ${paidAccessUntil}` : " until then"}. {afterBasic}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

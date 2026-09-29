@@ -11,8 +11,8 @@ import { DropUploadPanel } from "./DropUploadPanel";
 import { DropFileList } from "./DropFileList";
 import { DropVaultPanel } from "./DropVaultPanel";
 import { useWalletAuth } from "@/context/appkit";
-import { fetchOrgs, GatewayApiError } from "@/lib/gateway/client";
-import { resolveEffectiveEntitlement } from "@/lib/entitlements";
+import { useWorkspace } from "@/context/workspace";
+import { GatewayApiError } from "@/lib/gateway/client";
 import {
   fetchDropNodes,
   fetchDropUsage,
@@ -21,11 +21,10 @@ import {
   createDropWebuiSession,
 } from "@/lib/drop/client";
 import { downloadDropFile } from "@/lib/drop/download";
-import { useDropUploads, type PrepareContent } from "@/hooks/use-drop-uploads";
+import { preUploadCheck, useDropUploads, type PrepareContent } from "@/hooks/use-drop-uploads";
 import { useDropVault } from "@/hooks/use-drop-vault";
 import { makeDecryptor, makeEncryptingPrepare } from "@/lib/drop/encrypt-upload";
 import { hashFileInWorker } from "@/lib/drop/crypto-worker-client";
-import type { GatewayOrg } from "@/lib/gateway/types";
 import type {
   DropFile,
   DropNode,
@@ -43,9 +42,18 @@ interface ScopeChoice {
 
 export function DropDashboard() {
   const { isAuthenticated } = useWalletAuth();
-
-  const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
+  const { orgs, entitlement, usage: workspaceUsage, selectedOrg } = useWorkspace();
   const [scopeKey, setScopeKey] = useState("public");
+
+  // Switching workspace in the header shows that workspace's files.
+  const lastSelectedOrg = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    const id = selectedOrg?.id ?? null;
+    if (lastSelectedOrg.current !== undefined && id && id !== lastSelectedOrg.current) {
+      setScopeKey(`org:${id}`);
+    }
+    lastSelectedOrg.current = id;
+  }, [selectedOrg?.id]);
 
   const [nodes, setNodes] = useState<DropNode[]>([]);
   const [nodesLoading, setNodesLoading] = useState(true);
@@ -83,7 +91,6 @@ export function DropDashboard() {
     [scopeChoices, scopeKey]
   );
 
-  const entitlement = useMemo(() => resolveEffectiveEntitlement(orgs), [orgs]);
   const activeOrg = useMemo(
     () => orgs.find((org) => org.id === activeScope?.orgId) ?? null,
     [orgs, activeScope]
@@ -133,21 +140,6 @@ export function DropDashboard() {
   const decryptor = useMemo(() => makeDecryptor(getVaultKey), [getVaultKey]);
 
   const uploads = useDropUploads({ prepare, onComplete: refreshFiles });
-
-  // Load the caller's organizations once authenticated.
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setOrgs([]);
-      return;
-    }
-    let active = true;
-    fetchOrgs()
-      .then((o) => active && setOrgs(o))
-      .catch(() => active && setOrgs([]));
-    return () => {
-      active = false;
-    };
-  }, [isAuthenticated]);
 
   // Load eligible nodes whenever the scope changes.
   useEffect(() => {
@@ -205,6 +197,20 @@ export function DropDashboard() {
   const handleFiles = useCallback(
     (picked: File[]) => {
       if (!selectedNode || !activeScope) return;
+      // Warn up front (the gateway re-checks): per-file limit always, public
+      // quota only for public-network uploads.
+      const maxFile = usage?.max_file_bytes ?? workspaceUsage?.drop.max_file_bytes ?? 0;
+      const quota =
+        activeScope.scope === "public" && usage?.limit_bytes != null
+          ? { availableBytes: Math.max(0, usage.limit_bytes - usage.used_bytes - usage.reserved_bytes), maxFileBytes: maxFile }
+          : maxFile > 0
+            ? { availableBytes: Number.POSITIVE_INFINITY, maxFileBytes: maxFile }
+            : null;
+      const check = preUploadCheck(picked, activeScope.scope, quota);
+      if (!check.ok) {
+        toast.error(check.message, { action: { label: "Upgrade", onClick: () => window.location.assign("/pricing") } });
+        return;
+      }
       uploads.enqueue(
         picked.map((file) => ({
           file,
@@ -215,7 +221,7 @@ export function DropDashboard() {
         }))
       );
     },
-    [selectedNode, activeScope, visibility, uploads]
+    [selectedNode, activeScope, visibility, uploads, usage, workspaceUsage]
   );
 
   const handleDownload = useCallback(

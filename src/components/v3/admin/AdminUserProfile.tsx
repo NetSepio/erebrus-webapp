@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   fetchAdminUser,
   fetchAdminUserOrgs,
-  setAdminUserPlan,
+  setAdminOrgPlan,
   patchAdminOrg,
   fulfillAdminDeletionRequest,
   GatewayApiError,
@@ -37,8 +37,7 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
   const [user, setUser] = useState<GatewayAdminUserProfile | null>(null);
   const [orgs, setOrgs] = useState<GatewayAdminOrg[]>([]);
   const [loading, setLoading] = useState(false);
-  const [planId, setPlanId] = useState<string>("");
-  const [savingPlan, setSavingPlan] = useState(false);
+  const [savingOrgId, setSavingOrgId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -46,7 +45,6 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
     try {
       const [u, o] = await Promise.all([fetchAdminUser(userId), fetchAdminUserOrgs(userId)]);
       setUser(u);
-      setPlanId(u.plan ?? "personal.basic");
       setOrgs(o);
     } catch (e) {
       toast.error(e instanceof GatewayApiError ? e.message : "Failed to load user");
@@ -64,18 +62,20 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
     }
   }, [open, userId, load]);
 
-  const savePlan = async () => {
-    if (!userId || !planId) return;
-    setSavingPlan(true);
+  // Access comes only from workspace plans, so admins change a workspace's plan
+  // (Dodo-managed workspaces are refused by the gateway with a clear message).
+  const saveOrgPlan = async (org: GatewayAdminOrg, plan: string) => {
+    if (!org.id || plan === org.plan) return;
+    setSavingOrgId(org.id);
     try {
-      await setAdminUserPlan(userId, planId);
-      toast.success(`Plan set to ${planId}`);
+      await setAdminOrgPlan(org.id, plan);
+      toast.success(`${org.name} is now on ${orgPlanLabel(plan)}`);
       await load();
       onChanged?.();
     } catch (e) {
-      toast.error(e instanceof GatewayApiError ? e.message : "Failed to set plan");
+      toast.error(e instanceof GatewayApiError ? e.message : "Failed to set workspace plan");
     } finally {
-      setSavingPlan(false);
+      setSavingOrgId(null);
     }
   };
 
@@ -155,25 +155,12 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
               </div>
             </Card>
 
-            <Card className="space-y-3 p-5">
+            <Card className="space-y-2 p-5">
               <MonoLabel className="text-[var(--accent-hi)]">Plan</MonoLabel>
-              <div className="flex items-center gap-2">
-                <select
-                  value={planId}
-                  onChange={(e) => setPlanId(e.target.value)}
-                  className="flex-1 rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1.5 text-xs capitalize text-[var(--text)]"
-                >
-                  {ORG_PLAN_IDS.map((p) => (
-                    <option key={p} value={p}>
-                      {orgPlanLabel(p)}
-                    </option>
-                  ))}
-                </select>
-                <ActionButton onClick={savePlan} disabled={savingPlan || planId === (user.plan ?? "personal.basic")}>
-                  {savingPlan ? "Saving…" : "Save"}
-                </ActionButton>
-              </div>
-              <p className="text-xs text-[var(--text-3)]">Current plan: {user.plan ? orgPlanLabel(user.plan) : "—"}</p>
+              <p className="text-sm">Effective plan: {user.plan ? orgPlanLabel(user.plan) : "—"}</p>
+              <p className="text-xs text-[var(--text-3)]">
+                Access comes from the user&apos;s best workspace. Change a workspace&apos;s plan below.
+              </p>
             </Card>
 
             <Card className="space-y-3 p-5">
@@ -194,12 +181,27 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
                         </div>
                       </div>
                       {o.id && (
-                        <ActionButton
-                          variant={o.verified ? "neutral" : "accent"}
-                          onClick={() => toggleOrgVerified(o)}
-                        >
-                          {o.verified ? "Unverify" : "Verify"}
-                        </ActionButton>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <select
+                            aria-label={`Plan for ${o.name}`}
+                            value={o.plan ?? "personal.basic"}
+                            disabled={savingOrgId === o.id}
+                            onChange={(e) => void saveOrgPlan(o, e.target.value)}
+                            className="rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--text)]"
+                          >
+                            {ORG_PLAN_IDS.map((p) => (
+                              <option key={p} value={p}>
+                                {orgPlanLabel(p)}
+                              </option>
+                            ))}
+                          </select>
+                          <ActionButton
+                            variant={o.verified ? "neutral" : "accent"}
+                            onClick={() => toggleOrgVerified(o)}
+                          >
+                            {o.verified ? "Unverify" : "Verify"}
+                          </ActionButton>
+                        </div>
                       )}
                     </div>
                   ))}

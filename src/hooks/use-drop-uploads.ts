@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDropUpload, uploadDropContent } from "@/lib/drop/client";
 import { GatewayApiError } from "@/lib/gateway/client";
+import { describeGatewayError, formatStorageBytes, gatewayErrorCode } from "@/lib/gateway-errors";
 import type {
   DropEncryptionMetadata,
   DropScope,
@@ -265,7 +266,44 @@ export function useDropUploads(
   return { items, enqueue, cancel, retry, remove, clearFinished };
 }
 
+export interface DropQuotaSnapshot {
+  /** Bytes still available on the public quota (quota − used − reserved). */
+  availableBytes: number;
+  maxFileBytes: number;
+}
+
+/**
+ * Warn before uploading instead of failing afterwards. Only public uploads
+ * count against the per-user quota; workspace (private-org) uploads are bound
+ * by the node's capacity and the per-file limit. The gateway re-checks both.
+ */
+export function preUploadCheck(
+  files: { name: string; size: number }[],
+  scope: DropScope,
+  quota: DropQuotaSnapshot | null
+): { ok: true } | { ok: false; message: string } {
+  if (!quota) return { ok: true };
+  const tooBig = files.find((f) => quota.maxFileBytes > 0 && f.size > quota.maxFileBytes);
+  if (tooBig) {
+    return {
+      ok: false,
+      message: `"${tooBig.name}" is ${formatStorageBytes(tooBig.size)}; your plan allows ${formatStorageBytes(quota.maxFileBytes)} per file.`,
+    };
+  }
+  if (scope === "public") {
+    const total = files.reduce((sum, f) => sum + f.size, 0);
+    if (total > quota.availableBytes) {
+      return {
+        ok: false,
+        message: `Not enough Drop storage: these files need ${formatStorageBytes(total)} but you have ${formatStorageBytes(quota.availableBytes)} left. Delete files or upgrade for more space.`,
+      };
+    }
+  }
+  return { ok: true };
+}
+
 function errorMessage(err: unknown): string {
+  if (gatewayErrorCode(err)) return describeGatewayError(err).message;
   if (err instanceof GatewayApiError) {
     if (
       err.status === 402 ||

@@ -7,16 +7,19 @@ import {
   type EffectiveEntitlement,
 } from "@/lib/entitlements";
 import { useWalletAuth } from "@/context/appkit";
+import { useOptionalWorkspace } from "@/context/workspace";
 
 /**
  * Resolve the caller's effective product tier from organization memberships.
  * Organization membership is the sole entitlement source — there is no personal
- * trial/subscription/NFT state.
+ * trial/subscription/NFT state. Inside the app shell this reads the shared
+ * workspace context (one fetch); elsewhere it fetches on its own.
  */
 export function useEntitlement(): {
   entitlement: EffectiveEntitlement;
   loading: boolean;
 } {
+  const workspace = useOptionalWorkspace();
   const { isAuthenticated } = useWalletAuth();
   const [entitlement, setEntitlement] = useState<EffectiveEntitlement>(() =>
     resolveEffectiveEntitlement([])
@@ -24,6 +27,7 @@ export function useEntitlement(): {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (workspace) return;
     if (!isAuthenticated) {
       setEntitlement(resolveEffectiveEntitlement([]));
       setLoading(false);
@@ -44,7 +48,8 @@ export function useEntitlement(): {
     return () => {
       active = false;
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, workspace]);
 
+  if (workspace) return { entitlement: workspace.entitlement, loading: workspace.loading };
   return { entitlement, loading };
 }

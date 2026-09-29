@@ -13,18 +13,21 @@ import {
 } from "@/lib/wireguard";
 import {
   fetchVpnClients,
-  fetchOrgs,
   fetchOrgVpnNodes,
   provisionVpnClient,
   deleteVpnClient,
   fetchVpnClientConfig,
-  GatewayApiError,
+  renameVpnClient,
 } from "@/lib/gateway/client";
 import { useOnlineNodes } from "@/context/online-nodes";
+import { useWorkspace } from "@/context/workspace";
 import { sortNodesForPicker } from "@/lib/gateway/normalize";
-import { resolveEffectiveEntitlement, deviceLimitForTier } from "@/lib/entitlements";
+import { deviceLimitForTier, tierLabel } from "@/lib/entitlements";
+import { describeGatewayError } from "@/lib/gateway-errors";
 import { nodeGeoLabel, regionZoneLabel } from "@/lib/regions";
-import type { GatewayNode, GatewayOrg, GatewayVpnClient } from "@/lib/gateway/types";
+import { VPN_CLIENT_PAUSED_STATUS, type GatewayNode, type GatewayVpnClient } from "@/lib/gateway/types";
+import { toastGatewayError } from "@/components/v3/app/gateway-toast";
+import { PlanEndingBanner } from "@/components/v3/app/PlanUsageCard";
 import { canRevealShieldCredentials } from "@/lib/gateway/org-permissions";
 import { AccentButton, ActionButton, Card, MonoLabel } from "@/components/v3/ui";
 import { NodeGlobe } from "@/components/v3/NodeGlobe";
@@ -49,7 +52,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode, BadgeCheck } from "lucide-react";
+import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode, BadgeCheck, Pencil, PauseCircle } from "lucide-react";
 import Link from "next/link";
 
 function isNodeOnline(status: string): boolean {
@@ -90,8 +93,13 @@ function ScopeChip({
 
 export function VpnConnectPanel() {
   const { nodes: publicNodes, loading: nodesLoading, error: nodesError, refresh: refreshNodes } = useOnlineNodes();
+  const workspace = useWorkspace();
+  const { orgs, usage, entitlement } = workspace;
   const [clients, setClients] = useState<GatewayVpnClient[]>([]);
-  const [orgs, setOrgs] = useState<GatewayOrg[]>([]);
+  const [clientsError, setClientsError] = useState<string | null>(null);
+  const [renameTarget, setRenameTarget] = useState<GatewayVpnClient | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
   const [orgNodes, setOrgNodes] = useState<GatewayNode[]>([]);
   // Active node scope: null = Public network, otherwise an org slug.
   const [scope, setScope] = useState<string | null>(null);
@@ -109,11 +117,12 @@ export function VpnConnectPanel() {
   } | null>(null);
   const [configTab, setConfigTab] = useState<"wireguard" | "erebrus">("wireguard");
 
+  const { refresh: refreshWorkspace } = workspace;
   const refresh = useCallback(async () => {
-    const [c, o] = await Promise.all([
-      fetchVpnClients().catch(() => []),
-      fetchOrgs().catch(() => []),
-    ]);
+    const clientsResult = await fetchVpnClients().then(
+      (c) => ({ ok: true as const, c }),
+      (err: unknown) => ({ ok: false as const, err })
+    );
 
     const onStart = performance.now();
     const on = await fetchOrgVpnNodes().catch(() => []);
@@ -121,11 +130,20 @@ export function VpnConnectPanel() {
 
     const onWithLatency = on.map((node) => ({ ...node, latency_ms: onLatency }));
 
-    setClients(c);
-    setOrgs(o);
+    if (clientsResult.ok) {
+      setClients(clientsResult.c);
+      setClientsError(null);
+    } else {
+      setClientsError(describeGatewayError(clientsResult.err).message);
+    }
     setOrgNodes(onWithLatency);
     setLoading(false);
   }, []);
+
+  // Device changes move the gateway usage numbers (limit card, banner).
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refresh(), refreshWorkspace()]);
+  }, [refresh, refreshWorkspace]);
 
   useEffect(() => {
     refresh();
@@ -197,6 +215,15 @@ export function VpnConnectPanel() {
     if (scope && !scopeOrgs.some((o) => o.slug === scope)) setScope(null);
   }, [scope, scopeOrgs]);
 
+  // Default the node source to the selected workspace when it has online nodes.
+  const selectedSlug = workspace.selectedOrg?.slug;
+  const [scopeDefaulted, setScopeDefaulted] = useState(false);
+  useEffect(() => {
+    if (scopeDefaulted || !selectedSlug || orgNodes.length === 0) return;
+    if (orgNodesBySlug.get(selectedSlug)?.length) setScope(selectedSlug);
+    setScopeDefaulted(true);
+  }, [scopeDefaulted, selectedSlug, orgNodes.length, orgNodesBySlug]);
+
   // The active, scope-filtered node list (online only, sorted by capacity, load, latency).
   const nodes = useMemo(() => {
     const source = scope ? (orgNodesBySlug.get(scope) ?? []) : onlinePublicNodes;
@@ -224,13 +251,18 @@ export function VpnConnectPanel() {
     });
   }, [nodes]);
 
-  const entitlement = useMemo(() => resolveEffectiveEntitlement(orgs), [orgs]);
-  const deviceLimit = deviceLimitForTier(entitlement.tier);
-  const atLimit = clients.length >= deviceLimit;
-  // Public nodes are available to any authenticated account (Free tier); private
-  // org nodes only ever appear here for a member of that org. The gateway stays
-  // authoritative and enforces the real quota/eligibility on provision.
+  // Device limits count public-node devices only (gateway numbers when loaded).
+  // Private org-node devices never count. The gateway stays authoritative and
+  // refuses over-limit provisioning with VPN_DEVICE_LIMIT; this is UX only.
+  const deviceLimit = usage?.vpn.client_limit ?? deviceLimitForTier(entitlement.tier);
+  const publicDevices = usage?.vpn.public_clients ?? clients.length;
+  const selectedIsPrivate = selected?.access_mode === "private";
+  const atLimit = !selectedIsPrivate && publicDevices >= deviceLimit;
   const canProvision = !atLimit && selected?.accepting_clients !== false;
+  const planName = tierLabel(entitlement.tier);
+  const scrollToDevices = useCallback(() => {
+    document.getElementById("vpn-devices")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const detailNode = useMemo(
     () => (detailId ? nodes.find((n) => n.id === detailId) ?? null : null),
@@ -353,17 +385,14 @@ export function VpnConnectPanel() {
         hasKey: true,
       });
       toast.success("VPN client provisioned");
-      await refresh();
+      await refreshAll();
     } catch (err) {
-      if (err instanceof GatewayApiError) {
-        if (err.status === 402)
-          toast.error("This node needs a higher plan — upgrade your workspace.");
-        else if (err.status === 409) toast.error("Device limit reached");
-        else if (err.status === 403) toast.error(err.message);
-        else toast.error(err.message);
-      } else {
-        toast.error("Failed to provision VPN client");
-      }
+      toastGatewayError(err, {
+        onRemoveDevice: scrollToDevices,
+        onPickNode: () => setDetailId(null),
+        onRetry: () => void runProvision(name),
+      });
+      void refreshWorkspace();
     } finally {
       setProvisioning(false);
       setNameDialog(false);
@@ -377,7 +406,9 @@ export function VpnConnectPanel() {
       return;
     }
     if (atLimit) {
-      toast.error(`Device limit reached (${deviceLimit}). Upgrade your plan for more.`);
+      toast.error(`Device limit reached (${publicDevices}/${deviceLimit}). Remove a device or upgrade your plan.`, {
+        action: { label: "Manage devices", onClick: scrollToDevices },
+      });
       return;
     }
     setDeviceName(`Device ${clients.length + 1}`);
@@ -395,6 +426,17 @@ export function VpnConnectPanel() {
 
   return (
     <div className="space-y-5">
+      <PlanEndingBanner />
+      {(workspace.error || clientsError) && (
+        <Card className="border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4 text-sm">
+          <p role="alert" className="text-[var(--danger)]">
+            {clientsError ?? workspace.error} Your plan limits still apply on the gateway.
+          </p>
+          <ActionButton variant="neutral" className="mt-3" onClick={() => void refreshAll()}>
+            Retry
+          </ActionButton>
+        </Card>
+      )}
       {scope === null && nodesError && (
         <Card className="p-4 text-sm text-[var(--text-2)]">
           <p role="alert">{nodesError}</p>
@@ -404,12 +446,15 @@ export function VpnConnectPanel() {
       {atLimit && (
         <Card className="flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
           <p className="text-sm text-[var(--text-2)]">
-            You&apos;ve reached your device limit ({deviceLimit}) on the {entitlement.tier} tier.
-            Upgrade a workspace plan to connect more devices.
+            You&apos;re using {publicDevices} of {deviceLimit} public-node device{deviceLimit === 1 ? "" : "s"} on {planName}.
+            Remove a device below or upgrade to add more. Devices on your workspace&apos;s private nodes don&apos;t count.
           </p>
-          <Link href="/subscribe">
-            <AccentButton>View plans</AccentButton>
-          </Link>
+          <div className="flex shrink-0 gap-2">
+            <ActionButton variant="neutral" onClick={scrollToDevices}>Manage devices</ActionButton>
+            <Link href="/pricing">
+              <AccentButton>View plans</AccentButton>
+            </Link>
+          </div>
         </Card>
       )}
 
@@ -673,15 +718,15 @@ export function VpnConnectPanel() {
         </div>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card id="vpn-devices" className="overflow-hidden scroll-mt-24">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="font-semibold">VPN clients</span>
-            <span className="font-mono text-[11px] text-[var(--text-3)]">
-              {clients.length}/{deviceLimit}
+            <span className="font-semibold">VPN devices</span>
+            <span className="font-mono text-[11px] text-[var(--text-3)]" title="Public-node devices used / plan limit">
+              {publicDevices}/{deviceLimit} public
             </span>
             <span className="rounded-md bg-[var(--accent)]/12 px-2.5 py-1 font-mono text-[11px] text-[var(--accent-hi)]">
-              {entitlement.tier} plan
+              {planName} plan
             </span>
           </div>
           <ActionButton
@@ -726,7 +771,10 @@ export function VpnConnectPanel() {
           </div>
         ) : (
           clients.map((client) => {
-            const activity = clientActivity(client.last_handshake);
+            const paused = client.status === VPN_CLIENT_PAUSED_STATUS;
+            const activity = paused
+              ? { label: "Paused — over plan limit", color: "var(--warn)", online: false }
+              : clientActivity(client.last_handshake);
             // Look across all known nodes (public + org) so a client's node name
             // resolves regardless of the currently selected scope.
             const nodeRegion = nodeNameById.get(client.node_id) ?? client.node_region;
@@ -737,10 +785,23 @@ export function VpnConnectPanel() {
               >
                 <div className="flex items-center gap-3">
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] font-mono text-sm">
-                    ◎
+                    {paused ? <PauseCircle size={15} className="text-[var(--warn)]" /> : "◎"}
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate font-semibold">{client.name}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate font-semibold">{client.name}</span>
+                      <button
+                        type="button"
+                        aria-label={`Rename ${client.name}`}
+                        className="shrink-0 rounded p-1 text-[var(--text-3)] hover:bg-white/[0.06] hover:text-[var(--text)]"
+                        onClick={() => {
+                          setRenameTarget(client);
+                          setRenameValue(client.name);
+                        }}
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    </div>
                     <div className="font-mono text-[11px] text-[var(--text-3)]">
                       {nodeRegion ? `${nodeRegion} · ` : ""}
                       {client.id.slice(0, 8)}…
@@ -759,9 +820,11 @@ export function VpnConnectPanel() {
                     <span style={{ color: activity.color }}>{activity.label}</span>
                   </div>
                   <div className="mt-0.5 font-mono text-[11px] text-[var(--text-3)]">
-                    {client.last_handshake
-                      ? `handshake ${formatRelativeTime(client.last_handshake)}`
-                      : `added ${new Date(client.created_at).toLocaleDateString()}`}
+                    {paused
+                      ? "Remove another device or upgrade to use it again"
+                      : client.last_handshake
+                        ? `last connected ${formatRelativeTime(client.last_handshake)}`
+                        : `added ${new Date(client.created_at).toLocaleDateString()} · not connected yet`}
                   </div>
                 </div>
                 <div className="flex gap-4 font-mono text-xs text-[var(--text-2)]">
@@ -775,38 +838,45 @@ export function VpnConnectPanel() {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <ActionButton
-                    variant="neutral"
-                    className="!px-2.5"
-                    onClick={async () => {
-                      try {
-                        const { config: raw, bundle } = await fetchVpnClientConfig(client.id);
-                        const pk = getClientPrivateKey(client.id);
-                        setConfigModal({
-                          name: client.name,
-                          wgConfig: pk ? injectPrivateKey(raw, pk) : raw,
-                          bundle: pk ? injectClientPrivateKeyIntoBundle(bundle, pk) : bundle,
-                          hasKey: !!pk,
-                        });
-                      } catch {
-                        toast.error("Could not fetch config");
-                      }
-                    }}
-                  >
-                    <QrCode size={14} />
-                    Config
-                  </ActionButton>
+                  {paused ? (
+                    <Link href="/pricing">
+                      <ActionButton className="!px-2.5">Upgrade</ActionButton>
+                    </Link>
+                  ) : (
+                    <ActionButton
+                      variant="neutral"
+                      className="!px-2.5"
+                      onClick={async () => {
+                        try {
+                          const { config: raw, bundle } = await fetchVpnClientConfig(client.id);
+                          const pk = getClientPrivateKey(client.id);
+                          setConfigModal({
+                            name: client.name,
+                            wgConfig: pk ? injectPrivateKey(raw, pk) : raw,
+                            bundle: pk ? injectClientPrivateKeyIntoBundle(bundle, pk) : bundle,
+                            hasKey: !!pk,
+                          });
+                        } catch (err) {
+                          toastGatewayError(err, { onRemoveDevice: scrollToDevices });
+                        }
+                      }}
+                    >
+                      <QrCode size={14} />
+                      Config
+                    </ActionButton>
+                  )}
                   <ActionButton
                     variant="danger"
                     className="!px-2.5"
                     onClick={async () => {
+                      if (!window.confirm(`Remove "${client.name}"? Its config will stop working.`)) return;
                       try {
                         await deleteVpnClient(client.id);
                         removeClientPrivateKey(client.id);
                         toast.success("Device removed");
-                        await refresh();
-                      } catch {
-                        toast.error("Could not remove device");
+                        await refreshAll();
+                      } catch (err) {
+                        toastGatewayError(err);
                       }
                     }}
                   >
@@ -821,13 +891,52 @@ export function VpnConnectPanel() {
 
         {atLimit && (
           <div className="flex flex-col items-start justify-between gap-3 bg-[var(--accent)]/[0.04] px-5 py-4 sm:flex-row sm:items-center">
-            <span className="text-sm text-[var(--text-2)]">Device limit reached on your current plan.</span>
-            <Link href="/subscribe">
+            <span className="text-sm text-[var(--text-2)]">
+              Device limit reached ({publicDevices}/{deviceLimit}). Remove a device or upgrade to add more.
+            </span>
+            <Link href="/pricing">
               <AccentButton className="!py-2 !text-[13px]">Upgrade</AccentButton>
             </Link>
           </div>
         )}
       </Card>
+
+      <Dialog open={!!renameTarget} onOpenChange={(o) => !o && !renaming && setRenameTarget(null)}>
+        <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
+          <DialogHeader>
+            <DialogTitle>Rename device</DialogTitle>
+            <DialogDescription>Only the name changes; the device keeps working.</DialogDescription>
+          </DialogHeader>
+          <Label htmlFor="rename-device">Device name</Label>
+          <Input
+            id="rename-device"
+            value={renameValue}
+            maxLength={64}
+            onChange={(e) => setRenameValue(e.target.value)}
+            className="mt-1 border-white/10 bg-[var(--surface-2)]"
+          />
+          <AccentButton
+            className="mt-4 w-full"
+            disabled={renaming || !renameValue.trim()}
+            onClick={async () => {
+              if (!renameTarget) return;
+              setRenaming(true);
+              try {
+                await renameVpnClient(renameTarget.id, renameValue.trim());
+                toast.success("Device renamed");
+                setRenameTarget(null);
+                await refresh();
+              } catch (err) {
+                toastGatewayError(err);
+              } finally {
+                setRenaming(false);
+              }
+            }}
+          >
+            {renaming ? "Saving…" : "Save"}
+          </AccentButton>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={nameDialog} onOpenChange={setNameDialog}>
         <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
