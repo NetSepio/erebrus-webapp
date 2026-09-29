@@ -11,7 +11,7 @@ import { useWorkspace } from "@/context/workspace";
 import { describeGatewayError } from "@/lib/gateway-errors";
 import { orgPlanLabel } from "@/lib/org-plans";
 import { AccentButton, ActionButton, Card, StatCard, StatusDot } from "@/components/v3/ui";
-import { PlanEndingBanner, PlanUsageCard } from "@/components/v3/app/PlanUsageCard";
+import { PlanEndingBanner } from "@/components/v3/app/PlanUsageCard";
 import type { GatewayOrg, GatewayVpnClient } from "@/lib/gateway/types";
 
 export default function DashboardPage() {
@@ -93,8 +93,6 @@ export default function DashboardPage() {
           <AccentButton>{isFree ? "Upgrade plan" : "Manage plan"}</AccentButton>
         </Link>
       </Card>
-
-      <PlanUsageCard />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="VPN status" value={clients.length > 0 ? "Active" : "Idle"} sub={`${clients.length} devices`} valueColor="var(--success)" />

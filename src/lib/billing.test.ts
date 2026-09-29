@@ -27,12 +27,12 @@ describe("multi-workspace checkout", () => {
     expect(multiWorkspaceCheckout([starterWs, freeWs], "b", "personal.starter")).toEqual({ kind: "blocked", org: starterWs });
   });
 
-  it("allows a business plan next to a personal plan but asks to confirm", () => {
-    expect(multiWorkspaceCheckout([starterWs, freeWs], "b", "business.launch")).toEqual({ kind: "warn", org: starterWs });
+  it("allows a business plan next to a personal plan", () => {
+    expect(multiWorkspaceCheckout([starterWs, freeWs], "b", "business.launch")).toEqual({ kind: "ok" });
   });
 
-  it("allows a personal plan next to a business plan, with a warning", () => {
-    expect(multiWorkspaceCheckout([launchWs, freeWs], "b", "personal.starter")).toEqual({ kind: "warn", org: launchWs });
+  it("allows a personal plan next to a business plan", () => {
+    expect(multiWorkspaceCheckout([launchWs, freeWs], "b", "personal.starter")).toEqual({ kind: "ok" });
   });
 
   it("is plain ok when no other workspace is paid", () => {

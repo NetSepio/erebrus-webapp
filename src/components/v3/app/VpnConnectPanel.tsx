@@ -50,6 +50,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Trash2, Download, Plus, ArrowDown, ArrowUp, QrCode, BadgeCheck, Pencil, PauseCircle } from "lucide-react";
@@ -100,6 +110,8 @@ export function VpnConnectPanel() {
   const [renameTarget, setRenameTarget] = useState<GatewayVpnClient | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [renaming, setRenaming] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<GatewayVpnClient | null>(null);
+  const [removing, setRemoving] = useState(false);
   const [orgNodes, setOrgNodes] = useState<GatewayNode[]>([]);
   // Active node scope: null = Public network, otherwise an org slug.
   const [scope, setScope] = useState<string | null>(null);
@@ -427,10 +439,10 @@ export function VpnConnectPanel() {
   return (
     <div className="space-y-5">
       <PlanEndingBanner />
-      {(workspace.error || clientsError) && (
+      {clientsError && (
         <Card className="border-[var(--danger)]/30 bg-[var(--danger)]/5 p-4 text-sm">
           <p role="alert" className="text-[var(--danger)]">
-            {clientsError ?? workspace.error} Your plan limits still apply on the gateway.
+            Could not load your devices. {clientsError}
           </p>
           <ActionButton variant="neutral" className="mt-3" onClick={() => void refreshAll()}>
             Retry
@@ -868,17 +880,7 @@ export function VpnConnectPanel() {
                   <ActionButton
                     variant="danger"
                     className="!px-2.5"
-                    onClick={async () => {
-                      if (!window.confirm(`Remove "${client.name}"? Its config will stop working.`)) return;
-                      try {
-                        await deleteVpnClient(client.id);
-                        removeClientPrivateKey(client.id);
-                        toast.success("Device removed");
-                        await refreshAll();
-                      } catch (err) {
-                        toastGatewayError(err);
-                      }
-                    }}
+                    onClick={() => setRemoveTarget(client)}
                   >
                     <Trash2 size={14} />
                     Remove
@@ -889,17 +891,45 @@ export function VpnConnectPanel() {
           })
         )}
 
-        {atLimit && (
-          <div className="flex flex-col items-start justify-between gap-3 bg-[var(--accent)]/[0.04] px-5 py-4 sm:flex-row sm:items-center">
-            <span className="text-sm text-[var(--text-2)]">
-              Device limit reached ({publicDevices}/{deviceLimit}). Remove a device or upgrade to add more.
-            </span>
-            <Link href="/pricing">
-              <AccentButton className="!py-2 !text-[13px]">Upgrade</AccentButton>
-            </Link>
-          </div>
-        )}
       </Card>
+
+      <AlertDialog open={!!removeTarget} onOpenChange={(o) => !o && !removing && setRemoveTarget(null)}>
+        <AlertDialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {removeTarget?.name}?</AlertDialogTitle>
+            <AlertDialogDescription className="text-[var(--text-2)]">
+              Its config will stop working. You can add a new device afterwards.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={removing} className="border-white/10 bg-white/[0.05]">
+              Keep
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={removing}
+              className="bg-[var(--danger)] text-white hover:bg-[var(--danger)]/90"
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!removeTarget) return;
+                setRemoving(true);
+                try {
+                  await deleteVpnClient(removeTarget.id);
+                  removeClientPrivateKey(removeTarget.id);
+                  toast.success("Device removed");
+                  setRemoveTarget(null);
+                  await refreshAll();
+                } catch (err) {
+                  toastGatewayError(err);
+                } finally {
+                  setRemoving(false);
+                }
+              }}
+            >
+              {removing ? "Removing…" : "Remove device"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={!!renameTarget} onOpenChange={(o) => !o && !renaming && setRenameTarget(null)}>
         <DialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">

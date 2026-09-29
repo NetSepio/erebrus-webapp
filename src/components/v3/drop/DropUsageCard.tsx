@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, MonoLabel } from "@/components/v3/ui";
-import { formatBytes } from "@/lib/format";
+// Quotas are decimal (1 GB = 1,000,000,000 bytes) on the gateway; show them the same way.
+import { formatStorageBytes as formatBytes } from "@/lib/gateway-errors";
 import { tierLabel } from "@/lib/entitlements";
 import type { DropUsage } from "@/lib/drop/types";
 

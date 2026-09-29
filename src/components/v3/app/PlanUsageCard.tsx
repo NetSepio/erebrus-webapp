@@ -98,7 +98,7 @@ export function PlanUsageCard({ compact = false }: { compact?: boolean }) {
               {usage.vpn.paused_clients} device{usage.vpn.paused_clients === 1 ? "" : "s"} paused — over plan limit
             </p>
           )}
-          {!compact && org?.cancel_at_period_end && org.paid_access_until && !notice && (
+          {org?.cancel_at_period_end && org.paid_access_until && !notice && (
             <p className="text-[11px] text-[var(--text-3)]">
               Cancels on {formatDateTime(org.paid_access_until, undefined, { hour: undefined, minute: undefined })}, then Basic.
             </p>

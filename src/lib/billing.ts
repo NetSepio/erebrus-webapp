@@ -60,26 +60,17 @@ export function isPersonalPaidPlan(plan?: string | null): boolean {
 export type MultiWorkspaceCheckout =
   | { kind: "ok" }
   /** Another owned workspace already has a personal plan: the gateway refuses a second one. */
-  | { kind: "blocked"; org: { id: string; name: string; plan?: string } }
-  /** Allowed (business plan), but the owner already has a paid plan elsewhere — confirm first. */
-  | { kind: "warn"; org: { id: string; name: string; plan?: string } };
+  | { kind: "blocked"; org: { id: string; name: string; plan?: string } };
 
-/**
- * One personal plan per owner; business plans may be added to other
- * workspaces. Limits come from the best workspace and never add up, so any
- * purchase next to an existing paid plan is confirmed first.
- */
+/** One personal plan per owner; business plans may be added to other workspaces. */
 export function multiWorkspaceCheckout(
   ownedOrgs: { id: string; name: string; plan?: string }[],
   targetOrgId: string,
   targetPlan: string
 ): MultiWorkspaceCheckout {
-  const others = ownedOrgs.filter((o) => o.id !== targetOrgId && (o.plan ?? FREE_PLAN_ID) !== FREE_PLAN_ID);
-  if (isPersonalPaidPlan(targetPlan)) {
-    const personal = others.find((o) => isPersonalPaidPlan(o.plan));
-    if (personal) return { kind: "blocked", org: personal };
-  }
-  return others[0] ? { kind: "warn", org: others[0] } : { kind: "ok" };
+  if (!isPersonalPaidPlan(targetPlan)) return { kind: "ok" };
+  const personal = ownedOrgs.find((o) => o.id !== targetOrgId && isPersonalPaidPlan(o.plan));
+  return personal ? { kind: "blocked", org: personal } : { kind: "ok" };
 }
 
 /** Gateway error bodies carry `{ error, code? }` — surface the code when present. */

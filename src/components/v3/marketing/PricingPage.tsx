@@ -14,16 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useWalletAuth } from "@/context/appkit";
 import {
@@ -428,8 +418,6 @@ export function PricingPageContent() {
   const [accountError, setAccountError] = useState(false);
   const [retry, setRetry] = useState(0);
   const [recoveryOrgId, setRecoveryOrgId] = useState<string | null>(null);
-  // Purchase next to an existing paid plan waits for an explicit confirm.
-  const [confirmCheckout, setConfirmCheckout] = useState<{ planId: string; otherOrg: { name: string; plan?: string } } | null>(null);
   const checkoutInFlight = useRef(false);
   const checkoutController = useRef<AbortController | null>(null);
 
@@ -520,17 +508,6 @@ export function PricingPageContent() {
       setRecoveryOrgId(orgId);
       toast.message("Checkout is still being prepared. Check workspace billing before another purchase.");
     }
-  };
-
-  const requestCheckout = (planId: string) => {
-    if (!selectedOrg) return;
-    const multi = multiWorkspaceCheckout(ownedOrgs, selectedOrg.id, planId);
-    if (multi.kind === "blocked") return;
-    if (multi.kind === "warn") {
-      setConfirmCheckout({ planId, otherOrg: multi.org });
-      return;
-    }
-    void startCheckout(planId);
   };
 
   const startCheckout = async (planId: string) => {
@@ -649,35 +626,6 @@ export function PricingPageContent() {
 
   return (
     <>
-      <AlertDialog open={!!confirmCheckout} onOpenChange={(open) => { if (!open) setConfirmCheckout(null); }}>
-        <AlertDialogContent className="border-white/10 bg-[var(--elevated)] text-[var(--text)]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>You already have a paid plan</AlertDialogTitle>
-            <AlertDialogDescription className="text-[var(--text-2)]">
-              Your limits come from your best workspace — plans don&apos;t add up.{" "}
-              {confirmCheckout && (
-                <>
-                  {orgPlanLabel(confirmCheckout.otherOrg.plan)} on {confirmCheckout.otherOrg.name} already covers you.
-                  Buying {orgPlanLabel(confirmCheckout.planId)} for {selectedOrg?.name} adds its seats and services to that
-                  workspace only.
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/10 bg-white/[0.05]">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                const planId = confirmCheckout?.planId;
-                setConfirmCheckout(null);
-                if (planId) void startCheckout(planId);
-              }}
-            >
-              Continue to checkout
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
       <section className="mx-auto max-w-[1180px] px-4 pt-16 pb-6 text-center md:px-8 md:pt-20 md:pb-6">
         <Eyebrow className="mb-4">Plans for the way you connect</Eyebrow>
         <h1 className="mx-auto max-w-[900px] text-4xl font-bold leading-[1.05] tracking-[-0.04em] md:text-[56px]">
@@ -764,7 +712,7 @@ export function PricingPageContent() {
               cta={resolveCta(plan)}
               isCurrent={authed && selectedOrg?.plan === plan.id}
               pending={pendingPlanId !== null}
-              onUpgrade={requestCheckout}
+              onUpgrade={startCheckout}
             />
           ))}
         </div>

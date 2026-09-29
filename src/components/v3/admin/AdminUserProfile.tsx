@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   fetchAdminUser,
   fetchAdminUserOrgs,
-  setAdminOrgPlan,
   patchAdminOrg,
   fulfillAdminDeletionRequest,
   GatewayApiError,
@@ -15,7 +14,7 @@ import type {
   GatewayDeletionRequest,
 } from "@/lib/gateway/types";
 import { truncateAddress } from "@/lib/design";
-import { ORG_PLAN_IDS, orgPlanLabel } from "@/lib/org-plans";
+import { orgPlanLabel } from "@/lib/org-plans";
 import { Card, AccentButton, ActionButton, MonoLabel } from "@/components/v3/ui";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { toast } from "sonner";
@@ -37,7 +36,6 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
   const [user, setUser] = useState<GatewayAdminUserProfile | null>(null);
   const [orgs, setOrgs] = useState<GatewayAdminOrg[]>([]);
   const [loading, setLoading] = useState(false);
-  const [savingOrgId, setSavingOrgId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -61,23 +59,6 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
       setOrgs([]);
     }
   }, [open, userId, load]);
-
-  // Access comes only from workspace plans, so admins change a workspace's plan
-  // (Dodo-managed workspaces are refused by the gateway with a clear message).
-  const saveOrgPlan = async (org: GatewayAdminOrg, plan: string) => {
-    if (!org.id || plan === org.plan) return;
-    setSavingOrgId(org.id);
-    try {
-      await setAdminOrgPlan(org.id, plan);
-      toast.success(`${org.name} is now on ${orgPlanLabel(plan)}`);
-      await load();
-      onChanged?.();
-    } catch (e) {
-      toast.error(e instanceof GatewayApiError ? e.message : "Failed to set workspace plan");
-    } finally {
-      setSavingOrgId(null);
-    }
-  };
 
   const toggleOrgVerified = async (org: GatewayAdminOrg) => {
     if (!org.id) return;
@@ -159,7 +140,7 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
               <MonoLabel className="text-[var(--accent-hi)]">Plan</MonoLabel>
               <p className="text-sm">Effective plan: {user.plan ? orgPlanLabel(user.plan) : "—"}</p>
               <p className="text-xs text-[var(--text-3)]">
-                Access comes from the user&apos;s best workspace. Change a workspace&apos;s plan below.
+                Access comes from the user&apos;s best workspace. Change plans in Admin → Orgs.
               </p>
             </Card>
 
@@ -181,27 +162,12 @@ export function AdminUserProfile({ userId, open, onOpenChange, onChanged }: Admi
                         </div>
                       </div>
                       {o.id && (
-                        <div className="flex shrink-0 items-center gap-2">
-                          <select
-                            aria-label={`Plan for ${o.name}`}
-                            value={o.plan ?? "personal.basic"}
-                            disabled={savingOrgId === o.id}
-                            onChange={(e) => void saveOrgPlan(o, e.target.value)}
-                            className="rounded-md border border-white/10 bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--text)]"
-                          >
-                            {ORG_PLAN_IDS.map((p) => (
-                              <option key={p} value={p}>
-                                {orgPlanLabel(p)}
-                              </option>
-                            ))}
-                          </select>
-                          <ActionButton
-                            variant={o.verified ? "neutral" : "accent"}
-                            onClick={() => toggleOrgVerified(o)}
-                          >
-                            {o.verified ? "Unverify" : "Verify"}
-                          </ActionButton>
-                        </div>
+                        <ActionButton
+                          variant={o.verified ? "neutral" : "accent"}
+                          onClick={() => toggleOrgVerified(o)}
+                        >
+                          {o.verified ? "Unverify" : "Verify"}
+                        </ActionButton>
                       )}
                     </div>
                   ))}
